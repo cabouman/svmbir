@@ -4,6 +4,7 @@ import argparse
 from glob import glob
 import numpy as np
 import subprocess
+import math
 
 from utils import *
 
@@ -58,9 +59,9 @@ def init_geometry_data(mbir_data_path, mbir_params_path, object_name, angles, im
     modify_params(paths['param_name']+'.sinoparams', **sinoparams)
 
     imgparams = dict()
-    imgparams['Nx'] = sinoparams['NChannels']//img_downsamp
-    imgparams['Ny'] = sinoparams['NChannels']//img_downsamp
-    imgparams['Nz'] = sinoparams['NSlices']
+    imgparams['Nx'] = math.ceil(sinoparams['NChannels']/img_downsamp)
+    imgparams['Ny'] =  math.ceil(sinoparams['NChannels']/img_downsamp)
+    imgparams['Nz'] =  math.ceil(sinoparams['NSlices']/img_downsamp)
     imgparams['FirstSliceNumber'] = 0
     imgparams['Deltaxy'] = img_downsamp
     imgparams['DeltaZ'] = img_downsamp
