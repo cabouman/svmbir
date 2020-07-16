@@ -2,34 +2,38 @@
 import os
 from glob import glob
 import numpy as np
+import matplotlib.pyplot as plt
 
 from utils import *
+import svmbir
 
 
-fname = 'data/shepp_slice0001.2Dsinodata'
-print(fname)
+sino = np.load('data/sinodata.npy')
+weight = np.load('data/weightdata.npy')
 
-# y = read_sino_openmbir(fname, '.2Dsinodata', 288, 1, 512)
+mbir_data_path='data/sv-mbirct_data/'
+mbir_params_path='data/sv-mbirct_params/'
+object_name='object'
+NViews = 288
+NSlices = 1
+NChannels = 512
 
-sizesArray = (1, 288, 512)
-with open(fname, 'rb') as fileID:
-    numElements = sizesArray[1]*sizesArray[2]
-    x = np.fromfile(fileID, dtype='float32', count=numElements).reshape([sizesArray[1], sizesArray[2]])
+# angles = np.linspace(0, np.pi, NViews)
+angles = np.pi * np.asarray(range(0, NViews))/NViews
 
-print(x.shape)
+svmbir.init_geometry_data(mbir_data_path, mbir_params_path, object_name,
+				angles=angles, NChannels=NChannels, NViews=NViews, NSlices=NSlices, 
+                CenterOffset=0)
 
-np.save('data/sinodata.npy', x)
+svmbir.gen_sysmatrix(mbir_data_path, mbir_params_path, object_name)
 
-fname = 'data/shepp_slice0001.2Dweightdata'
-print(fname)
+x = svmbir.recon(mbir_data_path, mbir_params_path, object_name, 
+                sino=sino, wght=weight, )
 
-# y = read_sino_openmbir(fname, '.2Dweightdata', 288, 1, 512)
+# display reconstruction
+# imgplot = plt.imshow(x[0])
+# imgplot.set_cmap('gray')
+# plt.colorbar()
+# plt.savefig('data/recon.png')
+# plt.show()
 
-sizesArray = (1, 288, 512)
-with open(fname, 'rb') as fileID:
-    numElements = sizesArray[1]*sizesArray[2]
-    x = np.fromfile(fileID, dtype='float32', count=numElements).reshape([sizesArray[1], sizesArray[2]])
-
-print(x.shape)
-
-np.save('data/weightdata.npy', x)

@@ -48,6 +48,19 @@ def modify_params(filePath, **kwargs):
         yaml.dump(yaml_dict, fileID)
 
 
+def readAngleList(filePath):
+
+    with open(filePath,'r') as fileID:
+        lines = fileID.read().split("\n")
+
+    angleList = []
+    for line in lines:
+        if not line.isspace() and line:
+            angleList.append(float(line))
+
+    return angleList
+
+
 ############################################################################
 ## mbir read/write Binary Files
 ############################################################################
@@ -121,4 +134,5 @@ def generateFileList(numFiles, fileRoot, suffix):
         fileList.append(fileRoot+str(i)+suffix)
 
     return fileList
+
 
