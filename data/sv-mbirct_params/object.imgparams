@@ -1,0 +1,8 @@
+
+Nx: 1024 #sizes 
+Ny: 1024
+Nz: 4
+FirstSliceNumber: 700
+Deltaxy: 0.0000625
+DeltaZ: 0.0000625
+ROIRadius: 0.032

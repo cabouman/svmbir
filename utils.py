@@ -15,62 +15,6 @@ import matplotlib.pyplot as plt
 from PIL import Image
 from ruamel.yaml import YAML
 
-def save_graph(path, variableDict):
-    """
-    saves list of variable names along with their corresponding arrays (or list)
-    """
-    makeDir(path)
-    for varName, var in variableDict.items():
-        np.save(os.path.join(path, varName+'.npy'), np.asarray(var))
-
-
-def save_proj(path, proj, baseName='proj'):
-    """
-    saves stack of radiograph and stack of sinograms
-    assumes proj.shape = N_theta x N_z x N_y
-    """
-    sinoStack = np.swapaxes(proj, 0, 1)
-    makeDir(path)
-    np.save(os.path.join(path, baseName+'.sino.npy'), sinoStack)
-
-
-def save_recon(path, recon, baseName='recon'):
-    """
-    saves stack of slices
-    assumes recon.shape = N_z x N_y x N_x
-    """
-    makeDir(path)
-    np.save(os.path.join(path, baseName+'.recon.npy'), recon)
-
-
-def normalize_data(data, normType='perc', limits=(0,100)):
-    
-    if normType=='perc':
-        absLim_lo = np.percentile(data, limits[0], axis=None)
-        absLim_hi = np.percentile(data, limits[1], axis=None)
-    elif normType=='abs':
-        absLim_lo = limits[0]
-        absLim_hi = limits[1]
-    else:
-        raise Exception('normalize_data: normType({}) undefined'.format(normType))
-
-    if absLim_hi==absLim_lo:
-        data_normalized = data
-    else:
-        data_normalized = (data-absLim_lo)/(absLim_hi-absLim_lo)
-
-    return data_normalized, absLim_lo, absLim_hi
-    
-
-def makeDirInPath(path):
-    dirName = os.path.dirname(path)
-    if not os.path.exists(dirName):
-        os.makedirs(dirName)
-
-def makeDir(dirName):
-    if not os.path.exists(dirName):
-        os.makedirs(dirName)
-
 # ------- params read/modify ------------------
 
 def read_params(params_path):

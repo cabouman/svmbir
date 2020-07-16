@@ -1,0 +1,9 @@
+Geometry : 3DPARALLEL
+NChannels: 1024
+NViews: 225
+NSlices: 4
+DeltaChannel: 0.0000625
+CenterOffset: 23.0
+DeltaSlice: 0.0000625
+FirstSliceNumber: 700
+ViewAngleList: object.ViewAngleList
