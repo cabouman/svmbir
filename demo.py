@@ -18,11 +18,10 @@ NViews = 288
 NSlices = 1
 NChannels = 512
 
-# angles = np.linspace(0, np.pi, NViews)
-angles = np.pi * np.asarray(range(0, NViews))/NViews
+angles = np.linspace(0, np.pi, NViews, endpoint=False)
 
 svmbir.init_geometry_data(mbir_data_path, mbir_params_path, object_name,
-				angles=angles, NChannels=NChannels, NViews=NViews, NSlices=NSlices, 
+                angles=angles, NChannels=NChannels, NViews=NViews, NSlices=NSlices, 
                 CenterOffset=-6, img_downsamp=4)
 
 svmbir.gen_sysmatrix(mbir_data_path, mbir_params_path, object_name)
