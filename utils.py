@@ -67,7 +67,7 @@ def readAngleList(filePath):
 
 def read_sino_openmbir(rootPath, suffix, N_theta, N_z, N_y):
 
-    fname_list = generateFileList(N_z, rootPath, suffix)
+    fname_list = generateFileList(N_z, rootPath, suffix, numdigit=4)
 
     sizesArray = (N_z, N_theta, N_y)
     x = np.zeros(sizesArray) 
@@ -91,7 +91,7 @@ def write_sino_openmbir(x, rootPath, suffix):
 
     x = np.copy(np.swapaxes(x, 0, 1), order='C') 
 
-    fname_list = generateFileList(x.shape[0], rootPath, suffix)
+    fname_list = generateFileList(x.shape[0], rootPath, suffix, numdigit=4)
 
     for i, fname in enumerate(fname_list):
 
@@ -100,7 +100,7 @@ def write_sino_openmbir(x, rootPath, suffix):
 
 def read_recon_openmbir(rootPath, suffix, N_x, N_y, N_z):
 
-    fname_list = generateFileList(N_z, rootPath, suffix)
+    fname_list = generateFileList(N_z, rootPath, suffix, numdigit=4)
 
     sizesArray = (N_z, N_y, N_x)
     x = np.zeros(sizesArray)
@@ -119,7 +119,7 @@ def write_recon_openmbir(x, rootPath, suffix):
 
     assert len(x.shape)==3, 'data must be 3D'
 
-    fname_list = generateFileList(x.shape[0], rootPath, suffix)
+    fname_list = generateFileList(x.shape[0], rootPath, suffix, numdigit=4)
 
     for i, fname in enumerate(fname_list):
 
@@ -127,11 +127,11 @@ def write_recon_openmbir(x, rootPath, suffix):
             x[i].astype('float32').flatten('C').tofile(fileID)
 
 
-def generateFileList(numFiles, fileRoot, suffix):
+def generateFileList(numFiles, fileRoot, suffix, numdigit=0):
 
     fileList = []
     for i in range(numFiles):
-        fileList.append(fileRoot+str(i)+suffix)
+        fileList.append(fileRoot+str(i).zfill(numdigit)+suffix)
 
     return fileList
 

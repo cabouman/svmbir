@@ -23,17 +23,19 @@ angles = np.pi * np.asarray(range(0, NViews))/NViews
 
 svmbir.init_geometry_data(mbir_data_path, mbir_params_path, object_name,
 				angles=angles, NChannels=NChannels, NViews=NViews, NSlices=NSlices, 
-                CenterOffset=0)
+                CenterOffset=-6, img_downsamp=4)
 
 svmbir.gen_sysmatrix(mbir_data_path, mbir_params_path, object_name)
 
 x = svmbir.recon(mbir_data_path, mbir_params_path, object_name, 
-                sino=sino, wght=weight, )
+                sino=sino, wght=weight, SigmaX=0.6350, T=0.000478)
+
+np.save('data/recon.npy', x)
 
 # display reconstruction
-# imgplot = plt.imshow(x[0])
-# imgplot.set_cmap('gray')
-# plt.colorbar()
-# plt.savefig('data/recon.png')
-# plt.show()
+imgplot = plt.imshow(x[0])
+imgplot.set_cmap('gray')
+plt.colorbar()
+plt.savefig('data/recon.png')
+plt.show()
 

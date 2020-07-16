@@ -43,7 +43,7 @@ def gen_paths(mbir_data_path, mbir_params_path, object_name):
     return paths
 
 
-def init_geometry_data(mbir_data_path, mbir_params_path, object_name, angles, **sinoparams):
+def init_geometry_data(mbir_data_path, mbir_params_path, object_name, angles, img_downsamp=1, **sinoparams):
 
     paths = gen_paths(mbir_data_path, mbir_params_path, object_name)
 
@@ -58,12 +58,12 @@ def init_geometry_data(mbir_data_path, mbir_params_path, object_name, angles, **
     modify_params(paths['param_name']+'.sinoparams', **sinoparams)
 
     imgparams = dict()
-    imgparams['Nx'] = sinoparams['NChannels']
-    imgparams['Ny'] = sinoparams['NChannels']
+    imgparams['Nx'] = sinoparams['NChannels']//img_downsamp
+    imgparams['Ny'] = sinoparams['NChannels']//img_downsamp
     imgparams['Nz'] = sinoparams['NSlices']
     imgparams['FirstSliceNumber'] = 0
-    imgparams['Deltaxy'] = 1
-    imgparams['DeltaZ'] = 1
+    imgparams['Deltaxy'] = img_downsamp
+    imgparams['DeltaZ'] = img_downsamp
     imgparams['ROIRadius'] = sinoparams['NChannels']/2
 
     modify_params(paths['param_name']+'.imgparams', **imgparams)
@@ -72,6 +72,13 @@ def init_geometry_data(mbir_data_path, mbir_params_path, object_name, angles, **
     with open(ViewAngleList_fname,'w') as fileID:
         for angle in list(angles):
             fileID.write(str(angle)+"\n")
+
+
+def modify_img_params(mbir_data_path, mbir_params_path, object_name, **imgparams):
+
+    paths = gen_paths(mbir_data_path, mbir_params_path, object_name)
+
+    modify_params(paths['param_name']+'.imgparams', **imgparams)
 
 
 def gen_sysmatrix(mbir_data_path, mbir_params_path, object_name):
