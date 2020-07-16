@@ -3,3 +3,4 @@
 *.pyc
 __pycache__
 sftp-config.json
+data
