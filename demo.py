@@ -8,6 +8,13 @@ import svmbir
 sino = np.load('data/sinodata.npy')
 weight = np.load('data/weightdata.npy')
 
+# svmbir_lib : contains system matrix : defaults to ~/svmbir_lib directory
+# delete everything else by default
+
+# x = svmbir.recon(sino, wght, angles, SigmaX=0.6350, T=0.000478, svmbir_lib=/depot/user/smajee/svmbir_lib)
+# x = svmbir.recon(sino, wght, angles, SigmaX=0.6350, T=0.000478)
+
+
 mbir_data_path='data/sv-mbirct_data/'
 mbir_params_path='data/sv-mbirct_params/'
 object_name='object'

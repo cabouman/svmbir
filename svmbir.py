@@ -8,12 +8,9 @@ import math
 
 from utils import *
 
-# from multiprocessing import Pool
-# import matplotlib.pyplot as plt
-
 __exec_path__ = os.path.realpath(os.path.join(os.path.dirname(__file__),'sv-mbirct/bin/mbir_ct'))
 
-def cmd_exec(exec_path=__exec_path__, *args, **kwargs):
+def _cmd_exec(exec_path=__exec_path__, *args, **kwargs):
 
     arg_list = [exec_path]
     for key in args:
@@ -29,7 +26,7 @@ def cmd_exec(exec_path=__exec_path__, *args, **kwargs):
     subprocess.run(arg_list)
 
 
-def gen_paths(mbir_data_path, mbir_params_path, object_name):
+def _gen_paths(mbir_data_path, mbir_params_path, object_name):
 
     paths = dict()
 
@@ -46,7 +43,7 @@ def gen_paths(mbir_data_path, mbir_params_path, object_name):
 
 def init_geometry_data(mbir_data_path, mbir_params_path, object_name, angles, img_downsamp=1, **sinoparams):
 
-    paths = gen_paths(mbir_data_path, mbir_params_path, object_name)
+    paths = _gen_paths(mbir_data_path, mbir_params_path, object_name)
 
     sinoparams_req_keys = ['NChannels', 'NViews', 'NSlices', 'CenterOffset']
 
@@ -77,24 +74,24 @@ def init_geometry_data(mbir_data_path, mbir_params_path, object_name, angles, im
 
 def modify_img_params(mbir_data_path, mbir_params_path, object_name, **imgparams):
 
-    paths = gen_paths(mbir_data_path, mbir_params_path, object_name)
+    paths = _gen_paths(mbir_data_path, mbir_params_path, object_name)
 
     modify_params(paths['param_name']+'.imgparams', **imgparams)
 
 
 def gen_sysmatrix(mbir_data_path, mbir_params_path, object_name):
 
-    paths = gen_paths(mbir_data_path, mbir_params_path, object_name)
+    paths = _gen_paths(mbir_data_path, mbir_params_path, object_name)
 
     if not os.path.exists(os.path.dirname(paths['sysmatrix_name'])):
         os.makedirs(os.path.dirname(paths['sysmatrix_name']), exist_ok=True)
 
-    cmd_exec(i=paths['param_name'], j=paths['param_name'], m=paths['sysmatrix_name'])
+    _cmd_exec(i=paths['param_name'], j=paths['param_name'], m=paths['sysmatrix_name'])
 
 
 def recon(mbir_data_path, mbir_params_path, object_name, sino=None, wght=None, init_recon=None, **reconparams):
 
-    paths = gen_paths(mbir_data_path, mbir_params_path, object_name)
+    paths = _gen_paths(mbir_data_path, mbir_params_path, object_name)
 
     if not os.path.exists(os.path.dirname(paths['recon_name'])):
         os.makedirs(os.path.dirname(paths['recon_name']), exist_ok=True)
@@ -123,14 +120,14 @@ def recon(mbir_data_path, mbir_params_path, object_name, sino=None, wght=None, i
 
         print('Starting with initial recon')
 
-        cmd_exec(i=paths['param_name'], j=paths['param_name'], k=paths['param_name'], 
+        _cmd_exec(i=paths['param_name'], j=paths['param_name'], k=paths['param_name'], 
             s=paths['sino_name'], w=paths['wght_name'], f=paths['proj_name'],
             r=paths['recon_name'], t=paths['init_name'],
             m=paths['sysmatrix_name'])
 
     else:
 
-        cmd_exec(i=paths['param_name'], j=paths['param_name'], k=paths['param_name'], 
+        _cmd_exec(i=paths['param_name'], j=paths['param_name'], k=paths['param_name'], 
             s=paths['sino_name'], w=paths['wght_name'], f=paths['proj_name'],
             r=paths['recon_name'],
             m=paths['sysmatrix_name'])
@@ -144,7 +141,7 @@ def recon(mbir_data_path, mbir_params_path, object_name, sino=None, wght=None, i
 
 def project(mbir_data_path, mbir_params_path, object_name, recon=None):
 
-    paths = gen_paths(mbir_data_path, mbir_params_path, object_name)
+    paths = _gen_paths(mbir_data_path, mbir_params_path, object_name)
 
     if not os.path.exists(os.path.dirname(paths['proj_name'])):
         os.makedirs(os.path.dirname(paths['proj_name']), exist_ok=True)
@@ -156,7 +153,7 @@ def project(mbir_data_path, mbir_params_path, object_name, recon=None):
     if recon is not None:
         write_recon_openmbir(recon, paths['recon_name']+'_slice', '.2Dimgdata')
 
-    cmd_exec(i=paths['param_name'], j=paths['param_name'], m=paths['sysmatrix_name'],
+    _cmd_exec(i=paths['param_name'], j=paths['param_name'], m=paths['sysmatrix_name'],
         f=paths['proj_name'], t=paths['recon_name'])
 
     sinoparams = read_params(paths['param_name']+'.sinoparams')
