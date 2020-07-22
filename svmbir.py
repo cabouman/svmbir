@@ -106,6 +106,13 @@ def _cmd_exec(exec_path=__exec_path__, *args, **kwargs):
     # os.environ['OMP_DYNAMIC'] = 'true'
     subprocess.run(arg_list)
 
+def gen_sysmatrix(param_name, sysmatrix_name):
+
+    if os.path.exists(sysmatrix_name+'.2Dsvmatrix'):
+        print('Found system matrix: {}'.format(sysmatrix_name+'.2Dsvmatrix'))
+    else:
+        _cmd_exec(i=param_name, j=param_name, m=sysmatrix_name)
+
 
 def run_project(svmbir_lib_path, recon=None):
 
@@ -124,9 +131,11 @@ def run_project(svmbir_lib_path, recon=None):
     return p
 
 
-def recon(angles, sino, wght, svmbir_lib_path=__svmbir_lib_path, object_name='object', CenterOffset=0, img_downsamp=1, init_recon=None, **recon_kwargs):
+def recon(angles, sino, wght, svmbir_lib_path=__svmbir_lib_path, object_name='object', CenterOffset=0, img_downsamp=1, init_recon=None, num_threads=1, **recon_kwargs):
 
     (NViews, NSlices, NChannels) = sino.shape
+    os.environ['OMP_NUM_THREADS'] = str(num_threads)
+    os.environ['OMP_DYNAMIC'] = 'true'
 
     sinoparams = dict(_default_sinoparams)
     sinoparams['NChannels'] = NChannels
@@ -155,7 +164,7 @@ def recon(angles, sino, wght, svmbir_lib_path=__svmbir_lib_path, object_name='ob
         for angle in list(angles):
             fileID.write(str(angle)+"\n")
 
-    _cmd_exec(i=paths['param_name'], j=paths['param_name'], m=paths['sysmatrix_name'])
+    gen_sysmatrix(paths['param_name'], paths['sysmatrix_name'])
 
     reconparams = parse_params(_default_reconparams, **recon_kwargs)
     write_params(paths['reconparams_fname'], **reconparams)
