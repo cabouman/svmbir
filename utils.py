@@ -23,7 +23,6 @@ def read_params(params_path):
         
     return params
 
-
 def print_params(params, start_str=''):
 
     for key,value in params.items():
@@ -47,6 +46,11 @@ def modify_params(filePath, **kwargs):
     with open(filePath, 'w') as fileID:
         yaml.dump(yaml_dict, fileID)
 
+def write_params(filePath, **kwargs):
+
+    with open(filePath, 'w') as fileID:
+        yaml = YAML()
+        yaml.dump(kwargs, fileID)
 
 def readAngleList(filePath):
 
