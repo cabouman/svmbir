@@ -15,6 +15,15 @@ from ruamel.yaml import YAML
 ## mbir read/modify Param Files
 ############################################################################
 
+def parse_params(default_params, **kwargs):
+    
+    params = dict(default_params)
+    common_keys = set(kwargs.keys()) & set(params.keys())
+    for key in common_keys:
+        params[key] = kwargs[key]
+    
+    return params
+
 def read_params(params_path):
 
     with open(params_path, 'r') as fileID:

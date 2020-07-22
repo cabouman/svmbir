@@ -55,6 +55,27 @@ def _gen_paths(svmbir_lib_path, object_name='object'):
 
     paths['ViewAngleList_name'] = object_name+'.ViewAngleList'
 
+    if not os.path.exists(os.path.dirname(paths['param_name'])):
+        os.makedirs(os.path.dirname(paths['param_name']), exist_ok=True)
+
+    if not os.path.exists(os.path.dirname(paths['sysmatrix_name'])):
+        os.makedirs(os.path.dirname(paths['sysmatrix_name']), exist_ok=True)
+
+    if not os.path.exists(os.path.dirname(paths['recon_name'])):
+        os.makedirs(os.path.dirname(paths['recon_name']), exist_ok=True)
+
+    if not os.path.exists(os.path.dirname(paths['init_name'])):
+        os.makedirs(os.path.dirname(paths['init_name']), exist_ok=True)
+
+    if not os.path.exists(os.path.dirname(paths['proj_name'])):
+        os.makedirs(os.path.dirname(paths['proj_name']), exist_ok=True)
+
+    if not os.path.exists(os.path.dirname(paths['sino_name'])):
+        os.makedirs(os.path.dirname(paths['sino_name']), exist_ok=True)
+
+    if not os.path.exists(os.path.dirname(paths['wght_name'])):
+        os.makedirs(os.path.dirname(paths['wght_name']), exist_ok=True)
+
     return paths
 
 
@@ -74,19 +95,38 @@ def _cmd_exec(exec_path=__exec_path__, *args, **kwargs):
     subprocess.run(arg_list)
 
 
-def gen_sysmatrix(svmbir_lib_path, angles, img_downsamp=1, **sino_kwargs):
+def run_project(svmbir_lib_path, recon=None):
 
     paths = _gen_paths(svmbir_lib_path)
-    if not os.path.exists(os.path.dirname(paths['param_name'])):
-        os.makedirs(os.path.dirname(paths['param_name']), exist_ok=True)
 
-    # sinoparams_req_keys = ['NChannels', 'NViews', 'NSlices', 'CenterOffset']
-    # assert all(key in sinoparams.keys() for key in sinoparams_req_keys), 'required keys ({}) not present'.format(sinoparams_req_keys)
+    if recon is not None:
+        write_recon_openmbir(recon, paths['recon_name']+'_slice', '.2Dimgdata')
+
+    _cmd_exec(i=paths['param_name'], j=paths['param_name'], m=paths['sysmatrix_name'],
+        f=paths['proj_name'], t=paths['recon_name'])
+
+    sinoparams = read_params(paths['sinoparams_fname'])
+    p = read_sino_openmbir(paths['proj_name']+'_slice', '.2Dprojection', 
+        sinoparams['NViews'], sinoparams['NSlices'], sinoparams['NChannels'])
+
+    return p
+
+
+def recon(angles, sino, wght, svmbir_lib_path=__svmbir_lib_path, CenterOffset=0, img_downsamp=1, init_recon=None, **recon_kwargs):
+
+    # sino shape: NViews, NSlices, NChannels
+
+    (NViews, NSlices, NChannels) = sino.shape
+
+    paths = _gen_paths(svmbir_lib_path)
 
     sinoparams = dict(_default_sinoparams)
-    for key in sino_kwargs.keys():
-        sinoparams[key] = sino_kwargs[key]
+    sinoparams['NChannels'] = NChannels
+    sinoparams['NViews'] = NViews
+    sinoparams['NSlices'] = NSlices
+    sinoparams['CenterOffset'] = CenterOffset
     sinoparams['ViewAngleList'] = paths['ViewAngleList_name']
+
 
     imgparams = dict()
     imgparams['Nx'] = math.ceil(sinoparams['NChannels']/img_downsamp)
@@ -104,44 +144,14 @@ def gen_sysmatrix(svmbir_lib_path, angles, img_downsamp=1, **sino_kwargs):
         for angle in list(angles):
             fileID.write(str(angle)+"\n")
 
+    _cmd_exec(i=paths['param_name'], j=paths['param_name'], m=paths['sysmatrix_name'])
 
-    if not os.path.exists(os.path.dirname(paths['sysmatrix_name'])):
-        os.makedirs(os.path.dirname(paths['sysmatrix_name']), exist_ok=True)
-
-    _cmd_exec(i=paths['param_name'], j=paths['param_name'], m=paths['sysmatrix_name'])    
-
-
-def run_recon(svmbir_lib_path, sino=None, wght=None, init_recon=None, **recon_kwargs):
-
-    # sino shape: NViews, NSlices, NChannels
-
-    paths = _gen_paths(svmbir_lib_path)
-
-    if not os.path.exists(os.path.dirname(paths['recon_name'])):
-        os.makedirs(os.path.dirname(paths['recon_name']), exist_ok=True)
-
-    if not os.path.exists(os.path.dirname(paths['init_name'])):
-        os.makedirs(os.path.dirname(paths['init_name']), exist_ok=True)
-
-    if not os.path.exists(os.path.dirname(paths['proj_name'])):
-        os.makedirs(os.path.dirname(paths['proj_name']), exist_ok=True)
-
-    if not os.path.exists(os.path.dirname(paths['sino_name'])):
-        os.makedirs(os.path.dirname(paths['sino_name']), exist_ok=True)
-
-    if not os.path.exists(os.path.dirname(paths['wght_name'])):
-        os.makedirs(os.path.dirname(paths['wght_name']), exist_ok=True)
-
-    reconparams = dict(_default_reconparams)
-    for key in recon_kwargs.keys():
-        reconparams[key] = recon_kwargs[key]
+    reconparams = parse_params(_default_reconparams, **recon_kwargs)
     write_params(paths['reconparams_fname'], **reconparams)
-    
-    if sino is not None:
-        write_sino_openmbir(sino, paths['sino_name']+'_slice', '.2Dsinodata')
-    if wght is not None:
-        write_sino_openmbir(wght, paths['wght_name']+'_slice', '.2Dweightdata')
-    
+
+    write_sino_openmbir(sino, paths['sino_name']+'_slice', '.2Dsinodata')
+    write_sino_openmbir(wght, paths['wght_name']+'_slice', '.2Dweightdata')
+
     if init_recon is not None:
         write_recon_openmbir(init_recon, paths['init_name']+'_slice', '.2Dimgdata')
 
@@ -159,32 +169,8 @@ def run_recon(svmbir_lib_path, sino=None, wght=None, init_recon=None, **recon_kw
             r=paths['recon_name'],
             m=paths['sysmatrix_name'])
 
-    imgparams = read_params(paths['imgparams_fname'])
     x = read_recon_openmbir(paths['recon_name']+'_slice', '.2Dimgdata', 
         imgparams['Nx'], imgparams['Ny'], imgparams['Nz'])
 
+
     return x
-
-
-def run_project(svmbir_lib_path, recon=None):
-
-    paths = _gen_paths(svmbir_lib_path)
-
-    if not os.path.exists(os.path.dirname(paths['proj_name'])):
-        os.makedirs(os.path.dirname(paths['proj_name']), exist_ok=True)
-
-    if not os.path.exists(os.path.dirname(paths['recon_name'])):
-        os.makedirs(os.path.dirname(paths['recon_name']), exist_ok=True)
-
-
-    if recon is not None:
-        write_recon_openmbir(recon, paths['recon_name']+'_slice', '.2Dimgdata')
-
-    _cmd_exec(i=paths['param_name'], j=paths['param_name'], m=paths['sysmatrix_name'],
-        f=paths['proj_name'], t=paths['recon_name'])
-
-    sinoparams = read_params(paths['sinoparams_fname'])
-    p = read_sino_openmbir(paths['proj_name']+'_slice', '.2Dprojection', 
-        sinoparams['NViews'], sinoparams['NSlices'], sinoparams['NChannels'])
-
-    return p
