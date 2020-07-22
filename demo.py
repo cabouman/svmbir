@@ -16,8 +16,8 @@ angles = np.linspace(0, np.pi, NViews, endpoint=False)
 
 x = svmbir.recon(angles, sino, weight, 
 	CenterOffset=-6, img_downsamp=4,
-	SigmaX=0.6350, T=0.000478)
-	# svmbir_lib_path='data/sv-mbirct_data/',
+	svmbir_lib_path='data/sv-mbirct_data/',
+	SigmaX=0.6350, T=0.000478, MaxIterations=10)
 
 # display reconstruction
 imgplot = plt.imshow(x[0])

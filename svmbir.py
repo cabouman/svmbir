@@ -5,6 +5,7 @@ from glob import glob
 import numpy as np
 import subprocess
 import math
+import hashlib
 
 from utils import *
 
@@ -37,7 +38,16 @@ _default_sinoparams = {'Geometry': '3DPARALLEL',
     'ViewAngleList': 'object.ViewAngleList'}
 
 
-def _gen_paths(svmbir_lib_path, object_name='object'):
+def _gen_paths(svmbir_lib_path, object_name='object', sysmatrix_name='object'):
+
+    os.makedirs( os.path.join(svmbir_lib_path,'obj'), exist_ok=True)
+    os.makedirs( os.path.join(svmbir_lib_path,'sino'), exist_ok=True)
+    os.makedirs( os.path.join(svmbir_lib_path,'weight'), exist_ok=True)
+    os.makedirs( os.path.join(svmbir_lib_path,'recon'), exist_ok=True)
+    os.makedirs( os.path.join(svmbir_lib_path,'init'), exist_ok=True)
+    os.makedirs( os.path.join(svmbir_lib_path,'proj'), exist_ok=True)
+    os.makedirs( os.path.join(svmbir_lib_path,'sysmatrix'), exist_ok=True)
+    os.makedirs( os.path.join(svmbir_lib_path,'par'), exist_ok=True)
 
     paths = dict()
     paths['sino_name'] = os.path.join(svmbir_lib_path,'sino',object_name)
@@ -45,7 +55,8 @@ def _gen_paths(svmbir_lib_path, object_name='object'):
     paths['recon_name'] = os.path.join(svmbir_lib_path,'recon',object_name)
     paths['init_name'] = os.path.join(svmbir_lib_path,'init',object_name)
     paths['proj_name'] = os.path.join(svmbir_lib_path,'proj',object_name)
-    paths['sysmatrix_name'] = os.path.join(svmbir_lib_path,'sysmatrix',object_name)
+    
+    paths['sysmatrix_name'] = os.path.join(svmbir_lib_path,'sysmatrix',sysmatrix_name)
     
     paths['param_name'] = os.path.join(svmbir_lib_path,'par',object_name)
     paths['sinoparams_fname'] = paths['param_name']+'.sinoparams'
@@ -55,28 +66,29 @@ def _gen_paths(svmbir_lib_path, object_name='object'):
 
     paths['ViewAngleList_name'] = object_name+'.ViewAngleList'
 
-    if not os.path.exists(os.path.dirname(paths['param_name'])):
-        os.makedirs(os.path.dirname(paths['param_name']), exist_ok=True)
-
-    if not os.path.exists(os.path.dirname(paths['sysmatrix_name'])):
-        os.makedirs(os.path.dirname(paths['sysmatrix_name']), exist_ok=True)
-
-    if not os.path.exists(os.path.dirname(paths['recon_name'])):
-        os.makedirs(os.path.dirname(paths['recon_name']), exist_ok=True)
-
-    if not os.path.exists(os.path.dirname(paths['init_name'])):
-        os.makedirs(os.path.dirname(paths['init_name']), exist_ok=True)
-
-    if not os.path.exists(os.path.dirname(paths['proj_name'])):
-        os.makedirs(os.path.dirname(paths['proj_name']), exist_ok=True)
-
-    if not os.path.exists(os.path.dirname(paths['sino_name'])):
-        os.makedirs(os.path.dirname(paths['sino_name']), exist_ok=True)
-
-    if not os.path.exists(os.path.dirname(paths['wght_name'])):
-        os.makedirs(os.path.dirname(paths['wght_name']), exist_ok=True)
-
     return paths
+
+
+def _hash_params(angles, **kwargs):
+
+    relevant_params = dict()
+    relevant_params['Nx'] = kwargs['Nx']
+    relevant_params['Ny'] = kwargs['Ny']
+    relevant_params['Deltaxy'] = kwargs['Deltaxy']
+    relevant_params['ROIRadius'] = kwargs['ROIRadius']
+    relevant_params['NChannels'] = kwargs['NChannels']
+    relevant_params['NViews'] = kwargs['NViews']
+    relevant_params['DeltaChannel'] = kwargs['DeltaChannel']
+    relevant_params['CenterOffset'] = kwargs['CenterOffset']
+
+    hash_input = str(relevant_params)+str(np.around(angles, decimals=6) )
+
+    hash_val = hashlib.sha512(hash_input.encode()).hexdigest()
+
+    # print(hash_input)
+    # print(hash_val)
+
+    return hash_val, relevant_params
 
 
 def _cmd_exec(exec_path=__exec_path__, *args, **kwargs):
@@ -112,21 +124,16 @@ def run_project(svmbir_lib_path, recon=None):
     return p
 
 
-def recon(angles, sino, wght, svmbir_lib_path=__svmbir_lib_path, CenterOffset=0, img_downsamp=1, init_recon=None, **recon_kwargs):
-
-    # sino shape: NViews, NSlices, NChannels
+def recon(angles, sino, wght, svmbir_lib_path=__svmbir_lib_path, object_name='object', CenterOffset=0, img_downsamp=1, init_recon=None, **recon_kwargs):
 
     (NViews, NSlices, NChannels) = sino.shape
-
-    paths = _gen_paths(svmbir_lib_path)
 
     sinoparams = dict(_default_sinoparams)
     sinoparams['NChannels'] = NChannels
     sinoparams['NViews'] = NViews
     sinoparams['NSlices'] = NSlices
     sinoparams['CenterOffset'] = CenterOffset
-    sinoparams['ViewAngleList'] = paths['ViewAngleList_name']
-
+    sinoparams['ViewAngleList'] = object_name+'.ViewAngleList'
 
     imgparams = dict()
     imgparams['Nx'] = math.ceil(sinoparams['NChannels']/img_downsamp)
@@ -136,6 +143,10 @@ def recon(angles, sino, wght, svmbir_lib_path=__svmbir_lib_path, CenterOffset=0,
     imgparams['Deltaxy'] = img_downsamp
     imgparams['DeltaZ'] = img_downsamp
     imgparams['ROIRadius'] = sinoparams['NChannels']/2
+
+    hash_val, relevant_params = _hash_params(angles, **{**sinoparams, **imgparams})
+
+    paths = _gen_paths(svmbir_lib_path, object_name=object_name, sysmatrix_name=hash_val)
 
     write_params(paths['sinoparams_fname'], **sinoparams)
     write_params(paths['imgparams_fname'], **imgparams)
