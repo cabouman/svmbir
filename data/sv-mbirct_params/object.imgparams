@@ -1,7 +1,0 @@
-Nx: 512  #sizes 
-Ny: 512
-Nz: 1
-FirstSliceNumber: 0
-Deltaxy: 1
-DeltaZ: 1
-ROIRadius: 256.0
