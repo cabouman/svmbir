@@ -10,6 +10,8 @@ from utils import *
 
 __exec_path__ = os.path.realpath(os.path.join(os.path.dirname(__file__),'sv-mbirct/bin/mbir_ct'))
 
+__svmbir_lib_path = os.path.join(os.getenv('HOME'), 'svmbir_lib')
+
 _default_reconparams = {'PriorModel': 'QGGMRF',
     'InitImageValue': 0.0001,
     'p': 1.2,
@@ -33,14 +35,6 @@ _default_sinoparams = {'Geometry': '3DPARALLEL',
     'DeltaSlice': 1,
     'FirstSliceNumber': 0,
     'ViewAngleList': 'object.ViewAngleList'}
-
-# _default_imgparams = {'Nx': 512,
-#     'Ny': 512,
-#     'Nz': 1,
-#     'FirstSliceNumber': 0,
-#     'Deltaxy': 1,
-#     'DeltaZ': 1,
-#     'ROIRadius': 256.0}
 
 
 def _cmd_exec(exec_path=__exec_path__, *args, **kwargs):
@@ -87,7 +81,7 @@ def _modify_img_params(svmbir_lib_path, **imgparams):
     modify_params(paths['imgparams_fname'], **imgparams)
 
 
-def init_geometry_data(svmbir_lib_path, angles, img_downsamp=1, **sino_kwargs):
+def gen_sysmatrix(svmbir_lib_path, angles, img_downsamp=1, **sino_kwargs):
 
     paths = _gen_paths(svmbir_lib_path)
     if not os.path.exists(os.path.dirname(paths['param_name'])):
@@ -118,14 +112,10 @@ def init_geometry_data(svmbir_lib_path, angles, img_downsamp=1, **sino_kwargs):
             fileID.write(str(angle)+"\n")
 
 
-def gen_sysmatrix(svmbir_lib_path):
-
-    paths = _gen_paths(svmbir_lib_path)
-
     if not os.path.exists(os.path.dirname(paths['sysmatrix_name'])):
         os.makedirs(os.path.dirname(paths['sysmatrix_name']), exist_ok=True)
 
-    _cmd_exec(i=paths['param_name'], j=paths['param_name'], m=paths['sysmatrix_name'])
+    _cmd_exec(i=paths['param_name'], j=paths['param_name'], m=paths['sysmatrix_name'])    
 
 
 def run_recon(svmbir_lib_path, sino=None, wght=None, init_recon=None, **recon_kwargs):
