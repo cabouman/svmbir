@@ -37,22 +37,6 @@ _default_sinoparams = {'Geometry': '3DPARALLEL',
     'ViewAngleList': 'object.ViewAngleList'}
 
 
-def _cmd_exec(exec_path=__exec_path__, *args, **kwargs):
-
-    arg_list = [exec_path]
-    for key in args:
-        arg_list.append('-'+key)
-
-    for key,value in kwargs.items():
-        arg_list.append('-'+key)
-        arg_list.append(value)
-
-    # print(arg_list)
-    # os.environ['OMP_NUM_THREADS'] = '20'
-    # os.environ['OMP_DYNAMIC'] = 'true'
-    subprocess.run(arg_list)
-
-
 def _gen_paths(svmbir_lib_path, object_name='object'):
 
     paths = dict()
@@ -74,11 +58,20 @@ def _gen_paths(svmbir_lib_path, object_name='object'):
     return paths
 
 
-def _modify_img_params(svmbir_lib_path, **imgparams):
+def _cmd_exec(exec_path=__exec_path__, *args, **kwargs):
 
-    paths = _gen_paths(svmbir_lib_path)
+    arg_list = [exec_path]
+    for key in args:
+        arg_list.append('-'+key)
 
-    modify_params(paths['imgparams_fname'], **imgparams)
+    for key,value in kwargs.items():
+        arg_list.append('-'+key)
+        arg_list.append(value)
+
+    # print(arg_list)
+    # os.environ['OMP_NUM_THREADS'] = '20'
+    # os.environ['OMP_DYNAMIC'] = 'true'
+    subprocess.run(arg_list)
 
 
 def gen_sysmatrix(svmbir_lib_path, angles, img_downsamp=1, **sino_kwargs):
@@ -173,7 +166,7 @@ def run_recon(svmbir_lib_path, sino=None, wght=None, init_recon=None, **recon_kw
     return x
 
 
-def project(svmbir_lib_path, recon=None):
+def run_project(svmbir_lib_path, recon=None):
 
     paths = _gen_paths(svmbir_lib_path)
 
