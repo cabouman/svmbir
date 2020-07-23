@@ -16,7 +16,7 @@ angles = np.linspace(0, np.pi, NViews, endpoint=False)
 
 x = svmbir.recon(angles, sino, weight, 
     num_threads=20,
-    CenterOffset=-6, img_downsamp=4,
+    CenterOffset=-6, img_downsamp=1,
     SigmaX=0.6350, T=0.000478, MaxIterations=10)
 
 print(x.shape)
@@ -29,12 +29,17 @@ plt.savefig('data/recon.png')
 plt.close()
 
 
-# proj = svmbir.project(angles, x, num_threads=20,
-#     CenterOffset=-6, img_downsamp=4)
+proj = svmbir.project(angles, x, num_threads=20,
+    CenterOffset=-6, img_downsamp=1)
 
-# imgplot = plt.imshow(np.swapaxes(proj, 0, 1)[0])
-# imgplot.set_cmap('gray')
-# plt.colorbar()
-# plt.savefig('data/proj.png')
-# plt.close()
+imgplot = plt.imshow(np.swapaxes(proj, 0, 1)[0])
+imgplot.set_cmap('gray')
+plt.colorbar()
+plt.savefig('data/proj.png')
+plt.close()
 
+imgplot = plt.imshow(np.swapaxes(sino-proj, 0, 1)[0])
+imgplot.set_cmap('gray')
+plt.colorbar()
+plt.savefig('data/err_sino.png')
+plt.close()
