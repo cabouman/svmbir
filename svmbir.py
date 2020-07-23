@@ -189,22 +189,19 @@ def recon(angles, sino, wght, CenterOffset=0, img_downsamp=1, init_recon=None, n
     write_sino_openmbir(sino, paths['sino_name']+'_slice', '.2Dsinodata')
     write_sino_openmbir(wght, paths['wght_name']+'_slice', '.2Dweightdata')
 
+
+    cmd_args = dict(i=paths['param_name'], j=paths['param_name'], k=paths['param_name'], 
+    s=paths['sino_name'], w=paths['wght_name'], f=paths['proj_name'],
+    r=paths['recon_name'],
+    m=paths['sysmatrix_name'])
+
+
     if init_recon is not None:
-        write_recon_openmbir(init_recon, paths['init_name']+'_slice', '.2Dimgdata')
-
         print('Starting with initial recon')
+        write_recon_openmbir(init_recon, paths['init_name']+'_slice', '.2Dimgdata')
+        cmd_args['t'] = paths['init_name']
 
-        _cmd_exec(i=paths['param_name'], j=paths['param_name'], k=paths['param_name'], 
-            s=paths['sino_name'], w=paths['wght_name'], f=paths['proj_name'],
-            r=paths['recon_name'], t=paths['init_name'],
-            m=paths['sysmatrix_name'])
-
-    else:
-
-        _cmd_exec(i=paths['param_name'], j=paths['param_name'], k=paths['param_name'], 
-            s=paths['sino_name'], w=paths['wght_name'], f=paths['proj_name'],
-            r=paths['recon_name'],
-            m=paths['sysmatrix_name'])
+    _cmd_exec(**cmd_args)
 
     imgparams = read_params(paths['imgparams_fname'])
     x = read_recon_openmbir(paths['recon_name']+'_slice', '.2Dimgdata', 

@@ -21,16 +21,17 @@ x = svmbir.recon(angles, sino, weight,
 
 print(x.shape)
 
-# display reconstruction
+
+proj = svmbir.project(angles, x, num_threads=20,
+    CenterOffset=-6, img_downsamp=4)
+
+# display output
 imgplot = plt.imshow(x[0])
 imgplot.set_cmap('gray')
 plt.colorbar()
 plt.savefig('data/recon.png')
 plt.close()
 
-
-proj = svmbir.project(angles, x, num_threads=20,
-    CenterOffset=-6, img_downsamp=4)
 
 imgplot = plt.imshow(np.swapaxes(proj, 0, 1)[0])
 imgplot.set_cmap('gray')
