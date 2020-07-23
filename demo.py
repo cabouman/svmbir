@@ -26,7 +26,7 @@ plt.colorbar()
 plt.savefig('data/recon.png')
 plt.close()
 
-imgplot = plt.imshow(np.swapaxes(proj, 0, 1)[0])
+imgplot = plt.imshow(np.swapaxes(sino, 0, 1)[0])
 imgplot.set_cmap('gray')
 plt.colorbar()
 plt.savefig('data/sino.png')
