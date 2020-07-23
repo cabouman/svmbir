@@ -127,10 +127,10 @@ def init_geometry(angles, NChannels, NViews, NSlices, CenterOffset=0, img_downsa
     imgparams = dict()
     imgparams['Nx'] = math.ceil(sinoparams['NChannels']/img_downsamp)
     imgparams['Ny'] =  math.ceil(sinoparams['NChannels']/img_downsamp)
-    imgparams['Nz'] =  math.ceil(sinoparams['NSlices']/img_downsamp)
+    imgparams['Nz'] =  sinoparams['NSlices']
     imgparams['FirstSliceNumber'] = 0
-    imgparams['Deltaxy'] = img_downsamp
-    imgparams['DeltaZ'] = img_downsamp
+    imgparams['Deltaxy'] = sinoparams['NChannels']/imgparams['Nx']
+    imgparams['DeltaZ'] = 1
     imgparams['ROIRadius'] = sinoparams['NChannels']/2
 
     hash_val, relevant_params = _hash_params(angles, **{**sinoparams, **imgparams})
@@ -155,7 +155,7 @@ def project(angles, recon, CenterOffset=0, img_downsamp=1, num_threads=1, svmbir
     os.environ['OMP_DYNAMIC'] = 'true'
 
     NViews = len(angles)
-    NSlices = recon.shape[0]*img_downsamp
+    NSlices = recon.shape[0]
     NChannels = recon.shape[1]*img_downsamp
 
     paths = init_geometry(angles, NChannels=NChannels, NViews=NViews, NSlices=NSlices, CenterOffset=CenterOffset, img_downsamp=img_downsamp, 

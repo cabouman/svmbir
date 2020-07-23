@@ -16,7 +16,7 @@ angles = np.linspace(0, np.pi, NViews, endpoint=False)
 
 x = svmbir.recon(angles, sino, weight, 
     num_threads=20,
-    CenterOffset=-6, img_downsamp=1,
+    CenterOffset=-6, img_downsamp=4,
     SigmaX=0.6350, T=0.000478, MaxIterations=10)
 
 print(x.shape)
@@ -30,7 +30,7 @@ plt.close()
 
 
 proj = svmbir.project(angles, x, num_threads=20,
-    CenterOffset=-6, img_downsamp=1)
+    CenterOffset=-6, img_downsamp=4)
 
 imgplot = plt.imshow(np.swapaxes(proj, 0, 1)[0])
 imgplot.set_cmap('gray')
