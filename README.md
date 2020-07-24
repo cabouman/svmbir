@@ -1,7 +1,7 @@
-# OpenMBIR-PySVParBeam
+# svmbir
 
 
-### Fast model based parallel-beam CT reconstruction in python
+### Python code for parallel-beam CT MBIR(Model Based Iterative Reconstruction) 
 ### python wrapper around: https://github.com/HPImaging/sv-mbirct
 
 ## SYSTEM REQUIREMENTS
