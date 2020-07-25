@@ -24,6 +24,7 @@ def parse_params(default_params, **kwargs):
     
     return params
 
+
 def read_params(params_path):
 
     with open(params_path, 'r') as fileID:
@@ -31,6 +32,7 @@ def read_params(params_path):
         params = yaml.load(fileID)
         
     return params
+
 
 def print_params(params, start_str=''):
 
@@ -40,6 +42,7 @@ def print_params(params, start_str=''):
             print_params(value, start_str='    ')
         else:
             print(start_str+'{}: {}'.format(key,value))
+
 
 def modify_params(filePath, **kwargs):
     
@@ -55,11 +58,13 @@ def modify_params(filePath, **kwargs):
     with open(filePath, 'w') as fileID:
         yaml.dump(yaml_dict, fileID)
 
+
 def write_params(filePath, **kwargs):
 
     with open(filePath, 'w') as fileID:
         yaml = YAML()
         yaml.dump(kwargs, fileID)
+
 
 def readAngleList(filePath):
 
@@ -75,7 +80,7 @@ def readAngleList(filePath):
 
 
 ############################################################################
-## mbir read/write Binary Files
+## mbir read/write/delete Binary Files
 ############################################################################
 
 def read_sino_openmbir(rootPath, suffix, N_theta, N_z, N_y):
@@ -96,6 +101,7 @@ def read_sino_openmbir(rootPath, suffix, N_theta, N_z, N_y):
 
     return x
 
+
 def write_sino_openmbir(x, rootPath, suffix):
 
     # shape of x = N_theta x N_z  x N_y
@@ -111,6 +117,7 @@ def write_sino_openmbir(x, rootPath, suffix):
         with open(fname, 'wb') as fileID:
             x[i].astype('float32').flatten('C').tofile(fileID)
 
+
 def read_recon_openmbir(rootPath, suffix, N_x, N_y, N_z):
 
     fname_list = generateFileList(N_z, rootPath, suffix, numdigit=4)
@@ -125,6 +132,7 @@ def read_recon_openmbir(rootPath, suffix, N_x, N_y, N_z):
             x[i] = np.fromfile(fileID, dtype='float32', count=numElements).reshape([sizesArray[1], sizesArray[2]])
 
     return x
+
 
 def write_recon_openmbir(x, rootPath, suffix):
 
@@ -147,5 +155,14 @@ def generateFileList(numFiles, fileRoot, suffix, numdigit=0):
         fileList.append(fileRoot+str(i).zfill(numdigit)+suffix)
 
     return fileList
+
+
+def delete_data_openmbir(rootPath, suffix, num_files):
+
+    fname_list = generateFileList(num_files, rootPath, suffix, numdigit=4)
+
+    for i, fname in enumerate(fname_list):
+        os.remove(fname)
+
 
 

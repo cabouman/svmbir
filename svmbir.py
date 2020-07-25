@@ -146,7 +146,7 @@ def init_geometry(angles, NChannels, NViews, NSlices, CenterOffset=0, img_downsa
 
     gen_sysmatrix(paths['param_name'], paths['sysmatrix_name'])
 
-    return paths
+    return paths, sinoparams, imgparams
 
 
 def project(angles, recon, CenterOffset=0, img_downsamp=1, num_threads=1, svmbir_lib_path=__svmbir_lib_path, object_name='object', delete_temps=True):
@@ -160,7 +160,7 @@ def project(angles, recon, CenterOffset=0, img_downsamp=1, num_threads=1, svmbir
     NSlices = recon.shape[0]
     NChannels = recon.shape[1]*img_downsamp
 
-    paths = init_geometry(angles, NChannels=NChannels, NViews=NViews, NSlices=NSlices, CenterOffset=CenterOffset, img_downsamp=img_downsamp, 
+    paths, sinoparams, imgparams = init_geometry(angles, NChannels=NChannels, NViews=NViews, NSlices=NSlices, CenterOffset=CenterOffset, img_downsamp=img_downsamp, 
         num_threads=num_threads, svmbir_lib_path=svmbir_lib_path, object_name=object_name)
 
     write_recon_openmbir(recon, paths['recon_name']+'_slice', '.2Dimgdata')
@@ -168,7 +168,6 @@ def project(angles, recon, CenterOffset=0, img_downsamp=1, num_threads=1, svmbir
     _cmd_exec(i=paths['param_name'], j=paths['param_name'], m=paths['sysmatrix_name'],
         f=paths['proj_name'], t=paths['recon_name'])
 
-    sinoparams = read_params(paths['sinoparams_fname'])
     proj = read_sino_openmbir(paths['proj_name']+'_slice', '.2Dprojection', 
         sinoparams['NViews'], sinoparams['NSlices'], sinoparams['NChannels'])
 
@@ -176,6 +175,9 @@ def project(angles, recon, CenterOffset=0, img_downsamp=1, num_threads=1, svmbir
         os.remove( paths['sinoparams_fname'] )
         os.remove( paths['imgparams_fname'] )
         os.remove( paths['ViewAngleList_fname'] )
+
+        delete_data_openmbir(paths['recon_name']+'_slice', '.2Dimgdata', imgparams['Nz'])
+        delete_data_openmbir(paths['proj_name']+'_slice', '.2Dprojection', sinoparams['NSlices'])
 
     return proj
 
@@ -189,7 +191,7 @@ def recon(angles, sino, wght, CenterOffset=0, img_downsamp=1, init_recon=None, n
     
     (NViews, NSlices, NChannels) = sino.shape
 
-    paths = init_geometry(angles, NChannels=NChannels, NViews=NViews, NSlices=NSlices, CenterOffset=CenterOffset, img_downsamp=img_downsamp, 
+    paths, sinoparams, imgparams = init_geometry(angles, NChannels=NChannels, NViews=NViews, NSlices=NSlices, CenterOffset=CenterOffset, img_downsamp=img_downsamp, 
         num_threads=num_threads, svmbir_lib_path=svmbir_lib_path, object_name=object_name)
 
     reconparams = parse_params(_default_reconparams, **recon_kwargs)
@@ -212,7 +214,6 @@ def recon(angles, sino, wght, CenterOffset=0, img_downsamp=1, init_recon=None, n
 
     _cmd_exec(**cmd_args)
 
-    imgparams = read_params(paths['imgparams_fname'])
     x = read_recon_openmbir(paths['recon_name']+'_slice', '.2Dimgdata', 
         imgparams['Nx'], imgparams['Ny'], imgparams['Nz'])
 
@@ -221,5 +222,11 @@ def recon(angles, sino, wght, CenterOffset=0, img_downsamp=1, init_recon=None, n
         os.remove( paths['imgparams_fname'] )
         os.remove( paths['reconparams_fname'] )
         os.remove( paths['ViewAngleList_fname'] )
+
+        delete_data_openmbir(paths['recon_name']+'_slice', '.2Dimgdata', imgparams['Nz'])
+        delete_data_openmbir(paths['sino_name']+'_slice', '.2Dsinodata', sinoparams['NSlices'])
+        delete_data_openmbir(paths['wght_name']+'_slice', '.2Dweightdata', sinoparams['NSlices'])
+        delete_data_openmbir(paths['proj_name']+'_slice', '.2Dprojection', sinoparams['NSlices'])
+
 
     return x
