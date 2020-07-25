@@ -7,7 +7,7 @@ import subprocess
 import math
 import hashlib
 
-from utils import *
+from .utils import *
 
 __exec_path__ = os.path.realpath(os.path.join(os.path.dirname(__file__),'sv-mbirct/bin/mbir_ct'))
 
