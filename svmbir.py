@@ -172,11 +172,10 @@ def project(angles, recon, CenterOffset=0, img_downsamp=1, num_threads=1, svmbir
     proj = read_sino_openmbir(paths['proj_name']+'_slice', '.2Dprojection', 
         sinoparams['NViews'], sinoparams['NSlices'], sinoparams['NChannels'])
 
-    # if delete_temps:
-    #     os.remove( paths['sinoparams_fname'] )
-    #     os.remove( paths['imgparams_fname'] )
-    #     os.remove( paths['reconparams_fname'] )
-    #     os.remove( paths['ViewAngleList_fname'] )
+    if delete_temps:
+        os.remove( paths['sinoparams_fname'] )
+        os.remove( paths['imgparams_fname'] )
+        os.remove( paths['ViewAngleList_fname'] )
 
     return proj
 
@@ -217,10 +216,10 @@ def recon(angles, sino, wght, CenterOffset=0, img_downsamp=1, init_recon=None, n
     x = read_recon_openmbir(paths['recon_name']+'_slice', '.2Dimgdata', 
         imgparams['Nx'], imgparams['Ny'], imgparams['Nz'])
 
-    # if delete_temps:
-    #     os.remove( paths['sinoparams_fname'] )
-    #     os.remove( paths['imgparams_fname'] )
-    #     os.remove( paths['reconparams_fname'] )
-    #     os.remove( paths['ViewAngleList_fname'] )
+    if delete_temps:
+        os.remove( paths['sinoparams_fname'] )
+        os.remove( paths['imgparams_fname'] )
+        os.remove( paths['reconparams_fname'] )
+        os.remove( paths['ViewAngleList_fname'] )
 
     return x
