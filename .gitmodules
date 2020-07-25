@@ -1,3 +1,3 @@
-[submodule "sv-mbirct"]
-	path = sv-mbirct
+[submodule "svmbir/sv-mbirct"]
+	path = svmbir/sv-mbirct
 	url = https://github.com/smajee/sv-mbirct
