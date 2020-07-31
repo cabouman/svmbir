@@ -12,11 +12,11 @@ weight = np.load('data/weightdata.npy')
 angles = np.linspace(0, np.pi, NViews, endpoint=False)
 
 x = svmbir.recon(angles, sino, weight, num_threads=20,
-    CenterOffset=-6, img_downsamp=4,
-    SigmaX=0.6350, T=0.000478, MaxIterations=10)
+    center_offset=-6, img_downsamp=4,
+    sigma_x=0.6350, T=0.000478, max_iterations=10)
 
 proj = svmbir.project(angles, x, num_threads=20,
-    CenterOffset=-6, img_downsamp=4)
+    center_offset=-6, img_downsamp=4)
 
 
 ## display output #################################
