@@ -8,8 +8,8 @@ import svmbir
 sino = np.load('data/sinodata.npy')
 weight = np.load('data/weightdata.npy')
 
-(NViews, NSlices, NChannels) = sino.shape
-angles = np.linspace(0, np.pi, NViews, endpoint=False)
+(num_views, num_slices, num_channels) = sino.shape
+angles = np.linspace(0, np.pi, num_views, endpoint=False)
 
 x = svmbir.recon(angles, sino, weight, num_threads=20,
     center_offset=-6, img_downsamp=4,

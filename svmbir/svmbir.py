@@ -25,12 +25,12 @@ _default_reconparams = {'prior_model': 'QGGMRF',
     'b_interslice': 1.0,
     'stop_threshold': 0.0,
     'max_iterations': 20,
-    'Positivity': 1}
+    'positivity': 1}
 
-_default_sinoparams = {'Geometry': '3DPARALLEL',
-    'NChannels': 512,
-    'NViews': 288,
-    'NSlices': 1,
+_default_sinoparams = {'geometry': '3DPARALLEL',
+    'num_channels': 512,
+    'num_views': 288,
+    'num_slices': 1,
     'delta_channel': 1,
     'center_offset': 0,
     'delta_slice': 1,
@@ -49,16 +49,19 @@ _map_pyconv2camelcase={'prior_model': 'PriorModel',
     'b_interslice': 'b_interslice',
     'stop_threshold': 'StopThreshold',
     'max_iterations': 'MaxIterations',
-    'Positivity': 'Positivity',
-    'Geometry': 'Geometry',
-    'NChannels': 'NChannels',
-    'NViews': 'NViews',
-    'NSlices': 'NSlices',
+    'positivity': 'Positivity',
+    'geometry': 'Geometry',
+    'num_channels': 'NChannels',
+    'num_views': 'NViews',
+    'num_slices': 'NSlices',
     'delta_channel': 'DeltaChannel',
     'center_offset': 'CenterOffset',
     'delta_slice': 'DeltaSlice',
     'first_slice_number': 'FirstSliceNumber',
-    'view_angle_list': 'ViewAngleList'}
+    'view_angle_list': 'ViewAngleList',
+    'delta_xy':'Deltaxy',
+    'delta_z':'DeltaZ',
+    'roi_radius':'ROIRadius'}
 
 def _gen_paths(svmbir_lib_path, object_name='object', sysmatrix_name='object'):
 
@@ -104,10 +107,10 @@ def _hash_params(angles, **kwargs):
     relevant_params = dict()
     relevant_params['Nx'] = kwargs['Nx']
     relevant_params['Ny'] = kwargs['Ny']
-    relevant_params['Deltaxy'] = kwargs['Deltaxy']
-    relevant_params['ROIRadius'] = kwargs['ROIRadius']
-    relevant_params['NChannels'] = kwargs['NChannels']
-    relevant_params['NViews'] = kwargs['NViews']
+    relevant_params['delta_xy'] = kwargs['delta_xy']
+    relevant_params['roi_radius'] = kwargs['roi_radius']
+    relevant_params['num_channels'] = kwargs['num_channels']
+    relevant_params['num_views'] = kwargs['num_views']
     relevant_params['delta_channel'] = kwargs['delta_channel']
     relevant_params['center_offset'] = kwargs['center_offset']
 
@@ -145,23 +148,23 @@ def gen_sysmatrix(param_name, sysmatrix_name):
         _cmd_exec(i=param_name, j=param_name, m=sysmatrix_name)
 
 
-def init_geometry(angles, NChannels, NViews, NSlices, center_offset=0, img_downsamp=1, num_threads=1, svmbir_lib_path=__svmbir_lib_path, object_name='object'):
+def init_geometry(angles, num_channels, num_views, num_slices, center_offset=0, img_downsamp=1, num_threads=1, svmbir_lib_path=__svmbir_lib_path, object_name='object'):
 
     sinoparams = dict(_default_sinoparams)
-    sinoparams['NChannels'] = NChannels
-    sinoparams['NViews'] = NViews
-    sinoparams['NSlices'] = NSlices
+    sinoparams['num_channels'] = num_channels
+    sinoparams['num_views'] = num_views
+    sinoparams['num_slices'] = num_slices
     sinoparams['center_offset'] = center_offset
     sinoparams['view_angle_list'] = object_name+'.ViewAngleList'
 
     imgparams = dict()
-    imgparams['Nx'] = math.ceil(sinoparams['NChannels']/img_downsamp)
-    imgparams['Ny'] =  math.ceil(sinoparams['NChannels']/img_downsamp)
-    imgparams['Nz'] =  sinoparams['NSlices']
+    imgparams['Nx'] = math.ceil(sinoparams['num_channels']/img_downsamp)
+    imgparams['Ny'] =  math.ceil(sinoparams['num_channels']/img_downsamp)
+    imgparams['Nz'] =  sinoparams['num_slices']
     imgparams['first_slice_number'] = 0
-    imgparams['Deltaxy'] = sinoparams['NChannels']/imgparams['Nx']
-    imgparams['Deltaz'] = 1
-    imgparams['ROIRadius'] = sinoparams['NChannels']/2
+    imgparams['delta_xy'] = sinoparams['num_channels']/imgparams['Nx']
+    imgparams['delta_z'] = 1
+    imgparams['roi_radius'] = sinoparams['num_channels']/2
 
     hash_val, relevant_params = _hash_params(angles, **{**sinoparams, **imgparams})
 
@@ -188,11 +191,11 @@ def project(angles, recon, center_offset=0, img_downsamp=1, num_threads=1, svmbi
     os.environ['OMP_NUM_THREADS'] = str(num_threads)
     os.environ['OMP_DYNAMIC'] = 'true'
 
-    NViews = len(angles)
-    NSlices = recon.shape[0]
-    NChannels = recon.shape[1]*img_downsamp
+    num_views = len(angles)
+    num_slices = recon.shape[0]
+    num_channels = recon.shape[1]*img_downsamp
 
-    paths, sinoparams, imgparams = init_geometry(angles, NChannels=NChannels, NViews=NViews, NSlices=NSlices, center_offset=center_offset, img_downsamp=img_downsamp, 
+    paths, sinoparams, imgparams = init_geometry(angles, num_channels=num_channels, num_views=num_views, num_slices=num_slices, center_offset=center_offset, img_downsamp=img_downsamp, 
         num_threads=num_threads, svmbir_lib_path=svmbir_lib_path, object_name=object_name)
 
     write_recon_openmbir(recon, paths['recon_name']+'_slice', '.2Dimgdata')
@@ -201,7 +204,7 @@ def project(angles, recon, center_offset=0, img_downsamp=1, num_threads=1, svmbi
         f=paths['proj_name'], t=paths['recon_name'])
 
     proj = read_sino_openmbir(paths['proj_name']+'_slice', '.2Dprojection', 
-        sinoparams['NViews'], sinoparams['NSlices'], sinoparams['NChannels'])
+        sinoparams['num_views'], sinoparams['num_slices'], sinoparams['num_channels'])
 
     if delete_temps:
         os.remove( paths['sinoparams_fname'] )
@@ -209,7 +212,7 @@ def project(angles, recon, center_offset=0, img_downsamp=1, num_threads=1, svmbi
         os.remove( paths['view_angle_list_fname'] )
 
         delete_data_openmbir(paths['recon_name']+'_slice', '.2Dimgdata', imgparams['Nz'])
-        delete_data_openmbir(paths['proj_name']+'_slice', '.2Dprojection', sinoparams['NSlices'])
+        delete_data_openmbir(paths['proj_name']+'_slice', '.2Dprojection', sinoparams['num_slices'])
 
     return proj
 
@@ -221,9 +224,9 @@ def recon(angles, sino, wght, center_offset=0, img_downsamp=1, init_recon=None, 
     os.environ['OMP_NUM_THREADS'] = str(num_threads)
     os.environ['OMP_DYNAMIC'] = 'true'
     
-    (NViews, NSlices, NChannels) = sino.shape
+    (num_views, num_slices, num_channels) = sino.shape
 
-    paths, sinoparams, imgparams = init_geometry(angles, NChannels=NChannels, NViews=NViews, NSlices=NSlices, center_offset=center_offset, img_downsamp=img_downsamp, 
+    paths, sinoparams, imgparams = init_geometry(angles, num_channels=num_channels, num_views=num_views, num_slices=num_slices, center_offset=center_offset, img_downsamp=img_downsamp, 
         num_threads=num_threads, svmbir_lib_path=svmbir_lib_path, object_name=object_name)
 
     reconparams = parse_params(_default_reconparams, **recon_kwargs)
@@ -257,9 +260,9 @@ def recon(angles, sino, wght, center_offset=0, img_downsamp=1, init_recon=None, 
         os.remove( paths['view_angle_list_fname'] )
 
         delete_data_openmbir(paths['recon_name']+'_slice', '.2Dimgdata', imgparams['Nz'])
-        delete_data_openmbir(paths['sino_name']+'_slice', '.2Dsinodata', sinoparams['NSlices'])
-        delete_data_openmbir(paths['wght_name']+'_slice', '.2Dweightdata', sinoparams['NSlices'])
-        delete_data_openmbir(paths['proj_name']+'_slice', '.2Dprojection', sinoparams['NSlices'])
+        delete_data_openmbir(paths['sino_name']+'_slice', '.2Dsinodata', sinoparams['num_slices'])
+        delete_data_openmbir(paths['wght_name']+'_slice', '.2Dweightdata', sinoparams['num_slices'])
+        delete_data_openmbir(paths['proj_name']+'_slice', '.2Dprojection', sinoparams['num_slices'])
 
 
     return x
