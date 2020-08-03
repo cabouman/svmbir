@@ -1,7 +1,7 @@
 # svmbir
 
 
-### Python code for fast parallel-beam MBIR(Model Based Iterative Reconstruction) 
+### Python code for fast parallel-beam MBIR (Model Based Iterative Reconstruction) 
 ### python wrapper around: https://github.com/HPImaging/sv-mbirct
 
 ## SYSTEM REQUIREMENTS
