@@ -8,7 +8,8 @@
 1. Intel-based CPU(s)
 2. Intel "icc" compiler (included in "Parallel Studio XE", available from Intel for Linux, macOS)
 
-#### Installation using gcc
+### Installation
+##### Installation using gcc
 Go to a directory of your choice and run the following commands to install from source.
 ```
 git clone --recursive https://github.com/cabouman/svmbir.git
@@ -19,7 +20,7 @@ pip install .
 By running these commands, svmbir would be installed in the system and can be run from any directory.
 
 
-#### Installation using icc (faster computation but requires Intel CPU(s) and Intel "icc" compiler)
+##### Installation using icc (faster computation but requires Intel CPU(s) and Intel "icc" compiler)
 Go to a directory of your choice and run the following commands to install from source.
 ```
 git clone --recursive https://github.com/cabouman/svmbir.git
@@ -28,4 +29,7 @@ make -C svmbir/sv-mbirct/src/
 pip install .
 ```
 By running these commands, svmbir would be installed in the system and can be run from any directory.
+
+### Execution
+```demo.py``` contains a short demo that demonstrates how to use the svmbir package for performing reconstructions.
 
