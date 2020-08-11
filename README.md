@@ -11,6 +11,7 @@
 ### Installation
 ##### Installation using gcc
 Go to a directory of your choice and run the following commands to install from source.
+These commands need to run EXACTLY.
 ```
 git clone --recursive https://github.com/cabouman/svmbir.git
 cd svmbir
@@ -22,6 +23,7 @@ By running these commands, svmbir would be installed in the system and can be ru
 
 ##### Installation using icc (faster computation but requires Intel CPU(s) and Intel "icc" compiler)
 Go to a directory of your choice and run the following commands to install from source.
+These commands need to run EXACTLY.
 ```
 git clone --recursive https://github.com/cabouman/svmbir.git
 cd svmbir
