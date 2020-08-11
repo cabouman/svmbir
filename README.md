@@ -11,17 +11,21 @@
 ### Installation
 Go to a directory of your choice and run the following commands to install from source.
 These commands need to run EXACTLY.
-1. ```git clone --recursive https://github.com/cabouman/svmbir.git .```
+1. ```git clone --recursive https://github.com/cabouman/svmbir.git```
 
-This clones the svmbir python code and the submodule written in c into the currect directory.
+This clones the svmbir python code and the submodule written in c into a folder in the currect directory.
 
-2. ```make -C svmbir/sv-mbirct/src/ -f Makefile.gcc```
+2. ```cd svmbir```
+
+Go into the root directory of the repository.
+
+3. ```make -C svmbir/sv-mbirct/src/ -f Makefile.gcc```
 
 This builds the binary executable from the C source code using GCC.
 If Intel ICC compiler is present, then faster reconstruction can be achieved by building with ICC:
 ```make -C svmbir/sv-mbirct/src/```
 
-3. ```pip install .```
+4. ```pip install .```
 
 This installs svmbir and its dependencies as a python package.
 To make sure that svmbir has been installed run ```pip list``` to see the list of installed python packages.
