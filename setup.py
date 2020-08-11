@@ -1,3 +1,4 @@
+import os
 from distutils.core import setup
 from distutils.extension import Extension
 from glob import glob
@@ -10,6 +11,8 @@ with open("README.md", "r") as fh:
 #                     sources=sources,
 #                     extra_compile_args=['-fopenmp', '-O3'], 
 #                     extra_link_args=['-fopenmp'])
+
+assert os.path.exists('svmbir/sv-mbirct/bin/mbir_ct'), 'Compiled executable not present in svmbir/sv-mbirct/bin/. Compile the binary executable first'
 
 setup(
      name='svmbir',
