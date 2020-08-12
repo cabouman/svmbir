@@ -10,7 +10,7 @@
 
 ### Installation
 Go to a directory of your choice and run the following commands to install from source.
-These commands need to run EXACTLY.
+**These commands need to be run EXACTLY.**
 ##### 1. ```git clone --recursive https://github.com/cabouman/svmbir.git```
 
 This recursively clones the svmbir python code and the submodule with C code into a folder in the currect directory.
