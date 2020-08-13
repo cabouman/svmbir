@@ -4,9 +4,17 @@
 ### Python code for fast parallel-beam MBIR (Model Based Iterative Reconstruction) 
 #### This is a python wrapper around the c super-voxel code: https://github.com/HPImaging/sv-mbirct
 
+#### System Requirements
+1. GCC compiler
+2. OpenMP API
+3. Python>=3.6
+(Python dependencies are automatically installed upon installation of svmbir)
+
+
 #### Optional System Requirements for faster reconstruction
 1. Intel-based CPU(s)
 2. Intel "icc" compiler (included in "Parallel Studio XE", available from Intel for Linux, macOS)
+
 
 ### Installation
 Go to a directory of your choice and run the following commands to install from source.
@@ -37,4 +45,8 @@ After svmbir is installed in the system and can be used in any python script in 
 ```demo.py``` contains a short demo that demonstrates how to use the svmbir package for performing reconstructions.
 
 The file ```demo.py``` and the ```data``` directory can be copied together to any directory and it should still run if the installation is successful.
+
+To reconstruct your own data, use the interface demonstrated in ```demo.py```. 
+It Should work from any directory once the svmbir installation is successful.
+
 
