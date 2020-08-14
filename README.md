@@ -23,7 +23,7 @@ Go to a directory of your choice and run the following commands to install from 
 
 This recursively clones the svmbir python code and the submodule with C code into a folder in the currect directory.
 
-#### 2. ```cd svmbir```
+##### 2. ```cd svmbir```
 
 This changes into the root directory of the repository.
 
