@@ -16,7 +16,7 @@
 2. Intel "icc" compiler (included in "Parallel Studio XE", available from Intel for Linux, macOS)
 
 It is highly recommended that you install svmbir in an anaconda evironment.
-Details on setting it up is here: https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#activating-an-environment
+Details on setting it up can be found here: https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#activating-an-environment
 
 
 ### Installation
