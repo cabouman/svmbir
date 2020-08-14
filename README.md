@@ -5,7 +5,7 @@
 #### This is a python wrapper around the c super-voxel code: https://github.com/HPImaging/sv-mbirct
 
 #### System Requirements
-1. GCC compiler
+1. GCC compiler version 5.4 or above
 2. OpenMP API
 3. Python>=3.6
 (Python dependencies are automatically installed upon installation of svmbir)
