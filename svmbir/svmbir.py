@@ -262,8 +262,13 @@ def recon(angles, sino, wght=None, center_offset=0, img_downsamp=1, init_recon=N
 
         delete_data_openmbir(paths['recon_name']+'_slice', '.2Dimgdata', imgparams['Nz'])
         delete_data_openmbir(paths['sino_name']+'_slice', '.2Dsinodata', sinoparams['num_slices'])
-        delete_data_openmbir(paths['wght_name']+'_slice', '.2Dweightdata', sinoparams['num_slices'])
         delete_data_openmbir(paths['proj_name']+'_slice', '.2Dprojection', sinoparams['num_slices'])
+
+        if init_recon is not None:
+            delete_data_openmbir(paths['init_name']+'_slice', '.2Dimgdata', imgparams['Nz'])
+        
+        if wght is not None:
+            delete_data_openmbir(paths['wght_name']+'_slice', '.2Dweightdata', sinoparams['num_slices'])
 
 
     return x
