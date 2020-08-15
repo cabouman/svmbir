@@ -217,7 +217,7 @@ def project(angles, recon, center_offset=0, img_downsamp=1, num_threads=1, svmbi
     return proj
 
 
-def recon(angles, sino, wght, center_offset=0, img_downsamp=1, init_recon=None, num_threads=1, svmbir_lib_path=__svmbir_lib_path, object_name='object', delete_temps=True, **recon_kwargs):
+def recon(angles, sino, wght=None, center_offset=0, img_downsamp=1, init_recon=None, num_threads=1, svmbir_lib_path=__svmbir_lib_path, object_name='object', delete_temps=True, **recon_kwargs):
 
     print('recon')
 
@@ -234,14 +234,15 @@ def recon(angles, sino, wght, center_offset=0, img_downsamp=1, init_recon=None, 
     write_params(paths['reconparams_fname'], **reconparams_c)
 
     write_sino_openmbir(sino, paths['sino_name']+'_slice', '.2Dsinodata')
-    write_sino_openmbir(wght, paths['wght_name']+'_slice', '.2Dweightdata')
-
 
     cmd_args = dict(i=paths['param_name'], j=paths['param_name'], k=paths['param_name'], 
-    s=paths['sino_name'], w=paths['wght_name'], f=paths['proj_name'],
+    s=paths['sino_name'], f=paths['proj_name'],
     r=paths['recon_name'],
     m=paths['sysmatrix_name'])
 
+    if wght is not None:
+        write_sino_openmbir(wght, paths['wght_name']+'_slice', '.2Dweightdata')
+        cmd_args['w'] = paths['wght_name']
 
     if init_recon is not None:
         print('Starting with initial recon')
