@@ -9,7 +9,7 @@ import hashlib
 
 from .utils import *
 
-__exec_path__ = os.path.realpath(os.path.join(os.path.dirname(__file__),'sv-mbirct/bin/mbir_ct'))
+__exec_path__ = os.path.realpath(os.path.join(os.path.dirname(__file__), 'sv-mbirct', 'bin', 'mbir_ct'))
 
 __svmbir_lib_path = os.path.join(os.getenv('HOME'), '.cache', 'svmbir_lib')
 
