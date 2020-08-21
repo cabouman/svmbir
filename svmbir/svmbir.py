@@ -25,7 +25,8 @@ _default_reconparams = {'prior_model': 'QGGMRF',
     'b_interslice': 1.0,
     'stop_threshold': 0.0,
     'max_iterations': 20,
-    'positivity': 1}
+    'positivity': 1,
+    'weight_type': 0} # constant weights
 
 _default_sinoparams = {'geometry': '3DPARALLEL',
     'num_channels': 512,
@@ -50,6 +51,7 @@ _map_pyconv2camelcase={'prior_model': 'PriorModel',
     'stop_threshold': 'StopThreshold',
     'max_iterations': 'MaxIterations',
     'positivity': 'Positivity',
+    'weight_type': 'weightType',
     'geometry': 'Geometry',
     'num_channels': 'NChannels',
     'num_views': 'NViews',
