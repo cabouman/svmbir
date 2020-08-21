@@ -217,7 +217,7 @@ def project(angles, recon, center_offset=0, img_downsamp=1, num_threads=1, svmbi
     return proj
 
 
-def recon(angles, sino, wght=None, center_offset=0, img_downsamp=1, init_recon=None, num_threads=1, svmbir_lib_path=__svmbir_lib_path, object_name='object', delete_temps=True, **recon_kwargs):
+def recon(sino, angles, wght=None, center_offset=0, img_downsamp=1, init_recon=None, num_threads=1, svmbir_lib_path=__svmbir_lib_path, object_name='object', delete_temps=True, **recon_kwargs):
 
     print('recon')
 
