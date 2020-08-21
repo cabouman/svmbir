@@ -43,6 +43,8 @@ To make sure that svmbir has been installed run ```pip list``` to see the list o
 
 After svmbir is installed in the system and can be used in any python script in any directory using the command ```import svmbir```
 
+To update the package, just run the installation process again.
+
 
 ### Execution
 ```demo.py``` contains a short demo that demonstrates how to use the svmbir package for performing reconstructions.
