@@ -6,14 +6,15 @@ from glob import glob
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
+
 # sources = glob('svmbir/sv-mbirct/src/*.c')
 # mbir_ct = Extension('svmbir/sv-mbirct/bin/mbir_ct',
 #                     sources=sources,
 #                     extra_compile_args=['-fopenmp', '-O3'], 
 #                     extra_link_args=['-fopenmp'])
 
-#assert os.path.exists('svmbir/sv-mbirct/bin/mbir_ct'), 'Compiled executable not present in svmbir/sv-mbirct/bin/. Compile the binary executable first'
 
+# Check for compiled executable
 if os.path.exists('svmbir/sv-mbirct/bin/mbir_ct'):
      exec_file='sv-mbirct/bin/mbir_ct'
 elif os.path.exists('svmbir/sv-mbirct/bin/mbir_ct.exe'):
@@ -21,6 +22,8 @@ elif os.path.exists('svmbir/sv-mbirct/bin/mbir_ct.exe'):
 else:
      assert False, 'Compiled executable not present in svmbir/sv-mbirct/bin/. Compile the binary executable first'
 
+
+# Install
 setup(
      name='svmbir',
      version='1.0',
