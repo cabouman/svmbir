@@ -170,7 +170,7 @@ def init_geometry(angles, num_channels, num_views, num_slices, center_offset=0, 
 
     hash_val, relevant_params = _hash_params(angles, **{**sinoparams, **imgparams})
 
-    paths = _gen_paths(svmbir_lib_path, object_name=object_name, sysmatrix_name=hash_val)
+    paths = _gen_paths(svmbir_lib_path, object_name=object_name, sysmatrix_name=hash_val[:20])
     sinoparams_c=_transform_pyconv2c(**sinoparams)
     imgparams_c=_transform_pyconv2c(**imgparams)
 
