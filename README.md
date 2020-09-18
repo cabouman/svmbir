@@ -16,7 +16,8 @@
 2. Intel "icc" compiler (included in "Parallel Studio XE", available from Intel for Linux, macOS)
 
 It is highly recommended that you install svmbir in an anaconda evironment.
-Details on setting it up can be found here: https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#activating-an-environment
+Details on conda environments can be found here: https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#activating-an-environment
+
 
 
 ### Installation
@@ -26,17 +27,24 @@ Go to a directory of your choice and run the following commands to install from 
 
 This recursively clones the svmbir python code and the submodule with C code into a folder in the currect directory.
 
-##### 2. ```cd svmbir```
+##### 2. (Optional) ```conda env create -f environment.yml```
+This creates a conda environment with the required dependencies.
+
+##### 3. (Optional) ```conda activate svmbir```
+This activates the conda environment.
+
+
+##### 4. ```cd svmbir```
 
 This changes into the root directory of the repository.
 
-##### 3. ```make -C svmbir/sv-mbirct/src/ -f Makefile.gcc```
+##### 5. ```make -C svmbir/sv-mbirct/src/ -f Makefile.gcc```
 
 This builds the binary executable from the C source code using GCC.
 If Intel ICC compiler is present, then faster reconstruction can be achieved by building with ICC:
 ```make -C svmbir/sv-mbirct/src/```
 
-##### 4. ```pip install .```
+##### 6. ```pip install .```
 
 This installs svmbir and its dependencies as a python package.
 To make sure that svmbir has been installed run ```pip list``` to see the list of installed python packages.
