@@ -1,10 +1,11 @@
 # svmbir
 
 
-### Python code for fast parallel-beam MBIR (Model Based Iterative Reconstruction) 
-#### This is a python wrapper around the c super-voxel code: https://github.com/HPImaging/sv-mbirct
+*Python code for fast parallel-beam MBIR (Model Based Iterative Reconstruction)*
 
-#### System Requirements
+*This is a python wrapper around HPImaging's supervoxel C code, [sv-mbir](https://github.com/HPImaging/sv-mbirct).*
+
+## System Requirements
 1. GCC compiler version 4.8.5 or above
 2. OpenMP API
 3. Python>=3.6
@@ -13,53 +14,47 @@
 
 #### Optional System Requirements for faster reconstruction
 1. Intel-based CPU(s)
-2. Intel "icc" compiler (included in "Parallel Studio XE", available from Intel for Linux, macOS)
+2. Intel ICC compiler (included in "Parallel Studio XE", available from Intel for Linux, macOS)
 
-It is highly recommended that you install svmbir in an anaconda evironment.
-Details on conda environments can be found here: https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#activating-an-environment
+It is recommended that you install svmbir in a [conda environment](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html).
 
+## Installation
+In command shell, ```cd``` to a directory of your choice and run the following commands to install from source.
 
+#### 1. Download Software
+Recursively clone the svmbir python code and the submodule with C code into a folder in the currect directory  
+```git clone --recursive https://github.com/cabouman/svmbir.git```  
+and change directory to the root directory of the repository.  
+```cd svmbir```  
 
-### Installation
-Go to a directory of your choice and run the following commands to install from source.
-**These commands need to be run EXACTLY.**
-##### 1. ```git clone --recursive https://github.com/cabouman/svmbir.git```
+#### 2. (Optional) Create Conda Environment
+It is recommended to use this code inside a conda environment.  
+```conda env create -f environment.yml```  
+This creates a conda environment with the required dependencies and  
+```conda activate svmbir```  
+activates the newly created conda environment. Before running the code, this conda environment should always be activated.
 
-This recursively clones the svmbir python code and the submodule with C code into a folder in the currect directory.
+#### 3. Compile Code
+Option 1: Build the binary executable from the C source code using GCC.  
+```make -C svmbir/sv-mbirct/src/ -f Makefile.gcc```  
+Option 2: If an Intel ICC compiler is present, then faster reconstruction can be achieved by building with ICC:  
+```make -C svmbir/sv-mbirct/src/ -f Makefile```  
 
-##### 2. (Optional) ```conda env create -f environment.yml```
-This creates a conda environment with the required dependencies.
+#### 4. Install the Python Package
+Run the command  
+```pip install .```  
+which installs svmbir and its dependencies as a python package.
 
-##### 3. (Optional) ```conda activate svmbir```
-This activates the conda environment.
+You can verify the installation by running ```pip show svmbir```, which should display a brief summary of the installed package.
 
-
-##### 4. ```cd svmbir```
-
-This changes into the root directory of the repository.
-
-##### 5. ```make -C svmbir/sv-mbirct/src/ -f Makefile.gcc```
-
-This builds the binary executable from the C source code using GCC.
-If Intel ICC compiler is present, then faster reconstruction can be achieved by building with ICC:
-```make -C svmbir/sv-mbirct/src/```
-
-##### 6. ```pip install .```
-
-This installs svmbir and its dependencies as a python package.
-To make sure that svmbir has been installed run ```pip list``` to see the list of installed python packages.
-
-After svmbir is installed in the system and can be used in any python script in any directory using the command ```import svmbir```
-
-To update the package, just run the installation process again.
+After that, svmbir is installed in the system and can be used in any python script in any directory using the python command ```import svmbir```.
 
 
-### Execution
-```demo.py``` contains a short demo that demonstrates how to use the svmbir package for performing reconstructions.
+## Demo
+The script ```demo.py``` contains a short demo that illustrates how to use the svmbir package for performing reconstructions.
 
-The file ```demo.py``` and the ```data``` directory can be copied together to any directory and it should still run if the installation is successful.
+To reconstruct your own data, use the interface used in ```demo.py``` as a reference.
 
-To reconstruct your own data, use the interface demonstrated in ```demo.py```. 
-It Should work from any directory once the svmbir installation is successful.
+The ```demo.py``` script and the ```data``` directory can be copied together to any directory and it should still run if the installation was successful.
 
 
