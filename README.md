@@ -38,7 +38,7 @@ activates the newly created conda environment. Before running the code, this con
 Option 1: Build the binary executable from the C source code using GCC.  
 ```make -C svmbir/sv-mbirct/src/ -f Makefile.gcc```  
 Option 2: If an Intel ICC compiler is present, then faster reconstruction can be achieved by building with ICC:  
-```make -C svmbir/sv-mbirct/src/ -f Makefile```  
+```make -C svmbir/sv-mbirct/src/ -f Makefile.icc```  
 
 #### 4. Install the Python Package
 Run the command  
