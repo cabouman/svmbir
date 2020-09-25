@@ -39,8 +39,9 @@ Option 1: Build the binary executable from the C source code using GCC.
 ```make -C svmbir/sv-mbirct/src/ CC=gcc```  
 Option 2: If an Intel ICC compiler is present, then faster reconstruction can be achieved by building with ICC:  
 ```make -C svmbir/sv-mbirct/src/ CC=icc```  
-Option 3: For MacOS, compile using the apple CLang compiler by running: 
+Option 3: For MacOS, compile using the apple Clang compiler by running:  
 ```make -C svmbir/sv-mbirct/src/ CC=clang```  
+
 
 #### 4. Install the Python Package
 Run the command  
