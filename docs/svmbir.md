@@ -6,11 +6,11 @@ The code performs Bayesian reconstruction of tomographic data, so it is particul
 
 **Functions:**
 
->[svmbir.recon](./svmbir.recon.md): Computes MBIR reconstruction from sinogram data
+>[svmbir.recon](./svmbir.recon.md): Computes MBIR reconstruction, ``image``, from sinogram data, ``sino``
 
->[svmbir.project](./svmbir.project.md): Computes forward projection of an image
+>[svmbir.project](./svmbir.project.md): Computes forward projection of 3D ``image``
 
->[svmbir.calc\_weights](./svmbir.calc\_weights.md): Calculate the weights used in reconstruction.
+>[svmbir.calc\_weights](./svmbir.calc\_weights.md): Calculate the ``weights`` array used in reconstruction.
 >
 
 >[svmbir.auto\_sigma\_x](./svmbir.auto\_sigma\_x.md): Automatically sets the ``sigma_x`` regularization parameter
@@ -21,7 +21,7 @@ The code performs Bayesian reconstruction of tomographic data, so it is particul
 
 >[svmbir.auto\_num\_col](./svmbir.auto\_num\_col.md): Automatically sets ``num_col`` the number of columns in the reconstruction
 
->[svmbir.auto\_roi\_radius](./svmbir.auto\_roi\_radius.md): Automatically sets ``roi_radius`` the region of interest radius.
+>[svmbir.auto\_roi\_radius](./svmbir.auto\_roi\_radius.md): Automatically sets ``roi_radius`` the region of interest radius
 
 
 **Conversion from Arbitray Length Units (ALU):**
