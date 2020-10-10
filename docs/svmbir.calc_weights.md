@@ -29,7 +29,7 @@ The parameters ``weights`` and ``weight_type`` should be the same values as used
 This function computes the partial weights using the values of the ``weights`` and ``weight_type`` parameters as shown below:
 
 	If weights=None {
-		If weight_type="unweighted" => weights = np.ones_like(sino)
+		If weight_type="unweighted" => weights = numpy.ones_like(sino)
 		If weight_type="transmission" => weights = numpy.exp(-sino)
 		If weight_type="transmission_root" => weights = numpy.exp(-sino/2)
 		If weight_type="emmission" => weights = 1/(sino + 0.1)
