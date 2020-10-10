@@ -23,7 +23,7 @@ Computes the automatic value of the regularization parameters ``sigma_x`` for us
 
  * ``sigma_x``: Automatic value of regularization parameter.
 
-#What it does:
+# What it does:
 
 This function computes a automatic value for the regularization parameter ``sigma_x`` using the formula:
 

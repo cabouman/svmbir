@@ -22,7 +22,7 @@ Computes the automatic value of ``num_col``, the number of columns in the recons
 
  * ``num_col``: Automatic number of columns.
 
-#What it does:
+# What it does:
 
 This function computes the automatic value used for the number of columns in an image, ``num_col`` using the following formula:
 

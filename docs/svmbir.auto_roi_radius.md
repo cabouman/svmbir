@@ -22,7 +22,7 @@ Computes the automatic value of ``roi_radius``, the region of interest radius to
 
  * ``roi_radius``: Automatic value of the region-of-interest radius.
 
-#What it does:
+# What it does:
 
 This function computes an automatic value of the region-of-interest radius given by:
 

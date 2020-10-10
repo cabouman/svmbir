@@ -24,7 +24,7 @@ The parameters ``weights`` and ``weight_type`` should be the same values as used
 
  * ``weights``: Calculated values of ``weights`` parameter.
 
-#What it does:
+# What it does:
 
 This function computes the partial weights using the values of the ``weights`` and ``weight_type`` parameters as shown below:
 

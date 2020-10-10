@@ -27,7 +27,7 @@ The parameters ``weights`` and ``weight_type`` should be the same values as used
 
  * ``sigma_y``: Automatic values of regularization parameter.
 
-#What it does:
+# What it does:
 
 This function computes a automatic value for the regularization parameter ``sigma_y`` is computed using the formula:
 

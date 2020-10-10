@@ -22,7 +22,7 @@ Computes the automatic value of ``n_row``, the number of rows in the reconstruct
 
  * ``num_row``: Automatic number of rows.
 
-#What it does:
+# What it does:
 
 This function computes the automatic value used for the number of rows in an image, ``num_row`` using the following formula:
 
