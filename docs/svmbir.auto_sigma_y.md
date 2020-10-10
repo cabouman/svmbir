@@ -33,7 +33,7 @@ This function computes a automatic value for the regularization parameter ``sigm
 
  	weights = svmbir.calc_weights(sino=sino,weights=weights,weight_type=weight_type)
 	signal_rms = numpy.mean(partial_weights * sino**2)**0.5
-	rel_noise_std = (-snr_db/20)**10
+	rel_noise_std = 10**(-snr_db/20)
 	sigma_y = rel_noise_std * signal_rms
 
 So for the default SNR of 30dB using ``weight_type=0``, the resulting parameter is ``sigma_y=0.0316``, which means an assumed noise standard deviation of approxmiately 3%. If the data has higher SNR, then the value of ``snr_db`` can be increased. 
