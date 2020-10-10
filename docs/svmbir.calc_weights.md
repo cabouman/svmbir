@@ -22,7 +22,7 @@ The parameters ``weights`` and ``weight_type`` should be the same values as used
 	
 **Returns:**
 
- * ``partial_weights``: Calculated values of partial_weight parameter.
+ * ``weights``: Calculated values of ``weights`` parameter.
 
 #What it does:
 
