@@ -93,7 +93,7 @@ The angle=0 corresponds to integration along the $x$ coordinate, i.e., along row
 
 If 3D array ``weights`` is not supplied, then the parameter ``weight_type`` determines the weights used in the forward model according to the following table:
 	
-	weight_type="unweighted" => Lambda = 1 + 0*sino
+	weight_type="unweighted" => Lambda = np.ones_like(sino)
 	weight_type="transmission" => Lambda = numpy.exp(-sino)
 	weight_type="transmission_root" => Lambda = numpy.exp(-sino/2)
 	weight_type="emmission" => Lambda = (1/(sino + 0.1))
