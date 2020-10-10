@@ -93,10 +93,10 @@ The angle=0 corresponds to integration along the $x$ coordinate, i.e., along row
 
 If 3D array ``weights`` is not supplied, then the parameter ``weight_type`` determines the weights used in the forward model according to the following table:
 	
-	weight_type="unweighted" => Lambda = numpy.ones_like(sino)
-	weight_type="transmission" => Lambda = numpy.exp(-sino)
-	weight_type="transmission_root" => Lambda = numpy.exp(-sino/2)
-	weight_type="emmission" => Lambda = (1/(sino + 0.1))
+    If weight_type="unweighted"        => weights = numpy.ones_like(sino)
+    If weight_type="transmission"      => weights = numpy.exp(-sino)
+    If weight_type="transmission_root" => weights = numpy.exp(-sino/2)
+    If weight_type="emmission"         => weights = 1/(sino + 0.1)
 
 Option "unweighted" provides unweighted reconstruction; Option "transmission" is the correct weighting for transmission CT with constant dosage; Option "transmission_root" is commonly used with transmission CT data to improve image homogeneity; Option "emmission" is appropriate for emission CT data. 
 
