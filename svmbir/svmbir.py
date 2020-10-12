@@ -221,8 +221,40 @@ def _init_geometry(angles, num_channels, num_views, num_slices, num_rows, num_co
 
 #     return proj
 
+def _calc_weights(sino, weight_type):
 
-def recon( sino, angles,
+    if weight_type=='unweighted':
+        weights = np.ones(sino.shape)
+    elif weight_type=='transmission':
+        weights = np.exp(-sino)
+    elif weight_type=='transmission_root':
+        weights = np.exp(-sino/2)
+    elif weight_type=='emmission':
+        weights = 1/(sino + 0.1)
+    else:
+        raise Exception("calc_weights: undefined weight_type {}".format(weight_type))
+
+    return weights
+
+
+def _auto_sigma_y(sino, weights, snr_db=30.0):
+
+    signal_rms = np.mean(weights * sino**2)**0.5
+    rel_noise_std = 10**(-snr_db/20)
+    sigma_y = rel_noise_std * signal_rms
+
+    return sigma_y
+
+
+def _auto_sigma_x(sino, delta_channel=1.0, sharpen=1.0):
+
+    (num_views, num_slices, num_channels) = sino.shape
+    sigma_x = 0.1 * sharpen * np.mean(sino) / (num_channel*delta_channel)
+
+    return sigma_x
+
+
+def recon(sino, angles,
         center_offset=0.0, delta_channel=1.0, delta_pixel=1.0,
         num_rows=None, num_cols=None, roi_radius=None,
         sigma_y=None, snr_db=30.0, weights=None, weight_type='unweighted',
