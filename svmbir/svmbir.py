@@ -219,8 +219,20 @@ def project(angles, recon, center_offset=0, img_downsamp=1, num_threads=1, svmbi
     return proj
 
 
-def recon(sino, angles, wght=None, center_offset=0, img_downsamp=1, init_recon=None, num_threads=1, svmbir_lib_path=__svmbir_lib_path, object_name='object', delete_temps=True, **recon_kwargs):
+# def recon( sino, angles,
+#         center_offset=0.0, delta_channel=1.0, delta_pixel=1.0,
+#         num_row=None, num_col=None, roi_radius=None,
+#         sigma_y=None, snr_db=30.0, weights=None, weight_type='unweighted',
+#         sigma_x=None, sharpen=1.0,
+#         positivity=True, p=1.2, q=2.0, T=1.0, b_interslice=1.0, 
+#         prox_image=None, init_image=0.0001, init_proj=None,
+#         stop_threshold=0.0, max_iterations=20,
+#         num_threads=1, delete_temps=True, svmbir_lib_path=__svmbir_lib_path):
+    
 
+    
+
+def recon(sino, angles, wght=None, center_offset=0, img_downsamp=1, init_recon=None, num_threads=1, svmbir_lib_path=__svmbir_lib_path, object_name='object', delete_temps=True, **recon_kwargs):
     print('recon')
 
     os.environ['OMP_NUM_THREADS'] = str(num_threads)
