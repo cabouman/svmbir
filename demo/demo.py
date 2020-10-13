@@ -5,8 +5,8 @@ import matplotlib.pyplot as plt
 import svmbir
 
 
-sino = np.load('data/sinodata.npy')
-weights = np.load('data/weightdata.npy')
+sino = np.load('sinodata.npy')
+weights = np.load('weightdata.npy')
 
 (num_views, num_slices, num_channels) = sino.shape
 angles = np.linspace(0, np.pi, num_views, endpoint=False)
@@ -23,17 +23,17 @@ x = svmbir.recon(sino, angles, weights=weights, num_threads=20,
 imgplot = plt.imshow(x[0])
 imgplot.set_cmap('gray')
 plt.colorbar()
-plt.savefig('data/recon.png')
+plt.savefig('recon.png')
 plt.close()
 
 # imgplot = plt.imshow(np.swapaxes(sino, 0, 1)[0])
 # imgplot.set_cmap('gray')
 # plt.colorbar()
-# plt.savefig('data/sino.png')
+# plt.savefig('sino.png')
 # plt.close()
 
 # imgplot = plt.imshow(np.swapaxes(sino-proj, 0, 1)[0])
 # imgplot.set_cmap('gray')
 # plt.colorbar()
-# plt.savefig('data/err_sino.png')
+# plt.savefig('err_sino.png')
 # plt.close()
