@@ -10,9 +10,9 @@ sino = np.load('sinodata.npy')
 (num_views, num_slices, num_channels) = sino.shape
 angles = np.linspace(0, np.pi, num_views, endpoint=False)
 
-x = svmbir.recon(sino, angles, num_threads=20,
-    center_offset=-6, sigma_y=1,
-    sigma_x=0.6350, T=0.000478, max_iterations=10)
+x = svmbir.recon(sino, angles, 
+    center_offset=-6, num_threads=4,
+    sigma_y=1, sigma_x=0.6350, T=0.000478, max_iterations=10)
 
 # proj = svmbir.project(angles, x, num_threads=20,
 #     center_offset=-6, img_downsamp=4)
