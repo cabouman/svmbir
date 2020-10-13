@@ -75,6 +75,7 @@ def _gen_paths(svmbir_lib_path, object_name='object', sysmatrix_name='object'):
     paths['recon_name'] = os.path.join(svmbir_lib_path,'recon',object_name)
     paths['init_name'] = os.path.join(svmbir_lib_path,'init',object_name)
     paths['proj_name'] = os.path.join(svmbir_lib_path,'proj',object_name)
+    paths['init_proj_name'] = os.path.join(svmbir_lib_path,'init_proj',object_name)
     
     paths['sysmatrix_name'] = os.path.join(svmbir_lib_path,'sysmatrix',sysmatrix_name)
     
@@ -223,7 +224,7 @@ def recon(sino, angles,
         sigma_y=None, snr_db=30.0, weights=None, weight_type='unweighted',
         sigma_x=None, sharpen=1.0,
         positivity=True, p=1.2, q=2.0, T=1.0, b_interslice=1.0, 
-        prox_image=None, init_image=0.0001, init_proj=None,
+        init_image=0.0001, init_proj=None, prox_image=None,
         stop_threshold=0.0, max_iterations=20,
         num_threads=1, delete_temps=True, svmbir_lib_path=__svmbir_lib_path, object_name='object'):
     
@@ -279,10 +280,9 @@ def recon(sino, angles,
     m=paths['sysmatrix_name'],
     t=paths['init_name'])
 
-    # if init_image is not None:
-    #     print('Starting with initial recon')
-    #     write_recon_openmbir(init_image, paths['init_name']+'_slice', '.2Dimgdata')
-    #     cmd_args['t'] = paths['init_name']
+    if init_proj is not None:
+        write_sino_openmbir(init_proj, paths['init_proj_name']+'_slice', '.2Dsinodata')
+        cmd_args['e'] = paths['init_proj_name']
 
     _cmd_exec(**cmd_args)
 
@@ -300,6 +300,9 @@ def recon(sino, angles,
         delete_data_openmbir(paths['proj_name']+'_slice', '.2Dprojection', sinoparams['num_slices'])
         delete_data_openmbir(paths['wght_name']+'_slice', '.2Dweightdata', sinoparams['num_slices'])
         delete_data_openmbir(paths['init_name']+'_slice', '.2Dimgdata', imgparams['Nz'])
+
+        if init_proj is not None:
+            delete_data_openmbir(paths['init_proj_name']+'_slice', '.2Dprojection', sinoparams['num_slices'])
 
     return x
 
