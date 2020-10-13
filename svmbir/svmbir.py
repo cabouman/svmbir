@@ -153,13 +153,17 @@ def _gen_sysmatrix(param_name, sysmatrix_name):
 
 
 def _init_geometry(angles, num_channels, num_views, num_slices, num_rows, num_cols,
-    center_offset=0, svmbir_lib_path=__svmbir_lib_path, object_name='object'):
+    delta_channel, delta_pixel, roi_radius, center_offset, 
+    svmbir_lib_path=__svmbir_lib_path, object_name='object'):
 
     sinoparams = dict(_default_sinoparams)
     sinoparams['num_channels'] = num_channels
     sinoparams['num_views'] = num_views
     sinoparams['num_slices'] = num_slices
+    sinoparams['delta_channel'] = delta_channel
     sinoparams['center_offset'] = center_offset
+    sinoparams['delta_slice'] = 1
+    sinoparams['first_slice_number'] = 0
     sinoparams['view_angle_list'] = object_name+'.ViewAngleList'
 
     imgparams = dict()
@@ -167,9 +171,9 @@ def _init_geometry(angles, num_channels, num_views, num_slices, num_rows, num_co
     imgparams['Ny'] =  num_cols
     imgparams['Nz'] =  num_slices
     imgparams['first_slice_number'] = 0
-    imgparams['delta_xy'] = sinoparams['num_channels']/imgparams['Nx']
+    imgparams['delta_xy'] = delta_pixel
     imgparams['delta_z'] = 1
-    imgparams['roi_radius'] = sinoparams['num_channels']/2
+    imgparams['roi_radius'] = roi_radius
 
     hash_val, relevant_params = _hash_params(angles, **{**sinoparams, **imgparams})
 
@@ -262,9 +266,10 @@ def recon(sino, angles,
         init_image = init_image*np.ones((num_slices, num_rows, num_cols))
 
 
-    paths, sinoparams, imgparams = _init_geometry(angles, 
+    paths, sinoparams, imgparams = _init_geometry(angles, center_offset=center_offset,
         num_channels=num_channels, num_views=num_views, num_slices=num_slices, 
-        num_rows=num_rows, num_cols=num_cols, center_offset=center_offset,
+        num_rows=num_rows, num_cols=num_cols, 
+        delta_channel=delta_channel, delta_pixel=delta_pixel, roi_radius=roi_radius,
         svmbir_lib_path=svmbir_lib_path, object_name=object_name)
 
     reconparams = parse_params(_default_reconparams, p=p, q=q, T=T, sigma_x=sigma_x,
@@ -320,9 +325,10 @@ def project(angles, image, num_channels,
     num_cols = image.shape[2]
     num_views = len(angles)
 
-    paths, sinoparams, imgparams = _init_geometry(angles, 
+    paths, sinoparams, imgparams = _init_geometry(angles, center_offset=center_offset,
         num_channels=num_channels, num_views=num_views, num_slices=num_slices, 
-        num_rows=num_rows, num_cols=num_cols, center_offset=center_offset,
+        num_rows=num_rows, num_cols=num_cols, 
+        delta_channel=delta_channel, delta_pixel=delta_pixel, roi_radius=roi_radius,
         svmbir_lib_path=svmbir_lib_path, object_name=object_name)
 
     write_recon_openmbir(image, paths['recon_name']+'_slice', '.2Dimgdata')
