@@ -72,7 +72,6 @@ def sanitize_params(params):
 def write_params(filePath, **kwargs):
 
     kwargs = sanitize_params(kwargs)
-    print(kwargs)
 
     with open(filePath, 'w') as fileID:
         yaml = YAML()
