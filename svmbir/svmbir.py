@@ -301,7 +301,7 @@ def recon(sino, angles,
 
     reconparams = parse_params(_default_reconparams, p=p, q=q, T=T, sigma_x=sigma_x,
         b_interslice=b_interslice, stop_threshold=stop_threshold, max_iterations=max_iterations,
-        positivity=positivity)
+        positivity=int(positivity))
     reconparams_c=_transform_pyconv2c(**reconparams)
     write_params(paths['reconparams_fname'], **reconparams_c)
 
