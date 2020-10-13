@@ -190,7 +190,18 @@ def _init_geometry(angles, num_channels, num_views, num_slices, num_rows, num_co
 
 
 def _calc_weights(sino, weight_type):
-
+    """Summary
+    
+    Args:
+        sino (TYPE): Description
+        weight_type (TYPE): Description
+    
+    Returns:
+        TYPE: Description
+    
+    Raises:
+        Exception: Description
+    """
     if weight_type=='unweighted':
         weights = np.ones(sino.shape)
     elif weight_type=='transmission':
@@ -206,7 +217,16 @@ def _calc_weights(sino, weight_type):
 
 
 def _auto_sigma_y(sino, weights, snr_db=30.0):
-
+    """Summary
+    
+    Args:
+        sino (TYPE): Description
+        weights (TYPE): Description
+        snr_db (float, optional): Description
+    
+    Returns:
+        TYPE: Description
+    """
     signal_rms = np.mean(weights * sino**2)**0.5
     rel_noise_std = 10**(-snr_db/20)
     sigma_y = rel_noise_std * signal_rms
@@ -215,7 +235,16 @@ def _auto_sigma_y(sino, weights, snr_db=30.0):
 
 
 def _auto_sigma_x(sino, delta_channel=1.0, sharpen=1.0):
-
+    """Summary
+    
+    Args:
+        sino (TYPE): Description
+        delta_channel (float, optional): Description
+        sharpen (float, optional): Description
+    
+    Returns:
+        TYPE: Description
+    """
     (num_views, num_slices, num_channels) = sino.shape
     sigma_x = 0.1 * sharpen * np.mean(sino) / (num_channels*delta_channel)
 
@@ -356,7 +385,24 @@ def recon(sino, angles,
 def project(angles, image, num_channels,
         delta_channel=1.0, delta_pixel=1.0, center_offset=0.0, roi_radius=None,
         num_threads=1, delete_temps=True, svmbir_lib_path=__svmbir_lib_path, object_name='object'):
-
+    """Summary
+    
+    Args:
+        angles (TYPE): Description
+        image (TYPE): Description
+        num_channels (TYPE): Description
+        delta_channel (float, optional): Description
+        delta_pixel (float, optional): Description
+        center_offset (float, optional): Description
+        roi_radius (None, optional): Description
+        num_threads (int, optional): Description
+        delete_temps (bool, optional): Description
+        svmbir_lib_path (TYPE, optional): Description
+        object_name (str, optional): Description
+    
+    Returns:
+        TYPE: Description
+    """
     print('Running Forward projection ----------------------------')
 
     os.environ['OMP_NUM_THREADS'] = str(num_threads)
