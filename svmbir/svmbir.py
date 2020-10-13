@@ -231,7 +231,41 @@ def recon(sino, angles,
         init_image=0.0001, init_proj=None, prox_image=None,
         stop_threshold=0.0, max_iterations=20,
         num_threads=1, delete_temps=True, svmbir_lib_path=__svmbir_lib_path, object_name='object'):
-
+    """ Computes the 3D MBIR reconstruction using a parallel beam geometry and other parameters as described below.
+    
+    Args:
+        sino (ndarray): 3D numpy array of sinogram data with shape (num_view,num_slice,num_channel)
+        angles (ndarray): 1D numpy array of view angles in radians. 
+        center_offset (float, optional): Scalar value of offset from center-of-rotation.
+        delta_channel (float, optional): Scalar value of detector channel spacing in ALU.
+        delta_pixel (float, optional): Scalar value of the spacing between image pixels in the 2D slice plane in ALU.
+        num_rows (None, optional): Integer number of rows in reconstructed image. If None, automatically set.
+        num_cols (None, optional): Integer number of columns in reconstructed image. If None, automatically set.
+        roi_radius (None, optional): Description
+        sigma_y (None, optional): Description
+        snr_db (float, optional): Description
+        weights (None, optional): Description
+        weight_type (str, optional): Description
+        sigma_x (None, optional): Description
+        sharpen (float, optional): Description
+        positivity (bool, optional): Description
+        p (float, optional): Description
+        q (float, optional): Description
+        T (float, optional): Description
+        b_interslice (float, optional): Description
+        init_image (float, optional): Description
+        init_proj (None, optional): Description
+        prox_image (None, optional): Description
+        stop_threshold (float, optional): Description
+        max_iterations (int, optional): Description
+        num_threads (int, optional): Description
+        delete_temps (bool, optional): Description
+        svmbir_lib_path (TYPE, optional): Description
+        object_name (str, optional): Description
+    
+    Returns:
+        ndarray: Reconstructed 3D object.
+    """
     print('Running Reconstruction ----------------------------')
 
     os.environ['OMP_NUM_THREADS'] = str(num_threads)
@@ -363,3 +397,4 @@ def project(angles, image, num_channels,
 
 def clear_cache(svmbir_lib_path=__svmbir_lib_path):
     shutil.rmtree(svmbir_lib_path)
+
