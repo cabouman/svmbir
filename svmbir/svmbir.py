@@ -189,42 +189,6 @@ def _init_geometry(angles, num_channels, num_views, num_slices, num_rows, num_co
     return paths, sinoparams, imgparams
 
 
-def project(angles, image, num_channels,
-        delta_channel=1.0, delta_pixel=1.0, center_offset=0.0, roi_radius=None,
-        num_threads=1, delete_temps=True, svmbir_lib_path=__svmbir_lib_path, object_name='object'):
-
-    os.environ['OMP_NUM_THREADS'] = str(num_threads)
-    os.environ['OMP_DYNAMIC'] = 'true'
-
-    num_slices = image.shape[0]
-    num_rows = image.shape[1]
-    num_cols = image.shape[2]
-    num_views = len(angles)
-
-    paths, sinoparams, imgparams = _init_geometry(angles, 
-        num_channels=num_channels, num_views=num_views, num_slices=num_slices, 
-        num_rows=num_rows, num_cols=num_cols, center_offset=center_offset,
-        svmbir_lib_path=svmbir_lib_path, object_name=object_name)
-
-    write_recon_openmbir(image, paths['recon_name']+'_slice', '.2Dimgdata')
-
-    _cmd_exec(i=paths['param_name'], j=paths['param_name'], m=paths['sysmatrix_name'],
-        f=paths['proj_name'], t=paths['recon_name'])
-
-    proj = read_sino_openmbir(paths['proj_name']+'_slice', '.2Dprojection', 
-        sinoparams['num_views'], sinoparams['num_slices'], sinoparams['num_channels'])
-
-    if delete_temps:
-        os.remove( paths['sinoparams_fname'] )
-        os.remove( paths['imgparams_fname'] )
-        os.remove( paths['view_angle_list_fname'] )
-
-        delete_data_openmbir(paths['recon_name']+'_slice', '.2Dimgdata', imgparams['Nz'])
-        delete_data_openmbir(paths['proj_name']+'_slice', '.2Dprojection', sinoparams['num_slices'])
-
-    return proj
-
-
 def _calc_weights(sino, weight_type):
 
     if weight_type=='unweighted':
@@ -342,4 +306,41 @@ def recon(sino, angles,
         delete_data_openmbir(paths['init_name']+'_slice', '.2Dimgdata', imgparams['Nz'])
 
     return x
+
+
+def project(angles, image, num_channels,
+        delta_channel=1.0, delta_pixel=1.0, center_offset=0.0, roi_radius=None,
+        num_threads=1, delete_temps=True, svmbir_lib_path=__svmbir_lib_path, object_name='object'):
+
+    os.environ['OMP_NUM_THREADS'] = str(num_threads)
+    os.environ['OMP_DYNAMIC'] = 'true'
+
+    num_slices = image.shape[0]
+    num_rows = image.shape[1]
+    num_cols = image.shape[2]
+    num_views = len(angles)
+
+    paths, sinoparams, imgparams = _init_geometry(angles, 
+        num_channels=num_channels, num_views=num_views, num_slices=num_slices, 
+        num_rows=num_rows, num_cols=num_cols, center_offset=center_offset,
+        svmbir_lib_path=svmbir_lib_path, object_name=object_name)
+
+    write_recon_openmbir(image, paths['recon_name']+'_slice', '.2Dimgdata')
+
+    _cmd_exec(i=paths['param_name'], j=paths['param_name'], m=paths['sysmatrix_name'],
+        f=paths['proj_name'], t=paths['recon_name'])
+
+    proj = read_sino_openmbir(paths['proj_name']+'_slice', '.2Dprojection', 
+        sinoparams['num_views'], sinoparams['num_slices'], sinoparams['num_channels'])
+
+    if delete_temps:
+        os.remove( paths['sinoparams_fname'] )
+        os.remove( paths['imgparams_fname'] )
+        os.remove( paths['view_angle_list_fname'] )
+
+        delete_data_openmbir(paths['recon_name']+'_slice', '.2Dimgdata', imgparams['Nz'])
+        delete_data_openmbir(paths['proj_name']+'_slice', '.2Dprojection', sinoparams['num_slices'])
+
+    return proj
+
 
