@@ -1,6 +1,3 @@
-# from __future__ import absolute_import
-# from __future__ import division
-# from __future__ import print_function
 
 import os
 import sys
@@ -59,7 +56,24 @@ def modify_params(filePath, **kwargs):
         yaml.dump(yaml_dict, fileID)
 
 
+def sanitize_params(params):
+
+    if isinstance(params, dict):
+        params = dict(params)
+        for key in params:
+            params[key] = sanitize_params(params[key])
+
+    if isinstance(params, (np.ndarray, np.generic)):
+        params = params.tolist()
+
+    return params
+
+
 def write_params(filePath, **kwargs):
+
+    kwargs = sanitize_params(kwargs)
+    # print(kwargs)
+    # sys.stdout.flush()
 
     with open(filePath, 'w') as fileID:
         yaml = YAML()
