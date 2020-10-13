@@ -30,16 +30,6 @@ _default_reconparams = {'prior_model': 'QGGMRF',
     'positivity': 1,
     'weight_type': 0} # constant weights
 
-_default_sinoparams = {'geometry': '3DPARALLEL',
-    'num_channels': 512,
-    'num_views': 288,
-    'num_slices': 1,
-    'delta_channel': 1,
-    'center_offset': 0,
-    'delta_slice': 1,
-    'first_slice_number': 0,
-    'view_angle_list': 'object.ViewAngleList'}
-
 _map_pyconv2camelcase={'prior_model': 'PriorModel',
     'init_image_value': 'InitImageValue',
     'p': 'p',
@@ -156,7 +146,8 @@ def _init_geometry(angles, num_channels, num_views, num_slices, num_rows, num_co
     delta_channel, delta_pixel, roi_radius, center_offset, 
     svmbir_lib_path=__svmbir_lib_path, object_name='object'):
 
-    sinoparams = dict(_default_sinoparams)
+    sinoparams = dict()
+    sinoparams['geometry']= '3DPARALLEL'
     sinoparams['num_channels'] = num_channels
     sinoparams['num_views'] = num_views
     sinoparams['num_slices'] = num_slices
