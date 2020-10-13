@@ -230,8 +230,8 @@ def recon(sino, angles,
         init_image=0.0001, init_proj=None, prox_image=None,
         stop_threshold=0.0, max_iterations=20,
         num_threads=1, delete_temps=True, svmbir_lib_path=__svmbir_lib_path, object_name='object'):
-    
-    # prox_image
+
+    print('Running Reconstruction ----------------------------')
 
     os.environ['OMP_NUM_THREADS'] = str(num_threads)
     os.environ['OMP_DYNAMIC'] = 'true'
@@ -322,6 +322,8 @@ def project(angles, image, num_channels,
         delta_channel=1.0, delta_pixel=1.0, center_offset=0.0, roi_radius=None,
         num_threads=1, delete_temps=True, svmbir_lib_path=__svmbir_lib_path, object_name='object'):
 
+    print('Running Forward projection ----------------------------')
+
     os.environ['OMP_NUM_THREADS'] = str(num_threads)
     os.environ['OMP_DYNAMIC'] = 'true'
 
@@ -329,6 +331,9 @@ def project(angles, image, num_channels,
     num_rows = image.shape[1]
     num_cols = image.shape[2]
     num_views = len(angles)
+
+    if roi_radius is None:
+        roi_radius = float(delta_pixel * max(num_rows,num_cols))
 
     paths, sinoparams, imgparams = _init_geometry(angles, center_offset=center_offset,
         num_channels=num_channels, num_views=num_views, num_slices=num_slices, 
