@@ -249,7 +249,7 @@ def _auto_sigma_y(sino, weights, snr_db=30.0):
 def _auto_sigma_x(sino, delta_channel=1.0, sharpen=1.0):
 
     (num_views, num_slices, num_channels) = sino.shape
-    sigma_x = 0.1 * sharpen * np.mean(sino) / (num_channel*delta_channel)
+    sigma_x = 0.1 * sharpen * np.mean(sino) / (num_channels*delta_channel)
 
     return sigma_x
 
