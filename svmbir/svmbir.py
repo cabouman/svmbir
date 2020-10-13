@@ -234,7 +234,7 @@ def recon(sino, angles,
     """ Computes the 3D MBIR reconstruction using a parallel beam geometry and other parameters as described below.
     
     Args:
-        sino (ndarray): 3D numpy array of sinogram data with shape (num_view,num_slice,num_channel)
+        sino (ndarray): 3D numpy array of sinogram data with shape (num_views,num_slices,num_channels)
         angles (ndarray): 1D numpy array of view angles in radians. 
         center_offset (float, optional): Scalar value of offset from center-of-rotation.
         delta_channel (float, optional): Scalar value of detector channel spacing in ALU.
