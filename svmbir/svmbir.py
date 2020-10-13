@@ -241,8 +241,8 @@ def recon(sino, angles,
         delta_pixel (float, optional): Scalar value of the spacing between image pixels in the 2D slice plane in ALU.
         num_rows (None, optional): Integer number of rows in reconstructed image. If None, automatically set.
         num_cols (None, optional): Integer number of columns in reconstructed image. If None, automatically set.
-        roi_radius (None, optional): Description
-        sigma_y (None, optional): Description
+        roi_radius (None, optional): Scalar value of radius of reconstruction in ALU. If None, automatically set.
+        sigma_y (None, optional): Scalar value of noise standard deviation parameter. If None, automatically set.
         snr_db (float, optional): Description
         weights (None, optional): Description
         weight_type (str, optional): Description
