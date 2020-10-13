@@ -1,5 +1,6 @@
 
 import os
+import shutil
 import argparse
 from glob import glob
 import numpy as np
@@ -58,7 +59,7 @@ _map_pyconv2camelcase={'prior_model': 'PriorModel',
     'roi_radius':'ROIRadius'}
 
 
-def _gen_paths(svmbir_lib_path, object_name='object', sysmatrix_name='object'):
+def _gen_paths(svmbir_lib_path=__svmbir_lib_path, object_name='object', sysmatrix_name='object'):
 
     os.makedirs( os.path.join(svmbir_lib_path,'obj'), exist_ok=True)
     os.makedirs( os.path.join(svmbir_lib_path,'sino'), exist_ok=True)
@@ -360,3 +361,5 @@ def project(angles, image, num_channels,
     return proj
 
 
+def clear_cache(svmbir_lib_path=__svmbir_lib_path):
+    shutil.rmtree(svmbir_lib_path)
