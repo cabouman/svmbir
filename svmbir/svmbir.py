@@ -190,14 +190,17 @@ def _init_geometry(angles, num_channels, num_views, num_slices, num_rows, num_co
 
 
 def _calc_weights(sino, weight_type):
-    """Summary
+    """Computes the weights used in reconstruction.
     
     Args:
-        sino (TYPE): Description
-        weight_type (TYPE): Description
-    
+        sino (TYPE): 3D numpy array of sinogram data organized with sino[slice,channel,view].
+        weight_type (TYPE): [Default=0] Type of noise model used for data. The parameters weight_type should be the same values as used in svmbir reconstruction.
+        If weight_type="unweighted"        => weights = numpy.ones_like(sino)
+        If weight_type="transmission"      => weights = numpy.exp(-sino)
+        If weight_type="transmission_root" => weights = numpy.exp(-sino/2)
+        If weight_type="emmission"         => weights = 1/(sino + 0.1)
     Returns:
-        TYPE: Description
+        TYPE: [Default=None] 3D numpy array of weights with same shape as sino. Retrun calculated values of weights parameter.
     
     Raises:
         Exception: Description
@@ -217,18 +220,18 @@ def _calc_weights(sino, weight_type):
 
 
 def _auto_sigma_y(sino, weights, snr_db=30.0):
-    """Summary
+    """Computes the automatic value of n_row, the number of rows in the reconstructed image volume.
     
     Args:
         sino (TYPE):
-            Description
+            3D numpy array of sinogram data organized with sino[slice,channel,view].
         weights (TYPE):
-            Description
+            [Default=None] 3D numpy array of weights with same shape as sino. The parameters weights should be the same values as used in svmbir reconstruction.
         snr_db (float, optional):
-            Description
+            [Default=30.0] Scalar value that controls assumed signal-to-noise ratio of the data in dB.
     
     Returns:
-        TYPE: Description
+        TYPE: Automatic values of regularization parameter.
     """
     signal_rms = np.mean(weights * sino**2)**0.5
     rel_noise_std = 10**(-snr_db/20)
@@ -238,18 +241,18 @@ def _auto_sigma_y(sino, weights, snr_db=30.0):
 
 
 def _auto_sigma_x(sino, delta_channel=1.0, sharpen=1.0):
-    """Summary
+    """Computes the automatic value of the regularization parameters sigma_x for use in MBIR reconstruction.
     
     Args:
         sino (TYPE):
-            Description
+            3D numpy array of sinogram data organized with sino[slice,channel,view].
         delta_channel (float, optional):
-            Description
+            [Default=1.0] Scalar value of detector channel spacing in ALU.
         sharpen (float, optional):
-            Description
+            [Default=1.0] Scalar value that controls level of sharpening. Large value results in sharper or less regularized reconstruction.
     
     Returns:
-        TYPE: Description
+        TYPE: Automatic value of regularization parameter.
     """
     (num_views, num_slices, num_channels) = sino.shape
     sigma_x = 0.1 * sharpen * np.mean(sino) / (num_channels*delta_channel)
