@@ -288,46 +288,58 @@ def recon(sino, angles,
         sigma_y (None, optional): 
             Scalar value of noise standard deviation parameter. If None, automatically set.
         snr_db (float, optional): 
-            Description
+            [Default=30.0] Scalar value that controls assumed signal-to-noise ratio of the data in dB. Ignored if sigma_y is not None.
         weights (None, optional): 
-            Description
+            [Default=None] 3D numpy array of weights with same shape as sino
         weight_type (str, optional): 
-            Description
+            [Default=0] Type of noise model used for data. Ignored if weights parameter is supplied. Can be set to the values unweighted, transmission, transmission_root, and emission.
+            If 3D array weights is not supplied, then the parameter weight_type determines the weights used in the forward model according to the following table:
+                If weight_type="unweighted"        => weights = numpy.ones_like(sino)
+                If weight_type="transmission"      => weights = numpy.exp(-sino)
+                If weight_type="transmission_root" => weights = numpy.exp(-sino/2)
+                If weight_type="emmission"         => weights = 1/(sino + 0.1)
+            Option "unweighted" provides unweighted reconstruction; Option "transmission" is the correct weighting for transmission CT with constant dosage; Option "transmission_root" is commonly used with transmission CT data to improve image homogeneity; Option "emmission" is appropriate for emission CT data.
         sigma_x (None, optional): 
-            Description
+            [Default=None] Scalar value >0 that specifies the qGGMRF scale parameter. If None, automatically set by calling svmbir.auto_sigma_x. The parameter sigma_x can be used to directly control regularization, but this is only recommended for expert users.
         sharpen (float, optional): 
-            Description
+            [Default=1.0] Scalar value that controls level of sharpening. Large value results in sharper or less regularized reconstruction. Ignored if sigma_x is not None. The parameter sharpen can be used to control the level of regularization of the reconstructed image. Large values of sharpen will result in a less regularized or sharper image and smaller values will result in a more regularized or smoother image.
         positivity (bool, optional): 
-            Description
+            [Default=True] Boolean value that determines if positivity constraint is enforced. The positivity parameter defaults to True; however, it should be changed to False when used in applications that can generate negative image values. 
         p (float, optional): 
-            Description
+            [Default=1.2] Scalar value >1 that specifies the qGGMRF shape parameter.
         q (float, optional): 
-            Description
+            [Default=2.0] Scalar value >``p`` that specifies the qGGMRF shape parameter.
         T (float, optional): 
-            Description
+            [Default=1.0] Scalar value >0 that specifies the qGGMRF threshold parameter.
         b_interslice (float, optional): 
-            Description
+            [Default=1.0] Scalar value >0 that specifies the interslice regularization. Default value of 1 is best in most cases. The default values of b_interslice should be fine for most applications. However, b_interslice can be increased to values >1 in order to increase regularization along the slice axis.
         init_image (float, optional): 
-            Description
+            [Default=0.0001] Initial value of reconstruction image specified by either a single scalar value or a 3D numpy array with a shape of (shape.sino[1],num_row,num_col)
         init_proj (None, optional): 
-            Description
+            [Default=None] Initial value of forward projection of the init_image. This can be used to reduce computation for the first iteration when using the proximal map option.
         prox_image (None, optional): 
-            Description
+            [Default=None] 3D numpy array with proximal map input image. 
+            If prox_image is supplied, then the proximal map prior model is used, and the qGGMRF parameters are ignored. 
+            The proximal map prior is required when svmbir.recon is used with Plug-and-Play. 
+            In this case, the reconstruction solves the optimization problem: 
+            $$ {\hat x} = \arg \minx \left{ \frac{1}{2} \Vert y - Ax \Vert\Lambda^2 + \frac{1}{2\sigma_x^2} \Vert x -v \Vert^2 \right} $$ 
+            where $v$ is given by prox_image. This feature should only be used by expert users 
+            since svmbir must be incorporated in a Plug-and-Play outter loop in order to make the option useful.
         stop_threshold (float, optional): 
-            Description
+            [Default=0.0] Scalar valued stopping threshold in percent. If stop_threshold=0, then run max iterations.
         max_iterations (int, optional): 
-            Description
+            [Default=20] Integer valued specifying the maximum number of iterations.
         num_threads (int, optional): 
-            Description
+            [Default=1] Number of compute threads requested when executed.
         delete_temps (bool, optional): 
-            Description
+            [Default=True] Delete temporary files used in computation.
         svmbir_lib_path (TYPE, optional): 
-            Description
+            [Default=~/.cache/svmbir_lib] Path to directory containing library of forward projection matrices.
         object_name (str, optional): 
             Description
     
     Returns:
-        ndarray: Reconstructed 3D object.
+        ndarray: Reconstructed 3D object in units of ALU$^{-1}$. 
     """
     print('Running Reconstruction ----------------------------')
 
