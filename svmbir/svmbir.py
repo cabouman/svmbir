@@ -435,30 +435,30 @@ def project(angles, image, num_channels,
     
     Args:
         angles (TYPE):
-            Description
+            1D numpy array of view angles in radians. The 1D array is organized so that angles[k] is the angle in radians for view k. The angle=0 corresponds to integration along the $x$ coordinate, i.e., along rows of the reconstruction.
         image (TYPE):
-            Description
+            3D numpy array of image being forward projected. The image is a 3D image with a shape of [num_slices,num_row,num_col] where num_slices is the number of sinogram slices. The image should be 0 outside the ROI as defined by roi_radius.
         num_channels (TYPE):
-            Description
+            Integer number of sinogram channels.
         delta_channel (float, optional):
-            Description
+            [Default=1.0] Scalar value of detector channel spacing in ALU.
         delta_pixel (float, optional):
-            Description
+            [Default=1.0] Scalar value of the spacing between image pixels in the 2D slice plane in ALU.
         center_offset (float, optional):
-            Description
+            [Default=0.0] Scalar value of offset from center-of-rotation.
         roi_radius (None, optional):
-            Description
+            [Default=None] Scalar value of radius of reconstruction in ALU. If None, automatically set by calling svmbir.auto_roi_radius. Pixels outside the radius roi_radius in the $(x,y)$ plane are disregarded in forward projection. The automatically set size of roi_radius is choosen so that it inscribes the largest axis of the recon image with a shape [num_slices,num_row,num_col].
         num_threads (int, optional):
-            Description
+            [Default=1] Number of compute threads requested when executed.
         delete_temps (bool, optional):
-            Description
+            [Default=True] Delete temporary files used in computation.
         svmbir_lib_path (TYPE, optional):
-            Description
+            [Default=~/.cache/svmbir_lib] String containing path to directory containing library of forward projection matrices and temp file.
         object_name (str, optional):
             Description
     
     Returns:
-        TYPE: Description
+        TYPE: 3D numpy array containing sinogram with shape [num_view,num_slice,num_channel].
     """
     print('Running Forward projection ----------------------------')
 
