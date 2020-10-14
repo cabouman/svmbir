@@ -220,9 +220,12 @@ def _auto_sigma_y(sino, weights, snr_db=30.0):
     """Summary
     
     Args:
-        sino (TYPE): Description
-        weights (TYPE): Description
-        snr_db (float, optional): Description
+        sino (TYPE):
+            Description
+        weights (TYPE):
+            Description
+        snr_db (float, optional):
+            Description
     
     Returns:
         TYPE: Description
@@ -238,9 +241,12 @@ def _auto_sigma_x(sino, delta_channel=1.0, sharpen=1.0):
     """Summary
     
     Args:
-        sino (TYPE): Description
-        delta_channel (float, optional): Description
-        sharpen (float, optional): Description
+        sino (TYPE):
+            Description
+        delta_channel (float, optional):
+            Description
+        sharpen (float, optional):
+            Description
     
     Returns:
         TYPE: Description
@@ -263,34 +269,62 @@ def recon(sino, angles,
     """ Computes the 3D MBIR reconstruction using a parallel beam geometry and other parameters as described below.
     
     Args:
-        sino (ndarray): 3D numpy array of sinogram data with shape (num_views,num_slices,num_channels)
-        angles (ndarray): 1D numpy array of view angles in radians. 
-        center_offset (float, optional): Scalar value of offset from center-of-rotation.
-        delta_channel (float, optional): Scalar value of detector channel spacing in ALU.
-        delta_pixel (float, optional): Scalar value of the spacing between image pixels in the 2D slice plane in ALU.
-        num_rows (None, optional): Integer number of rows in reconstructed image. If None, automatically set.
-        num_cols (None, optional): Integer number of columns in reconstructed image. If None, automatically set.
-        roi_radius (None, optional): Scalar value of radius of reconstruction in ALU. If None, automatically set.
-        sigma_y (None, optional): Scalar value of noise standard deviation parameter. If None, automatically set.
-        snr_db (float, optional): Description
-        weights (None, optional): Description
-        weight_type (str, optional): Description
-        sigma_x (None, optional): Description
-        sharpen (float, optional): Description
-        positivity (bool, optional): Description
-        p (float, optional): Description
-        q (float, optional): Description
-        T (float, optional): Description
-        b_interslice (float, optional): Description
-        init_image (float, optional): Description
-        init_proj (None, optional): Description
-        prox_image (None, optional): Description
-        stop_threshold (float, optional): Description
-        max_iterations (int, optional): Description
-        num_threads (int, optional): Description
-        delete_temps (bool, optional): Description
-        svmbir_lib_path (TYPE, optional): Description
-        object_name (str, optional): Description
+        sino (ndarray): 
+            3D numpy array of sinogram data with shape (num_views,num_slices,num_channels)
+        angles (ndarray): 
+            1D numpy array of view angles in radians. 
+        center_offset (float, optional): 
+            Scalar value of offset from center-of-rotation.
+        delta_channel (float, optional): 
+            Scalar value of detector channel spacing in ALU.
+        delta_pixel (float, optional): 
+            Scalar value of the spacing between image pixels in the 2D slice plane in ALU.
+        num_rows (None, optional): 
+            Integer number of rows in reconstructed image. If None, automatically set.
+        num_cols (None, optional): 
+            Integer number of columns in reconstructed image. If None, automatically set.
+        roi_radius (None, optional): 
+            Scalar value of radius of reconstruction in ALU. If None, automatically set.
+        sigma_y (None, optional): 
+            Scalar value of noise standard deviation parameter. If None, automatically set.
+        snr_db (float, optional): 
+            Description
+        weights (None, optional): 
+            Description
+        weight_type (str, optional): 
+            Description
+        sigma_x (None, optional): 
+            Description
+        sharpen (float, optional): 
+            Description
+        positivity (bool, optional): 
+            Description
+        p (float, optional): 
+            Description
+        q (float, optional): 
+            Description
+        T (float, optional): 
+            Description
+        b_interslice (float, optional): 
+            Description
+        init_image (float, optional): 
+            Description
+        init_proj (None, optional): 
+            Description
+        prox_image (None, optional): 
+            Description
+        stop_threshold (float, optional): 
+            Description
+        max_iterations (int, optional): 
+            Description
+        num_threads (int, optional): 
+            Description
+        delete_temps (bool, optional): 
+            Description
+        svmbir_lib_path (TYPE, optional): 
+            Description
+        object_name (str, optional): 
+            Description
     
     Returns:
         ndarray: Reconstructed 3D object.
@@ -388,17 +422,28 @@ def project(angles, image, num_channels,
     """Summary
     
     Args:
-        angles (TYPE): Description
-        image (TYPE): Description
-        num_channels (TYPE): Description
-        delta_channel (float, optional): Description
-        delta_pixel (float, optional): Description
-        center_offset (float, optional): Description
-        roi_radius (None, optional): Description
-        num_threads (int, optional): Description
-        delete_temps (bool, optional): Description
-        svmbir_lib_path (TYPE, optional): Description
-        object_name (str, optional): Description
+        angles (TYPE):
+            Description
+        image (TYPE):
+            Description
+        num_channels (TYPE):
+            Description
+        delta_channel (float, optional):
+            Description
+        delta_pixel (float, optional):
+            Description
+        center_offset (float, optional):
+            Description
+        roi_radius (None, optional):
+            Description
+        num_threads (int, optional):
+            Description
+        delete_temps (bool, optional):
+            Description
+        svmbir_lib_path (TYPE, optional):
+            Description
+        object_name (str, optional):
+            Description
     
     Returns:
         TYPE: Description
