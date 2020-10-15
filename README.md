@@ -54,10 +54,7 @@ After that, svmbir is installed in the system and can be used in any python scri
 
 
 ## Demo
-The script ```demo.py``` contains a short demo that illustrates how to use the svmbir package for performing reconstructions.
+The script ```demo_simple.py``` contains a short demo that illustrates how to use the svmbir package for performing reconstructions.
 
-To reconstruct your own data, use the interface used in ```demo.py``` as a reference.
-
-The ```demo.py``` script and the ```data``` directory can be copied together to any directory and it should still run if the installation was successful.
-
+To reconstruct your own data, use the interface used in ```demo_simple.py``` as a reference.
 
