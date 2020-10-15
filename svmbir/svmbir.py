@@ -359,7 +359,9 @@ def recon(sino, angles,
         svmbir_lib_path (TYPE, optional): 
             [Default=~/.cache/svmbir_lib] Path to directory containing library of forward projection matrices.
         object_name (str, optional): 
-            [Default='object'] Specifies filenames of cached files. Can be changed suitably for running multiple instances of reconstructions.
+            [Default='object'] Specifies filenames of cached files. 
+            Can be changed suitably for running multiple instances of reconstructions.
+            Useful for building multi-process and multi-node functionality on top of svmbir.
     
     Returns:
         ndarray: 3D numpy array with shape [num_slices,num_rows,num_cols] containing the reconstructed 3D object in units of ALU$^{-1}$. 
@@ -484,7 +486,9 @@ def project(angles, image, num_channels,
         svmbir_lib_path (TYPE, optional):
             [Default=~/.cache/svmbir_lib] String containing path to directory containing library of forward projection matrices and temp file.
         object_name (str, optional): 
-            [Default='object'] Specifies filenames of cached files. Can be changed suitably for running multiple instances of reconstructions.
+            [Default='object'] Specifies filenames of cached files. 
+            Can be changed suitably for running multiple instances of forward projections.
+            Useful for building multi-process and multi-node functionality on top of svmbir.
     
     Returns:
         ndarray: 3D numpy array containing sinogram with shape [num_views,num_slices,num_channels].
