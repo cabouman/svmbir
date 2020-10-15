@@ -59,6 +59,10 @@ _map_pyconv2camelcase={'prior_model': 'PriorModel',
     'roi_radius':'ROIRadius'}
 
 
+def clear_cache(svmbir_lib_path=__svmbir_lib_path):
+    shutil.rmtree(svmbir_lib_path)
+
+
 def _gen_paths(svmbir_lib_path=__svmbir_lib_path, object_name='object', sysmatrix_name='object'):
 
     os.makedirs( os.path.join(svmbir_lib_path,'obj'), exist_ok=True)
@@ -500,8 +504,4 @@ def project(angles, image, num_channels,
         delete_data_openmbir(paths['proj_name']+'_slice', '.2Dprojection', sinoparams['num_slices'])
 
     return proj
-
-
-def clear_cache(svmbir_lib_path=__svmbir_lib_path):
-    shutil.rmtree(svmbir_lib_path)
 
