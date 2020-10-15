@@ -224,9 +224,9 @@ def _auto_sigma_y(sino, weights, snr_db=30.0):
     
     Args:
         sino (TYPE):
-            3D numpy array of sinogram data organized with sino[slice,channel,view].
+            3D numpy array of sinogram data with shape (num_views,num_slices,num_channels)
         weights (TYPE):
-            [Default=None] 3D numpy array of weights with same shape as sino. The parameters weights should be the same values as used in svmbir reconstruction.
+            3D numpy array of weights with same shape as sino. The parameters weights should be the same values as used in svmbir reconstruction.
         snr_db (float, optional):
             [Default=30.0] Scalar value that controls assumed signal-to-noise ratio of the data in dB.
     
@@ -245,7 +245,7 @@ def _auto_sigma_x(sino, delta_channel=1.0, sharpen=1.0):
     
     Args:
         sino (TYPE):
-            3D numpy array of sinogram data organized with sino[slice,channel,view].
+            3D numpy array of sinogram data with shape (num_views,num_slices,num_channels)
         delta_channel (float, optional):
             [Default=1.0] Scalar value of detector channel spacing in ALU.
         sharpen (float, optional):
@@ -277,22 +277,22 @@ def recon(sino, angles,
         angles (ndarray): 
             1D numpy array of view angles in radians. 
         center_offset (float, optional): 
-            Scalar value of offset from center-of-rotation.
+            [Default=0.0] Scalar value of offset from center-of-rotation.
         delta_channel (float, optional): 
-            Scalar value of detector channel spacing in ALU.
+            [Default=1.0] Scalar value of detector channel spacing in ALU.
         delta_pixel (float, optional): 
-            Scalar value of the spacing between image pixels in the 2D slice plane in ALU.
-        num_rows (None, optional): 
-            Integer number of rows in reconstructed image. If None, automatically set.
-        num_cols (None, optional): 
-            Integer number of columns in reconstructed image. If None, automatically set.
-        roi_radius (None, optional): 
-            Scalar value of radius of reconstruction in ALU. If None, automatically set.
-        sigma_y (None, optional): 
-            Scalar value of noise standard deviation parameter. If None, automatically set.
+            [Default=1.0] Scalar value of the spacing between image pixels in the 2D slice plane in ALU.
+        num_rows (int, optional): 
+            [Default=None] Integer number of rows in reconstructed image. If None, automatically set.
+        num_cols (int, optional): 
+            [Default=None] Integer number of columns in reconstructed image. If None, automatically set.
+        roi_radius (float, optional): 
+            [Default=None] Scalar value of radius of reconstruction in ALU. If None, automatically set.
+        sigma_y (float, optional): 
+            [Default=None] Scalar value of noise standard deviation parameter. If None, automatically set.
         snr_db (float, optional): 
             [Default=30.0] Scalar value that controls assumed signal-to-noise ratio of the data in dB. Ignored if sigma_y is not None.
-        weights (None, optional): 
+        weights (ndarray, optional): 
             [Default=None] 3D numpy array of weights with same shape as sino
         weight_type (str, optional): 
             [Default=0] Type of noise model used for data. Ignored if weights parameter is supplied. Can be set to the values unweighted, transmission, transmission_root, and emission.
@@ -302,7 +302,7 @@ def recon(sino, angles,
                 If weight_type="transmission_root" => weights = numpy.exp(-sino/2)
                 If weight_type="emmission"         => weights = 1/(sino + 0.1)
             Option "unweighted" provides unweighted reconstruction; Option "transmission" is the correct weighting for transmission CT with constant dosage; Option "transmission_root" is commonly used with transmission CT data to improve image homogeneity; Option "emmission" is appropriate for emission CT data.
-        sigma_x (None, optional): 
+        sigma_x (float, optional): 
             [Default=None] Scalar value >0 that specifies the qGGMRF scale parameter. If None, automatically set by calling svmbir.auto_sigma_x. The parameter sigma_x can be used to directly control regularization, but this is only recommended for expert users.
         sharpen (float, optional): 
             [Default=1.0] Scalar value that controls level of sharpening. Large value results in sharper or less regularized reconstruction. Ignored if sigma_x is not None. The parameter sharpen can be used to control the level of regularization of the reconstructed image. Large values of sharpen will result in a less regularized or sharper image and smaller values will result in a more regularized or smoother image.
@@ -320,7 +320,7 @@ def recon(sino, angles,
             [Default=0.0001] Initial value of reconstruction image specified by either a single scalar value or a 3D numpy array with a shape of (shape.sino[1],num_row,num_col)
         init_proj (None, optional): 
             [Default=None] Initial value of forward projection of the init_image. This can be used to reduce computation for the first iteration when using the proximal map option.
-        prox_image (None, optional): 
+        prox_image (ndarray, optional): 
             [Default=None] 3D numpy array with proximal map input image. 
             If prox_image is supplied, then the proximal map prior model is used, and the qGGMRF parameters are ignored. 
             The proximal map prior is required when svmbir.recon is used with Plug-and-Play. 
@@ -339,10 +339,10 @@ def recon(sino, angles,
         svmbir_lib_path (TYPE, optional): 
             [Default=~/.cache/svmbir_lib] Path to directory containing library of forward projection matrices.
         object_name (str, optional): 
-            Description
+            [Default='object'] Specifies filenames of cached files. Can be changed suitably for running multiple instances of reconstructions.
     
     Returns:
-        ndarray: Reconstructed 3D object in units of ALU$^{-1}$. 
+        ndarray: 3D numpy array with shape [num_slices,num_rows,num_cols] containing the reconstructed 3D object in units of ALU$^{-1}$. 
     """
     print('Running Reconstruction ----------------------------')
 
@@ -457,11 +457,12 @@ def project(angles, image, num_channels,
             [Default=True] Delete temporary files used in computation.
         svmbir_lib_path (TYPE, optional):
             [Default=~/.cache/svmbir_lib] String containing path to directory containing library of forward projection matrices and temp file.
-        object_name (str, optional):
-            Description
+        object_name (str, optional): 
+            [Default='object'] Specifies filenames of cached files. Can be changed suitably for running multiple instances of reconstructions.
+    
     
     Returns:
-        TYPE: 3D numpy array containing sinogram with shape [num_view,num_slice,num_channel].
+        ndarray: 3D numpy array containing sinogram with shape [num_views,num_slices,num_channels].
     """
     print('Running Forward projection ----------------------------')
 
