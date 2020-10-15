@@ -366,7 +366,6 @@ def recon(sino, angles,
     Returns:
         ndarray: 3D numpy array with shape (num_slices,num_rows,num_cols) containing the reconstructed 3D object in units of ALU$^{-1}$. 
     """
-    print('Running Reconstruction ----------------------------')
 
     os.environ['OMP_NUM_THREADS'] = str(num_threads)
     os.environ['OMP_DYNAMIC'] = 'true'
@@ -493,7 +492,6 @@ def project(angles, image, num_channels,
     Returns:
         ndarray: 3D numpy array containing sinogram with shape (num_views,num_slices,num_channels).
     """
-    print('Running Forward projection ----------------------------')
 
     os.environ['OMP_NUM_THREADS'] = str(num_threads)
     os.environ['OMP_DYNAMIC'] = 'true'
