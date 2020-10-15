@@ -224,7 +224,7 @@ def _calc_weights(sino, weight_type):
 
 
 def _auto_sigma_y(sino, weights, snr_db=30.0):
-    """Computes the automatic value of n_row, the number of rows in the reconstructed image volume.
+    """Computes the automatic value of the regularization parameter ``sigma_y`` for use in MBIR reconstruction. 
     
     Args:
         sino (ndarray):
@@ -274,7 +274,7 @@ def recon(sino, angles,
         init_image=0.0001, init_proj=None, prox_image=None,
         stop_threshold=0.0, max_iterations=20,
         num_threads=1, delete_temps=True, svmbir_lib_path=__svmbir_lib_path, object_name='object'):
-    """ Computes the 3D MBIR reconstruction using a parallel beam geometry and other parameters as described below.
+    """Computes the 3D MBIR reconstruction using a parallel beam geometry and other parameters as described below.
     
     Args:
         sino (ndarray): 
@@ -456,7 +456,7 @@ def recon(sino, angles,
 def project(angles, image, num_channels,
         delta_channel=1.0, delta_pixel=1.0, center_offset=0.0, roi_radius=None,
         num_threads=1, delete_temps=True, svmbir_lib_path=__svmbir_lib_path, object_name='object'):
-    """ Computes the parallel beam sinogram by forward-projecting a 3D numpy array image that represents the volumetric image. 
+    """Computes the parallel beam sinogram by forward-projecting a 3D numpy array image that represents the volumetric image. 
     
     Args:
         angles (TYPE):
