@@ -304,7 +304,7 @@ def recon(sino, angles,
             Ignored if sigma_y is not None.
         weights (ndarray, optional): 
             [Default=None] 3D numpy array of weights with same shape as sino
-        weight_type (str, optional): 
+        weight_type (string, optional): 
             [Default=0] Type of noise model used for data. 
             Ignored if weights parameter is supplied. 
             Can be set to the values unweighted, transmission, transmission_root, and emission.
@@ -356,9 +356,9 @@ def recon(sino, angles,
             [Default=1] Number of compute threads requested when executed.
         delete_temps (bool, optional): 
             [Default=True] Delete temporary files used in computation.
-        svmbir_lib_path (TYPE, optional): 
+        svmbir_lib_path (string, optional): 
             [Default=~/.cache/svmbir_lib] Path to directory containing library of forward projection matrices.
-        object_name (str, optional): 
+        object_name (string, optional): 
             [Default='object'] Specifies filenames of cached files. 
             Can be changed suitably for running multiple instances of reconstructions.
             Useful for building multi-process and multi-node functionality on top of svmbir.
@@ -458,14 +458,14 @@ def project(angles, image, num_channels,
     """Computes the parallel beam sinogram by forward-projecting a 3D numpy array image that represents the volumetric image. 
     
     Args:
-        angles (TYPE):
+        angles (ndarray):
             1D numpy array of view angles in radians. 
             The 1D array is organized so that angles[k] is the angle in radians for view k. 
-        image (TYPE):
+        image (ndarray):
             3D numpy array of image being forward projected. 
             The image is a 3D image with a shape of (num_slices,num_row,num_col) where num_slices is the number of sinogram slices. 
             The image should be 0 outside the ROI as defined by roi_radius.
-        num_channels (TYPE):
+        num_channels (int):
             Integer number of sinogram channels.
         delta_channel (float, optional):
             [Default=1.0] Scalar value of detector channel spacing in ALU.
@@ -482,9 +482,9 @@ def project(angles, image, num_channels,
             [Default=1] Number of compute threads requested when executed.
         delete_temps (bool, optional):
             [Default=True] Delete temporary files used in computation.
-        svmbir_lib_path (TYPE, optional):
+        svmbir_lib_path (string, optional):
             [Default=~/.cache/svmbir_lib] String containing path to directory containing library of forward projection matrices and temp file.
-        object_name (str, optional): 
+        object_name (string, optional): 
             [Default='object'] Specifies filenames of cached files. 
             Can be changed suitably for running multiple instances of forward projections.
             Useful for building multi-process and multi-node functionality on top of svmbir.
