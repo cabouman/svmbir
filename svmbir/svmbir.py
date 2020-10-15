@@ -364,7 +364,7 @@ def recon(sino, angles,
             Useful for building multi-process and multi-node functionality on top of svmbir.
     
     Returns:
-        ndarray: 3D numpy array with shape [num_slices,num_rows,num_cols] containing the reconstructed 3D object in units of ALU$^{-1}$. 
+        ndarray: 3D numpy array with shape (num_slices,num_rows,num_cols) containing the reconstructed 3D object in units of ALU$^{-1}$. 
     """
     print('Running Reconstruction ----------------------------')
 
@@ -456,7 +456,7 @@ def recon(sino, angles,
 def project(angles, image, num_channels,
         delta_channel=1.0, delta_pixel=1.0, center_offset=0.0, roi_radius=None,
         num_threads=1, delete_temps=True, svmbir_lib_path=__svmbir_lib_path, object_name='object'):
-    """Summary
+    """ Computes the parallel beam sinogram by forward-projecting a 3D numpy array image that represents the volumetric image. 
     
     Args:
         angles (TYPE):
@@ -464,7 +464,7 @@ def project(angles, image, num_channels,
             The 1D array is organized so that angles[k] is the angle in radians for view k. 
         image (TYPE):
             3D numpy array of image being forward projected. 
-            The image is a 3D image with a shape of [num_slices,num_row,num_col] where num_slices is the number of sinogram slices. 
+            The image is a 3D image with a shape of (num_slices,num_row,num_col) where num_slices is the number of sinogram slices. 
             The image should be 0 outside the ROI as defined by roi_radius.
         num_channels (TYPE):
             Integer number of sinogram channels.
@@ -478,7 +478,7 @@ def project(angles, image, num_channels,
             [Default=None] Scalar value of radius of reconstruction in ALU. 
             If None, automatically set by calling svmbir.auto_roi_radius. 
             Pixels outside the radius roi_radius in the $(x,y)$ plane are disregarded in forward projection. 
-            The automatically set size of roi_radius is choosen so that it inscribes the largest axis of the recon image with a shape [num_slices,num_row,num_col].
+            The automatically set size of roi_radius is choosen so that it inscribes the largest axis of the recon image with a shape (num_slices,num_row,num_col).
         num_threads (int, optional):
             [Default=1] Number of compute threads requested when executed.
         delete_temps (bool, optional):
@@ -491,7 +491,7 @@ def project(angles, image, num_channels,
             Useful for building multi-process and multi-node functionality on top of svmbir.
     
     Returns:
-        ndarray: 3D numpy array containing sinogram with shape [num_views,num_slices,num_channels].
+        ndarray: 3D numpy array containing sinogram with shape (num_views,num_slices,num_channels).
     """
     print('Running Forward projection ----------------------------')
 
