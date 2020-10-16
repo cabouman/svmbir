@@ -104,7 +104,7 @@ Option "unweighted" provides unweighted reconstruction; Option "transmission" is
 
  * ``sharpen``: [Default=1.0] Scalar value that controls level of sharpening. Large value results in sharper or less regularized reconstruction. Ignored if ``sigma_x`` is not ``None``.
 
-  * ``sigma_x``: [Default=None] Scalar value >0 that specifies the qGGMRF scale parameter. If ``None``, automatically set by calling ``svmbir.auto_sigma_x``.
+ * ``sigma_x``: [Default=None] Scalar value >0 that specifies the qGGMRF scale parameter. If ``None``, automatically set by calling ``svmbir.auto_sigma_x``.
 
  * ``positivity``: [Default=True] Boolean value that determines if positivity constraint is enforced.
 
