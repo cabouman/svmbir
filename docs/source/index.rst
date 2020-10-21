@@ -7,8 +7,9 @@ Welcome to svmbir's documentation!
 ==================================
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+   :maxdepth: 4
+
+       svmbir <svmbir.rst>
 
 
 

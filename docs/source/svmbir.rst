@@ -1,15 +1,9 @@
-svmbir package
-==============
+The svmbir API reference
+========================
 
-Submodules
-----------
-
-svmbir.svmbir module
---------------------
-
+svmbir.svmbir
+-------------
 .. automodule:: svmbir.svmbir
    :members:
    :undoc-members:
    :show-inheritance:
-
-
