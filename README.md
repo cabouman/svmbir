@@ -1,9 +1,7 @@
 # svmbir
 
-
-*Python code for fast parallel-beam MBIR (Model Based Iterative Reconstruction)*
-
-*This is a python wrapper around HPImaging's supervoxel C code, [sv-mbir](https://github.com/HPImaging/sv-mbirct).*
+*Python code for fast parallel-beam MBIR (Model Based Iterative Reconstruction)  
+This is a python wrapper around HPImaging's supervoxel C code, [sv-mbir](https://github.com/HPImaging/sv-mbirct).*
 
 ## System Requirements
 1. GCC compiler version 4.8.5 or above
@@ -57,4 +55,8 @@ After that, svmbir is installed in the system and can be used in any python scri
 The script ```demo_simple.py``` contains a short demo that illustrates how to use the svmbir package for performing reconstructions.
 
 To reconstruct your own data, use the interface used in ```demo_simple.py``` as a reference.
+
+## Python documentation
+Documentation on the Python functions in the svmbir package is available at: https://svmbir.readthedocs.io
+
 
