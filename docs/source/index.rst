@@ -9,7 +9,7 @@ Welcome to svmbir's documentation!
 .. toctree::
    :maxdepth: 4
 
-       svmbir <svmbir.rst>
+   svmbir
 
 
 
