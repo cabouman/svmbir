@@ -19,7 +19,7 @@ sys.path.insert(0, os.path.abspath('../..'))
 
 project = 'svmbir'
 copyright = '2020, Soumendu Smajee; Wenrui Li'
-author = 'Soumendu Smajee; Wenrui Li'
+author = 'Soumendu Majee; Wenrui Li; Sherman Jordan Kisner; Thilo Balke;Greg Buzzard; Charles A. Bouman'
 
 # The full version, including alpha/beta/rc tags
 release = '1.0'
@@ -50,7 +50,7 @@ source_suffix = '.rst'
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = 'Python'
+language = 'en'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
