@@ -1,1 +1,1 @@
-from .svmbir import *
+from ._svmbir import *
