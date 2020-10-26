@@ -3,7 +3,7 @@ The svmbir API reference
 
 svmbir
 ------
-.. automodule:: svmbir._svmbir
+.. automodule:: svmbir
    :members:
    :undoc-members:
    :show-inheritance:
