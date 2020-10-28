@@ -29,7 +29,7 @@ _default_reconparams = {'prior_model': 'QGGMRF',
     'stop_threshold': 0.0,
     'max_iterations': 20,
     'positivity': 1,
-    'weight_type': 0} # constant weights
+    'weight_type': 'unweighted'} # constant weights
 
 _map_pyconv2camelcase={'prior_model': 'PriorModel',
     'init_image_value': 'InitImageValue',
@@ -143,16 +143,16 @@ def _cmd_exec(exec_path=__exec_path__, *args, **kwargs):
     subprocess.run(arg_list)
 
 
-def _gen_sysmatrix(param_name, sysmatrix_name):
+def _gen_sysmatrix(param_name, sysmatrix_name, verbose):
 
     if os.path.exists(sysmatrix_name+'.2Dsvmatrix'):
         print('Found system matrix: {}'.format(sysmatrix_name+'.2Dsvmatrix'))
     else:
-        _cmd_exec(i=param_name, j=param_name, m=sysmatrix_name)
+        _cmd_exec(i=param_name, j=param_name, m=sysmatrix_name, v=str(verbose))
 
 
 def _init_geometry(angles, num_channels, num_views, num_slices, num_rows, num_cols,
-    delta_channel, delta_pixel, roi_radius, center_offset, 
+    delta_channel, delta_pixel, roi_radius, center_offset, verbose,
     svmbir_lib_path=__svmbir_lib_path, object_name='object'):
 
     sinoparams = dict()
@@ -188,7 +188,7 @@ def _init_geometry(angles, num_channels, num_views, num_slices, num_rows, num_co
         for angle in list(angles):
             fileID.write(str(angle)+"\n")
 
-    _gen_sysmatrix(paths['param_name'], paths['sysmatrix_name'])
+    _gen_sysmatrix(paths['param_name'], paths['sysmatrix_name'], verbose)
 
     return paths, sinoparams, imgparams
 
@@ -278,7 +278,8 @@ def recon(sino, angles,
         sigma_x=None, sharpen=1.0, positivity=True, p=1.2, q=2.0, T=1.0, b_interslice=1.0, 
         init_image=0.0001, init_proj=None, prox_image=None,
         stop_threshold=0.0, max_iterations=20,
-        num_threads=1, delete_temps=True, svmbir_lib_path=__svmbir_lib_path, object_name='object'):
+        num_threads=1, delete_temps=True, svmbir_lib_path=__svmbir_lib_path, object_name='object',
+        verbose=1):
     """
     Computes the 3D MBIR reconstruction using a parallel beam geometry and other parameters as described below.
     
@@ -389,7 +390,9 @@ def recon(sino, angles,
         object_name (string, optional): [Default='object'] Specifies filenames of cached files. 
             Can be changed suitably for running multiple instances of reconstructions.
             Useful for building multi-process and multi-node functionality on top of svmbir.
-    
+        
+        verbose (int, optional): [Default=1] Set to 0 for quiet mode.
+ 
     Returns:
         ndarray: 3D numpy array with shape (num_slices,num_rows,num_cols) containing the reconstructed 3D object in units of :math:`ALU^{-1}`. 
     """
@@ -425,9 +428,9 @@ def recon(sino, angles,
         num_channels=num_channels, num_views=num_views, num_slices=num_slices, 
         num_rows=num_rows, num_cols=num_cols, 
         delta_channel=delta_channel, delta_pixel=delta_pixel, roi_radius=roi_radius,
-        svmbir_lib_path=svmbir_lib_path, object_name=object_name)
+        svmbir_lib_path=svmbir_lib_path, object_name=object_name, verbose=verbose)
 
-    reconparams = parse_params(_default_reconparams, p=p, q=q, T=T, sigma_x=sigma_x,
+    reconparams = parse_params(_default_reconparams, p=p, q=q, T=T, sigma_x=sigma_x, sigma_y=sigma_y,
         b_interslice=b_interslice, stop_threshold=stop_threshold, max_iterations=max_iterations,
         positivity=int(positivity))
     
@@ -435,7 +438,7 @@ def recon(sino, angles,
     s=paths['sino_name'], f=paths['proj_name'], w=paths['wght_name'],
     r=paths['recon_name'],
     m=paths['sysmatrix_name'],
-    t=paths['init_name'])
+    t=paths['init_name'], v=str(verbose))
 
     if init_proj is not None:
         write_sino_openmbir(init_proj, paths['init_proj_name']+'_slice', '.2Dsinodata')
@@ -450,7 +453,7 @@ def recon(sino, angles,
     write_params(paths['reconparams_fname'], **reconparams_c)
 
     write_sino_openmbir(sino, paths['sino_name']+'_slice', '.2Dsinodata')
-    write_sino_openmbir(weights/sigma_y**2, paths['wght_name']+'_slice', '.2Dweightdata')
+    write_sino_openmbir(weights, paths['wght_name']+'_slice', '.2Dweightdata')
     write_recon_openmbir(init_image, paths['init_name']+'_slice', '.2Dimgdata')
 
     _cmd_exec(**cmd_args)
@@ -481,7 +484,8 @@ def recon(sino, angles,
 
 def project(angles, image, num_channels,
         delta_channel=1.0, delta_pixel=1.0, center_offset=0.0, roi_radius=None,
-        num_threads=1, delete_temps=True, svmbir_lib_path=__svmbir_lib_path, object_name='object'):
+        num_threads=1, delete_temps=True, svmbir_lib_path=__svmbir_lib_path, object_name='object',
+        verbose=1):
     """Computes the parallel beam sinogram by forward-projecting a 3D numpy array image that represents the volumetric image. 
     
     Args:
@@ -515,6 +519,7 @@ def project(angles, image, num_channels,
             [Default='object'] Specifies filenames of cached files. 
             Can be changed suitably for running multiple instances of forward projections.
             Useful for building multi-process and multi-node functionality on top of svmbir.
+        verbose (int, optional): [Default=1] Set to 0 for quiet mode.
     
     Returns:
         ndarray: 3D numpy array containing sinogram with shape (num_views, num_slices, num_channels).
@@ -535,12 +540,12 @@ def project(angles, image, num_channels,
         num_channels=num_channels, num_views=num_views, num_slices=num_slices, 
         num_rows=num_rows, num_cols=num_cols, 
         delta_channel=delta_channel, delta_pixel=delta_pixel, roi_radius=roi_radius,
-        svmbir_lib_path=svmbir_lib_path, object_name=object_name)
+        svmbir_lib_path=svmbir_lib_path, object_name=object_name, verbose=verbose)
 
     write_recon_openmbir(image, paths['recon_name']+'_slice', '.2Dimgdata')
 
     _cmd_exec(i=paths['param_name'], j=paths['param_name'], m=paths['sysmatrix_name'],
-        f=paths['proj_name'], t=paths['recon_name'])
+        f=paths['proj_name'], t=paths['recon_name'], v=str(verbose))
 
     proj = read_sino_openmbir(paths['proj_name']+'_slice', '.2Dprojection', 
         sinoparams['num_views'], sinoparams['num_slices'], sinoparams['num_channels'])
