@@ -29,7 +29,7 @@ _default_reconparams = {'prior_model': 'QGGMRF',
     'stop_threshold': 0.0,
     'max_iterations': 20,
     'positivity': 1,
-    'weight_type': 0} # constant weights
+    'weight_type': 'unweighted'} # constant weights
 
 _map_pyconv2camelcase={'prior_model': 'PriorModel',
     'init_image_value': 'InitImageValue',
@@ -389,7 +389,7 @@ def recon(sino, angles,
         object_name (string, optional): [Default='object'] Specifies filenames of cached files. 
             Can be changed suitably for running multiple instances of reconstructions.
             Useful for building multi-process and multi-node functionality on top of svmbir.
-    
+
     Returns:
         ndarray: 3D numpy array with shape (num_slices,num_rows,num_cols) containing the reconstructed 3D object in units of :math:`ALU^{-1}`. 
     """
@@ -427,7 +427,7 @@ def recon(sino, angles,
         delta_channel=delta_channel, delta_pixel=delta_pixel, roi_radius=roi_radius,
         svmbir_lib_path=svmbir_lib_path, object_name=object_name)
 
-    reconparams = parse_params(_default_reconparams, p=p, q=q, T=T, sigma_x=sigma_x,
+    reconparams = parse_params(_default_reconparams, p=p, q=q, T=T, sigma_x=sigma_x, sigma_y=sigma_y,
         b_interslice=b_interslice, stop_threshold=stop_threshold, max_iterations=max_iterations,
         positivity=int(positivity))
     
@@ -450,7 +450,7 @@ def recon(sino, angles,
     write_params(paths['reconparams_fname'], **reconparams_c)
 
     write_sino_openmbir(sino, paths['sino_name']+'_slice', '.2Dsinodata')
-    write_sino_openmbir(weights/sigma_y**2, paths['wght_name']+'_slice', '.2Dweightdata')
+    write_sino_openmbir(weights, paths['wght_name']+'_slice', '.2Dweightdata')
     write_recon_openmbir(init_image, paths['init_name']+'_slice', '.2Dimgdata')
 
     _cmd_exec(**cmd_args)
