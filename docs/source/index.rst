@@ -3,15 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to svmbir's documentation!
-==================================
-
-.. toctree::
-   :maxdepth: 4
-
-   svmbir
-
-
+.. include:: ../../README.rst
 
 Indices and tables
 ==================
@@ -19,3 +11,17 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
+
+
+.. toctree::
+   :hidden:
+   :maxdepth: 4
+
+   overview
+   install
+   svmbir
+   credits
+
+
+

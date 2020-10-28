@@ -13,3 +13,4 @@ py2jn
 pypandoc
 numpy
 ruamel.yaml
+sphinx-rtd-theme

@@ -1,9 +1,9 @@
 The svmbir API reference
 ========================
 
-svmbir.svmbir
--------------
-.. automodule:: svmbir.svmbir
+svmbir
+------
+.. automodule:: svmbir
    :members:
    :undoc-members:
    :show-inheritance:
