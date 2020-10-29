@@ -35,6 +35,7 @@ release = '1.0'
 extensions = [
     'IPython.sphinxext.ipython_console_highlighting',
     'IPython.sphinxext.ipython_directive',
+    'nbsphinx',
     'sphinx.ext.autodoc',
     'sphinx.ext.mathjax',
     'sphinx.ext.todo',
@@ -44,6 +45,8 @@ extensions = [
     'sphinx.ext.viewcode',
     'recommonmark'
 ]
+
+exclude_patterns = ['_build', '**.ipynb_checkpoints']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
