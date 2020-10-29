@@ -14,3 +14,4 @@ pypandoc
 numpy
 ruamel.yaml
 sphinx-rtd-theme
+nbsphinx
