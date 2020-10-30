@@ -14,7 +14,7 @@ In order to simplify usage, reconstructions are done using arbitrary units (ALU)
 
 _Transmission CT Example:_ For this example, assume that the physical spacing between detector channels is 5 mm. In order to simplify our calculations, we also use the default detector channel spacing and voxel spacing of ``delta_channel=1.0`` and ``delta_xy=1.0``. In other words, we have adopted the convention that the voxel spacing is 1 ALU = 5 mm, where 1 ALU is now our newly adopted measure of distance.
 
-Using this convention, the 3D reconstruction array, ``image``, will be in units of ALU$^{-1}$. However, the image can be converted back to more conventional usits of mm$^{-1}$ using the following equation:
+Using this convention, the 3D reconstruction array, ``image``, will be in units of :math:`mbox{ALU}^{-1}`. However, the image can be converted back to more conventional usits of :math:`\mbox{mm}^{-1}` using the following equation:
 
 .. math::
 
