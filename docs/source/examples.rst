@@ -2,11 +2,14 @@
 Examples
 ========
 
-The script ```demo_simple.py``` contains a short demo that illustrates how to use the svmbir package for performing reconstructions.
+The package contains two example bash scripts in the ``svmbir/demo`` folder which can serve as templates for new users. The first script, ``demo_simple.py`` demonstrates how to perform a basic MBIR reconstruction. The second script, ``demo_complex.py`` contains a more complex demo that:
 
-The script ```demo_complex.py``` contains a complex demo that illustrates how to use svmbir package to do forward project, QGGRMF reconstuction, and Proximal-map Reconstruction.
+*	Performs a basic MBIR reconstruction;
+*  Computes a forward projection of the reconstructed image;
+*  Displays an error sinogram;
+*  Exercises the proximal-map reconstruction feature.
 
-To reconstruct your own data, use the interface used in ```demo_simple.py``` and ```demo_complex.py``` as references.
+The examples below show how these scripts should typically run in your environment.
 
 .. toctree::
    :titlesonly:
