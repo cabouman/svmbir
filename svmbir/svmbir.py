@@ -398,7 +398,7 @@ def recon(sino, angles,
     """
 
     if num_threads is None:
-        num_threads=cpu_count(logical=True)
+        num_threads=cpu_count(logical=False)
     os.environ['OMP_NUM_THREADS'] = str(num_threads)
     
     os.environ['OMP_DYNAMIC'] = 'true'
@@ -528,7 +528,7 @@ def project(angles, image, num_channels,
         ndarray: 3D numpy array containing sinogram with shape (num_views, num_slices, num_channels).
     """
     if num_threads is None:
-        num_threads=cpu_count(logical=True)
+        num_threads=cpu_count(logical=False)
 
     os.environ['OMP_NUM_THREADS'] = str(num_threads)
     os.environ['OMP_DYNAMIC'] = 'true'
