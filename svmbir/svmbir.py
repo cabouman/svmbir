@@ -7,7 +7,7 @@ import numpy as np
 import subprocess
 import math
 import hashlib
-
+from psutil import cpu_count
 from ._utils import *
 
 __exec_path__ = os.path.realpath(os.path.join(os.path.dirname(__file__), 'sv-mbirct', 'bin', 'mbir_ct'))
@@ -278,7 +278,7 @@ def recon(sino, angles,
         sigma_x=None, sharpen=1.0, positivity=True, p=1.2, q=2.0, T=1.0, b_interslice=1.0, 
         init_image=0.0001, init_proj=None, prox_image=None,
         stop_threshold=0.0, max_iterations=20,
-        num_threads=1, delete_temps=True, svmbir_lib_path=__svmbir_lib_path, object_name='object',
+        num_threads=None, delete_temps=True, svmbir_lib_path=__svmbir_lib_path, object_name='object',
         verbose=1):
     """
     Computes the 3D MBIR reconstruction using a parallel beam geometry and other parameters as described below.
@@ -381,7 +381,7 @@ def recon(sino, angles,
         
         max_iterations (int, optional): [Default=20] Integer valued specifying the maximum number of iterations.
         
-        num_threads (int, optional): [Default=1] Number of compute threads requested when executed.
+        num_threads (int, optional): [Default=None] Number of compute threads requested when executed.
         
         delete_temps (bool, optional): [Default=True] Delete temporary files used in computation.
         
@@ -397,7 +397,10 @@ def recon(sino, angles,
         ndarray: 3D numpy array with shape (num_slices,num_rows,num_cols) containing the reconstructed 3D object in units of :math:`ALU^{-1}`. 
     """
 
+    if num_threads is None:
+        num_threads=cpu_count(logical=True)
     os.environ['OMP_NUM_THREADS'] = str(num_threads)
+    
     os.environ['OMP_DYNAMIC'] = 'true'
 
     (num_views, num_slices, num_channels) = sino.shape
@@ -484,7 +487,7 @@ def recon(sino, angles,
 
 def project(angles, image, num_channels,
         delta_channel=1.0, delta_pixel=1.0, center_offset=0.0, roi_radius=None,
-        num_threads=1, delete_temps=True, svmbir_lib_path=__svmbir_lib_path, object_name='object',
+        num_threads=None, delete_temps=True, svmbir_lib_path=__svmbir_lib_path, object_name='object',
         verbose=1):
     """Computes the parallel beam sinogram by forward-projecting a 3D numpy array image that represents the volumetric image. 
     
@@ -510,7 +513,7 @@ def project(angles, image, num_channels,
             Pixels outside the radius roi_radius in the :math:`(x,y)` plane are disregarded in forward projection. 
             The automatically set size of roi_radius is choosen so that it inscribes the largest axis of the recon image with a shape (num_slices,num_row,num_col).
         num_threads (int, optional):
-            [Default=1] Number of compute threads requested when executed.
+            [Default=0] Number of compute threads requested when executed.
         delete_temps (bool, optional):
             [Default=True] Delete temporary files used in computation.
         svmbir_lib_path (string, optional):
@@ -524,6 +527,8 @@ def project(angles, image, num_channels,
     Returns:
         ndarray: 3D numpy array containing sinogram with shape (num_views, num_slices, num_channels).
     """
+    if num_threads is None:
+        num_threads=cpu_count(logical=True)
 
     os.environ['OMP_NUM_THREADS'] = str(num_threads)
     os.environ['OMP_DYNAMIC'] = 'true'
