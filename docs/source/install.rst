@@ -20,7 +20,7 @@ In processing.
 Build from Source
 -----------------
 
-In command shell, ```cd``` to a directory of your choice and run the following commands to install from source.
+In command shell, ``cd`` to a directory of your choice and run the following commands to install from source.
 
 1. Download Software
 ~~~~~~~~~~~~~~~~~~~~
