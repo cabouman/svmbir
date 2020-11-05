@@ -360,7 +360,7 @@ def recon(sino, angles,
 
             If prox_image is supplied, then the proximal map prior model is used, and the qGGMRF parameters are ignored.
 
-            The proximal map prior is required when :mod:`svmbir.recon` is used with Plug-and-Play.
+            The proximal map prior is required when :mod:`svmbir.recon` is used with Plug-and-Play :cite:`venkatakrishnan2013plug` :cite:`sreehari2016plug`.
 
             In this case, the reconstruction solves the optimization problem:
 
