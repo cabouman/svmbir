@@ -147,6 +147,7 @@ def _gen_sysmatrix(param_name, sysmatrix_name, verbose):
 
     if os.path.exists(sysmatrix_name+'.2Dsvmatrix'):
         print('Found system matrix: {}'.format(sysmatrix_name+'.2Dsvmatrix'))
+        os.utime(sysmatrix_name+'.2Dsvmatrix')  # update file modified time
     else:
         _cmd_exec(i=param_name, j=param_name, m=sysmatrix_name, v=str(verbose))
 
