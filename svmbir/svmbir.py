@@ -382,6 +382,7 @@ def recon(sino, angles,
         max_iterations (int, optional): [Default=20] Integer valued specifying the maximum number of iterations.
         
         num_threads (int, optional): [Default=None] Number of compute threads requested when executed.
+            If None, num_threads is set to the number of cores in the system
         
         delete_temps (bool, optional): [Default=True] Delete temporary files used in computation.
         
@@ -512,8 +513,8 @@ def project(angles, image, num_channels,
             If None, automatically set by calling svmbir.auto_roi_radius. 
             Pixels outside the radius roi_radius in the :math:`(x,y)` plane are disregarded in forward projection. 
             The automatically set size of roi_radius is choosen so that it inscribes the largest axis of the recon image with a shape (num_slices,num_row,num_col).
-        num_threads (int, optional):
-            [Default=0] Number of compute threads requested when executed.
+        num_threads (int, optional): [Default=None] Number of compute threads requested when executed.
+            If None, num_threads is set to the number of cores in the system
         delete_temps (bool, optional):
             [Default=True] Delete temporary files used in computation.
         svmbir_lib_path (string, optional):
