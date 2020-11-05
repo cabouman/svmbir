@@ -5,16 +5,15 @@ Installation
 This section covers the basics of how to download and install svmbir.
 
 
+Installing from PyPI
+---------------------
+
+This option is not yet available.
+
 Installing from Conda
 ---------------------
 
-In processing.
-
-
-Updating the installation
--------------------------
-
-In processing.
+This option is not yet available.
 
 
 Build from Source
@@ -70,3 +69,9 @@ which installs svmbir and its dependencies as a python package.
 You can verify the installation by running ``pip show svmbir``, which should display a brief summary of the installed package.
 
 After that, svmbir is installed in the system and can be used in any python script in any directory using the python command ``import svmbir``.
+
+
+5. Updating the installation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+More details will be coming on this.
