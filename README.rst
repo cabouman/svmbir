@@ -27,46 +27,46 @@ In command shell, ```cd``` to a directory of your choice and run the following c
 
 1. Download Software
 ~~~~~~~~~~~~~~~~~~~~
-Recursively clone the svmbir python code and the submodule with C code into a folder in the currect directory  
+Recursively clone the svmbir python code and the submodule with C code into a folder in the currect directory
 
-```git clone --recursive https://github.com/cabouman/svmbir.git```  
+```git clone --recursive https://github.com/cabouman/svmbir.git```
 
-and change directory to the root directory of the repository.  
+and change directory to the root directory of the repository.
 
-```cd svmbir```  
+```cd svmbir```
 
 2. (Optional) Create Conda Environment
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-It is recommended to use this code inside a conda environment.  
+It is recommended to use this code inside a conda environment.
 
-```conda env create -f environment.yml```  
+```conda env create -f environment.yml```
 
-This creates a conda environment with the required dependencies and  
+This creates a conda environment with the required dependencies and
 
-```conda activate svmbir```  
+```conda activate svmbir```
 
 activates the newly created conda environment. Before running the code, this conda environment should always be activated.
 
 3. Compile Code
 ~~~~~~~~~~~~~~~
-Option 1: Build the binary executable from the C source code using GCC. 
+Option 1: Build the binary executable from the C source code using GCC.
 
-```make -C svmbir/sv-mbirct/src/ CC=gcc``` 
+```make -C svmbir/sv-mbirct/src/ CC=gcc```
 
-Option 2: If an Intel ICC compiler is present, then faster reconstruction can be achieved by building with ICC: 
+Option 2: If an Intel ICC compiler is present, then faster reconstruction can be achieved by building with ICC:
 
-```make -C svmbir/sv-mbirct/src/ CC=icc```  
+```make -C svmbir/sv-mbirct/src/ CC=icc```
 
-Option 3: For MacOS, compile using the apple Clang compiler by running:  
+Option 3: For MacOS, compile using the apple Clang compiler by running:
 
-```make -C svmbir/sv-mbirct/src/ CC=clang```  
+```make -C svmbir/sv-mbirct/src/ CC=clang```
 
 
 4. Install the Python Package
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Run the command  
+Run the command
 
-```pip install .```  
+```pip install .```
 
 which installs svmbir and its dependencies as a python package.
 
@@ -80,4 +80,3 @@ Demo
 The script ```demo_simple.py``` contains a short demo that illustrates how to use the svmbir package for performing reconstructions.
 
 To reconstruct your own data, use the interface used in ```demo_simple.py``` as a reference.
-
