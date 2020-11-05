@@ -4,3 +4,4 @@ dependencies:
   - numpy
   - matplotlib
   - ruamel.yaml
+  - psutil
