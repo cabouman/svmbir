@@ -167,9 +167,9 @@ def _init_geometry(angles, num_channels, num_views, num_slices, num_rows, num_co
     sinoparams['view_angle_list'] = object_name+'.ViewAngleList'
 
     imgparams = dict()
-    imgparams['Nx'] = num_rows
-    imgparams['Ny'] =  num_cols
-    imgparams['Nz'] =  num_slices
+    imgparams['Nx'] = num_cols
+    imgparams['Ny'] = num_rows
+    imgparams['Nz'] = num_slices
     imgparams['first_slice_number'] = 0
     imgparams['delta_xy'] = delta_pixel
     imgparams['delta_z'] = 1
