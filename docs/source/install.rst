@@ -73,5 +73,6 @@ After that, svmbir is installed in the system and can be used in any python scri
 
 5. Updating the installation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Run the command
 
-More details will be coming on this.
+``pip install . --upgrade`` 
