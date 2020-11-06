@@ -146,6 +146,7 @@ def _gen_sysmatrix(param_name, sysmatrix_name, verbose):
 
     if os.path.exists(sysmatrix_name+'.2Dsvmatrix'):
         print('Found system matrix: {}'.format(sysmatrix_name+'.2Dsvmatrix'))
+        os.utime(sysmatrix_name+'.2Dsvmatrix')  # update file modified time
     else:
         _cmd_exec(i=param_name, j=param_name, m=sysmatrix_name, v=str(verbose))
 
@@ -166,9 +167,9 @@ def _init_geometry(angles, num_channels, num_views, num_slices, num_rows, num_co
     sinoparams['view_angle_list'] = object_name+'.ViewAngleList'
 
     imgparams = dict()
-    imgparams['Nx'] = num_rows
-    imgparams['Ny'] =  num_cols
-    imgparams['Nz'] =  num_slices
+    imgparams['Nx'] = num_cols
+    imgparams['Ny'] = num_rows
+    imgparams['Nz'] = num_slices
     imgparams['first_slice_number'] = 0
     imgparams['delta_xy'] = delta_pixel
     imgparams['delta_z'] = 1
