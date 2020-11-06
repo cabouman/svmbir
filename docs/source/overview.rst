@@ -10,7 +10,7 @@ The code performs Bayesian reconstruction of tomographic data, so it is particul
 
 The super-voxel code can be 100x to 1000x faster than conventional code because it reorganizes operations in a way that is much better matched to a computer's cache structure. To do this, it precomputes the ``system matrix`` that describes the geometry of the tomography system and stores it in an encoded form. Whenever you do a reconstruction with a new geometry, the ``svmbir`` package automatically detects the new geometry, precomputes a new system matrix, and stores it in a library for future use. By default, the system matrices are stored in a subdirectory of your personal ``.cache`` directory in your home directory. So if they are taking too much space on your disk, you can remove these files at any time, and they will just be recomputed when needed.
 
-**Recommendations**
+**Recommendations and Troubleshooting**
 
 *View Angle Ordering:* In order to achieve best reconstruction speed, we highly recommend views be sorted to be in monotonically increasing order on the inverval :math:`[0,2\pi]`. It is common for people ot collect tomography data using the "golden ratio" method. If this is done, than the view angles should first be wrapped modulo :math:`2\pi`, and then sorted to be in monotonically increasing order. Non-sequential ordering of views will distroy cache coherency and dramatically degrade ``svmbir`` performance.
 
@@ -22,6 +22,7 @@ The super-voxel code can be 100x to 1000x faster than conventional code because 
 
 One known issue is that in some Windows bash environments the ``C`` executable ``mbir_ct.exe`` may not be properly moved to the ``bin`` directory. If this occurs, then the problem can be resolved by manually moving the file.
 
+*MacOS Installation:* MacOS users will typically use the ``Clang`` compiler provided as part of the Xcode Developer Tools. In this case, the ``gcc`` command in the MocOS environment is **not** actually gcc. Instead it is an alias to the ``clang`` compiler. Therefore, the C code should be compiled using the ``Clang`` option.
 
 **Conversion from Arbitrary Length Units (ALU)**
 
