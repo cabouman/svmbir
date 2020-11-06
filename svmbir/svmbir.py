@@ -1,4 +1,3 @@
-
 import os
 import shutil
 import argparse
@@ -84,9 +83,9 @@ def _gen_paths(svmbir_lib_path=__svmbir_lib_path, object_name='object', sysmatri
     paths['proj_name'] = os.path.join(svmbir_lib_path,'proj',object_name)
     paths['init_proj_name'] = os.path.join(svmbir_lib_path,'init_proj',object_name)
     paths['prox_name'] = os.path.join(svmbir_lib_path,'prox',object_name)
-    
+
     paths['sysmatrix_name'] = os.path.join(svmbir_lib_path,'sysmatrix',sysmatrix_name)
-    
+
     paths['param_name'] = os.path.join(svmbir_lib_path,'par',object_name)
     paths['sinoparams_fname'] = paths['param_name']+'.sinoparams'
     paths['imgparams_fname'] = paths['param_name']+'.imgparams'
@@ -196,7 +195,7 @@ def _init_geometry(angles, num_channels, num_views, num_slices, num_rows, num_co
 
 def calc_weights(sino, weight_type):
     """Computes the weights used in reconstruction.
-    
+
     Args:
         sino (ndarray): 3D numpy array of sinogram data with shape (num_views,num_slices,num_channels)
         weight_type (string):[Default=0] Type of noise model used for data.
@@ -211,7 +210,7 @@ def calc_weights(sino, weight_type):
 
     Returns:
         ndarray: [Default=None] 3D numpy array of weights with same shape as sino. Retrun calculated values of weights parameter.
-    
+
     Raises:
         Exception: Description
     """
@@ -230,17 +229,17 @@ def calc_weights(sino, weight_type):
 
 
 def auto_sigma_y(sino, weights, snr_db=30.0):
-    """Computes the automatic value of the regularization parameter ``sigma_y`` for use in MBIR reconstruction. 
-    
+    """Computes the automatic value of the regularization parameter ``sigma_y`` for use in MBIR reconstruction.
+
     Args:
         sino (ndarray):
             3D numpy array of sinogram data with shape (num_views,num_slices,num_channels)
         weights (ndarray):
-            3D numpy array of weights with same shape as sino. 
+            3D numpy array of weights with same shape as sino.
             The parameters weights should be the same values as used in svmbir reconstruction.
         snr_db (float, optional):
             [Default=30.0] Scalar value that controls assumed signal-to-noise ratio of the data in dB.
-    
+
     Returns:
         ndarray: Automatic values of regularization parameter.
     """
@@ -253,16 +252,16 @@ def auto_sigma_y(sino, weights, snr_db=30.0):
 
 def auto_sigma_x(sino, delta_channel=1.0, sharpen=1.0):
     """Computes the automatic value of the regularization parameters sigma_x for use in MBIR reconstruction.
-    
+
     Args:
         sino (ndarray):
             3D numpy array of sinogram data with shape (num_views,num_slices,num_channels)
         delta_channel (float, optional):
             [Default=1.0] Scalar value of detector channel spacing in :math:`ALU`.
         sharpen (float, optional):
-            [Default=1.0] Scalar value that controls level of sharpening. 
+            [Default=1.0] Scalar value that controls level of sharpening.
             Large value results in sharper or less regularized reconstruction.
-    
+
     Returns:
         float: Automatic value of regularization parameter.
     """
@@ -276,45 +275,45 @@ def recon(sino, angles,
         center_offset=0.0, delta_channel=1.0, delta_pixel=1.0,
         num_rows=None, num_cols=None, roi_radius=None,
         sigma_y=None, snr_db=30.0, weights=None, weight_type='unweighted',
-        sigma_x=None, sharpen=1.0, positivity=True, p=1.2, q=2.0, T=1.0, b_interslice=1.0, 
+        sigma_x=None, sharpen=1.0, positivity=True, p=1.2, q=2.0, T=1.0, b_interslice=1.0,
         init_image=0.0001, init_proj=None, prox_image=None,
         stop_threshold=0.0, max_iterations=20,
         num_threads=None, delete_temps=True, svmbir_lib_path=__svmbir_lib_path, object_name='object',
         verbose=1):
     """
     Computes the 3D MBIR reconstruction using a parallel beam geometry and other parameters as described below.
-    
+
     Args:
         sino (float): 3D numpy array of sinogram data with shape (num_views,num_slices,num_channels)
 
-        angles (float): 1D numpy array of view angles in radians. 
+        angles (float): 1D numpy array of view angles in radians.
 
         center_offset (float, optional): [Default=0.0] Scalar value of offset from center-of-rotation.
 
         delta_channel (float, optional): [Default=1.0] Scalar value of detector channel spacing in :math:`ALU`.
 
         delta_pixel (float, optional): [Default=1.0] Scalar value of the spacing between image pixels in the 2D slice plane in :math:`ALU`.
-        
-        num_rows (int, optional): [Default=None] Integer number of rows in reconstructed image. 
-            If None, automatically set.
-        
-        num_cols (int, optional): [Default=None] Integer number of columns in reconstructed image. 
-            If None, automatically set.
-        
-        roi_radius (float, optional): [Default=None] Scalar value of radius of reconstruction in :math:`ALU`. 
-            If None, automatically set.
-        
-        sigma_y (float, optional): [Default=None] Scalar value of noise standard deviation parameter. 
-            If None, automatically set.
-        
-        snr_db (float, optional): [Default=30.0] Scalar value that controls assumed signal-to-noise ratio of the data in dB. 
-            Ignored if sigma_y is not None.
-        
-        weights (ndarray, optional): [Default=None] 3D numpy array of weights with same shape as sino
-        
-        weight_type (string, optional): [Default=0] Type of noise model used for data. 
 
-            Ignored if weights parameter is supplied. 
+        num_rows (int, optional): [Default=None] Integer number of rows in reconstructed image.
+            If None, automatically set.
+
+        num_cols (int, optional): [Default=None] Integer number of columns in reconstructed image.
+            If None, automatically set.
+
+        roi_radius (float, optional): [Default=None] Scalar value of radius of reconstruction in :math:`ALU`.
+            If None, automatically set.
+
+        sigma_y (float, optional): [Default=None] Scalar value of noise standard deviation parameter.
+            If None, automatically set.
+
+        snr_db (float, optional): [Default=30.0] Scalar value that controls assumed signal-to-noise ratio of the data in dB.
+            Ignored if sigma_y is not None.
+
+        weights (ndarray, optional): [Default=None] 3D numpy array of weights with same shape as sino
+
+        weight_type (string, optional): [Default=0] Type of noise model used for data.
+
+            Ignored if weights parameter is supplied.
 
             Can be set to the values unweighted, transmission, transmission_root, and emission.
 
@@ -329,80 +328,80 @@ def recon(sino, angles,
                 If weight_type="emmission"         => weights = 1/(sino + 0.1)
 
             Option "unweighted" provides unweighted reconstruction; Option "transmission" is the correct weighting for transmission CT with constant dosage; Option "transmission_root" is commonly used with transmission CT data to improve image homogeneity; Option "emmission" is appropriate for emission CT data.
-        
-        sigma_x (float, optional): [Default=None] Scalar value :math:`>0` that specifies the qGGMRF scale parameter. 
+
+        sigma_x (float, optional): [Default=None] Scalar value :math:`>0` that specifies the qGGMRF scale parameter.
             If None, automatically set by calling svmbir.auto_sigma_x. The parameter sigma_x can be used to directly control regularization, but this is only recommended for expert users.
-        
-        sharpen (float, optional): [Default=1.0] Scalar value that controls level of sharpening. 
 
-            Large value results in sharper or less regularized reconstruction. 
+        sharpen (float, optional): [Default=1.0] Scalar value that controls level of sharpening.
 
-            Ignored if sigma_x is not None. The parameter sharpen can be used to control the level of regularization of the reconstructed image. 
+            Large value results in sharper or less regularized reconstruction.
+
+            Ignored if sigma_x is not None. The parameter sharpen can be used to control the level of regularization of the reconstructed image.
 
             Large values of sharpen will result in a less regularized or sharper image and smaller values will result in a more regularized or smoother image.
-        
-        positivity (bool, optional): [Default=True] Boolean value that determines if positivity constraint is enforced. The positivity parameter defaults to True; however, it should be changed to False when used in applications that can generate negative image values. 
-        
+
+        positivity (bool, optional): [Default=True] Boolean value that determines if positivity constraint is enforced. The positivity parameter defaults to True; however, it should be changed to False when used in applications that can generate negative image values.
+
         p (float, optional): [Default=1.2] Scalar value :math:`>1` that specifies the qGGMRF shape parameter.
-        
+
         q (float, optional): [Default=2.0] Scalar value :math:`>p` that specifies the qGGMRF shape parameter.
-        
+
         T (float, optional): [Default=1.0] Scalar value :math:`>0` that specifies the qGGMRF threshold parameter.
-        
-        b_interslice (float, optional): [Default=1.0] Scalar value :math:`>0` that specifies the interslice regularization. 
-            The default values of 1 should be fine for most applications. 
+
+        b_interslice (float, optional): [Default=1.0] Scalar value :math:`>0` that specifies the interslice regularization.
+            The default values of 1 should be fine for most applications.
             However, b_interslice can be increased to values :math:`>1` in order to increase regularization along the slice axis.
-        
+
         init_image (float, optional): [Default=0.0001] Initial value of reconstruction image specified by either a single scalar value or a 3D numpy array with a shape of (shape.sino[1],num_row,num_col)
-        
-        init_proj (None, optional): [Default=None] Initial value of forward projection of the init_image. 
+
+        init_proj (None, optional): [Default=None] Initial value of forward projection of the init_image.
             This can be used to reduce computation for the first iteration when using the proximal map option.
-        
-        prox_image (ndarray, optional): [Default=None] 3D numpy array with proximal map input image. 
 
-            If prox_image is supplied, then the proximal map prior model is used, and the qGGMRF parameters are ignored. 
+        prox_image (ndarray, optional): [Default=None] 3D numpy array with proximal map input image.
 
-            The proximal map prior is required when svmbir.recon is used with Plug-and-Play. 
+            If prox_image is supplied, then the proximal map prior model is used, and the qGGMRF parameters are ignored.
 
-            In this case, the reconstruction solves the optimization problem: 
+            The proximal map prior is required when :mod:`svmbir.recon` is used with Plug-and-Play :cite:`venkatakrishnan2013plug` :cite:`sreehari2016plug`.
+
+            In this case, the reconstruction solves the optimization problem:
 
             .. math::
                 :nowrap:
 
                 \\begin{align*}
-                {\\hat x} = \\underset{x}{\\operatorname{argmin}}   \\frac{1}{2} \\vert \\vert y - Ax \\vert \\vert_{\\Lambda}^2 + \\frac{1}{2\\sigma_x^2} \\vert \\vert x -v \\vert \\vert^2 
+                {\\hat x} = \\underset{x}{\\operatorname{argmin}}   \\frac{1}{2} \\vert \\vert y - Ax \\vert \\vert_{\\Lambda}^2 + \\frac{1}{2\\sigma_x^2} \\vert \\vert x -v \\vert \\vert^2
                 \\end{align*}
 
-            where :math:`v` is given by prox_image. This feature should only be used by expert users 
+            where :math:`v` is given by prox_image. This feature should only be used by expert users
 
-            since svmbir must be incorporated in a Plug-and-Play outter loop in order to make the option useful.
-        
-        stop_threshold (float, optional): [Default=0.0] Scalar valued stopping threshold in percent. 
+            since svmbir must be incorporated in a Plug-and-Play outer loop in order to make the option useful.
+
+        stop_threshold (float, optional): [Default=0.0] Scalar valued stopping threshold in percent.
             If stop_threshold=0, then run max iterations.
-        
+
         max_iterations (int, optional): [Default=20] Integer valued specifying the maximum number of iterations.
-        
+
         num_threads (int, optional): [Default=None] Number of compute threads requested when executed.
             If None, num_threads is set to the number of cores in the system
-        
+
         delete_temps (bool, optional): [Default=True] Delete temporary files used in computation.
-        
+
         svmbir_lib_path (string, optional): [Default=~/.cache/svmbir_lib] Path to directory containing library of forward projection matrices.
-        
-        object_name (string, optional): [Default='object'] Specifies filenames of cached files. 
+
+        object_name (string, optional): [Default='object'] Specifies filenames of cached files.
             Can be changed suitably for running multiple instances of reconstructions.
             Useful for building multi-process and multi-node functionality on top of svmbir.
-        
+
         verbose (int, optional): [Default=1] Set to 0 for quiet mode.
- 
+
     Returns:
-        ndarray: 3D numpy array with shape (num_slices,num_rows,num_cols) containing the reconstructed 3D object in units of :math:`ALU^{-1}`. 
+        ndarray: 3D numpy array with shape (num_slices,num_rows,num_cols) containing the reconstructed 3D object in units of :math:`ALU^{-1}`.
     """
 
     if num_threads is None:
         num_threads=cpu_count(logical=False)
     os.environ['OMP_NUM_THREADS'] = str(num_threads)
-    
+
     os.environ['OMP_DYNAMIC'] = 'true'
 
     (num_views, num_slices, num_channels) = sino.shape
@@ -430,16 +429,16 @@ def recon(sino, angles,
 
 
     paths, sinoparams, imgparams = _init_geometry(angles, center_offset=center_offset,
-        num_channels=num_channels, num_views=num_views, num_slices=num_slices, 
-        num_rows=num_rows, num_cols=num_cols, 
+        num_channels=num_channels, num_views=num_views, num_slices=num_slices,
+        num_rows=num_rows, num_cols=num_cols,
         delta_channel=delta_channel, delta_pixel=delta_pixel, roi_radius=roi_radius,
         svmbir_lib_path=svmbir_lib_path, object_name=object_name, verbose=verbose)
 
     reconparams = parse_params(_default_reconparams, p=p, q=q, T=T, sigma_x=sigma_x, sigma_y=sigma_y,
         b_interslice=b_interslice, stop_threshold=stop_threshold, max_iterations=max_iterations,
         positivity=int(positivity))
-    
-    cmd_args = dict(i=paths['param_name'], j=paths['param_name'], k=paths['param_name'], 
+
+    cmd_args = dict(i=paths['param_name'], j=paths['param_name'], k=paths['param_name'],
     s=paths['sino_name'], f=paths['proj_name'], w=paths['wght_name'],
     r=paths['recon_name'],
     m=paths['sysmatrix_name'],
@@ -463,7 +462,7 @@ def recon(sino, angles,
 
     _cmd_exec(**cmd_args)
 
-    x = read_recon_openmbir(paths['recon_name']+'_slice', '.2Dimgdata', 
+    x = read_recon_openmbir(paths['recon_name']+'_slice', '.2Dimgdata',
         imgparams['Nx'], imgparams['Ny'], imgparams['Nz'])
 
     if delete_temps:
@@ -491,15 +490,15 @@ def project(angles, image, num_channels,
         delta_channel=1.0, delta_pixel=1.0, center_offset=0.0, roi_radius=None,
         num_threads=None, delete_temps=True, svmbir_lib_path=__svmbir_lib_path, object_name='object',
         verbose=1):
-    """Computes the parallel beam sinogram by forward-projecting a 3D numpy array image that represents the volumetric image. 
-    
+    """Computes the parallel beam sinogram by forward-projecting a 3D numpy array image that represents the volumetric image.
+
     Args:
         angles (ndarray):
-            1D numpy array of view angles in radians. 
-            The 1D array is organized so that angles[k] is the angle in radians for view :math:`k`. 
+            1D numpy array of view angles in radians.
+            The 1D array is organized so that angles[k] is the angle in radians for view :math:`k`.
         image (ndarray):
-            3D numpy array of image being forward projected. 
-            The image is a 3D image with a shape of (num_slices,num_row,num_col) where num_slices is the number of sinogram slices. 
+            3D numpy array of image being forward projected.
+            The image is a 3D image with a shape of (num_slices,num_row,num_col) where num_slices is the number of sinogram slices.
             The image should be 0 outside the ROI as defined by roi_radius.
         num_channels (int):
             Integer number of sinogram channels.
@@ -510,9 +509,9 @@ def project(angles, image, num_channels,
         center_offset (float, optional):
             [Default=0.0] Scalar value of offset from center-of-rotation.
         roi_radius (None, optional):
-            [Default=None] Scalar value of radius of reconstruction in :math:`ALU`. 
-            If None, automatically set by calling svmbir.auto_roi_radius. 
-            Pixels outside the radius roi_radius in the :math:`(x,y)` plane are disregarded in forward projection. 
+            [Default=None] Scalar value of radius of reconstruction in :math:`ALU`.
+            If None, automatically set by calling svmbir.auto_roi_radius.
+            Pixels outside the radius roi_radius in the :math:`(x,y)` plane are disregarded in forward projection.
             The automatically set size of roi_radius is choosen so that it inscribes the largest axis of the recon image with a shape (num_slices,num_row,num_col).
         num_threads (int, optional): [Default=None] Number of compute threads requested when executed.
             If None, num_threads is set to the number of cores in the system
@@ -520,12 +519,12 @@ def project(angles, image, num_channels,
             [Default=True] Delete temporary files used in computation.
         svmbir_lib_path (string, optional):
             [Default=~/.cache/svmbir_lib] String containing path to directory containing library of forward projection matrices and temp file.
-        object_name (string, optional): 
-            [Default='object'] Specifies filenames of cached files. 
+        object_name (string, optional):
+            [Default='object'] Specifies filenames of cached files.
             Can be changed suitably for running multiple instances of forward projections.
             Useful for building multi-process and multi-node functionality on top of svmbir.
         verbose (int, optional): [Default=1] Set to 0 for quiet mode.
-    
+
     Returns:
         ndarray: 3D numpy array containing sinogram with shape (num_views, num_slices, num_channels).
     """
@@ -544,8 +543,8 @@ def project(angles, image, num_channels,
         roi_radius = float(delta_pixel * max(num_rows,num_cols))
 
     paths, sinoparams, imgparams = _init_geometry(angles, center_offset=center_offset,
-        num_channels=num_channels, num_views=num_views, num_slices=num_slices, 
-        num_rows=num_rows, num_cols=num_cols, 
+        num_channels=num_channels, num_views=num_views, num_slices=num_slices,
+        num_rows=num_rows, num_cols=num_cols,
         delta_channel=delta_channel, delta_pixel=delta_pixel, roi_radius=roi_radius,
         svmbir_lib_path=svmbir_lib_path, object_name=object_name, verbose=verbose)
 
@@ -554,7 +553,7 @@ def project(angles, image, num_channels,
     _cmd_exec(i=paths['param_name'], j=paths['param_name'], m=paths['sysmatrix_name'],
         f=paths['proj_name'], t=paths['recon_name'], v=str(verbose))
 
-    proj = read_sino_openmbir(paths['proj_name']+'_slice', '.2Dprojection', 
+    proj = read_sino_openmbir(paths['proj_name']+'_slice', '.2Dprojection',
         sinoparams['num_views'], sinoparams['num_slices'], sinoparams['num_channels'])
 
     if delete_temps:
@@ -566,4 +565,3 @@ def project(angles, image, num_channels,
         delete_data_openmbir(paths['proj_name']+'_slice', '.2Dprojection', sinoparams['num_slices'])
 
     return proj
-
