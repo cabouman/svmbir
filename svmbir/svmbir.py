@@ -276,7 +276,7 @@ def recon(sino, angles,
         num_rows=None, num_cols=None, roi_radius=None,
         sigma_y=None, snr_db=30.0, weights=None, weight_type='unweighted',
         sigma_x=None, sharpen=1.0, positivity=True, p=1.2, q=2.0, T=1.0, b_interslice=1.0,
-        init_image=0.0001, init_proj=None, prox_image=None,
+        init_image=0.0, init_proj=None, prox_image=None,
         stop_threshold=0.0, max_iterations=20,
         num_threads=None, delete_temps=True, svmbir_lib_path=__svmbir_lib_path, object_name='object',
         verbose=1):
@@ -399,7 +399,8 @@ def recon(sino, angles,
     """
 
     if num_threads is None:
-        num_threads=cpu_count(logical=False)
+        num_threads = cpu_count(logical=False)
+
     os.environ['OMP_NUM_THREADS'] = str(num_threads)
 
     os.environ['OMP_DYNAMIC'] = 'true'
@@ -425,8 +426,9 @@ def recon(sino, angles,
         sigma_x = auto_sigma_x(sino, delta_channel, sharpen)
 
     if np.isscalar(init_image):
-        init_image = init_image*np.ones((num_slices, num_rows, num_cols))
-
+        init_image_value = init_image
+    else:
+        init_image_value = 0
 
     paths, sinoparams, imgparams = _init_geometry(angles, center_offset=center_offset,
         num_channels=num_channels, num_views=num_views, num_slices=num_slices,
@@ -436,13 +438,15 @@ def recon(sino, angles,
 
     reconparams = parse_params(_default_reconparams, p=p, q=q, T=T, sigma_x=sigma_x, sigma_y=sigma_y,
         b_interslice=b_interslice, stop_threshold=stop_threshold, max_iterations=max_iterations,
-        positivity=int(positivity))
+        positivity=int(positivity), init_image_value=init_image_value)
 
     cmd_args = dict(i=paths['param_name'], j=paths['param_name'], k=paths['param_name'],
-    s=paths['sino_name'], f=paths['proj_name'], w=paths['wght_name'],
-    r=paths['recon_name'],
-    m=paths['sysmatrix_name'],
-    t=paths['init_name'], v=str(verbose))
+        s=paths['sino_name'], r=paths['recon_name'], m=paths['sysmatrix_name'],
+        w=paths['wght_name'], f=paths['proj_name'], v=str(verbose))
+
+    if not np.isscalar(init_image):
+        write_recon_openmbir(init_image, paths['init_name']+'_slice', '.2Dimgdata')
+        cmd_args['t'] = paths['init_name']
 
     if init_proj is not None:
         write_sino_openmbir(init_proj, paths['init_proj_name']+'_slice', '.2Dsinodata')
@@ -458,7 +462,6 @@ def recon(sino, angles,
 
     write_sino_openmbir(sino, paths['sino_name']+'_slice', '.2Dsinodata')
     write_sino_openmbir(weights, paths['wght_name']+'_slice', '.2Dweightdata')
-    write_recon_openmbir(init_image, paths['init_name']+'_slice', '.2Dimgdata')
 
     _cmd_exec(**cmd_args)
 
@@ -475,7 +478,9 @@ def recon(sino, angles,
         delete_data_openmbir(paths['sino_name']+'_slice', '.2Dsinodata', sinoparams['num_slices'])
         delete_data_openmbir(paths['proj_name']+'_slice', '.2Dprojection', sinoparams['num_slices'])
         delete_data_openmbir(paths['wght_name']+'_slice', '.2Dweightdata', sinoparams['num_slices'])
-        delete_data_openmbir(paths['init_name']+'_slice', '.2Dimgdata', imgparams['Nz'])
+
+        if not np.isscalar(init_image):
+            delete_data_openmbir(paths['init_name']+'_slice', '.2Dimgdata', imgparams['Nz'])
 
         if init_proj is not None:
             delete_data_openmbir(paths['init_proj_name']+'_slice', '.2Dprojection', sinoparams['num_slices'])
