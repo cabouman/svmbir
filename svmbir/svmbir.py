@@ -352,7 +352,7 @@ def recon(sino, angles,
             The default values of 1 should be fine for most applications.
             However, b_interslice can be increased to values :math:`>1` in order to increase regularization along the slice axis.
 
-        init_image (float, optional): [Default=0.0] Initial value of reconstruction image, specified by either a scalar value or a 3D numpy array with shape (sino.shape[1],num_rows,num_cols).
+        init_image (float, optional): [Default=0.0] Initial value of reconstruction image, specified by either a scalar value or a 3D numpy array with shape (num_slices,num_rows,num_cols).
 
         init_proj (None, optional): [Default=None] Initial value of forward projection of the init_image.
             This can be used to reduce computation for the first iteration when using the proximal map option.
