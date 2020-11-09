@@ -402,8 +402,11 @@ def recon(sino, angles,
         num_threads = cpu_count(logical=False)
 
     os.environ['OMP_NUM_THREADS'] = str(num_threads)
-
     os.environ['OMP_DYNAMIC'] = 'true'
+
+    if sino.ndim == 2:
+        sino = sino[:,np.newaxis,:]
+        print("svmbir.recon() warning: Input sino array only 2D. Adding singleton dimension to slice index to make it 3D.")
 
     (num_views, num_slices, num_channels) = sino.shape
 
