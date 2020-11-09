@@ -243,7 +243,10 @@ def auto_sigma_y(sino, weights, snr_db=30.0):
     Returns:
         ndarray: Automatic values of regularization parameter.
     """
-    signal_rms = np.mean(weights * sino**2)**0.5
+    #signal_rms = np.mean(weights * sino**2)**0.5
+    indicator = np.int8(sino > 0.05*np.mean(np.fabs(sino)) )    # for excluding empty space from average
+    signal_rms = np.average(weights * sino**2, None, indicator)**0.5
+
     rel_noise_std = 10**(-snr_db/20)
     sigma_y = rel_noise_std * signal_rms
 
@@ -266,7 +269,10 @@ def auto_sigma_x(sino, delta_channel=1.0, sharpen=1.0):
         float: Automatic value of regularization parameter.
     """
     (num_views, num_slices, num_channels) = sino.shape
-    sigma_x = 0.1 * sharpen * np.mean(sino) / (num_channels*delta_channel)
+
+    #sigma_x = 0.1 * sharpen * np.mean(sino) / (num_channels*delta_channel)
+    indicator = np.int8(sino > 0.05*np.mean(np.fabs(sino)) )    # for excluding empty space from average
+    sigma_x = 0.1 * sharpen * np.average(sino,weights=indicator) / (num_channels*delta_channel)
 
     return sigma_x
 
@@ -402,8 +408,11 @@ def recon(sino, angles,
         num_threads = cpu_count(logical=False)
 
     os.environ['OMP_NUM_THREADS'] = str(num_threads)
-
     os.environ['OMP_DYNAMIC'] = 'true'
+
+    if sino.ndim == 2:
+        sino = sino[:,np.newaxis,:]
+        print("svmbir.recon() warning: Input sino array only 2D. Adding singleton dimension to slice index to make it 3D.")
 
     (num_views, num_slices, num_channels) = sino.shape
 
