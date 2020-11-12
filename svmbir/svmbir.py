@@ -253,7 +253,7 @@ def auto_sigma_y(sino, weights, snr_db=30.0):
     return sigma_y
 
 
-def auto_sigma_x(sino, delta_channel=1.0, sharpen=1.0):
+def auto_sigma_x(sino, delta_channel=1.0, sharpness=1.0):
     """Computes the automatic value of the regularization parameters sigma_x for use in MBIR reconstruction.
 
     Args:
@@ -261,8 +261,8 @@ def auto_sigma_x(sino, delta_channel=1.0, sharpen=1.0):
             3D numpy array of sinogram data with shape (num_views,num_slices,num_channels)
         delta_channel (float, optional):
             [Default=1.0] Scalar value of detector channel spacing in :math:`ALU`.
-        sharpen (float, optional):
-            [Default=1.0] Scalar value that controls level of sharpening.
+        sharpness (float, optional):
+            [Default=1.0] Scalar value that controls level of sharpness.
             Large value results in sharper or less regularized reconstruction.
 
     Returns:
@@ -270,22 +270,22 @@ def auto_sigma_x(sino, delta_channel=1.0, sharpen=1.0):
     """
     (num_views, num_slices, num_channels) = sino.shape
 
-    #sigma_x = 0.1 * sharpen * np.mean(sino) / (num_channels*delta_channel)
+    #sigma_x = 0.1 * sharpness * np.mean(sino) / (num_channels*delta_channel)
     indicator = np.int8(sino > 0.05*np.mean(np.fabs(sino)) )    # for excluding empty space from average
-    sigma_x = 0.1 * sharpen * np.average(sino,weights=indicator) / (num_channels*delta_channel)
+    sigma_x = 0.1 * sharpness * np.average(sino, weights=indicator) / (num_channels * delta_channel)
 
     return sigma_x
 
 
 def recon(sino, angles,
-        center_offset=0.0, delta_channel=1.0, delta_pixel=1.0,
-        num_rows=None, num_cols=None, roi_radius=None,
-        sigma_y=None, snr_db=30.0, weights=None, weight_type='unweighted',
-        sigma_x=None, sharpen=1.0, positivity=True, p=1.2, q=2.0, T=1.0, b_interslice=1.0,
-        init_image=0.0, init_proj=None, prox_image=None,
-        stop_threshold=0.0, max_iterations=20,
-        num_threads=None, delete_temps=True, svmbir_lib_path=__svmbir_lib_path, object_name='object',
-        verbose=1):
+          center_offset=0.0, delta_channel=1.0, delta_pixel=1.0,
+          num_rows=None, num_cols=None, roi_radius=None,
+          sigma_y=None, snr_db=30.0, weights=None, weight_type='unweighted',
+          sigma_x=None, sharpness=1.0, positivity=True, p=1.2, q=2.0, T=1.0, b_interslice=1.0,
+          init_image=0.0, init_proj=None, prox_image=None,
+          stop_threshold=0.0, max_iterations=20,
+          num_threads=None, delete_temps=True, svmbir_lib_path=__svmbir_lib_path, object_name='object',
+          verbose=1):
     """
     Computes the 3D MBIR reconstruction using a parallel beam geometry and other parameters as described below.
 
@@ -338,13 +338,13 @@ def recon(sino, angles,
         sigma_x (float, optional): [Default=None] Scalar value :math:`>0` that specifies the qGGMRF scale parameter.
             If None, automatically set by calling svmbir.auto_sigma_x. The parameter sigma_x can be used to directly control regularization, but this is only recommended for expert users.
 
-        sharpen (float, optional): [Default=1.0] Scalar value that controls level of sharpening.
+        sharpness (float, optional): [Default=1.0] Scalar value that controls level of sharpness.
 
             Large value results in sharper or less regularized reconstruction.
 
-            Ignored if sigma_x is not None. The parameter sharpen can be used to control the level of regularization of the reconstructed image.
+            Ignored if sigma_x is not None. The parameter sharpness can be used to control the level of regularization of the reconstructed image.
 
-            Large values of sharpen will result in a less regularized or sharper image and smaller values will result in a more regularized or smoother image.
+            Large values of sharpness will result in a less regularized or sharper image and smaller values will result in a more regularized or smoother image.
 
         positivity (bool, optional): [Default=True] Boolean value that determines if positivity constraint is enforced. The positivity parameter defaults to True; however, it should be changed to False when used in applications that can generate negative image values.
 
@@ -432,7 +432,7 @@ def recon(sino, angles,
         sigma_y = auto_sigma_y(sino, weights, snr_db)
 
     if sigma_x is None:
-        sigma_x = auto_sigma_x(sino, delta_channel, sharpen)
+        sigma_x = auto_sigma_x(sino, delta_channel, sharpness)
 
     if np.isscalar(init_image):
         init_image_value = init_image
