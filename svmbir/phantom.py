@@ -15,7 +15,7 @@ def gen_Shepp_Logan(num_rows):
     x_grid,y_grid = np.meshgrid(axis_rows,axis_rows)
     image = x_grid*0.0;
 
-    image = image + gen_ellipse(x_grid=x_grid, y_grid=y_grid, x0=0, y0=0, a=0.69, b=0.92, gray_level=2.0 ):
+    image = image + gen_ellipse(x_grid=x_grid, y_grid=y_grid, x0=0, y0=0, a=0.69, b=0.92, gray_level=2.0 )
 
     return image
 
@@ -38,7 +38,8 @@ def gen_ellipse(x_grid,y_grid,x0,y0,a,b,gray_level,theta=0):
         ndarray: 2D array with the same shape as x_grid and y_grid.
 
     """
-    image = [((x_grid - x0) * np.cos(theta) + (y_grid - y0) * np.sin(theta)) ** 2 / a ** 2  + ((x_grid - x0) * np.sin(theta) - (y_grid - y0) * np.cos(theta)) ** 2 / b <= 1.0]*gray_level
+    image = (((x_grid - x0) * np.cos(theta) + (y_grid - y0) * np.sin(theta)) ** 2 / a ** 2  \
+    + ((x_grid - x0) * np.sin(theta) - (y_grid - y0) * np.cos(theta)) ** 2 / b <= 1.0)*gray_level
 
     return image
 
