@@ -263,7 +263,7 @@ def auto_sigma_x(sino, delta_channel=1.0, sharpness=1.0):
             [Default=1.0] Scalar value of detector channel spacing in :math:`ALU`.
         sharpness (float, optional):
             [Default=1.0] Scalar value that controls level of sharpness.
-            Large value results in sharper or less regularized reconstruction.
+            Larger value results in sharper or less regularized reconstruction.
 
     Returns:
         float: Automatic value of regularization parameter.
@@ -340,11 +340,9 @@ def recon(sino, angles,
 
         sharpness (float, optional): [Default=1.0] Scalar value that controls level of sharpness.
 
-            Large value results in sharper or less regularized reconstruction.
+            Larger value results in sharper or less regularized reconstruction.
 
-            Ignored if sigma_x is not None. The parameter sharpness can be used to control the level of regularization of the reconstructed image.
-
-            Large values of sharpness will result in a less regularized or sharper image and smaller values will result in a more regularized or smoother image.
+            Ignored if sigma_x is not None.
 
         positivity (bool, optional): [Default=True] Boolean value that determines if positivity constraint is enforced. The positivity parameter defaults to True; however, it should be changed to False when used in applications that can generate negative image values.
 
