@@ -4,5 +4,5 @@
 __pycache__
 sftp-config.json
 .idea
-demo/output
+demo/*.png
 
