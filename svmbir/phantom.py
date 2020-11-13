@@ -10,12 +10,29 @@ def gen_shepp_logan(num_rows):
     Return:
         out_image: 2D array, num_rows*num_cols
     """
+
+    # The function describing the phantom is defined as the sum of 10 ellipses inside a 2×2 square:
+    sl_paras=[
+        {'x0':0.0,'y0':0.0,'a':0.69,'b':0.92,'theta':0,'gray_level':2.0},
+        {'x0':0.0,'y0':-0.0184,'a':0.6624,'b':0.874,'theta':0,'gray_level':-0.98},
+        {'x0':0.22,'y0':0.0,'a':0.11,'b':0.31,'theta':-18,'gray_level':-0.02},
+        {'x0':-0.22,'y0':0.0,'a':0.16,'b':0.41,'theta':18,'gray_level':-0.02},
+        {'x0':0.0,'y0':0.35,'a':0.21,'b':0.25,'theta':0,'gray_level':0.01},
+        {'x0':0.0,'y0':0.1,'a':0.046,'b':0.046,'theta':0,'gray_level':0.01},
+        {'x0':0.0,'y0':-0.1,'a':0.046,'b':0.046,'theta':0,'gray_level':0.01},
+        {'x0':-0.08,'y0':-0.605,'a':0.046,'b':0.023,'theta':0,'gray_level':0.01},
+        {'x0':0.0,'y0':-0.605,'a':0.023,'b':0.023,'theta':0,'gray_level':0.01},
+        {'x0':0.06,'y0':-0.605,'a':0.023,'b':0.046,'theta':0,'gray_level':0.01},
+    ]
+
     axis_rows=np.linspace(-1,1,num_rows)
-
-    x_grid,y_grid = np.meshgrid(axis_rows,axis_rows)
-    image = x_grid*0.0;
-
-    image = image + gen_ellipse(x_grid=x_grid, y_grid=y_grid, x0=0, y0=0, a=0.69, b=0.92, gray_level=2.0 )
+    
+    x_grid,y_grid = np.meshgrid(axis_rows,-axis_rows)
+    image = x_grid*0.0
+    
+    for el_paras in sl_paras:
+        image += gen_ellipse(x_grid=x_grid, y_grid=y_grid, x0=el_paras['x0'], y0=el_paras['y0'], \
+            a=el_paras['a'], b=el_paras['b'],theta=el_paras['theta']/180.0*np.pi, gray_level=el_paras['gray_level'] )
 
     return image
 
@@ -39,8 +56,7 @@ def gen_ellipse(x_grid,y_grid,x0,y0,a,b,gray_level,theta=0):
 
     """
     image = (((x_grid - x0) * np.cos(theta) + (y_grid - y0) * np.sin(theta)) ** 2 / a ** 2  \
-    + ((x_grid - x0) * np.sin(theta) - (y_grid - y0) * np.cos(theta)) ** 2 / b <= 1.0)*gray_level
+    + ((x_grid - x0) * np.sin(theta) - (y_grid - y0) * np.cos(theta)) ** 2 / b**2 <= 1.0)*gray_level
 
     return image
-
 
