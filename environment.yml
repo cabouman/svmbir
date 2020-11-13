@@ -5,3 +5,4 @@ dependencies:
   - matplotlib
   - ruamel.yaml
   - psutil
+  - pytest
