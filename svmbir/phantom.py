@@ -49,8 +49,8 @@ def gen_microscopy_sample(num_rows,num_cols):
         out_image: 2D array, num_rows*num_cols
     """
 
-    # The function describing the phantom is defined as the sum of 10 ellipses inside a 2×2 square:
-    sl_paras = [
+    # The function describing the phantom is defined as the sum of 8 ellipses inside a 4×2 rectangle:
+    ms_paras = [
         {'x0': 0.0, 'y0': -0.0184, 'a': 0.6624, 'b': 1.748, 'theta': 0, 'gray_level': 1.02},
         {'x0': -0.1, 'y0': 1.343, 'a': 0.11, 'b': 0.10, 'theta': 0, 'gray_level': 0.04},
         {'x0': 0.0, 'y0': 0.9, 'a': 0.33, 'b': 0.15, 'theta': 0, 'gray_level': 0.02},
@@ -66,7 +66,7 @@ def gen_microscopy_sample(num_rows,num_cols):
     x_grid, y_grid = np.meshgrid(axis_rows, -axis_cols)
     image = x_grid * 0.0
 
-    for el_paras in sl_paras:
+    for el_paras in ms_paras:
         image += gen_ellipse(x_grid=x_grid, y_grid=y_grid, x0=el_paras['x0'], y0=el_paras['y0'], \
                              a=el_paras['a'], b=el_paras['b'], theta=el_paras['theta'] / 180.0 * np.pi,
                              gray_level=el_paras['gray_level'])
