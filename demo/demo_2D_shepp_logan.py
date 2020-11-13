@@ -8,47 +8,61 @@ This file demonstrates the generation of a Shepp-Logan phantom followed by sinog
 The phantom, sinogram, and reconstruction are then displayed. 
 """
 
-num_rows = 256
-num_cols = num_rows
-num_views = 144
-threshold = 0.05
 
-# Generate phantom with a single slice
-phantom = svmbir.phantom.gen_shepp_logan(num_rows)
-phantom = np.expand_dims(phantom, axis=0)
+def plot_result(img, filename, vmin=None, vmax=None):
+    """
+    Function to display and save a 2D array as an image.
+    :param img: 2D numpy array to display
+    :param vmin: Value mapped to black
+    :param vmax: Value mapped to white
+    """
+    imgplot = plt.imshow(img, vmin=vmin, vmax=vmax)
+    imgplot.set_cmap('gray')
+    plt.colorbar()
+    plt.savefig(filename)
+    plt.close()
 
-# Generate array of view angles form -180 to 180 degs
-angles = np.linspace(-np.pi / 2.0, np.pi / 2.0, num_views, endpoint=False)
 
-# Generate sinogram by projecting phantom
-sino = svmbir.project(angles, phantom, max(num_rows, num_cols))
+def nrmse(image, reference_image):
+    """
+    :param image: Calculated image
+    :param reference_image: Ground truth image
+    :return: Root mean square of (image - reference_image) divided by RMS of reference_image
+    """
+    return np.linalg.norm(image - reference_image) / np.linalg.norm(reference_image)
 
-# Determine resulting number of views, slices, and channels
-(num_views, num_slices, num_channels) = sino.shape
 
-# Perform MBIR reconstruction
-recon = svmbir.recon(sino, angles, T=1.0, sharpness=1.0, snr_db=40.0, max_iterations=40)
+if __name__ == '__main__':
 
-rmse = np.sqrt(np.linalg.norm(recon[0] - phantom[0]) ** 2 / (recon.shape[1] * phantom.shape[2]))
-print(f'The RMSE reconstruction error is {rmse:.3f}.')
+    num_rows = 256
+    num_cols = num_rows
+    num_views = 144
+    threshold = 0.05
 
-# display phantom
-imgplot = plt.imshow(phantom[0], vmin=1.0, vmax=1.1)
-imgplot.set_cmap('gray')
-plt.colorbar()
-plt.savefig('output/shepp_logan_phantom.png')
-plt.close()
+    # Generate phantom with a single slice
+    phantom = svmbir.phantom.gen_shepp_logan(num_rows)
+    phantom = np.expand_dims(phantom, axis=0)
 
-# display sinogram
-imgplot = plt.imshow(np.squeeze(sino))
-imgplot.set_cmap('gray')
-plt.colorbar()
-plt.savefig('output/shepp_logan_sinogram.png')
-plt.close()
+    # Generate array of view angles form -180 to 180 degs
+    angles = np.linspace(-np.pi / 2.0, np.pi / 2.0, num_views, endpoint=False)
 
-# display reconstruction
-imgplot = plt.imshow(recon[0], vmin=1.0, vmax=1.1)
-imgplot.set_cmap('gray')
-plt.colorbar()
-plt.savefig('output/shepp_logan_recon.png')
-plt.close()
+    # Generate sinogram by projecting phantom
+    sino = svmbir.project(angles, phantom, max(num_rows, num_cols))
+
+    # Determine resulting number of views, slices, and channels
+    (num_views, num_slices, num_channels) = sino.shape
+
+    # Perform MBIR reconstruction
+    recon = svmbir.recon(sino, angles, T=1.0, sharpness=1.0, snr_db=40.0, max_iterations=40)
+
+    error = nrmse(recon[0], phantom[0])
+    print(f'The NRMSE reconstruction error is {error:.3f}.')
+
+    # display phantom
+    plot_result(phantom[0], 'output/shepp_logan_phantom.png', vmin=1.0, vmax=1.1)
+
+    # display sinogram
+    plot_result(np.squeeze(sino), 'output/shepp_logan_sinogram.png')
+
+    # display reconstruction
+    plot_result(recon[0], 'output/shepp_logan_recon.png', vmin=1.0, vmax=1.1)
