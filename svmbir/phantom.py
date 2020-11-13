@@ -1,5 +1,5 @@
 import numpy as np
-
+import matplotlib.pyplot as plt
 def gen_shepp_logan(num_rows):
     """
     Generate a Shepp Logan phantom
@@ -22,7 +22,7 @@ def gen_shepp_logan(num_rows):
         {'x0':0.0,'y0':-0.1,'a':0.046,'b':0.046,'theta':0,'gray_level':0.01},
         {'x0':-0.08,'y0':-0.605,'a':0.046,'b':0.023,'theta':0,'gray_level':0.01},
         {'x0':0.0,'y0':-0.605,'a':0.023,'b':0.023,'theta':0,'gray_level':0.01},
-        {'x0':0.06,'y0':-0.605,'a':0.023,'b':0.046,'theta':0,'gray_level':0.01},
+        {'x0':0.06,'y0':-0.605,'a':0.023,'b':0.046,'theta':0,'gray_level':0.01}
     ]
 
     axis_rows=np.linspace(-1,1,num_rows)
@@ -36,6 +36,42 @@ def gen_shepp_logan(num_rows):
 
     return image
 
+
+def gen_microscopy_sample(num_rows,num_cols):
+    """
+    Generate a microscopy sample phantom.
+
+    Args:
+        num_rows: int, number of rows.
+        num_cols: int, number of cols.
+
+    Return:
+        out_image: 2D array, num_rows*num_cols
+    """
+
+    # The function describing the phantom is defined as the sum of 10 ellipses inside a 2×2 square:
+    sl_paras = [
+        {'x0': 0.0, 'y0': -0.0184, 'a': 0.6624, 'b': 1.748, 'theta': 0, 'gray_level': 1.02},
+        {'x0': -0.1, 'y0': 1.343, 'a': 0.11, 'b': 0.10, 'theta': 0, 'gray_level': 0.04},
+        {'x0': 0.0, 'y0': 0.9, 'a': 0.33, 'b': 0.15, 'theta': 0, 'gray_level': 0.02},
+        {'x0': 0.25, 'y0': 0.4, 'a': 0.1, 'b': 0.2, 'theta': 0, 'gray_level': 0.04},
+        {'x0': -0.2, 'y0': 0.0, 'a': 0.2, 'b': 0.08, 'theta': 0, 'gray_level': 0.02},
+        {'x0': 0.2, 'y0': -0.35, 'a': 0.1, 'b': 0.1, 'theta': 0, 'gray_level': 0.04},
+        {'x0': 0.25, 'y0': -0.8, 'a': 0.2, 'b': 0.08, 'theta': 0, 'gray_level': 0.04},
+        {'x0': -0.04, 'y0': -1.3, 'a': 0.33, 'b': 0.15, 'theta': 0, 'gray_level': 0.04}
+    ]
+
+    axis_rows = np.linspace(-1, 1, num_cols)
+    axis_cols = np.linspace(-2, 2, num_rows)
+    x_grid, y_grid = np.meshgrid(axis_rows, -axis_cols)
+    image = x_grid * 0.0
+
+    for el_paras in sl_paras:
+        image += gen_ellipse(x_grid=x_grid, y_grid=y_grid, x0=el_paras['x0'], y0=el_paras['y0'], \
+                             a=el_paras['a'], b=el_paras['b'], theta=el_paras['theta'] / 180.0 * np.pi,
+                             gray_level=el_paras['gray_level'])
+
+    return image
 
 def gen_ellipse(x_grid,y_grid,x0,y0,a,b,gray_level,theta=0):
     """
@@ -59,4 +95,3 @@ def gen_ellipse(x_grid,y_grid,x0,y0,a,b,gray_level,theta=0):
     + ((x_grid - x0) * np.sin(theta) - (y_grid - y0) * np.cos(theta)) ** 2 / b**2 <= 1.0)*gray_level
 
     return image
-
