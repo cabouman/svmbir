@@ -26,11 +26,8 @@ def gen_shepp_logan(num_rows):
     ]
 
     axis_rows=np.linspace(-1,1,num_rows)
-
+    
     x_grid,y_grid = np.meshgrid(axis_rows,-axis_rows)
-
-
-
     image = x_grid*0.0
     
     for el_paras in sl_paras:
