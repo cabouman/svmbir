@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def gen_shepp_logan(num_rows):
     """
     Generate a Shepp Logan phantom
@@ -31,7 +32,7 @@ def gen_shepp_logan(num_rows):
     image = x_grid * 0.0
 
     for el_paras in sl_paras:
-        image += gen_ellipse(x_grid=x_grid, y_grid=y_grid, x0=el_paras['x0'], y0=el_paras['y0'], \
+        image += gen_ellipse(x_grid=x_grid, y_grid=y_grid, x0=el_paras['x0'], y0=el_paras['y0'],
                              a=el_paras['a'], b=el_paras['b'], theta=el_paras['theta'] / 180.0 * np.pi,
                              gray_level=el_paras['gray_level'])
 
@@ -114,7 +115,7 @@ def gen_shepp_logan_3d(num_rows, num_slices):
                                gamma=el_paras['gamma'] / 180.0 * np.pi,
                                gray_level=el_paras['gray_level'])
 
-    return np.transpose(image,(2,0,1))
+    return np.transpose(image, (2, 0, 1))
 
 
 def gen_ellipse(x_grid, y_grid, x0, y0, a, b, gray_level, theta=0):
@@ -135,7 +136,7 @@ def gen_ellipse(x_grid, y_grid, x0, y0, a, b, gray_level, theta=0):
         ndarray: 2D array with the same shape as x_grid and y_grid.
 
     """
-    image = (((x_grid - x0) * np.cos(theta) + (y_grid - y0) * np.sin(theta)) ** 2 / a ** 2 \
+    image = (((x_grid - x0) * np.cos(theta) + (y_grid - y0) * np.sin(theta)) ** 2 / a ** 2
              + ((x_grid - x0) * np.sin(theta) - (y_grid - y0) * np.cos(theta)) ** 2 / b ** 2 <= 1.0) * gray_level
 
     return image
