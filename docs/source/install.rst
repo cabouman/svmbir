@@ -3,49 +3,51 @@ Installation
 ============
 
 This section covers the basics of how to download and install svmbir.
-
-
-Installing from PyPI or Conda
------------------------------
-
 At this time, the ``svmbir`` package must be built from source.
 In the future, we also plan to make it installable from ``PyPI`` or ``Conda``.
 
 
-Compiling the C code
---------------------
+Downloading and Compiling C code
+--------------------------------
 
-1. Download Software
+1. *Download C-code*
 
-In order to download the C code, ``cd`` to a directory of your choice and run the following commands to install from source.
+In order to download the C code, move to a directory of your choice and run the following two commands.
 
 ``git clone --recursive https://github.com/cabouman/svmbir.git``
 
-This command recursively downloads a folder containing the svmbir python wrapper along with the ``sv-mbirct`` C-code submodule.
+``cd svmbir``
 
-Next, change your directory to the root directory of the repository using the command ``cd svmbir``.
+This first command recursively downloads a folder containing the svmbir python wrapper along with the ``sv-mbirct`` C-code submodule,
+and the second command moves into the root directory of the repository.
 
 
-2. Compile Code
+2. *Compile C-Code*
 
-Option 1: Build the binary executable from the C source code using GCC.
+The ``svmbir`` package can compiled using a number of different compilers including the open source ``gcc`` compiler, Intel's ``icc`` compiler, or the Apple's ``clang`` compiler.
+The Intel compiler currently offers the best performance on x86 processors supporting the AVX instruction set;
+however, the ``gcc`` and ``icc`` compilers are often more readily available.
+
+For ``gcc`` compilation, run:
 
 ``make -C svmbir/sv-mbirct/src/ CC=gcc``
 
-Option 2: If an Intel ICC compiler is present, then faster reconstruction can be achieved by building with ICC:
+For ``icc`` compilation, run:
 
 ``make -C svmbir/sv-mbirct/src/ CC=icc``
 
-Option 3: For MacOS, compile using the apple Clang compiler by running:
+For ``clang`` compilation, run:
 
 ``make -C svmbir/sv-mbirct/src/ CC=clang``
 
+In each case, the commands should be run from the root directory of the repository.
+Also, see the sections below for trouble shooting tips for installing under the different operating systems.
 
 
 Installing Python Package
 -------------------------
 
-1. (Optional) Create Conda Environment
+1. *(Optional) Create Conda Environment*
 
 It is recommended that you create a conda environment.
 To do this, first install ``Anaconda``, and then create and activate an ``svmbir`` environment using the following two commands.
@@ -58,7 +60,7 @@ This will create a conda environment with the required dependencies.
 Before running the code, this ``svmbir`` conda environment should always be activated.
 
 
-2. Install the Python Package
+2. *Install the Python Package*
 
 In order to install the ``svmbir`` package into your ``svmbir`` environment, first make sure the ``svmbir`` environment is active, and then run the following command
 
@@ -73,14 +75,47 @@ Updating svmbir
 
 Since the ``svmbir`` package is under active development, you may need to update your package in order to obtain the newest revisions. To do this, you will need to update both the C source code and executables along with the python package.
 
-1. Updating the python installation
+1. *Updating the python installation*
 
 In order to update the python installation, activate the ``svmbir`` environment and run the following command.
 
 ``pip install . --upgrade``
 
 
-2. Updating the C submodule
+2. *Updating the C submodule*
 
 The C code generally changes less frequently, but to update it you should re-download the C source code. If you are using ``git``, then this may require the use of the command ``git submodule update``. Once the C source is updated, then recompile using the commands described above.
+
+
+Trouble Shooting Tips for Windows and MacOSx
+--------------------------------------------
+
+Below are some tips for compiling and running the package under the Windows and MacOSx operating systems.
+Linux is, of course, more straight forward.
+
+1. *Windows Installation:*
+
+The package will run under Windows, but there tend to be more things that can go wrong due to the wide variety of possible configurations.
+The following list of recommended configurations have been tested to work, but others are possible:
+
+* *64-bit gcc or Intel icc compiler:* Make sure to install a 64bit compiler such as the ``MinGW_64`` available from ``http://winlibs.com/`` or the Intel ``icc`` compiler. Comonly used gcc compilers are only 32bit and will create ``calloc`` errors when addressing array sizes greater than 2Gb.
+* *MinGW + MSYS environment:* We recommend installing ``MinGW`` including the ``msys`` utilities. These utilities support a minimalist set of traditional UNIX tools.
+* *Git Bash:* We recommend installing ``Git Bash`` from ``https://gitforwindows.org/`` to support bash scripting.
+
+One known issue is that in some Windows bash environments the ``C`` executable ``mbir_ct.exe`` may not be properly moved to the ``bin`` directory. If this occurs, then the problem can be resolved by manually moving the file.
+
+2. *MacOS Installation:*
+MacOSx users will typically use the ``Clang`` compiler provided as part of the Xcode Developer Tools.
+In this case, the ``gcc`` command in the MocOS environment is **not** actually gcc.
+Instead it is an alias to the ``clang`` compiler.
+Therefore, the C code should be compiled using the ``Clang`` option.
+
+In order to obtain ``Clang`` you will need to install the most up-to-date version of both ``Xcode``
+and ``Command Line Tools for Xcode`` available from ``https://developer.apple.com/download/more/``.
+
+In addition, after OS updates, you may need to reinstall the Xcode toolkit using the command:
+
+``xcode-select --install``
+
+
 
