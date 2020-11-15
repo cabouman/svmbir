@@ -13,8 +13,7 @@ where :math:`f(x)` is the forward model term and :math:`h(x)` is the prior model
 The super-voxel algorithm is then used to efficiently perform this optimization.
 
 
-*Forward Model:* 
-
+**Forward Model:**
 The forward model term has the form,
 
 .. math::
@@ -43,8 +42,7 @@ For many new users, it is easier to use one of the automatic weight settings sho
 
 Option "unweighted" provides unweighted reconstruction; Option "transmission" is the correct weighting for transmission CT with constant dosage; Option "transmission_root" is commonly used with transmission CT data to improve image homogeneity; Option "emmission" is appropriate for emission CT data. 
 
-*Prior Model:* 
-
+**Prior Model:**
 The ``svmbir`` function allows the prior model to be set either as a qGGMRF or a proximal map prior. 
 The qGGRMF prior is the default method recommended for new users. 
 Alternatively, the proximal map prior is an advanced feature required for the implementation of the Plug-and-Play algorithm. The Plug-and-Play algorithm allows the modular use of a wide variety of advanced prior models including priors implemented with machine learning methods such as deep neural networks.
@@ -75,8 +73,7 @@ These quantities correspond to the following python variables:
 * :math:`T` corresponds to ``T`` 
 
 
-*Proximal Map Prior:* 
-
+**Proximal Map Prior:**
 The proximal map prior is provided as a option for advanced users would would like to use plug-and-play methods.
 If ``prox_image`` is supplied, then the proximal map prior model is used, and the qGGMRF parameters are ignored. 
 In this case, the reconstruction solves the optimization problem:
