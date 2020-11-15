@@ -8,7 +8,7 @@ svmbir
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: phantom
+.. automodule:: svmbir.phantom
    :members:
    :undoc-members:
    :show-inheritance:
