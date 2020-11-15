@@ -7,19 +7,18 @@ MBIR reconstruction works by solving the following optimization problem
 
 .. math::
 
-{\hat x} = \arg \min_x \left\{ f(x) + h(x) \right\}
+    {\hat x} = \arg \min_x \left\{ f(x) + h(x) \right\}
 
 where :math:`f(x)` is the forward model term and :math:`h(x)` is the prior model term.
 The super-voxel algorithm is then used to efficiently perform this optimization.
 
 
-*Forward Model:* 
-
+**Forward Model:**
 The forward model term has the form,
 
 .. math::
 
-f(x) = \frac{1}{2 \sigma_x^2} \Vert y - Ax \Vert_\Lambda^2
+    f(x) = \frac{1}{2 \sigma_x^2} \Vert y - Ax \Vert_\Lambda^2
 
 where :math:`y` is the sinogram data, 
 where :math:`x` is the unknown image to be reconstructed, 
@@ -43,8 +42,7 @@ For many new users, it is easier to use one of the automatic weight settings sho
 
 Option "unweighted" provides unweighted reconstruction; Option "transmission" is the correct weighting for transmission CT with constant dosage; Option "transmission_root" is commonly used with transmission CT data to improve image homogeneity; Option "emmission" is appropriate for emission CT data. 
 
-*Prior Model:* 
-
+**Prior Model:**
 The ``svmbir`` function allows the prior model to be set either as a qGGMRF or a proximal map prior. 
 The qGGRMF prior is the default method recommended for new users. 
 Alternatively, the proximal map prior is an advanced feature required for the implementation of the Plug-and-Play algorithm. The Plug-and-Play algorithm allows the modular use of a wide variety of advanced prior models including priors implemented with machine learning methods such as deep neural networks.
@@ -53,13 +51,13 @@ The qGGMRF prior model has the form
 
 .. math::
 
-h(x) = \sum_{ \{s,r\} \in {\cal P}} b_{s,r} \rho ( x_s - x_r) \ ,
+    h(x) = \sum_{ \{s,r\} \in {\cal P}} b_{s,r} \rho ( x_s - x_r) \ ,
 
 where 
 
 .. math::
 
-\rho ( \Delta ) = \frac{|\Delta |^p }{ p \sigma_x^p } \left( \frac{\left| \frac{\Delta }{ T \sigma_x } \right|^{q-p}}{1 + \left| \frac{\Delta }{ T \sigma_x } \right|^{q-p}} \right)
+    \rho ( \Delta ) = \frac{|\Delta |^p }{ p \sigma_x^p } \left( \frac{\left| \frac{\Delta }{ T \sigma_x } \right|^{q-p}}{1 + \left| \frac{\Delta }{ T \sigma_x } \right|^{q-p}} \right)
 
 where :math:`{\cal P}` represents a 8-point 2D neighborhood of pixel pairs in the :math:`(x,y)` plane and a 2-point neighborhood along the slice axis, 
 :math:`\sigma_x` is the primary regularization parameter,
@@ -75,15 +73,14 @@ These quantities correspond to the following python variables:
 * :math:`T` corresponds to ``T`` 
 
 
-*Proximal Map Prior:* 
-
+**Proximal Map Prior:**
 The proximal map prior is provided as a option for advanced users would would like to use plug-and-play methods.
 If ``prox_image`` is supplied, then the proximal map prior model is used, and the qGGMRF parameters are ignored. 
 In this case, the reconstruction solves the optimization problem:
 
 .. math::
 
-{\hat x} = \arg \min_x \left\{ f(x) + \frac{1}{2\sigma_x^2} \Vert x -v \Vert^2 \right\}
+    {\hat x} = \arg \min_x \left\{ f(x) + \frac{1}{2\sigma_x^2} \Vert x -v \Vert^2 \right\}
 
 where the quantities correspond to the following python variables:
 
