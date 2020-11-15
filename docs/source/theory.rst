@@ -7,7 +7,7 @@ MBIR reconstruction works by solving the following optimization problem
 
 .. math::
 
-{\hat x} = \arg \min_x \left\{ f(x) + h(x) \right\}
+    {\hat x} = \arg \min_x \left\{ f(x) + h(x) \right\}
 
 where :math:`f(x)` is the forward model term and :math:`h(x)` is the prior model term.
 The super-voxel algorithm is then used to efficiently perform this optimization.
@@ -19,7 +19,7 @@ The forward model term has the form,
 
 .. math::
 
-f(x) = \frac{1}{2 \sigma_x^2} \Vert y - Ax \Vert_\Lambda^2
+    f(x) = \frac{1}{2 \sigma_x^2} \Vert y - Ax \Vert_\Lambda^2
 
 where :math:`y` is the sinogram data, 
 where :math:`x` is the unknown image to be reconstructed, 
@@ -53,13 +53,13 @@ The qGGMRF prior model has the form
 
 .. math::
 
-h(x) = \sum_{ \{s,r\} \in {\cal P}} b_{s,r} \rho ( x_s - x_r) \ ,
+    h(x) = \sum_{ \{s,r\} \in {\cal P}} b_{s,r} \rho ( x_s - x_r) \ ,
 
 where 
 
 .. math::
 
-\rho ( \Delta ) = \frac{|\Delta |^p }{ p \sigma_x^p } \left( \frac{\left| \frac{\Delta }{ T \sigma_x } \right|^{q-p}}{1 + \left| \frac{\Delta }{ T \sigma_x } \right|^{q-p}} \right)
+    \rho ( \Delta ) = \frac{|\Delta |^p }{ p \sigma_x^p } \left( \frac{\left| \frac{\Delta }{ T \sigma_x } \right|^{q-p}}{1 + \left| \frac{\Delta }{ T \sigma_x } \right|^{q-p}} \right)
 
 where :math:`{\cal P}` represents a 8-point 2D neighborhood of pixel pairs in the :math:`(x,y)` plane and a 2-point neighborhood along the slice axis, 
 :math:`\sigma_x` is the primary regularization parameter,
@@ -83,7 +83,7 @@ In this case, the reconstruction solves the optimization problem:
 
 .. math::
 
-{\hat x} = \arg \min_x \left\{ f(x) + \frac{1}{2\sigma_x^2} \Vert x -v \Vert^2 \right\}
+    {\hat x} = \arg \min_x \left\{ f(x) + \frac{1}{2\sigma_x^2} \Vert x -v \Vert^2 \right\}
 
 where the quantities correspond to the following python variables:
 
