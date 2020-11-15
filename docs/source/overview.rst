@@ -3,8 +3,8 @@ Overview
 ========
 
 **svmbir** is a Python implementation of the Super-Voxel Model Based Iterative Reconstruction (MBIR) algorithm :cite:`wang2016high` :cite:`wang2017massively` for fast reconstruction of parallel beam 3D data.
-
-The code performs Bayesian reconstruction of tomographic data, so it is particularly well-suited for sparse view reconstruction from noisy data. It also has hooks to support Plug-and-Play prior models that can dramatically improve image quality :cite:`venkatakrishnan2013plug` :cite:`sreehari2016plug`. 
+The code performs Bayesian reconstruction of tomographic data, so it is particularly well-suited for sparse view reconstruction from noisy data.
+It also has hooks to support Plug-and-Play prior models that can dramatically improve image quality :cite:`venkatakrishnan2013plug` :cite:`sreehari2016plug`.
 
 **How does it work?**
 
@@ -13,16 +13,6 @@ The super-voxel code can be 100x to 1000x faster than conventional code because 
 **Recommendations and Troubleshooting**
 
 *View Angle Ordering:* In order to achieve best reconstruction speed, we highly recommend views be sorted to be in monotonically increasing order on the inverval :math:`[0,2\pi]`. It is common for people ot collect tomography data using the "golden ratio" method. If this is done, than the view angles should first be wrapped modulo :math:`2\pi`, and then sorted to be in monotonically increasing order. Non-sequential ordering of views will distroy cache coherency and dramatically degrade ``svmbir`` performance.
-
-*Windows Installation:* The package will run under Windows, but there tend to be more things that can go wrong due to the wide variety of possible configurations. The following list of recommended configurations have been tested to work, but others are possible:
-
-* *64-bit gcc or Intel icc compiler:* Make sure to install a 64bit compiler such as the ``MinGW_64`` available from ``http://winlibs.com/`` or the Intel ``icc`` compiler. Comonly used gcc compilers are only 32bit and will create ``calloc`` errors when addressing array sizes greater than 2Gb.
-* *MinGW + MSYS environment:* We recommend installing ``MinGW`` including the ``msys`` utilities. These utilities support a minimalist set of traditional UNIX tools.
-* *Git Bash:* We recommend installing ``Git Bash`` from ``https://gitforwindows.org/`` to support bash scripting.
-
-One known issue is that in some Windows bash environments the ``C`` executable ``mbir_ct.exe`` may not be properly moved to the ``bin`` directory. If this occurs, then the problem can be resolved by manually moving the file.
-
-*MacOS Installation:* MacOS users will typically use the ``Clang`` compiler provided as part of the Xcode Developer Tools. In this case, the ``gcc`` command in the MocOS environment is **not** actually gcc. Instead it is an alias to the ``clang`` compiler. Therefore, the C code should be compiled using the ``Clang`` option. In order to obtain ``Clang`` you will need to install the most up-to-date version of both ``Xcode`` and ``Command Line Tools for Xcode`` available from ``https://developer.apple.com/download/more/``.
 
 **Conversion from Arbitrary Length Units (ALU)**
 
