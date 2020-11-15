@@ -317,13 +317,7 @@ def recon(sino, angles,
 
         weights (ndarray, optional): [Default=None] 3D numpy array of weights with same shape as sino
 
-        weight_type (string, optional): [Default=0] Type of noise model used for data.
-
-            Ignored if weights parameter is supplied.
-
-            Can be set to the values unweighted, transmission, transmission_root, and emission.
-
-            If 3D array weights is not supplied, then the parameter weight_type determines the weights used in the forward model according to the following table:
+        weight_type (string, optional): [Default=0] Type of noise model used for data. If 3D array weights is not supplied, then the parameter weight_type determines the weights used in the forward model according to the following table:
 
                 If weight_type="unweighted"        => weights = numpy.ones_like(sino)
 
@@ -362,23 +356,7 @@ def recon(sino, angles,
             This can be used to reduce computation for the first iteration when using the proximal map option.
 
         prox_image (ndarray, optional): [Default=None] 3D numpy array with proximal map input image.
-
             If prox_image is supplied, then the proximal map prior model is used, and the qGGMRF parameters are ignored.
-
-            The proximal map prior is required when :mod:`svmbir.recon` is used with Plug-and-Play :cite:`venkatakrishnan2013plug` :cite:`sreehari2016plug`.
-
-            In this case, the reconstruction solves the optimization problem:
-
-            .. math::
-                :nowrap:
-
-                \\begin{align*}
-                {\\hat x} = \\underset{x}{\\operatorname{argmin}}   \\frac{1}{2} \\vert \\vert y - Ax \\vert \\vert_{\\Lambda}^2 + \\frac{1}{2\\sigma_x^2} \\vert \\vert x -v \\vert \\vert^2
-                \\end{align*}
-
-            where :math:`v` is given by prox_image. This feature should only be used by expert users
-
-            since svmbir must be incorporated in a Plug-and-Play outer loop in order to make the option useful.
 
         stop_threshold (float, optional): [Default=0.0] Scalar valued stopping threshold in percent.
             If stop_threshold=0, then run max iterations.
