@@ -3,30 +3,30 @@ Installation
 ============
 
 This section covers the basics of how to download and install svmbir.
-
-
-Installing from PyPI or Conda
------------------------------
-
 At this time, the ``svmbir`` package must be built from source.
 In the future, we also plan to make it installable from ``PyPI`` or ``Conda``.
 
 
-Compiling the C code
---------------------
+Downloading and Compiling C code
+--------------------------------
 
-1. Download Software
+1. Download C-code
 
-In order to download the C code, ``cd`` to a directory of your choice and run the following commands to install from source.
+In order to download the C code, move to a directory of your choice and run the following two commands.
 
 ``git clone --recursive https://github.com/cabouman/svmbir.git``
 
-This command recursively downloads a folder containing the svmbir python wrapper along with the ``sv-mbirct`` C-code submodule.
+``cd svmbir``
 
-Next, change your directory to the root directory of the repository using the command ``cd svmbir``.
+This first command recursively downloads a folder containing the svmbir python wrapper along with the ``sv-mbirct`` C-code submodule,
+and the second command moves into the root directory of the repository.
 
 
-2. Compile Code
+2. Compile C-Code
+
+The ``svmbir`` package can compiled using a number of different compilers including the open source ``gcc`` compiler, Intel's ``icc`` compiler, or the Apple's ``clang`` compiler.
+The Intel compiler currently offers the best performance on x86 processors supporting the AVX instruction set;
+however, the ``gcc`` and ``icc`` compilers are often more readily available.
 
 Option 1: Build the binary executable from the C source code using GCC.
 
