@@ -9,3 +9,6 @@ svmbir
    :show-inheritance:
 
 .. automodule:: phantom
+   :members:
+   :undoc-members:
+   :show-inheritance:
