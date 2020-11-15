@@ -18,7 +18,7 @@ The forward model term has the form,
 
 .. math::
 
-    f(x) = \frac{1}{2 \sigma_x^2} \Vert y - Ax \Vert_\Lambda^2
+    f(x) = \frac{1}{2 \sigma_y^2} \Vert y - Ax \Vert_\Lambda^2
 
 where :math:`y` is the sinogram data, 
 where :math:`x` is the unknown image to be reconstructed, 
@@ -59,10 +59,10 @@ where
 
     \rho ( \Delta ) = \frac{|\Delta |^p }{ p \sigma_x^p } \left( \frac{\left| \frac{\Delta }{ T \sigma_x } \right|^{q-p}}{1 + \left| \frac{\Delta }{ T \sigma_x } \right|^{q-p}} \right)
 
-where :math:`{\cal P}` represents a 8-point 2D neighborhood of pixel pairs in the :math:`(x,y)` plane and a 2-point neighborhood along the slice axis, 
-:math:`\sigma_x` is the primary regularization parameter,
-:math:`b_{s,r}` controls the neighborhood weighting,
-:math:`p<q=2.0` are shape parameters,
+where :math:`{\cal P}` represents a 8-point 2D neighborhood of pixel pairs in the :math:`(x,y)` plane and a 2-point neighborhood along the slice axis;
+:math:`\sigma_x` is the primary regularization parameter;
+:math:`b_{s,r}` controls the neighborhood weighting;
+:math:`p<q=2.0` are shape parameters;
 and :math:`T` is a threshold parameter.
 
 These quantities correspond to the following python variables:
@@ -84,6 +84,6 @@ In this case, the reconstruction solves the optimization problem:
 
 where the quantities correspond to the following python variables:
 
-* :math:`v` is given by ``prox_image``. 
+* :math:`v` corresponds to ``prox_image``
 * :math:`\sigma_x` corresponds to ``sigma_x``
 
