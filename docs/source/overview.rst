@@ -22,7 +22,7 @@ The super-voxel code can be 100x to 1000x faster than conventional code because 
 
 One known issue is that in some Windows bash environments the ``C`` executable ``mbir_ct.exe`` may not be properly moved to the ``bin`` directory. If this occurs, then the problem can be resolved by manually moving the file.
 
-*MacOS Installation:* MacOS users will typically use the ``Clang`` compiler provided as part of the Xcode Developer Tools. In this case, the ``gcc`` command in the MocOS environment is **not** actually gcc. Instead it is an alias to the ``clang`` compiler. Therefore, the C code should be compiled using the ``Clang`` option.
+*MacOS Installation:* MacOS users will typically use the ``Clang`` compiler provided as part of the Xcode Developer Tools. In this case, the ``gcc`` command in the MocOS environment is **not** actually gcc. Instead it is an alias to the ``clang`` compiler. Therefore, the C code should be compiled using the ``Clang`` option. In order to obtain ``Clang`` you will need to install the most up-to-date version of both ``Xcode`` and ``Command Line Tools for Xcode`` available from ``https://developer.apple.com/download/more/``.
 
 **Conversion from Arbitrary Length Units (ALU)**
 
