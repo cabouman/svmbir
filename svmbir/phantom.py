@@ -32,7 +32,7 @@ def gen_shepp_logan(num_rows):
     image = x_grid * 0.0
 
     for el_paras in sl_paras:
-        image += gen_ellipse(x_grid=x_grid, y_grid=y_grid, x0=el_paras['x0'], y0=el_paras['y0'],
+        image += _gen_ellipse(x_grid=x_grid, y_grid=y_grid, x0=el_paras['x0'], y0=el_paras['y0'],
                              a=el_paras['a'], b=el_paras['b'], theta=el_paras['theta'] / 180.0 * np.pi,
                              gray_level=el_paras['gray_level'])
 
@@ -69,7 +69,7 @@ def gen_microscopy_sample(num_rows, num_cols):
     image = x_grid * 0.0
 
     for el_paras in ms_paras:
-        image += gen_ellipse(x_grid=x_grid, y_grid=y_grid, x0=el_paras['x0'], y0=el_paras['y0'],
+        image += _gen_ellipse(x_grid=x_grid, y_grid=y_grid, x0=el_paras['x0'], y0=el_paras['y0'],
                              a=el_paras['a'], b=el_paras['b'], theta=el_paras['theta'] / 180.0 * np.pi,
                              gray_level=el_paras['gray_level'])
 
@@ -109,7 +109,7 @@ def gen_shepp_logan_3d(num_rows, num_slices):
     image = x_grid * 0.0
 
     for el_paras in sl3d_paras:
-        image += gen_ellipsoid(x_grid=x_grid, y_grid=y_grid, z_grid=z_grid, x0=el_paras['x0'], y0=el_paras['y0'],
+        image += _gen_ellipsoid(x_grid=x_grid, y_grid=y_grid, z_grid=z_grid, x0=el_paras['x0'], y0=el_paras['y0'],
                                z0=el_paras['z0'],
                                a=el_paras['a'], b=el_paras['b'], c=el_paras['c'],
                                gamma=el_paras['gamma'] / 180.0 * np.pi,
@@ -118,7 +118,16 @@ def gen_shepp_logan_3d(num_rows, num_slices):
     return np.transpose(image, (2, 0, 1))
 
 
-def gen_ellipse(x_grid, y_grid, x0, y0, a, b, gray_level, theta=0):
+def nrmse(image, reference_image):
+    """
+    :param image: Calculated image
+    :param reference_image: Ground truth image
+    :return: Root mean square of (image - reference_image) divided by RMS of reference_image
+    """
+    return np.linalg.norm(image - reference_image) / np.linalg.norm(reference_image)
+
+
+def _gen_ellipse(x_grid, y_grid, x0, y0, a, b, gray_level, theta=0):
     """
     Returns an image with a 2D ellipse in a 2D plane with a center of [x0,y0] and ...
 
@@ -142,7 +151,7 @@ def gen_ellipse(x_grid, y_grid, x0, y0, a, b, gray_level, theta=0):
     return image
 
 
-def gen_ellipsoid(x_grid, y_grid, z_grid, x0, y0, z0, a, b, c, gray_level, alpha=0, beta=0, gamma=0):
+def _gen_ellipsoid(x_grid, y_grid, z_grid, x0, y0, z0, a, b, c, gray_level, alpha=0, beta=0, gamma=0):
     """
     Returns an image with a 3D ellipsoid in a 3D plane with a center of [x0,y0,z0] and ...
 

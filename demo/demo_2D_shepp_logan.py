@@ -23,15 +23,6 @@ def plot_result(img, filename, vmin=None, vmax=None):
     plt.close()
 
 
-def nrmse(image, reference_image):
-    """
-    :param image: Calculated image
-    :param reference_image: Ground truth image
-    :return: Root mean square of (image - reference_image) divided by RMS of reference_image
-    """
-    return np.linalg.norm(image - reference_image) / np.linalg.norm(reference_image)
-
-
 if __name__ == '__main__':
 
     num_rows = 256
@@ -55,8 +46,8 @@ if __name__ == '__main__':
     # Perform MBIR reconstruction
     recon = svmbir.recon(sino, angles, T=1.0, sharpness=1.0, snr_db=40.0, max_iterations=40)
 
-    error = nrmse(recon[0], phantom[0])
-    print(f'The NRMSE reconstruction error is {error:.3f}.')
+    nrmse = svmbir.phantom.nrmse(recon[0], phantom[0])
+    print(f'The NRMSE reconstruction error is {nrmse:.3f}.')
 
     # display phantom
     plot_result(phantom[0], 'output/shepp_logan_phantom.png', vmin=1.0, vmax=1.1)
