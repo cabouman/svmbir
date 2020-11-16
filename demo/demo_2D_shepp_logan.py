@@ -9,35 +9,35 @@ The phantom, sinogram, and reconstruction are then displayed.
 """
 
 
-def plot_result(img, filename, vmin=None, vmax=None):
+def plot_result(img, title=None, filename=None, vmin=None, vmax=None):
     """
     Function to display and save a 2D array as an image.
     :param img: 2D numpy array to display
     :param vmin: Value mapped to black
     :param vmax: Value mapped to white
     """
+
+    fig = plt.figure()
     imgplot = plt.imshow(img, vmin=vmin, vmax=vmax)
+    plt.title(label=title)
     imgplot.set_cmap('gray')
     plt.colorbar()
     plt.savefig(filename)
-    plt.close()
-
-
-def nrmse(image, reference_image):
-    """
-    :param image: Calculated image
-    :param reference_image: Ground truth image
-    :return: Root mean square of (image - reference_image) divided by RMS of reference_image
-    """
-    return np.linalg.norm(image - reference_image) / np.linalg.norm(reference_image)
+    #plt.close()
 
 
 if __name__ == '__main__':
 
+    # Simulation parameters
     num_rows = 256
     num_cols = num_rows
     num_views = 144
-    threshold = 0.05
+
+    # Reconstruction parameters
+    T = 0.1
+    p = 1.1
+    sharpness = 2.0
+    snr_db = 40.0
 
     # Generate phantom with a single slice
     phantom = svmbir.phantom.gen_shepp_logan(num_rows)
@@ -53,16 +53,19 @@ if __name__ == '__main__':
     (num_views, num_slices, num_channels) = sino.shape
 
     # Perform MBIR reconstruction
-    recon = svmbir.recon(sino, angles, T=1.0, sharpness=1.0, snr_db=40.0, max_iterations=40)
+    recon = svmbir.recon(sino, angles, T=T, p=p, sharpness=sharpness, snr_db=snr_db)
 
-    error = nrmse(recon[0], phantom[0])
-    print(f'The NRMSE reconstruction error is {error:.3f}.')
+    # Compute Normalized Root Mean Squared Error
+    nrmse = svmbir.phantom.nrmse(recon[0], phantom[0])
 
     # display phantom
-    plot_result(phantom[0], 'output/shepp_logan_phantom.png', vmin=1.0, vmax=1.1)
+    plot_result(phantom[0], title='Shepp Logan Phantom', filename='output/shepp_logan_phantom.png', vmin=1.0, vmax=1.1)
 
     # display sinogram
-    plot_result(np.squeeze(sino), 'output/shepp_logan_sinogram.png')
+    plot_result(np.squeeze(sino), title='Sinogram', filename='output/shepp_logan_sinogram.png')
 
     # display reconstruction
-    plot_result(recon[0], 'output/shepp_logan_recon.png', vmin=1.0, vmax=1.1)
+    title = f'Reconstruction with NRMSE={nrmse:.3f}.'
+    plot_result(recon[0], title=title, filename='output/shepp_logan_recon.png', vmin=1.0, vmax=1.1)
+
+    plt.show()

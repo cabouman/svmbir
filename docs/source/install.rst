@@ -3,76 +3,116 @@ Installation
 ============
 
 This section covers the basics of how to download and install svmbir.
+At this time, the ``svmbir`` package must be built from source.
+In the future, we also plan to make it installable from ``PyPI`` or ``Conda``.
 
 
-Installing from PyPI
----------------------
+Downloading and Compiling C code
+--------------------------------
 
-This option is not yet available.
+1. *Download C-code:*
+In order to download the C code, move to a directory of your choice and run the following two commands.
 
-Installing from Conda
----------------------
+``git clone --recursive https://github.com/cabouman/svmbir.git``
 
-This option is not yet available.
+``cd svmbir``
+
+This first command recursively downloads a folder containing the svmbir python wrapper along with the ``sv-mbirct`` C-code submodule,
+and the second command moves into the root directory of the repository.
+*Warning: Do not* used standard GUI methods to clone the repository because they may not recursively copy the C-code submodule. 
 
 
-Build from Source
+2. *Compile C-Code:*
+The ``svmbir`` package can compiled using a number of different compilers including the open source ``gcc`` compiler, Intel's ``icc`` compiler, or the Apple's ``clang`` compiler.
+The Intel compiler currently offers the best performance on x86 processors supporting the AVX instruction set;
+however, the ``gcc`` and ``icc`` compilers are often more readily available.
+
+For ``gcc`` compilation, run:
+
+``make -C svmbir/sv-mbirct/src/ CC=gcc``
+
+For ``icc`` compilation, run:
+
+``make -C svmbir/sv-mbirct/src/ CC=icc``
+
+For ``clang`` compilation, run:
+
+``make -C svmbir/sv-mbirct/src/ CC=clang``
+
+In each case, the commands should be run from the root directory of the repository.
+Also, see the sections below for trouble shooting tips for installing under the different operating systems.
+
+
+Installing Python Package
+-------------------------
+
+1. *(Optional) Create Conda Environment:*
+It is recommended that you create a conda environment.
+To do this, first install ``Anaconda``, and then create and activate an ``svmbir`` environment using the following two commands.
+
+``conda env create -f environment.yml``
+
+``conda activate svmbir``
+
+This will create a conda environment with the required dependencies.
+Before running the code, this ``svmbir`` conda environment should always be activated.
+
+
+2. *Install the Python Package:*
+In order to install the ``svmbir`` package into your ``svmbir`` environment, first make sure the ``svmbir`` environment is active, and then run the following command
+
+``pip install .``
+
+You can verify the installation by running ``pip show svmbir``, which should display a brief summary of the packages installed in the ``svmbir`` environment.
+Now you will be able to use the ``svmbir`` python commands from any directory by running the python command ``import svmbir``.
+
+
+Updating svmbir
 -----------------
 
-In command shell, ``cd`` to a directory of your choice and run the following commands to install from source.
+Since the ``svmbir`` package is under active development, you may need to update your package in order to obtain the newest revisions. To do this, you will need to update both the C source code and executables along with the python package.
 
-1. Download Software
-~~~~~~~~~~~~~~~~~~~~
-Recursively clone the svmbir python code and the submodule with C code into a folder in the currect directory  
+1. *Updating the python installation:*
+In order to update the python installation, activate the ``svmbir`` environment and run the following command.
 
-``git clone --recursive https://github.com/cabouman/svmbir.git``  
-
-and change directory to the root directory of the repository.  
-
-``cd svmbir``  
-
-2. (Optional) Create Conda Environment
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-It is recommended to use this code inside a conda environment.  
-
-``conda env create -f environment.yml``  
-
-This creates a conda environment with the required dependencies and  
-
-``conda activate svmbir``  
-
-activates the newly created conda environment. Before running the code, this conda environment should always be activated.
-
-3. Compile Code
-~~~~~~~~~~~~~~~
-Option 1: Build the binary executable from the C source code using GCC. 
-
-``make -C svmbir/sv-mbirct/src/ CC=gcc`` 
-
-Option 2: If an Intel ICC compiler is present, then faster reconstruction can be achieved by building with ICC: 
-
-``make -C svmbir/sv-mbirct/src/ CC=icc``  
-
-Option 3: For MacOS, compile using the apple Clang compiler by running:  
-
-``make -C svmbir/sv-mbirct/src/ CC=clang``  
+``pip install . --upgrade``
 
 
-4. Install the Python Package
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Run the command  
-
-``pip install .``  
-
-which installs svmbir and its dependencies as a python package.
-
-You can verify the installation by running ``pip show svmbir``, which should display a brief summary of the installed package.
-
-After that, svmbir is installed in the system and can be used in any python script in any directory using the python command ``import svmbir``.
+2. *Updating the C submodule:*
+The C code generally changes less frequently, but to update it you must re-download the C source code. 
+The easiest and safest way to update the C-code is to delete the entire ``svmbir`` repository and reclone it using the recursive clone command. 
+However, you can also update it by updating the submodule pointer and running the command ``git submodule update``. 
+Once the C source is updated, then recompile using the commands described above.
 
 
-5. Updating the installation
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Run the command
+Trouble Shooting Tips for Windows and MacOSx
+--------------------------------------------
 
-``pip install . --upgrade`` 
+Below are some tips for compiling and running the package under the Windows and MacOSx operating systems.
+Linux is, of course, more straight forward.
+
+1. *Windows Installation:*
+The package will run under Windows, but there tend to be more things that can go wrong due to the wide variety of possible configurations.
+The following list of recommended configurations have been tested to work, but others are possible:
+
+* *64-bit gcc or Intel icc compiler:* Make sure to install a 64bit compiler such as the ``MinGW_64`` available from ``http://winlibs.com/`` or the Intel ``icc`` compiler. Comonly used gcc compilers are only 32bit and will create ``calloc`` errors when addressing array sizes greater than 2Gb.
+* *MinGW + MSYS environment:* We recommend installing ``MinGW`` including the ``msys`` utilities. These utilities support a minimalist set of traditional UNIX tools.
+* *Git Bash:* We recommend installing ``Git Bash`` from ``https://gitforwindows.org/`` to support bash scripting.
+
+One known issue is that in some Windows bash environments the ``C`` executable ``mbir_ct.exe`` may not be properly moved to the ``bin`` directory. If this occurs, then the problem can be resolved by manually moving the file.
+
+2. *MacOS Installation:*
+MacOSx users will typically use the ``Clang`` compiler provided as part of the Xcode Developer Tools.
+In this case, the ``gcc`` command in the MocOS environment is **not** actually gcc.
+Instead it is an alias to the ``clang`` compiler.
+Therefore, the C code should be compiled using the ``Clang`` option.
+
+In order to obtain ``Clang`` you will need to install the most up-to-date version of both ``Xcode``
+and ``Command Line Tools for Xcode`` available from ``https://developer.apple.com/download/more/``.
+
+In addition, after OS updates, you may need to reinstall the Xcode toolkit using the command:
+
+``xcode-select --install``
+
+
+

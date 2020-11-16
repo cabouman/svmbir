@@ -206,10 +206,10 @@ def calc_weights(sino, weight_type):
 
             If weight_type="transmission_root" => weights = numpy.exp(-sino/2)
 
-            If weight_type="emmission"         => weights = 1/(sino + 0.1)
+            If weight_type="emission"         => weights = 1/(sino + 0.1)
 
     Returns:
-        ndarray: [Default=None] 3D numpy array of weights with same shape as sino. Retrun calculated values of weights parameter.
+        ndarray: 3D numpy array of weights with same shape as sino.
 
     Raises:
         Exception: Description
@@ -315,25 +315,14 @@ def recon(sino, angles,
         snr_db (float, optional): [Default=30.0] Scalar value that controls assumed signal-to-noise ratio of the data in dB.
             Ignored if sigma_y is not None.
 
-        weights (ndarray, optional): [Default=None] 3D numpy array of weights with same shape as sino
+        weights (ndarray, optional): [Default=None] 3D numpy array of weights with same shape as sino.
 
-        weight_type (string, optional): [Default=0] Type of noise model used for data.
-
-            Ignored if weights parameter is supplied.
-
-            Can be set to the values unweighted, transmission, transmission_root, and emission.
-
-            If 3D array weights is not supplied, then the parameter weight_type determines the weights used in the forward model according to the following table:
-
-                If weight_type="unweighted"        => weights = numpy.ones_like(sino)
-
-                If weight_type="transmission"      => weights = numpy.exp(-sino)
-
-                If weight_type="transmission_root" => weights = numpy.exp(-sino/2)
-
-                If weight_type="emmission"         => weights = 1/(sino + 0.1)
-
-            Option "unweighted" provides unweighted reconstruction; Option "transmission" is the correct weighting for transmission CT with constant dosage; Option "transmission_root" is commonly used with transmission CT data to improve image homogeneity; Option "emmission" is appropriate for emission CT data.
+        weight_type (string, optional): [Default="unweighted"] Type of noise model used for data.
+            If the ``weights`` array is not supplied, then the function ``svmbir.calc_weights`` is used to set weights using specified ``weight_type`` parameter.
+            Option "unweighted" corresponds to unweighted reconstruction;
+            Option "transmission" is the correct weighting for transmission CT with constant dosage;
+            Option "transmission_root" is commonly used with transmission CT data to improve image homogeneity;
+            Option "emmission" is appropriate for emission CT data.
 
         sigma_x (float, optional): [Default=None] Scalar value :math:`>0` that specifies the qGGMRF scale parameter.
             If None, automatically set by calling svmbir.auto_sigma_x. The parameter sigma_x can be used to directly control regularization, but this is only recommended for expert users.
@@ -362,23 +351,7 @@ def recon(sino, angles,
             This can be used to reduce computation for the first iteration when using the proximal map option.
 
         prox_image (ndarray, optional): [Default=None] 3D numpy array with proximal map input image.
-
             If prox_image is supplied, then the proximal map prior model is used, and the qGGMRF parameters are ignored.
-
-            The proximal map prior is required when :mod:`svmbir.recon` is used with Plug-and-Play :cite:`venkatakrishnan2013plug` :cite:`sreehari2016plug`.
-
-            In this case, the reconstruction solves the optimization problem:
-
-            .. math::
-                :nowrap:
-
-                \\begin{align*}
-                {\\hat x} = \\underset{x}{\\operatorname{argmin}}   \\frac{1}{2} \\vert \\vert y - Ax \\vert \\vert_{\\Lambda}^2 + \\frac{1}{2\\sigma_x^2} \\vert \\vert x -v \\vert \\vert^2
-                \\end{align*}
-
-            where :math:`v` is given by prox_image. This feature should only be used by expert users
-
-            since svmbir must be incorporated in a Plug-and-Play outer loop in order to make the option useful.
 
         stop_threshold (float, optional): [Default=0.0] Scalar valued stopping threshold in percent.
             If stop_threshold=0, then run max iterations.
@@ -469,6 +442,7 @@ def recon(sino, angles,
 
     write_sino_openmbir(sino, paths['sino_name']+'_slice', '.2Dsinodata')
     write_sino_openmbir(weights, paths['wght_name']+'_slice', '.2Dweightdata')
+    del weights
 
     _cmd_exec(**cmd_args)
 
@@ -541,7 +515,7 @@ def project(angles, image, num_channels,
         ndarray: 3D numpy array containing sinogram with shape (num_views, num_slices, num_channels).
     """
     if num_threads is None:
-        num_threads=cpu_count(logical=False)
+        num_threads = cpu_count(logical=False)
 
     os.environ['OMP_NUM_THREADS'] = str(num_threads)
     os.environ['OMP_DYNAMIC'] = 'true'

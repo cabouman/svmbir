@@ -21,6 +21,7 @@ Indices and tables
    overview
    install
    examples
+   theory
    svmbir
    credits
 
