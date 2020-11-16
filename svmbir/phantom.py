@@ -102,8 +102,8 @@ def gen_shepp_logan_3d(num_rows, num_slices):
         {'x0': 0.0, 'y0': 0.1, 'z0': 0.625, 'a': 0.056, 'b': 0.056, 'c': 0.1, 'gamma': 0, 'gray_level': -0.02}
     ]
 
-    axis_rows = np.linspace(-1, 1, num_rows)
-    axis_slices = np.linspace(-1, 1, num_slices, endpoint=False)
+    axis_rows = np.linspace(-1.0, 1.0, num_rows)
+    axis_slices = np.linspace(-1.0, 1.0, num_slices, endpoint=False)
 
     x_grid, y_grid, z_grid = np.meshgrid(axis_rows, -axis_rows, axis_slices)
     image = x_grid * 0.0
