@@ -206,10 +206,10 @@ def calc_weights(sino, weight_type):
 
             If weight_type="transmission_root" => weights = numpy.exp(-sino/2)
 
-            If weight_type="emmission"         => weights = 1/(sino + 0.1)
+            If weight_type="emission"         => weights = 1/(sino + 0.1)
 
     Returns:
-        ndarray: [Default=None] 3D numpy array of weights with same shape as sino. Retrun calculated values of weights parameter.
+        ndarray: 3D numpy array of weights with same shape as sino.
 
     Raises:
         Exception: Description
@@ -315,19 +315,14 @@ def recon(sino, angles,
         snr_db (float, optional): [Default=30.0] Scalar value that controls assumed signal-to-noise ratio of the data in dB.
             Ignored if sigma_y is not None.
 
-        weights (ndarray, optional): [Default=None] 3D numpy array of weights with same shape as sino
+        weights (ndarray, optional): [Default=None] 3D numpy array of weights with same shape as sino.
 
-        weight_type (string, optional): [Default=0] Type of noise model used for data. If 3D array weights is not supplied, then the parameter weight_type determines the weights used in the forward model according to the following table:
-
-                If weight_type="unweighted"        => weights = numpy.ones_like(sino)
-
-                If weight_type="transmission"      => weights = numpy.exp(-sino)
-
-                If weight_type="transmission_root" => weights = numpy.exp(-sino/2)
-
-                If weight_type="emmission"         => weights = 1/(sino + 0.1)
-
-            Option "unweighted" provides unweighted reconstruction; Option "transmission" is the correct weighting for transmission CT with constant dosage; Option "transmission_root" is commonly used with transmission CT data to improve image homogeneity; Option "emmission" is appropriate for emission CT data.
+        weight_type (string, optional): [Default="unweighted"] Type of noise model used for data.
+            If the ``weights`` array is not supplied, then the function ``svmbir.calc_weights`` is used to set weights using specified ``weight_type`` parameter.
+            Option "unweighted" corresponds to unweighted reconstruction;
+            Option "transmission" is the correct weighting for transmission CT with constant dosage;
+            Option "transmission_root" is commonly used with transmission CT data to improve image homogeneity;
+            Option "emmission" is appropriate for emission CT data.
 
         sigma_x (float, optional): [Default=None] Scalar value :math:`>0` that specifies the qGGMRF scale parameter.
             If None, automatically set by calling svmbir.auto_sigma_x. The parameter sigma_x can be used to directly control regularization, but this is only recommended for expert users.
