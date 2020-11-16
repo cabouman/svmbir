@@ -103,6 +103,7 @@ html_theme_options = {
     'collapse_navigation': False,
 }
 
+html_logo = 'svmbir_logo.svg'
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = project + 'doc'

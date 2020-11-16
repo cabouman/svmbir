@@ -3,6 +3,13 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
+.. image:: svmbir_logo.svg
+   :width: 320px
+   :alt: svmbir logo
+   :align: center
+
+|
+
 .. include:: ../README.rst
 
 Indices and tables
@@ -17,13 +24,20 @@ Indices and tables
 .. toctree::
    :hidden:
    :maxdepth: 4
+   :caption: Background
 
    overview
+   theory
+   credits
+
+.. toctree::
+   :hidden:
+   :maxdepth: 4
+   :caption: User Guide
+
    install
    examples
-   theory
    svmbir
-   credits
 
 
 
