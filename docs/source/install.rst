@@ -19,6 +19,7 @@ In order to download the C code, move to a directory of your choice and run the 
 
 This first command recursively downloads a folder containing the svmbir python wrapper along with the ``sv-mbirct`` C-code submodule,
 and the second command moves into the root directory of the repository.
+*Warning: Do not* used standard GUI methods to clone the repository because they may not recursively copy the C-code submodule. 
 
 
 2. *Compile C-Code:*
@@ -78,7 +79,10 @@ In order to update the python installation, activate the ``svmbir`` environment 
 
 
 2. *Updating the C submodule:*
-The C code generally changes less frequently, but to update it you should re-download the C source code. If you are using ``git``, then this may require the use of the command ``git submodule update``. Once the C source is updated, then recompile using the commands described above.
+The C code generally changes less frequently, but to update it you must re-download the C source code. 
+The easiest and safest way to update the C-code is to delete the entire ``svmbir`` repository and reclone it using the recursive clone command. 
+However, you can also update it by updating the submodule pointer and running the command ``git submodule update``. 
+Once the C source is updated, then recompile using the commands described above.
 
 
 Trouble Shooting Tips for Windows and MacOSx
