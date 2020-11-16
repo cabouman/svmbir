@@ -102,7 +102,7 @@ def read_sino_openmbir(rootPath, suffix, N_theta, N_z, N_y):
     fname_list = generateFileList(N_z, rootPath, suffix, numdigit=4)
 
     sizesArray = (N_z, N_theta, N_y)
-    x = np.zeros(sizesArray) 
+    x = np.zeros(sizesArray,dtype=np.float32)
 
     for i, fname in enumerate(fname_list):
 
@@ -137,7 +137,7 @@ def read_recon_openmbir(rootPath, suffix, N_x, N_y, N_z):
     fname_list = generateFileList(N_z, rootPath, suffix, numdigit=4)
 
     sizesArray = (N_z, N_y, N_x)
-    x = np.zeros(sizesArray)
+    x = np.zeros(sizesArray,dtype=np.float32)
 
     for i, fname in enumerate(fname_list):
 

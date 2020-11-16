@@ -442,6 +442,7 @@ def recon(sino, angles,
 
     write_sino_openmbir(sino, paths['sino_name']+'_slice', '.2Dsinodata')
     write_sino_openmbir(weights, paths['wght_name']+'_slice', '.2Dweightdata')
+    del weights
 
     _cmd_exec(**cmd_args)
 
@@ -514,7 +515,7 @@ def project(angles, image, num_channels,
         ndarray: 3D numpy array containing sinogram with shape (num_views, num_slices, num_channels).
     """
     if num_threads is None:
-        num_threads=cpu_count(logical=False)
+        num_threads = cpu_count(logical=False)
 
     os.environ['OMP_NUM_THREADS'] = str(num_threads)
     os.environ['OMP_DYNAMIC'] = 'true'
