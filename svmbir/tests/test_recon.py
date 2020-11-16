@@ -13,17 +13,18 @@ class Test_recon():
         threshold=0.05
 
         try:
-            out_img = svmbir.phantom.gen_shepp_logan(num_rows)
+            phantom = svmbir.phantom.gen_shepp_logan(num_rows)
         except Exception as e:
             print(e)
             assert 0
 
-        out_img = np.expand_dims(out_img,axis=0)
+        # Add singleton dimension for slices
+        phantom = np.expand_dims(phantom,axis=0)
         
         angles = np.linspace(-np.pi/2.0, np.pi/2.0, num_views, endpoint=False)
 
         try: 
-            sino = svmbir.project(angles,out_img,max(num_rows,num_cols))
+            sino = svmbir.project(angles,phantom,max(num_rows,num_cols))
         except Exception as e:
             print(e)
             assert 0
@@ -31,13 +32,15 @@ class Test_recon():
         (num_views, num_slices, num_channels) = sino.shape
 
         try:
-            x = svmbir.recon(sino, angles, sharpness=1.0, snr_db=40.0)
+            recon = svmbir.recon(sino, angles, sharpness=1.0, snr_db=40.0)
         except Exception as e:
             print(e)
             assert 0
 
-        rmse=np.sqrt(np.linalg.norm(x[0]-out_img[0])**2/(out_img.shape[1]*out_img.shape[2]))
-        assert rmse<=threshold
+        # Compute normalized root mean squared error of reconstruction
+        nrmse = svmbir.phantom.nrmse(recon[0], phantom[0])
+
+        assert nrmse<=threshold
 
 
 
