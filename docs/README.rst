@@ -3,7 +3,7 @@ The svmbir package provides fast tomographic reconstruction algorithms
 with integration of model-based priors.
 
 Features
--------
+--------
 
 * Python code for fast parallel-beam MBIR (Model Based Iterative Reconstruction)
 
