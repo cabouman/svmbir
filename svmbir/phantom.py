@@ -138,14 +138,14 @@ def gen_microscopy_sample_3d(num_rows, num_cols, num_slices):
 
     # The function describing the phantom is defined as the sum of 10 ellipsoids inside a 2×2×2 cube:
     ms3d_paras = [
-        {'x0': 0.0, 'y0': 0.0, 'z0': 0.0, 'a': 0.6624, 'b': 1.748, 'c': 0.8, 'gamma': 0, 'gray_level': 1.02},
-        {'x0': -0.1, 'y0': 1.343, 'z0': -0.25, 'a': 0.11, 'b': 0.10, 'c': 0.10, 'gamma': 0, 'gray_level': 0.04},
-        {'x0': 0.0, 'y0': 0.9, 'z0': -0.25, 'a': 0.33, 'b': 0.15, 'c': 0.33, 'gamma': 0, 'gray_level': 0.02},
-        {'x0': 0.25, 'y0': 0.4, 'z0': -0.25, 'a': 0.10, 'b': 0.20, 'c': 0.20, 'gamma': 0, 'gray_level': 0.04},
-        {'x0': -0.2, 'y0': 0.0, 'z0': 0.0, 'a': 0.3, 'b': 0.12, 'c': 0.3, 'gamma': 0, 'gray_level': 0.02},
-        {'x0': 0.1, 'y0': -0.35, 'z0': 0.25, 'a': 0.20, 'b': 0.20, 'c': 0.50, 'gamma': 0, 'gray_level': 0.04},
-        {'x0': 0.25, 'y0': -0.8, 'z0': -0.25, 'a': 0.2, 'b': 0.08, 'c': 0.08, 'gamma': 0, 'gray_level': 0.04},
-        {'x0': -0.04, 'y0': -1.3, 'z0': -0.25, 'a': 0.28, 'b': 0.15, 'c': 0.15, 'gamma': 0, 'gray_level': 0.04}
+        {'x0': 0.0, 'y0': -0.0184, 'z0':0.0, 'a': 0.6624, 'b': 1.748, 'c':0.8, 'gamma': 0, 'gray_level': 0.2},
+        {'x0': -0.1, 'y0': 1.343, 'z0':0.0, 'a': 0.11, 'b': 0.10, 'c':0.20, 'gamma': 0, 'gray_level': 0.8},
+        {'x0': 0.0, 'y0': 0.9, 'z0':0.0, 'a': 0.33, 'b': 0.15, 'c':0.66, 'gamma': 0, 'gray_level': 0.4},
+        {'x0': 0.25, 'y0': 0.4, 'z0':0.0, 'a': 0.1, 'b': 0.2, 'c':0.40, 'gamma': 0, 'gray_level': 0.8},
+        {'x0': -0.2, 'y0': 0.0, 'z0':0.0, 'a': 0.2, 'b': 0.08, 'c':0.40, 'gamma': 0, 'gray_level': 0.4},
+        {'x0': 0.2, 'y0': -0.35, 'z0':0.0, 'a': 0.1, 'b': 0.1, 'c':0.2, 'gamma': 0, 'gray_level': 0.8},
+        {'x0': 0.25, 'y0': -0.8, 'z0':0.0, 'a': 0.2, 'b': 0.08, 'c':0.4, 'gamma': 0, 'gray_level': 0.8},
+        {'x0': -0.04, 'y0': -1.3, 'z0':0.0, 'a': 0.33, 'b': 0.15, 'c':0.30, 'gamma': 0, 'gray_level': 0.8}
     ]
 
     axis_x = np.linspace(-1.0, 1.0, num_cols)
@@ -238,3 +238,4 @@ def _gen_ellipsoid(x_grid, y_grid, z_grid, x0, y0, z0, a, b, c, gray_level, alph
         np.dot(r[2], cor)) ** 2 / c ** 2 <= 1.0) * gray_level
 
     return image.reshape(x_grid.shape)
+
