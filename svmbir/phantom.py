@@ -121,6 +121,8 @@ def gen_shepp_logan_3d(num_rows, num_cols, num_slices):
 
 def nrmse(image, reference_image):
     """
+    Compute the normalized root mean square error between image and reference_image.
+
     :param image: Calculated image
     :param reference_image: Ground truth image
     :return: Root mean square of (image - reference_image) divided by RMS of reference_image
