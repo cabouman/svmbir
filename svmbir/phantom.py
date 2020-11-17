@@ -79,9 +79,9 @@ def gen_microscopy_sample(num_rows, num_cols):
 
 def gen_shepp_logan_3d(num_rows, num_cols, num_slices):
     """
-    Generate a 3D Shepp Logan phantom based on Prof. Kak's book.
-    [1] Kak AC, Slaney M. Principles of computerized tomographic imaging. Page.102. IEEE Press, New York, 1988.
-https://engineering.purdue.edu/~malcolm/pct/CTI_Ch03.pdf
+    Generate a 3D Shepp Logan phantom based on below reference.
+    
+    Kak AC, Slaney M. Principles of computerized tomographic imaging. Page.102. IEEE Press, New York, 1988. https://engineering.purdue.edu/~malcolm/pct/CTI_Ch03.pdf
 
     Args:
         num_rows: int, number of rows.
