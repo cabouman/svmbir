@@ -22,5 +22,3 @@ These examples linked above show how these scripts should typically run in your 
 
    ipynb/demo_simple
    ipynb/demo_complex
-   ipynb/demo_2D_shepp_logan
-   ipynb/demo_3D_shepp_logan
