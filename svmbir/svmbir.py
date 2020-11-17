@@ -363,7 +363,7 @@ def recon(sino, angles,
 
         delete_temps (bool, optional): [Default=True] Delete temporary files used in computation.
 
-        svmbir_lib_path (string, optional): [Default=~/.cache/svmbir_lib] Path to directory containing library of forward projection matrices.
+        svmbir_lib_path (string, optional): [Default=~/.cache/svmbir/parbeam] Path to directory containing library of forward projection matrices.
 
         object_name (string, optional): [Default='object'] Specifies filenames of cached files.
             Can be changed suitably for running multiple instances of reconstructions.
@@ -504,7 +504,7 @@ def project(angles, image, num_channels,
         delete_temps (bool, optional):
             [Default=True] Delete temporary files used in computation.
         svmbir_lib_path (string, optional):
-            [Default=~/.cache/svmbir_lib] String containing path to directory containing library of forward projection matrices and temp file.
+            [Default=~/.cache/svmbir/parbeam] String containing path to directory containing library of forward projection matrices and temp file.
         object_name (string, optional):
             [Default='object'] Specifies filenames of cached files.
             Can be changed suitably for running multiple instances of forward projections.

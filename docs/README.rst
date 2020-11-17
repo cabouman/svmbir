@@ -1,9 +1,13 @@
-svmbir
-======
+**svmbir** stands for Super-Voxel Model-Based Iterative Reconstruction.
+The svmbir package provides fast tomographic reconstruction algorithms
+with integration of model-based priors.
+
+Features
+--------
 
 * Python code for fast parallel-beam MBIR (Model Based Iterative Reconstruction)
 
-* This is a python wrapper around HPImaging's supervoxel C code, [sv-mbir](https://github.com/HPImaging/sv-mbirct).
+* This is a python wrapper around HPImaging's super-voxel C code, [sv-mbir](https://github.com/HPImaging/sv-mbirct).
 
 System Requirements
 -------------------
