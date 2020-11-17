@@ -37,7 +37,7 @@ Indices and tables
 
    install
    examples
-   svmbir
+   api
 
 
 
