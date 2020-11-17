@@ -283,7 +283,7 @@ def recon(sino, angles,
           sigma_y=None, snr_db=30.0, weights=None, weight_type='unweighted',
           sigma_x=None, sharpness=1.0, positivity=True, p=1.2, q=2.0, T=1.0, b_interslice=1.0,
           init_image=0.0, init_proj=None, prox_image=None,
-          stop_threshold=0.0, max_iterations=20,
+          stop_threshold=0.01, max_iterations=100,
           num_threads=None, delete_temps=True, svmbir_lib_path=__svmbir_lib_path, object_name='object',
           verbose=1):
     """
@@ -353,10 +353,11 @@ def recon(sino, angles,
         prox_image (ndarray, optional): [Default=None] 3D numpy array with proximal map input image.
             If prox_image is supplied, then the proximal map prior model is used, and the qGGMRF parameters are ignored.
 
-        stop_threshold (float, optional): [Default=0.0] Scalar valued stopping threshold in percent.
+        stop_threshold (float, optional): [Default=0.01] Scalar valued stopping threshold in percent.
             If stop_threshold=0, then run max iterations.
 
-        max_iterations (int, optional): [Default=20] Integer valued specifying the maximum number of iterations.
+        max_iterations (int, optional): [Default=100] Integer valued specifying the maximum number of iterations.
+        The value of ``max_iterations`` may need to be increased for reconstructions with limited tilt angles or high regularization.
 
         num_threads (int, optional): [Default=None] Number of compute threads requested when executed.
             If None, num_threads is set to the number of cores in the system
