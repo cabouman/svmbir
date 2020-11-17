@@ -1,6 +1,4 @@
 import numpy as np
-import matplotlib.pyplot as plt
-
 
 def gen_shepp_logan(num_rows,num_cols):
     """
@@ -240,18 +238,3 @@ def _gen_ellipsoid(x_grid, y_grid, z_grid, x0, y0, z0, a, b, c, gray_level, alph
         np.dot(r[2], cor)) ** 2 / c ** 2 <= 1.0) * gray_level
 
     return image.reshape(x_grid.shape)
-
-if __name__ == '__main__':
-    image = gen_microscopy_sample_3d(256,128,9)
-    plt.set_cmap('gray')
-
-    fig, axs = plt.subplots(3, 3)
-    plt.set_cmap('gray')
-    plt.subplots_adjust(hspace=0.4)
-    for i in range(9):
-        im=axs[i//3, i%3].imshow(image[i,:, :], vmin=1.0, vmax=1.1)
-
-    #plt.colorbar()
-    fig.colorbar(im,ax=axs)
-    plt.savefig('3DMS.png',dpi=1200)
-    plt.close()
