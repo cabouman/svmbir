@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def gen_shepp_logan(num_rows):
+def gen_shepp_logan(num_rows,num_cols):
     """
     Generate a Shepp Logan phantom
     
@@ -26,9 +26,10 @@ def gen_shepp_logan(num_rows):
         {'x0': 0.06, 'y0': -0.605, 'a': 0.023, 'b': 0.046, 'theta': 0, 'gray_level': 0.01}
     ]
 
-    axis_rows = np.linspace(-1, 1, num_rows)
+    axis_cols = np.linspace(-1.0, 1.0, num_cols)
+    axis_rows = np.linspace(1.0, -1.0, num_rows)
 
-    x_grid, y_grid = np.meshgrid(axis_rows, -axis_rows)
+    x_grid, y_grid = np.meshgrid(axis_cols, axis_rows)
     image = x_grid * 0.0
 
     for el_paras in sl_paras:
@@ -62,10 +63,10 @@ def gen_microscopy_sample(num_rows, num_cols):
         {'x0': 0.25, 'y0': -0.8, 'a': 0.2, 'b': 0.08, 'theta': 0, 'gray_level': 0.04},
         {'x0': -0.04, 'y0': -1.3, 'a': 0.33, 'b': 0.15, 'theta': 0, 'gray_level': 0.04}
     ]
+    axis_cols = np.linspace(-1, 1, num_rows)
+    axis_rows = np.linspace(2, -2, num_cols)
 
-    axis_rows = np.linspace(-1, 1, num_cols)
-    axis_cols = np.linspace(-2, 2, num_rows)
-    x_grid, y_grid = np.meshgrid(axis_rows, -axis_cols)
+    x_grid, y_grid = np.meshgrid(axis_cols, axis_rows )
     image = x_grid * 0.0
 
     for el_paras in ms_paras:
@@ -76,7 +77,7 @@ def gen_microscopy_sample(num_rows, num_cols):
     return image
 
 
-def gen_shepp_logan_3d(num_rows, num_slices):
+def gen_shepp_logan_3d(num_rows, num_cols, num_slices):
     """
     Generate a 3D Shepp Logan phantom
 
@@ -102,10 +103,11 @@ def gen_shepp_logan_3d(num_rows, num_slices):
         {'x0': 0.0, 'y0': 0.1, 'z0': 0.625, 'a': 0.056, 'b': 0.056, 'c': 0.1, 'gamma': 0, 'gray_level': -0.02}
     ]
 
-    axis_rows = np.linspace(-1.0, 1.0, num_rows)
-    axis_slices = np.linspace(-1.0, 1.0, num_slices, endpoint=False)
+    axis_cols = np.linspace(-1.0, 1.0, num_cols)
+    axis_rows = np.linspace(1.0, -1.0, num_rows)
+    axis_slices = np.linspace(-1.0, 1.0, num_slices)
 
-    x_grid, y_grid, z_grid = np.meshgrid(axis_rows, -axis_rows, axis_slices)
+    x_grid, y_grid, z_grid = np.meshgrid(axis_cols, axis_rows, axis_slices)
     image = x_grid * 0.0
 
     for el_paras in sl3d_paras:
@@ -124,7 +126,11 @@ def nrmse(image, reference_image):
     :param reference_image: Ground truth image
     :return: Root mean square of (image - reference_image) divided by RMS of reference_image
     """
-    return np.linalg.norm(image - reference_image) / np.linalg.norm(reference_image)
+
+    rmse = np.sqrt(((image - reference_image) ** 2).mean())
+    denominator = np.sqrt(((reference_image) ** 2).mean())
+
+    return rmse/denominator
 
 
 def _gen_ellipse(x_grid, y_grid, x0, y0, a, b, gray_level, theta=0):

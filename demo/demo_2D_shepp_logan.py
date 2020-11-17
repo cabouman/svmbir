@@ -1,6 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-
 import svmbir
 
 """
@@ -42,11 +41,11 @@ if __name__ == '__main__':
     snr_db = 40.0
 
     # Generate phantom with a single slice
-    phantom = svmbir.phantom.gen_shepp_logan(num_rows)
+    phantom = svmbir.phantom.gen_shepp_logan(num_rows,num_cols)
     phantom = np.expand_dims(phantom, axis=0)
 
     # Generate array of view angles form -180 to 180 degs
-    angles = np.linspace(-np.pi / 2.0, np.pi / 2.0, num_views, endpoint=False)
+    angles = np.linspace(-np.pi/2.0, np.pi/2.0, num_views, endpoint=False)
 
     # Generate sinogram by projecting phantom
     sino = svmbir.project(angles, phantom, max(num_rows, num_cols))
@@ -55,7 +54,10 @@ if __name__ == '__main__':
     (num_views, num_slices, num_channels) = sino.shape
 
     # Perform MBIR reconstruction
-    recon = svmbir.recon(sino, angles, T=T, p=p, sharpness=sharpness, snr_db=snr_db)
+    recon = svmbir.recon(sino, angles, num_rows=num_rows, num_cols=num_cols, T=T, p=p, sharpness=sharpness, snr_db=snr_db)
+
+    print( np.shape(phantom) )
+    print( np.shape(recon) )
 
     # Compute Normalized Root Mean Squared Error
     nrmse = svmbir.phantom.nrmse(recon[0], phantom[0])
