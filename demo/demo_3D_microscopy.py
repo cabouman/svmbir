@@ -1,9 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import math
 import svmbir
 
 """
-This file demonstrates the generation of a 2D microscopy phantom followed by sinogram projection and reconstruction using MBIR. 
+This file demonstrates the generation of a 3D microscopy phantom followed by sinogram projection and reconstruction using MBIR. 
 The phantom, sinogram, and reconstruction are then displayed. 
 """
 
@@ -27,6 +28,8 @@ def plot_result(img, title=None, filename=None, vmin=None, vmax=None):
 # Simulated image parameters
 num_rows = 256
 num_cols = 64
+num_slices = 32
+display_slice = math.floor(num_slices/2) # Slice used to display
 
 # Simulated sinogram parameters
 num_views = 64
@@ -44,8 +47,7 @@ vmin = 0.0
 vmax = 1.1
 
 # Generate phantom with a single slice
-phantom = svmbir.phantom.gen_microscopy_sample(num_rows,num_cols)
-phantom = np.expand_dims(phantom, axis=0)
+phantom = svmbir.phantom.gen_microscopy_sample_3d(num_rows,num_cols,num_slices)
 
 # Generate array of view angles form -180 to 180 degs
 angles = np.linspace(-tilt_angle, tilt_angle, num_views)
@@ -60,16 +62,13 @@ sino = svmbir.project(angles, phantom, max(num_rows, num_cols))
 recon = svmbir.recon(sino, angles, num_rows=num_rows, num_cols=num_cols, T=T, p=p, sharpness=sharpness, snr_db=snr_db, max_iterations=max_iterations )
 
 # Compute Normalized Root Mean Squared Error
-nrmse = svmbir.phantom.nrmse(recon[0], phantom[0])
+nrmse = svmbir.phantom.nrmse(recon, phantom)
 
 # display phantom
-plot_result(phantom[0], title='Shepp Logan Phantom', filename='output/2D_microscopy_phantom.png', vmin=vmin, vmax=vmax)
-
-# display sinogram
-plot_result(np.squeeze(sino), title='Sinogram', filename='output/2D_microscopy_sinogram.png')
+plot_result(phantom[display_slice], title='Shepp Logan Phantom', filename='output/3D_microscopy_phantom.png', vmin=vmin, vmax=vmax)
 
 # display reconstruction
-title = f'Reconstruction with NRMSE={nrmse:.3f}.'
-plot_result(recon[0], title=title, filename='output/2D_microscopy_recon.png', vmin=vmin, vmax=vmax)
+title = f'Slice {display_slice:d} of Reconstruction with NRMSE={nrmse:.3f}.'
+plot_result(recon[display_slice], title=title, filename='output/3D_microscopy_recon.png', vmin=vmin, vmax=vmax)
 
 input("press Enter")
