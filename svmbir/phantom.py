@@ -52,7 +52,7 @@ def gen_microscopy_sample(num_rows, num_cols):
         out_image: 2D array, num_rows*num_cols
     """
 
-    # The function describing the phantom is defined as the sum of 8 ellipses inside a 4×2 rectangle:
+    # The function describing the phantom is defined as the sum of 8 ellipses inside a 2×4 rectangle:
     ms_paras = [
         {'x0': 0.0, 'y0': -0.0184, 'a': 0.6624, 'b': 1.748, 'theta': 0, 'gray_level': 0.2},
         {'x0': -0.1, 'y0': 1.343, 'a': 0.11, 'b': 0.10, 'theta': 0, 'gray_level': 0.8},
@@ -136,7 +136,7 @@ def gen_microscopy_sample_3d(num_rows, num_cols, num_slices):
         out_image: 3D array, num_slices*num_rows*num_cols
     """
 
-    # The function describing the phantom is defined as the sum of 10 ellipsoids inside a 2×2×2 cube:
+    # The function describing the phantom is defined as the sum of 8 ellipsoids inside a 2×4×2 cuboid:
     ms3d_paras = [
         {'x0': 0.0, 'y0': -0.0184, 'z0':0.0, 'a': 0.6624, 'b': 1.748, 'c':0.8, 'gamma': 0, 'gray_level': 0.2},
         {'x0': -0.1, 'y0': 1.343, 'z0':0.0, 'a': 0.11, 'b': 0.10, 'c':0.20, 'gamma': 0, 'gray_level': 0.8},
