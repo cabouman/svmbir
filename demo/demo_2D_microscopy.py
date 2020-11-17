@@ -1,28 +1,11 @@
 import numpy as np
-import matplotlib.pyplot as plt
+from svmbir.phantom import plot_image
 import svmbir
 
 """
 This file demonstrates the generation of a 2D microscopy phantom followed by sinogram projection and reconstruction using MBIR. 
 The phantom, sinogram, and reconstruction are then displayed. 
 """
-
-def plot_result(img, title=None, filename=None, vmin=None, vmax=None):
-    """
-    Function to display and save a 2D array as an image.
-    :param img: 2D numpy array to display
-    :param vmin: Value mapped to black
-    :param vmax: Value mapped to white
-    """
-
-    plt.ion()
-    fig = plt.figure()
-    imgplot = plt.imshow(img, vmin=vmin, vmax=vmax)
-    plt.title(label=title)
-    imgplot.set_cmap('gray')
-    plt.colorbar()
-    plt.savefig(filename)
-
 
 # Simulated image parameters
 num_rows = 256
@@ -63,13 +46,13 @@ recon = svmbir.recon(sino, angles, num_rows=num_rows, num_cols=num_cols, T=T, p=
 nrmse = svmbir.phantom.nrmse(recon[0], phantom[0])
 
 # display phantom
-plot_result(phantom[0], title='Shepp Logan Phantom', filename='output/2D_microscopy_phantom.png', vmin=vmin, vmax=vmax)
+plot_image(phantom[0], title='Shepp Logan Phantom', filename='output/2D_microscopy_phantom.png', vmin=vmin, vmax=vmax)
 
 # display sinogram
-plot_result(np.squeeze(sino), title='Sinogram', filename='output/2D_microscopy_sinogram.png')
+plot_image(np.squeeze(sino), title='Sinogram', filename='output/2D_microscopy_sinogram.png')
 
 # display reconstruction
 title = f'Reconstruction with NRMSE={nrmse:.3f}.'
-plot_result(recon[0], title=title, filename='output/2D_microscopy_recon.png', vmin=vmin, vmax=vmax)
+plot_image(recon[0], title=title, filename='output/2D_microscopy_recon.png', vmin=vmin, vmax=vmax)
 
 input("press Enter")
