@@ -38,7 +38,6 @@ p = 1.2
 sharpness = 4.0
 snr_db = 30.0
 max_iterations = 500
-stop_threshold = 0.01
 
 # Display parameters
 vmin = 0.0
@@ -58,7 +57,7 @@ sino = svmbir.project(angles, phantom, max(num_rows, num_cols))
 (num_views, num_slices, num_channels) = sino.shape
 
 # Perform MBIR reconstruction
-recon = svmbir.recon(sino, angles, num_rows=num_rows, num_cols=num_cols, T=T, p=p, sharpness=sharpness, snr_db=snr_db, stop_threshold=stop_threshold, max_iterations=max_iterations )
+recon = svmbir.recon(sino, angles, num_rows=num_rows, num_cols=num_cols, T=T, p=p, sharpness=sharpness, snr_db=snr_db, max_iterations=max_iterations )
 
 # Compute Normalized Root Mean Squared Error
 nrmse = svmbir.phantom.nrmse(recon[0], phantom[0])
