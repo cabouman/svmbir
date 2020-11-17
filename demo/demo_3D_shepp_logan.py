@@ -32,6 +32,7 @@ num_slices = 2*center_slice
 
 # Simulated sinogram parameters
 num_views = 144
+tilt_angle = np.pi/2 # Tilt range of +-45deg
 
 # Reconstruction parameters
 T = 0.1
@@ -39,11 +40,15 @@ p = 1.1
 sharpness = 4.0
 snr_db = 40.0
 
+# Display parameters
+vmin = 1.0
+vmax = 1.2
+
 # Generate phantom with a single slice
 phantom = svmbir.phantom.gen_shepp_logan_3d(num_rows,num_cols,num_slices)
 
 # Generate array of view angles form -180 to 180 degs
-angles = np.linspace(-np.pi/2.0, np.pi/2.0, num_views, endpoint=False)
+angles = np.linspace(-tilt_angle, tilt_angle, num_views, endpoint=False)
 
 # Generate sinogram by projecting phantom
 sino = svmbir.project(angles, phantom, max(num_rows, num_cols))
@@ -58,10 +63,10 @@ recon = svmbir.recon(sino, angles, num_rows=num_rows, num_cols=num_cols, T=T, p=
 nrmse = svmbir.phantom.nrmse(recon, phantom)
 
 # display phantom
-plot_result(phantom[center_slice-2], title='Center Slice of 3D Shepp Logan Phantom', filename='output/3d_shepp_logan_phantom.png', vmin=1.0, vmax=1.1)
+plot_result(phantom[center_slice-2], title='Center Slice of 3D Shepp Logan Phantom', filename='output/3d_shepp_logan_phantom.png', vmin=vmin, vmax=vmax)
 
 # display reconstruction
 title = f'Center Slice of 3D Recon with NRMSE={nrmse:.3f}.'
-plot_result(recon[center_slice-2], title=title, filename='output/3d_shepp_logan_recon.png', vmin=1.0, vmax=1.1)
+plot_result(recon[center_slice-2], title=title, filename='output/3d_shepp_logan_recon.png', vmin=vmin, vmax=vmax)
 
 input("press Enter")

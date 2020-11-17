@@ -29,18 +29,20 @@ num_rows = 256
 num_cols = 64
 
 # Simulated sinogram parameters
-num_views = 128
+num_views = 64
 tilt_angle = np.pi/3 # Tilt range of +-30deg
 
 # Reconstruction parameters
 T = 1
 p = 1.2
-sharpness = 8.0
+sharpness = 4.0
 snr_db = 30.0
+max_iterations = 500
+stop_threshold = 0.01
 
 # Display parameters
-vmin = 1.1
-vmax = 1.2
+vmin = 0.0
+vmax = 1.1
 
 # Generate phantom with a single slice
 phantom = svmbir.phantom.gen_microscopy_sample(num_rows,num_cols)
@@ -56,19 +58,19 @@ sino = svmbir.project(angles, phantom, max(num_rows, num_cols))
 (num_views, num_slices, num_channels) = sino.shape
 
 # Perform MBIR reconstruction
-recon = svmbir.recon(sino, angles, num_rows=num_rows, num_cols=num_cols, T=T, p=p, sharpness=sharpness, snr_db=snr_db, max_iterations=100 )
+recon = svmbir.recon(sino, angles, num_rows=num_rows, num_cols=num_cols, T=T, p=p, sharpness=sharpness, snr_db=snr_db, stop_threshold=stop_threshold, max_iterations=max_iterations )
 
 # Compute Normalized Root Mean Squared Error
 nrmse = svmbir.phantom.nrmse(recon[0], phantom[0])
 
 # display phantom
-plot_result(phantom[0], title='Shepp Logan Phantom', filename='output/shepp_logan_phantom.png', vmin=vmin, vmax=vmin)
+plot_result(phantom[0], title='Shepp Logan Phantom', filename='output/shepp_logan_phantom.png', vmin=vmin, vmax=vmax)
 
 # display sinogram
 plot_result(np.squeeze(sino), title='Sinogram', filename='output/shepp_logan_sinogram.png')
 
 # display reconstruction
 title = f'Reconstruction with NRMSE={nrmse:.3f}.'
-plot_result(recon[0], title=title, filename='output/shepp_logan_recon.png')
+plot_result(recon[0], title=title, filename='output/shepp_logan_recon.png', vmin=vmin, vmax=vmax)
 
 input("press Enter")
