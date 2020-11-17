@@ -6,6 +6,7 @@ def gen_shepp_logan(num_rows,num_cols):
     
     Args: 
         num_rows: int, number of rows.
+        num_cols: int, number of cols.
 
     Return:
         out_image: 2D array, num_rows*num_cols
@@ -51,7 +52,7 @@ def gen_microscopy_sample(num_rows, num_cols):
         out_image: 2D array, num_rows*num_cols
     """
 
-    # The function describing the phantom is defined as the sum of 8 ellipses inside a 4×2 rectangle:
+    # The function describing the phantom is defined as the sum of 8 ellipses inside a 2×4 rectangle:
     ms_paras = [
         {'x0': 0.0, 'y0': -0.0184, 'a': 0.6624, 'b': 1.748, 'theta': 0, 'gray_level': 0.2},
         {'x0': -0.1, 'y0': 1.343, 'a': 0.11, 'b': 0.10, 'theta': 0, 'gray_level': 0.8},
@@ -78,10 +79,13 @@ def gen_microscopy_sample(num_rows, num_cols):
 
 def gen_shepp_logan_3d(num_rows, num_cols, num_slices):
     """
-    Generate a 3D Shepp Logan phantom
+    Generate a 3D Shepp Logan phantom based on below reference.
+    
+    Kak AC, Slaney M. Principles of computerized tomographic imaging. Page.102. IEEE Press, New York, 1988. https://engineering.purdue.edu/~malcolm/pct/CTI_Ch03.pdf
 
     Args:
         num_rows: int, number of rows.
+        num_cols: int, number of cols.
         num_slices: int, number of slices.
 
     Return:
@@ -118,6 +122,47 @@ def gen_shepp_logan_3d(num_rows, num_cols, num_slices):
 
     return np.transpose(image, (2, 0, 1))
 
+
+def gen_microscopy_sample_3d(num_rows, num_cols, num_slices):
+    """
+    Generate a 3D microscopy sample phantom.
+
+    Args:
+        num_rows: int, number of rows.
+        num_cols: int, number of cols.
+        num_slices: int, number of slices.
+
+    Return:
+        out_image: 3D array, num_slices*num_rows*num_cols
+    """
+
+    # The function describing the phantom is defined as the sum of 8 ellipsoids inside a 2×4×2 cuboid:
+    ms3d_paras = [
+        {'x0': 0.0, 'y0': -0.0184, 'z0':0.0, 'a': 0.6624, 'b': 1.748, 'c':0.8, 'gamma': 0, 'gray_level': 0.2},
+        {'x0': -0.1, 'y0': 1.343, 'z0':0.0, 'a': 0.11, 'b': 0.10, 'c':0.20, 'gamma': 0, 'gray_level': 0.8},
+        {'x0': 0.0, 'y0': 0.9, 'z0':0.0, 'a': 0.33, 'b': 0.15, 'c':0.66, 'gamma': 0, 'gray_level': 0.4},
+        {'x0': 0.25, 'y0': 0.4, 'z0':0.0, 'a': 0.1, 'b': 0.2, 'c':0.40, 'gamma': 0, 'gray_level': 0.8},
+        {'x0': -0.2, 'y0': 0.0, 'z0':0.0, 'a': 0.2, 'b': 0.08, 'c':0.40, 'gamma': 0, 'gray_level': 0.4},
+        {'x0': 0.2, 'y0': -0.35, 'z0':0.0, 'a': 0.1, 'b': 0.1, 'c':0.2, 'gamma': 0, 'gray_level': 0.8},
+        {'x0': 0.25, 'y0': -0.8, 'z0':0.0, 'a': 0.2, 'b': 0.08, 'c':0.4, 'gamma': 0, 'gray_level': 0.8},
+        {'x0': -0.04, 'y0': -1.3, 'z0':0.0, 'a': 0.33, 'b': 0.15, 'c':0.30, 'gamma': 0, 'gray_level': 0.8}
+    ]
+
+    axis_x = np.linspace(-1.0, 1.0, num_cols)
+    axis_y = np.linspace(2.0, -2.0, num_rows)
+    axis_z = np.linspace(-1.0, 1.0, num_slices)
+
+    x_grid, y_grid, z_grid = np.meshgrid(axis_x, axis_y, axis_z)
+    image = x_grid * 0.0
+
+    for el_paras in ms3d_paras:
+        image += _gen_ellipsoid(x_grid=x_grid, y_grid=y_grid, z_grid=z_grid, x0=el_paras['x0'], y0=el_paras['y0'],
+                               z0=el_paras['z0'],
+                               a=el_paras['a'], b=el_paras['b'], c=el_paras['c'],
+                               gamma=el_paras['gamma'] / 180.0 * np.pi,
+                               gray_level=el_paras['gray_level'])
+
+    return np.transpose(image, (2, 0, 1))
 
 def nrmse(image, reference_image):
     """
