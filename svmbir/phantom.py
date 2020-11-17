@@ -191,3 +191,4 @@ def _gen_ellipsoid(x_grid, y_grid, z_grid, x0, y0, z0, a, b, c, gray_level, alph
         np.dot(r[2], cor)) ** 2 / c ** 2 <= 1.0) * gray_level
 
     return image.reshape(x_grid.shape)
+
