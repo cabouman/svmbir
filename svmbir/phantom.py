@@ -1,4 +1,6 @@
 import numpy as np
+import matplotlib.pyplot as plt
+
 
 def gen_shepp_logan(num_rows,num_cols):
     """
@@ -123,8 +125,51 @@ https://engineering.purdue.edu/~malcolm/pct/CTI_Ch03.pdf
     return np.transpose(image, (2, 0, 1))
 
 
+def gen_microscopy_sample_3d(num_rows, num_cols, num_slices):
+    """
+    Generate a 3D microscopy sample phantom.
+
+    Args:
+        num_rows: int, number of rows.
+        num_cols: int, number of cols.
+        num_slices: int, number of slices.
+
+    Return:
+        out_image: 3D array, num_slices*num_rows*num_cols
+    """
+
+    # The function describing the phantom is defined as the sum of 10 ellipsoids inside a 2×2×2 cube:
+    ms3d_paras = [
+        {'x0': 0.0, 'y0': 0.0, 'z0': 0.0, 'a': 0.6624, 'b': 1.748, 'c': 0.8, 'gamma': 0, 'gray_level': 1.02},
+        {'x0': -0.1, 'y0': 1.343, 'z0': -0.25, 'a': 0.11, 'b': 0.10, 'c': 0.10, 'gamma': 0, 'gray_level': 0.04},
+        {'x0': 0.0, 'y0': 0.9, 'z0': -0.25, 'a': 0.33, 'b': 0.15, 'c': 0.33, 'gamma': 0, 'gray_level': 0.02},
+        {'x0': 0.25, 'y0': 0.4, 'z0': -0.25, 'a': 0.10, 'b': 0.20, 'c': 0.20, 'gamma': 0, 'gray_level': 0.04},
+        {'x0': -0.2, 'y0': 0.0, 'z0': 0.0, 'a': 0.3, 'b': 0.12, 'c': 0.3, 'gamma': 0, 'gray_level': 0.02},
+        {'x0': 0.1, 'y0': -0.35, 'z0': 0.25, 'a': 0.20, 'b': 0.20, 'c': 0.50, 'gamma': 0, 'gray_level': 0.04},
+        {'x0': 0.25, 'y0': -0.8, 'z0': -0.25, 'a': 0.2, 'b': 0.08, 'c': 0.08, 'gamma': 0, 'gray_level': 0.04},
+        {'x0': -0.04, 'y0': -1.3, 'z0': -0.25, 'a': 0.28, 'b': 0.15, 'c': 0.15, 'gamma': 0, 'gray_level': 0.04}
+    ]
+
+    axis_x = np.linspace(-1.0, 1.0, num_cols)
+    axis_y = np.linspace(2.0, -2.0, num_rows)
+    axis_z = np.linspace(-1.0, 1.0, num_slices)
+
+    x_grid, y_grid, z_grid = np.meshgrid(axis_x, axis_y, axis_z)
+    image = x_grid * 0.0
+
+    for el_paras in ms3d_paras:
+        image += _gen_ellipsoid(x_grid=x_grid, y_grid=y_grid, z_grid=z_grid, x0=el_paras['x0'], y0=el_paras['y0'],
+                               z0=el_paras['z0'],
+                               a=el_paras['a'], b=el_paras['b'], c=el_paras['c'],
+                               gamma=el_paras['gamma'] / 180.0 * np.pi,
+                               gray_level=el_paras['gray_level'])
+
+    return np.transpose(image, (2, 0, 1))
+
 def nrmse(image, reference_image):
     """
+    Compute the normalized root mean square error between image and reference_image.
+
     :param image: Calculated image
     :param reference_image: Ground truth image
     :return: Root mean square of (image - reference_image) divided by RMS of reference_image
@@ -196,3 +241,17 @@ def _gen_ellipsoid(x_grid, y_grid, z_grid, x0, y0, z0, a, b, c, gray_level, alph
 
     return image.reshape(x_grid.shape)
 
+if __name__ == '__main__':
+    image = gen_microscopy_sample_3d(256,128,9)
+    plt.set_cmap('gray')
+
+    fig, axs = plt.subplots(3, 3)
+    plt.set_cmap('gray')
+    plt.subplots_adjust(hspace=0.4)
+    for i in range(9):
+        im=axs[i//3, i%3].imshow(image[i,:, :], vmin=1.0, vmax=1.1)
+
+    #plt.colorbar()
+    fig.colorbar(im,ax=axs)
+    plt.savefig('3DMS.png',dpi=1200)
+    plt.close()
