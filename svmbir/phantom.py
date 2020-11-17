@@ -6,6 +6,7 @@ def gen_shepp_logan(num_rows,num_cols):
     
     Args: 
         num_rows: int, number of rows.
+        num_cols: int, number of cols.
 
     Return:
         out_image: 2D array, num_rows*num_cols
@@ -78,10 +79,13 @@ def gen_microscopy_sample(num_rows, num_cols):
 
 def gen_shepp_logan_3d(num_rows, num_cols, num_slices):
     """
-    Generate a 3D Shepp Logan phantom
+    Generate a 3D Shepp Logan phantom based on Prof. Kak's book.
+    [1] Kak AC, Slaney M. Principles of computerized tomographic imaging. Page.102. IEEE Press, New York, 1988.
+https://engineering.purdue.edu/~malcolm/pct/CTI_Ch03.pdf
 
     Args:
         num_rows: int, number of rows.
+        num_cols: int, number of cols.
         num_slices: int, number of slices.
 
     Return:
