@@ -35,14 +35,12 @@ num_views = 144
 tilt_angle = np.pi/2 # Tilt range of +-45deg
 
 # Reconstruction parameters
-T = 0.1
-p = 1.1
-sharpness = 4.0
+sigma_x = 0.2
 snr_db = 40.0
 
 # Display parameters
-vmin = 1.0
-vmax = 1.2
+vmin = None
+vmax = None
 
 # Generate phantom with a single slice
 phantom = svmbir.phantom.gen_shepp_logan_3d(num_rows_cols,num_rows_cols,num_slices)
@@ -60,11 +58,14 @@ sino = svmbir.project(angles, phantom, num_rows_cols )
 phantom_rot = np.swapaxes(phantom, 1, 2)
 
 # Perform MBIR reconstruction using proximal map input
-recon = svmbir.recon(sino, angles, prox_image=phantom_rot, T=T, p=p, sharpness=sharpness, snr_db=snr_db)
+recon = svmbir.recon(sino, angles, prox_image=phantom_rot, positivity=False, sigma_x=sigma_x, snr_db=snr_db)
 
 # display phantom
 title = f'Slice {display_slice:d} of 3D Shepp Logan Phantom.'
 plot_image(phantom[display_slice], title=title, filename='output/prox_phantom.png', vmin=vmin, vmax=vmax)
+
+title = f'Slice {display_slice:d} of Rotated Phantom.'
+plot_image(phantom_rot[display_slice], title=title, filename='output/prox_phantom.png', vmin=vmin, vmax=vmax)
 
 # display reconstruction
 title = f'Slice {display_slice:d} of of 3D Proximal Map Recon.'
