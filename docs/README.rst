@@ -6,8 +6,7 @@ Features
 --------
 * Easy-to-use python code for fast parallel-beam MBIR (Model Based Iterative Reconstruction)
 
-* Based on HPImaging's C code implementation of the super-voxel algorithm :cite:`wang2016high` :cite:`wang2017massively`,
-[sv-mbir](https://github.com/HPImaging/sv-mbirct).
+* Based on HPImaging's C code implementation of the super-voxel algorithm :cite:`wang2016high` :cite:`wang2017massively`, `[sv-mbir] <https://github.com/HPImaging/sv-mbirct>`_
 
 * Supports MBIR reconstruction with Bayesian and Plug-and-Play prior models.
 
@@ -32,5 +31,6 @@ We also recommend:
 
 License
 -------
-The project is licensed under the BSD 3-Clause License.
+The project is licensed under the `BSD 3-Clause <https://github.com/cabouman/svmbir/blob/master/LICENSE>`_ License.
+
 
