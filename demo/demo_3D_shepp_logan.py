@@ -15,7 +15,7 @@ display_slice = 12 # Display slice at z=-0.25
 
 # Simulated sinogram parameters
 num_views = 144
-tilt_angle = np.pi/2 # Tilt range of +-45deg
+tilt_angle = np.pi/2 # Tilt range of +-90deg
 
 # Reconstruction parameters
 T = 0.1
