@@ -5,8 +5,10 @@ svmbir is an easy-to-use python package for fast parallel-beam reconstruction of
 Features
 --------
 * Easy-to-use python code for fast parallel-beam MBIR (Model Based Iterative Reconstruction)
+
 * Based on HPImaging's C code implementation of the super-voxel algorithm :cite:`wang2016high` :cite:`wang2017massively`,
 [sv-mbir](https://github.com/HPImaging/sv-mbirct).
+
 * Supports MBIR reconstruction with Bayesian and Plug-and-Play prior models.
 
 
