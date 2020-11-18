@@ -1,3 +1,4 @@
+import os
 import numpy as np
 from svmbir.phantom import plot_image
 import svmbir
@@ -43,6 +44,9 @@ recon = svmbir.recon(sino, angles, T=T, p=p, sharpness=sharpness, snr_db=snr_db)
 
 # Compute Normalized Root Mean Squared Error
 nrmse = svmbir.phantom.nrmse(recon, phantom)
+
+# create output folder
+os.makedirs('output', exist_ok=True)
 
 # display phantom
 title = f'Slice {display_slice:d} of 3D Shepp Logan Phantom.'
