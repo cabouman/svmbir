@@ -1,3 +1,4 @@
+import os
 import numpy as np
 from svmbir.phantom import plot_image
 import svmbir
@@ -10,8 +11,8 @@ The phantom, sinogram, and reconstruction are then displayed.
 
 # Simulated image parameters
 num_rows_cols = 256 # Assumes a square image
-num_slices = 32
-display_slice = int(np.floor(num_slices/2))-2 # Slice used to display
+num_slices = 33
+display_slice = 12 # Display slice at z=-0.25
 
 # Simulated sinogram parameters
 num_views = 144
@@ -42,6 +43,9 @@ phantom_rot = np.swapaxes(phantom, 1, 2)
 
 # Perform MBIR reconstruction using proximal map input
 recon = svmbir.recon(sino, angles, init_image=phantom_rot, prox_image=phantom_rot, positivity=False, sigma_x=sigma_x, snr_db=snr_db)
+
+# create output folder
+os.makedirs('output', exist_ok=True)
 
 # display phantom
 title = f'Slice {display_slice:d} of 3D Shepp Logan Phantom.'

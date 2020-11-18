@@ -368,7 +368,7 @@ def recon(sino, angles,
             Can be changed suitably for running multiple instances of reconstructions.
             Useful for building multi-process and multi-node functionality on top of svmbir.
 
-        verbose (int, optional): [Default=1] Set to 0 for quiet mode.
+        verbose (int, optional): [Default=1] Possible values are {0,1,2}, where 0 is quiet, 1 prints minimal reconstruction progress information, and 2 prints the full information.
 
     Returns:
         ndarray: 3D numpy array with shape (num_slices,num_rows,num_cols) containing the reconstructed 3D object in units of :math:`ALU^{-1}`.

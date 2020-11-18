@@ -1,6 +1,8 @@
+import os
 import numpy as np
 from svmbir.phantom import plot_image
 import svmbir
+
 
 """
 This file demonstrates the generation of a 2D microscopy phantom followed by sinogram projection and reconstruction using MBIR. 
@@ -44,6 +46,9 @@ recon = svmbir.recon(sino, angles, num_rows=num_rows, num_cols=num_cols, T=T, p=
 
 # Compute Normalized Root Mean Squared Error
 nrmse = svmbir.phantom.nrmse(recon[0], phantom[0])
+
+# create output folder
+os.makedirs('output', exist_ok=True)
 
 # display phantom
 plot_image(phantom[0], title='Shepp Logan Phantom', filename='output/2D_microscopy_phantom.png', vmin=vmin, vmax=vmax)
