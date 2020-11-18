@@ -1,3 +1,4 @@
+import os
 import numpy as np
 from skimage.restoration import estimate_sigma, denoise_wavelet
 import time
@@ -40,6 +41,8 @@ print("--- %s seconds ---" % (time.time() - start_time))
 # Compute Normalized Root Mean Squared Error after denoising.
 nrmse = svmbir.phantom.nrmse(phantom_denoised, phantom)
 
+# create output folder
+os.makedirs('output', exist_ok=True)
 
 # display phantom
 title = f'Slice {display_slice:d} of 3D Shepp Logan Phantom.'

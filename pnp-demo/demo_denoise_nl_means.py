@@ -1,3 +1,4 @@
+import os
 import numpy as np
 from skimage.restoration import denoise_nl_means, estimate_sigma
 import time
@@ -32,12 +33,14 @@ start_time = time.time()
 sigma_est = np.mean(estimate_sigma(phantom_noisy, multichannel=False))
 print("Estimate sigma = %.3f"%sigma_est)
 
-phantom_denoised= denoise_nl_means(phantom_noisy, patch_size=3, patch_distance=4, multichannel=False, fast_mode=True,sigma=sigma_est, preserve_range=True)
+phantom_denoised = denoise_nl_means(phantom_noisy, patch_size=3, patch_distance=4, multichannel=False, fast_mode=True,sigma=sigma_est, preserve_range=True)
 print("--- %s seconds ---" % (time.time() - start_time))
 
 # Compute Normalized Root Mean Squared Error after denoising.
 nrmse = svmbir.phantom.nrmse(phantom_denoised, phantom)
 
+# create output folder
+os.makedirs('output', exist_ok=True)
 
 # display phantom
 title = f'Slice {display_slice:d} of 3D Shepp Logan Phantom.'
