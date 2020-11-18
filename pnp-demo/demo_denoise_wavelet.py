@@ -1,11 +1,11 @@
 import numpy as np
-from skimage.restoration import denoise_nl_means, estimate_sigma, denoise_wavelet
+from skimage.restoration import estimate_sigma, denoise_wavelet
 import time
 from svmbir.phantom import plot_image
 import svmbir
 
 """
-This file demonstrates the denoising effect by skimage.restoration.denoise_nl_means. 
+This file demonstrates the denoising effect by skimage.restoration.denoise_wavelet. 
 The phantom, noisy phantom, and denoised are then displayed. 
 """
 
@@ -27,12 +27,11 @@ var = 1e-4
 sigma = var ** 0.5
 phantom_noisy = phantom+np.random.normal(mean,sigma,phantom.shape)
 
-# Perform non-local means denoiser
+# Perform wavelet denoiser
 start_time = time.time()
 sigma_est = np.mean(estimate_sigma(phantom_noisy, multichannel=False))
 print("Estimate sigma = %.3f"%sigma_est)
 
-#phantom_denoised= denoise_nl_means(phantom_noisy, patch_size=3, patch_distance=4, multichannel=False, fast_mode=True,sigma=sigma_est, preserve_range=True)
 phantom_denoised=denoise_wavelet(phantom_noisy, multichannel=False,
                                  method='VisuShrink', mode='soft',
                                  sigma=sigma_est/4, rescale_sigma=True)
