@@ -15,7 +15,7 @@ num_cols = 64
 
 # Simulated sinogram parameters
 num_views = 64
-tilt_angle = np.pi/3 # Tilt range of +-30deg
+tilt_angle = np.pi/3 # Tilt range of +-60deg
 
 # Reconstruction parameters
 T = 1
