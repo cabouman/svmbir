@@ -27,7 +27,7 @@ snr_db = 40.0
 vmin = 1.0
 vmax = 1.2
 
-# Generate phantom with a single slice
+# Generate phantom
 phantom = svmbir.phantom.gen_shepp_logan_3d(num_rows_cols,num_rows_cols,num_slices)
 
 # Generate array of view angles form -180 to 180 degs
