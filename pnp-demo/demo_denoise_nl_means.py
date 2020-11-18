@@ -48,7 +48,7 @@ title = f'Slice {display_slice:d} of 3D Shepp Logan Phantom with nosie.'
 plot_image(phantom_noisy[display_slice], title=title, filename='output/3d_shepp_logan_phantom_noisy.png', vmin=vmin, vmax=vmax)
 
 # display denoised reconstruction
-title = f'Slice {display_slice:d} of of 3D Recon after denoising with NRMSE={nrmse:.3f}.'
+title = f'Slice {display_slice:d} of denoised Phantom with NRMSE={nrmse:.3f}.'
 plot_image(phantom_denoised[display_slice], title=title, filename='output/3d_shepp_logan_denoised.png', vmin=vmin, vmax=vmax)
 
 
