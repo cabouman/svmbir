@@ -15,7 +15,7 @@ display_slice = 12 # Display slice at z=-0.25
 
 # Simulated sinogram parameters
 num_views = 144
-tilt_angle = np.pi/2 # Tilt range of +-45deg
+tilt_angle = np.pi/2 # Tilt range of +-90deg
 
 # Reconstruction parameters
 T = 0.1
@@ -27,7 +27,7 @@ snr_db = 40.0
 vmin = 1.0
 vmax = 1.2
 
-# Generate phantom with a single slice
+# Generate phantom
 phantom = svmbir.phantom.gen_shepp_logan_3d(num_rows_cols,num_rows_cols,num_slices)
 
 # Generate array of view angles form -180 to 180 degs

@@ -16,7 +16,7 @@ display_slice = 16 # Display slice at z=-0.0
 
 # Simulated sinogram parameters
 num_views = 64
-tilt_angle = np.pi/3 # Tilt range of +-30deg
+tilt_angle = np.pi/3 # Tilt range of +-60deg
 
 # Reconstruction parameters
 T = 1
@@ -29,7 +29,7 @@ max_iterations = 500
 vmin = 0.0
 vmax = 1.1
 
-# Generate phantom with a single slice
+# Generate phantom
 phantom = svmbir.phantom.gen_microscopy_sample_3d(num_rows,num_cols,num_slices)
 
 # Generate array of view angles form -180 to 180 degs

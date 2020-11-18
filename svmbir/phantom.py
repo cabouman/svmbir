@@ -193,7 +193,11 @@ def plot_image(img, title=None, filename=None, vmin=None, vmax=None):
     plt.title(label=title)
     imgplot.set_cmap('gray')
     plt.colorbar()
-    plt.savefig(filename)
+    if filename != None:
+        try:
+            plt.savefig(filename)
+        except:
+            print("plot_image() Warning: Can't write to file {}".format(filename))
 
 
 def _gen_ellipse(x_grid, y_grid, x0, y0, a, b, gray_level, theta=0):
