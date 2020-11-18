@@ -10,8 +10,8 @@ The phantom, sinogram, and reconstruction are then displayed.
 
 # Simulated image parameters
 num_rows_cols = 256 # Assumes a square image
-num_slices = 32
-display_slice = int(np.floor(num_slices/2))-2 # Slice used to display
+num_slices = 33
+display_slice = 12 # Display slice at z=-0.25
 
 # Simulated sinogram parameters
 num_views = 144
