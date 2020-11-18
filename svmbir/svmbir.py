@@ -328,10 +328,8 @@ def recon(sino, angles,
             If None, automatically set by calling svmbir.auto_sigma_x. The parameter sigma_x can be used to directly control regularization, but this is only recommended for expert users.
 
         sharpness (float, optional): [Default=1.0] Scalar value that controls level of sharpness.
-
-            Larger value results in sharper or less regularized reconstruction.
-
-            Ignored if sigma_x is not None.
+        A value greater than 1.0 results in sharper or less regularized reconstruction.
+        Ignored if sigma_x is not None.
 
         positivity (bool, optional): [Default=True] Boolean value that determines if positivity constraint is enforced. The positivity parameter defaults to True; however, it should be changed to False when used in applications that can generate negative image values.
 
