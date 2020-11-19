@@ -228,7 +228,7 @@ def calc_weights(sino, weight_type):
     return weights
 
 
-def auto_sigma_y(sino, weights, snr_db=30.0):
+def auto_sigma_y(sino, weights, snr_db=30.0, delta_pixel=1.0, delta_channel=1.0):
     """Computes the automatic value of the regularization parameter ``sigma_y`` for use in MBIR reconstruction.
 
     Args:
@@ -239,16 +239,26 @@ def auto_sigma_y(sino, weights, snr_db=30.0):
             The parameters weights should be the same values as used in svmbir reconstruction.
         snr_db (float, optional):
             [Default=30.0] Scalar value that controls assumed signal-to-noise ratio of the data in dB.
+        delta_pixel (float, optional):
+            [Default=1.0] Scalar value of pixel spacing in :math:`ALU`.
+        delta_channel (float, optional):
+            [Default=1.0] Scalar value of detector channel spacing in :math:`ALU`.
+
 
     Returns:
         ndarray: Automatic values of regularization parameter.
     """
-    #signal_rms = np.mean(weights * sino**2)**0.5
-    indicator = np.int8(sino > 0.05*np.mean(np.fabs(sino)) )    # for excluding empty space from average
+    # compute indicator for excluding empty space from sinogram
+    indicator = np.int8(sino > 0.05*np.mean(np.fabs(sino)) )
+
+    # compute RMS value of sinogram excluding empty space
     signal_rms = np.average(weights * sino**2, None, indicator)**0.5
 
+    # convert snr to relative noise standard deviation
     rel_noise_std = 10**(-snr_db/20)
-    sigma_y = rel_noise_std * signal_rms
+
+    # compute sigma_y and scale by relative pixel and detector pitch
+    sigma_y = rel_noise_std * signal_rms * (delta_pixel / delta_channel)
 
     return sigma_y
 
@@ -262,17 +272,18 @@ def auto_sigma_x(sino, delta_channel=1.0, sharpness=1.0):
         delta_channel (float, optional):
             [Default=1.0] Scalar value of detector channel spacing in :math:`ALU`.
         sharpness (float, optional):
-            [Default=1.0] Scalar value that controls level of sharpness.
-            Larger value results in sharper or less regularized reconstruction.
+            [Default=0.0] Scalar value that controls level of sharpness.
+            ``sharpness=0`` is neutral; ``sharpness>0`` increases sharpness; ``sharpness<0`` reduces sharpness
 
     Returns:
         float: Automatic value of regularization parameter.
     """
     (num_views, num_slices, num_channels) = sino.shape
 
-    #sigma_x = 0.1 * sharpness * np.mean(sino) / (num_channels*delta_channel)
+    #sigma_x = 0.1 * sharpness * np.mean(sino) / (num_channels*delta_channel)                           # Verions 1
+    #sigma_x = 0.1 * sharpness * np.average(sino, weights=indicator) / (num_channels * delta_channel)   # Version 2
     indicator = np.int8(sino > 0.05*np.mean(np.fabs(sino)) )    # for excluding empty space from average
-    sigma_x = 0.1 * sharpness * np.average(sino, weights=indicator) / (num_channels * delta_channel)
+    sigma_x = 0.2 * (2 ** sharpness) * np.average(sino, weights=indicator) / (num_channels * delta_channel)
 
     return sigma_x
 
@@ -327,9 +338,10 @@ def recon(sino, angles,
         sigma_x (float, optional): [Default=None] Scalar value :math:`>0` that specifies the qGGMRF scale parameter.
             If None, automatically set by calling svmbir.auto_sigma_x. The parameter sigma_x can be used to directly control regularization, but this is only recommended for expert users.
 
-        sharpness (float, optional): [Default=1.0] Scalar value that controls level of sharpness.
-        A value greater than 1.0 results in sharper or less regularized reconstruction.
-        Ignored if sigma_x is not None.
+        sharpness (float, optional):
+            [Default=0.0] Scalar value that controls level of sharpness.
+            ``sharpness=0`` is neutral; ``sharpness>0`` increases sharpness; ``sharpness<0`` reduces sharpness.
+            Ignored if sigma_x is not None.
 
         positivity (bool, optional): [Default=True] Boolean value that determines if positivity constraint is enforced. The positivity parameter defaults to True; however, it should be changed to False when used in applications that can generate negative image values.
 
@@ -399,7 +411,7 @@ def recon(sino, angles,
         weights = calc_weights(sino, weight_type)
 
     if sigma_y is None:
-        sigma_y = auto_sigma_y(sino, weights, snr_db)
+        sigma_y = auto_sigma_y(sino, weights, snr_db, delta_pixel=delta_pixel, delta_channel=delta_channel)
 
     if sigma_x is None:
         sigma_x = auto_sigma_x(sino, delta_channel, sharpness)
