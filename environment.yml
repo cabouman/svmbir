@@ -6,3 +6,4 @@ dependencies:
   - ruamel.yaml
   - psutil
   - pytest
+  - scikit-image

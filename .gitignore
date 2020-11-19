@@ -5,4 +5,5 @@ __pycache__
 sftp-config.json
 .idea
 demo/output/*.png
+pnp-demo/output/*.png
 docs/build/
