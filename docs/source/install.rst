@@ -100,23 +100,17 @@ Linux is more straight forward.
 The Intel compiler and OMP libraries when coupled with the appropriate Intel x86 processor
 can substantially increase ``svmbir`` performance by enabling the AVX2 instructor set.
 The ``icc/OpenMP`` compiler and libraries exists for Linux, Windows, and MacOS, but may need to be purchased.
-The icc compiler is available [here](https://software.intel.com/content/www/us/en/develop/tools/parallel-studio-xe.html).
+The icc compiler is available `[here](https://software.intel.com/content/www/us/en/develop/tools/parallel-studio-xe.html)`_.
 
-2. *Windows Installation:*
-The package will run under Windows, but there tend to be more things that can go wrong due to the wide variety of possible configurations.
-The following list of recommended configurations have been tested to work, but others are possible:
+`[sv-mbir] <https://github.com/HPImaging/sv-mbirct>`_
 
-* *64-bit gcc or Intel icc compiler:*
-Make sure to install a 64bit compiler such as the ``MinGW_64`` available from [here](http://winlibs.com) or the Intel ``icc`` compiler as described above.
-Commonly used gcc compilers are only 32bit and will create ``calloc`` errors when addressing array sizes greater than 2Gb.
+2. *Windows Installation:* The package will run under Windows, but there tend to be more things that can go wrong due to the wide variety of possible configurations. The following list of recommended configurations have been tested to work, but others are possible:
 
-* *MinGW + MSYS environment:*
-We recommend installing ``MinGW`` including the ``msys`` utilities. These utilities support a minimalist set of traditional UNIX tools.
+* *64-bit gcc or Intel icc compiler:* Make sure to install a 64bit compiler such as the ``MinGW_64`` available from [here](http://winlibs.com) or the Intel ``icc`` compiler as described above. Commonly used gcc compilers are only 32bit and will create ``calloc`` errors when addressing array sizes greater than 2Gb.
 
-* *Git Bash:*
-We recommend installing [Git Bash](https://gitforwindows.org) to support bash scripting.
+* *MinGW + MSYS environment:* We recommend installing ``MinGW`` including the ``msys`` utilities. These utilities support a minimalist set of traditional UNIX tools.
 
-[here](http://winlibs.com)
+* *Git Bash:* We recommend installing `[Git Bash](https://gitforwindows.org)`_ to support bash scripting.
 
 One known issue is that in some Windows bash environments the C executable ``mbir_ct.exe`` may not be properly moved to the ``bin`` directory.
 If this occurs, then the problem can be resolved by manually moving the file.
@@ -128,9 +122,9 @@ Instead it is an alias to the ``clang`` compiler.
 Therefore, the C code should be compiled using the ``clang`` option.
 
 In order to obtain ``clang`` you will need to install the most up-to-date version of both Xcode
-and ``Command Line Tools for Xcode`` available [here](https://developer.apple.com/download/more/).
+and ``Command Line Tools for Xcode`` available `[here](https://developer.apple.com/download/more/)`_.
 
 Importantly, the Xcode Developer tools **do not include** the required OpenMP libraries.
-The OMP libraries can be obtained from [here](https://mac.r-project.org/openmp/).
+The OMP libraries can be obtained from `[here](https://mac.r-project.org/openmp/)`_.
 
 In addition, after OS updates, you may need to reinstall the Xcode toolkit using the command: ``xcode-select --install``
