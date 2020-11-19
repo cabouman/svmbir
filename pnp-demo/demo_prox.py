@@ -4,9 +4,10 @@ from svmbir.phantom import plot_image
 import svmbir
 
 """
-This file demonstrates the generation of a 3D Shepp-Logan phantom followed by sinogram projection and reconstruction using MBIR. 
+This file demonstrates the use of the proximal map function in svmbir. 
 The phantom, sinogram, and reconstruction are then displayed. 
 """
+
 
 # Simulated image parameters
 num_rows_cols = 256 # Assumes a square image
@@ -18,16 +19,14 @@ num_views = 144
 tilt_angle = np.pi/2 # Tilt range of +-90deg
 
 # Reconstruction parameters
-T = 0.1
-p = 1.1
-sharpness = 0.0
+sigma_x = 0.2
 snr_db = 40.0
 
 # Display parameters
-vmin = 1.0
-vmax = 1.2
+vmin = None
+vmax = None
 
-# Generate phantom
+# Generate phantom with a single slice
 phantom = svmbir.phantom.gen_shepp_logan_3d(num_rows_cols,num_rows_cols,num_slices)
 
 # Generate array of view angles form -180 to 180 degs
@@ -39,21 +38,24 @@ sino = svmbir.project(angles, phantom, num_rows_cols )
 # Determine resulting number of views, slices, and channels
 (num_views, num_slices, num_channels) = sino.shape
 
-# Perform MBIR reconstruction
-recon = svmbir.recon(sino, angles, T=T, p=p, sharpness=sharpness, snr_db=snr_db)
+# Rotate image to use as input to proximal map
+phantom_rot = np.swapaxes(phantom, 1, 2)
 
-# Compute Normalized Root Mean Squared Error
-nrmse = svmbir.phantom.nrmse(recon, phantom)
+# Perform MBIR reconstruction using proximal map input
+recon = svmbir.recon(sino, angles, init_image=phantom_rot, prox_image=phantom_rot, positivity=False, sigma_x=sigma_x, snr_db=snr_db)
 
 # create output folder
 os.makedirs('output', exist_ok=True)
 
 # display phantom
 title = f'Slice {display_slice:d} of 3D Shepp Logan Phantom.'
-plot_image(phantom[display_slice], title=title, filename='output/3d_shepp_logan_phantom.png', vmin=vmin, vmax=vmax)
+plot_image(phantom[display_slice], title=title, filename='output/prox_phantom.png', vmin=vmin, vmax=vmax)
+
+title = f'Slice {display_slice:d} of Rotated Phantom.'
+plot_image(phantom_rot[display_slice], title=title, filename='output/prox_phantom.png', vmin=vmin, vmax=vmax)
 
 # display reconstruction
-title = f'Slice {display_slice:d} of of 3D Recon with NRMSE={nrmse:.3f}.'
-plot_image(recon[display_slice], title=title, filename='output/3d_shepp_logan_recon.png', vmin=vmin, vmax=vmax)
+title = f'Slice {display_slice:d} of of 3D Proximal Map Recon.'
+plot_image(recon[display_slice], title=title, filename='output/prox_recon.png', vmin=vmin, vmax=vmax)
 
 input("press Enter")
