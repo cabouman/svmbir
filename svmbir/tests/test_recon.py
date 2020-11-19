@@ -15,7 +15,7 @@ class Test_recon():
         # Reconstruction parameters
         T = 0.1
         p = 1.1
-        sharpness = 4.0
+        sharpness = 0.0
         snr_db = 40.0
 
         # Set threshold for test
