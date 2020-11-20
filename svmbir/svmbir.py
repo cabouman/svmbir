@@ -234,17 +234,17 @@ def auto_sigma_y(sino, weights, snr_db=30.0, delta_pixel=1.0, delta_channel=1.0)
     Returns:
         ndarray: Automatic values of regularization parameter.
     """
-    # compute indicator for excluding empty space from sinogram
-    indicator = np.int8(sino > 0.05*np.mean(np.fabs(sino)) )
+    # Compute indicator function for sinogram support
+    sino_indicator = _sino_indicator(sino)
 
     # compute RMS value of sinogram excluding empty space
-    signal_rms = np.average(weights * sino**2, None, indicator)**0.5
+    signal_rms = np.average(weights * sino**2, None, sino_indicator)**0.5
 
     # convert snr to relative noise standard deviation
     rel_noise_std = 10**(-snr_db/20)
 
     # compute sigma_y and scale by relative pixel and detector pitch
-    sigma_y = rel_noise_std * signal_rms * (delta_pixel / delta_channel)
+    sigma_y = rel_noise_std * signal_rms * (delta_pixel / delta_channel)**(0.5)
 
     return sigma_y
 
@@ -266,12 +266,30 @@ def auto_sigma_x(sino, delta_channel=1.0, sharpness=1.0):
     """
     (num_views, num_slices, num_channels) = sino.shape
 
-    #sigma_x = 0.1 * sharpness * np.mean(sino) / (num_channels*delta_channel)                           # Verions 1
-    #sigma_x = 0.1 * sharpness * np.average(sino, weights=indicator) / (num_channels * delta_channel)   # Version 2
-    indicator = np.int8(sino > 0.05*np.mean(np.fabs(sino)) )    # for excluding empty space from average
-    sigma_x = 0.2 * (2 ** sharpness) * np.average(sino, weights=indicator) / (num_channels * delta_channel)
+    # Compute indicator function for sinogram support
+    sino_indicator = _sino_indicator(sino)
+
+    # Compute a typical image value by dividing average sinogram value by a typical projection path length
+    typical_img_value = np.average(sino, weights=sino_indicator) / (num_channels * delta_channel)
+
+    # Compute sigma_x as a fraction of the typical image value
+    sigma_x = 0.2 * (2 ** sharpness) * typical_img_value
 
     return sigma_x
+
+def _sino_indicator(sino):
+    """
+    Computes a binary function that indicates the region of sinogram support that is robust to noise.
+
+    Args:
+        sino (ndarray):
+            3D numpy array of sinogram data with shape (num_views,num_slices,num_channels)
+
+    Returns:
+        int8: A binary value: =1 within sinogram support; =0 outside sinogram support.
+    """
+    indicator = np.int8(sino > 0.05*np.mean(np.fabs(sino)) )    # for excluding empty space from average
+    return indicator
 
 
 def recon(sino, angles,
