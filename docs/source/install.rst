@@ -29,7 +29,9 @@ The three supported compilers are the open source ``gcc`` compiler, Intel's ``ic
 The Intel compiler currently offers the best performance on x86 processors through the support of the AVX instruction set;
 however, the ``gcc`` and ``clang`` compilers are often more readily available.
 
-The section below provides details on installation of the selected compiler and associated OMP libraries.
+**Important:** You must first install one of these three compilers together with the associated OpenMP libraries on your computer.
+MacOS and Windows users should refer to the instructions :ref:`below <Windows and Mac>` for more details on installation of the compilers, OMP libraries and associated utilities.
+
 Once the compiler and OMP libraries are installed, the following commands can be used to compile the ``svmbir`` code.
 
 For ``gcc`` compilation, run:
@@ -90,8 +92,10 @@ However, you can also update it by updating the submodule pointer and running th
 Once the C source is updated, then recompile using the commands described above.
 
 
+.. _Windows and Mac:
+
 Installation on Windows and MacOS
-----------------------------------------------------------
+---------------------------------
 
 Below are some tips for compiling and running the package under the Windows and MacOSx operating systems.
 Linux is more straight forward.
@@ -115,7 +119,7 @@ If this occurs, then the problem can be resolved by manually moving the file.
 
 3. *MacOS Installation:*
 MacOS users will typically use the ``clang`` compiler provided as part of the Xcode Developer Tools.
-In this case, the ``gcc`` command in the MocOS environment is **not** actually gcc.
+In this case, the ``gcc`` command in the MacOS environment is **not** actually ``gcc``.
 Instead it is an alias to the ``clang`` compiler.
 Therefore, the C code should be compiled using the ``clang`` option.
 
@@ -124,5 +128,18 @@ and ``Command Line Tools for Xcode`` available `[here] <https://developer.apple.
 
 Importantly, the Xcode Developer tools **do not include** the required OpenMP libraries.
 The OMP libraries can be obtained from `[here] <https://mac.r-project.org/openmp/>`_.
+You will need to download a file of the form ``openmp-XXX.tar.gz``.
+The tar file will contain the following files:
+
+    ```
+    /usr/local/lib/libomp.dylib
+    /usr/local/include/ompt.h
+    /usr/local/include/omp.h
+    /usr/local/include/omp-tools.h
+    ```
+
+These files should be moved to the specified directories.
+You may also need to open the file ``/usr/local/lib/libomp.dylib``.
+This will generate a splash screen that requests permision of OSx to execute the library.
 
 In addition, after OS updates, you may need to reinstall the Xcode toolkit using the command: ``xcode-select --install``
