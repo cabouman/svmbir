@@ -23,9 +23,14 @@ and the second command moves into the root directory of the repository.
 
 
 2. *Compile C-Code:*
-The ``svmbir`` package can compiled using a number of different compilers including the open source ``gcc`` compiler, Intel's ``icc`` compiler, or the Apple's ``clang`` compiler.
-The Intel compiler currently offers the best performance on x86 processors supporting the AVX instruction set;
-however, the ``gcc`` and ``icc`` compilers are often more readily available.
+
+The ``svmbir`` package requires a C compiler together with the OpenMP libraries for parallel multicore processing.
+The three supported compilers are the open source ``gcc`` compiler, Intel's ``icc`` compiler, or the Apple's ``clang`` compiler.
+The Intel compiler currently offers the best performance on x86 processors through the support of the AVX instruction set;
+however, the ``gcc`` and ``clang`` compilers are often more readily available.
+
+The section below provides details on installation of the selected compiler and associated OMP libraries.
+Once the compiler and OMP libraries are installed, the following commands can be used to compile the ``svmbir`` code.
 
 For ``gcc`` compilation, run:
 
@@ -85,34 +90,39 @@ However, you can also update it by updating the submodule pointer and running th
 Once the C source is updated, then recompile using the commands described above.
 
 
-Trouble Shooting Tips for Windows and MacOSx
---------------------------------------------
+Installation on Windows and MacOS
+----------------------------------------------------------
 
 Below are some tips for compiling and running the package under the Windows and MacOSx operating systems.
-Linux is, of course, more straight forward.
+Linux is more straight forward.
 
-1. *Windows Installation:*
-The package will run under Windows, but there tend to be more things that can go wrong due to the wide variety of possible configurations.
-The following list of recommended configurations have been tested to work, but others are possible:
+1. *Intel icc Compiler:*
+The Intel compiler and OMP libraries when coupled with the appropriate Intel x86 processor
+can substantially increase ``svmbir`` performance by enabling the AVX2 instructor set.
+The ``icc/OpenMP`` compiler and libraries exists for Linux, Windows, and MacOS, but may need to be purchased.
+The icc compiler is available `[here] <https://software.intel.com/content/www/us/en/develop/tools/parallel-studio-xe.html>`_.
 
-* *64-bit gcc or Intel icc compiler:* Make sure to install a 64bit compiler such as the ``MinGW_64`` available from ``http://winlibs.com/`` or the Intel ``icc`` compiler. Comonly used gcc compilers are only 32bit and will create ``calloc`` errors when addressing array sizes greater than 2Gb.
+2. *Windows Installation:* The package will run under Windows, but there tend to be more things that can go wrong due to the wide variety of possible configurations. The following list of recommended configurations have been tested to work, but others are possible:
+
+* *64-bit gcc or Intel icc compiler:* Make sure to install a 64bit compiler such as the ``MinGW_64`` available from `[here] <http://winlibs.com>`_ or the Intel ``icc`` compiler as described above. Commonly used gcc compilers are only 32bit and will create ``calloc`` errors when addressing array sizes greater than 2Gb.
+
 * *MinGW + MSYS environment:* We recommend installing ``MinGW`` including the ``msys`` utilities. These utilities support a minimalist set of traditional UNIX tools.
-* *Git Bash:* We recommend installing ``Git Bash`` from ``https://gitforwindows.org/`` to support bash scripting.
 
-One known issue is that in some Windows bash environments the ``C`` executable ``mbir_ct.exe`` may not be properly moved to the ``bin`` directory. If this occurs, then the problem can be resolved by manually moving the file.
+* *Git Bash:* We recommend installing `[Git Bash] <https://gitforwindows.org>`_ to support bash scripting.
 
-2. *MacOS Installation:*
-MacOSx users will typically use the ``Clang`` compiler provided as part of the Xcode Developer Tools.
+One known issue is that in some Windows bash environments the C executable ``mbir_ct.exe`` may not be properly moved to the ``bin`` directory.
+If this occurs, then the problem can be resolved by manually moving the file.
+
+3. *MacOS Installation:*
+MacOS users will typically use the ``clang`` compiler provided as part of the Xcode Developer Tools.
 In this case, the ``gcc`` command in the MocOS environment is **not** actually gcc.
 Instead it is an alias to the ``clang`` compiler.
-Therefore, the C code should be compiled using the ``Clang`` option.
+Therefore, the C code should be compiled using the ``clang`` option.
 
-In order to obtain ``Clang`` you will need to install the most up-to-date version of both ``Xcode``
-and ``Command Line Tools for Xcode`` available from ``https://developer.apple.com/download/more/``.
+In order to obtain ``clang`` you will need to install the most up-to-date version of both Xcode
+and ``Command Line Tools for Xcode`` available `[here] <https://developer.apple.com/download/more/>`_.
 
-In addition, after OS updates, you may need to reinstall the Xcode toolkit using the command:
+Importantly, the Xcode Developer tools **do not include** the required OpenMP libraries.
+The OMP libraries can be obtained from `[here] <https://mac.r-project.org/openmp/>`_.
 
-``xcode-select --install``
-
-
-
+In addition, after OS updates, you may need to reinstall the Xcode toolkit using the command: ``xcode-select --install``
