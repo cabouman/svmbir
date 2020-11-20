@@ -407,20 +407,21 @@ def recon(sino, angles,
     else:
         init_image_value = 0
 
-    default_reconparams = {'prior_model': 'QGGMRF',
-                            'init_image_value': 0.0001,
-                            'p': 1.2,
-                            'q': 2.0,
-                            'T': 1.0,
-                            'sigma_x': 0.01,
-                            'sigma_y': 1,
-                            'b_nearest': 1.0,
-                            'b_diag': 0.707,
-                            'b_interslice': 1.0,
-                            'stop_threshold': 0.0,
-                            'max_iterations': 20,
-                            'positivity': 1,
-                            'weight_type': 'unweighted'}  # constant weights
+    reconparams = dict()
+    reconparams['prior_model'] = 'QGGMRF'
+    reconparams['init_image_value'] = init_image_value
+    reconparams['p'] = p
+    reconparams['q'] = q
+    reconparams['T'] = T
+    reconparams['sigma_x'] = sigma_x
+    reconparams['sigma_y'] = sigma_y
+    reconparams['b_nearest'] = 1.0
+    reconparams['b_diag'] = 0.707
+    reconparams['b_interslice'] = b_interslice
+    reconparams['stop_threshold'] = stop_threshold
+    reconparams['max_iterations'] = max_iterations
+    reconparams['positivity'] = int(positivity)
+    reconparams['weight_type'] = 'unweighted'  # constant weights
 
 
     paths, sinoparams, imgparams = _init_geometry(angles, center_offset=center_offset,
@@ -428,10 +429,6 @@ def recon(sino, angles,
         num_rows=num_rows, num_cols=num_cols,
         delta_channel=delta_channel, delta_pixel=delta_pixel, roi_radius=roi_radius,
         svmbir_lib_path=svmbir_lib_path, object_name=object_name, verbose=verbose)
-
-    reconparams = parse_params(default_reconparams, p=p, q=q, T=T, sigma_x=sigma_x, sigma_y=sigma_y,
-        b_interslice=b_interslice, stop_threshold=stop_threshold, max_iterations=max_iterations,
-        positivity=int(positivity), init_image_value=init_image_value)
 
     cmd_args = dict(i=paths['param_name'], j=paths['param_name'], k=paths['param_name'],
         s=paths['sino_name'], r=paths['recon_name'], m=paths['sysmatrix_name'],
