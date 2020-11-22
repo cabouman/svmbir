@@ -169,11 +169,14 @@ def nrmse(image, reference_image):
     """
     Compute the normalized root mean square error between image and reference_image.
 
-    :param image: Calculated image
-    :param reference_image: Ground truth image
-    :return: Root mean square of (image - reference_image) divided by RMS of reference_image
-    """
+    Args:
+        image: Calculated image
+        reference_image: Ground truth image
 
+    Returns:
+        Root mean square of (image - reference_image) divided by RMS of reference_image
+
+    """
     rmse = np.sqrt(((image - reference_image) ** 2).mean())
     denominator = np.sqrt(((reference_image) ** 2).mean())
 
@@ -182,9 +185,13 @@ def nrmse(image, reference_image):
 def plot_image(img, title=None, filename=None, vmin=None, vmax=None):
     """
     Function to display and save a 2D array as an image.
-    :param img: 2D numpy array to display
-    :param vmin: Value mapped to black
-    :param vmax: Value mapped to white
+
+    Args:
+        img: 2D numpy array to display
+        title: Title of plot image
+        filename: A path to save plot image
+        vmin: Value mapped to black
+        vmax: Value mapped to white
     """
 
     plt.ion()
