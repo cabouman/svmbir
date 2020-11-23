@@ -425,16 +425,7 @@ def recon(sino, angles,
     else:
         init_image_value = 0
 
-    if p < 1.0 or p > 2.0:
-        raise ValueError('Parameter p(%.2f) is outside the allowed range([%.1f, %.1f]).'%(p,1.0,2.0))
-
-    if q < 1.0 or q > 2.0:
-        raise ValueError('Parameter q(%.2f) is outside the allowed range([%.1f, %.1f]).'%(q,1.0,2.0))
-
-    if p > q :
-        raise ValueError('Parameter p(%.2f) cannot be greater than parameter q(%.2f).'%(p,q))
-
-
+    p, q = test_pq_values(p, q)
 
     reconparams = dict()
     reconparams['prior_model'] = 'QGGMRF'
