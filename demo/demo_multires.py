@@ -27,6 +27,8 @@ max_iterations = 500
 
 # Resolution parameters
 delta_pixel = 4.0 # If you set this to 2.0, it works. But for 4.0, it crashes
+num_rows = int(num_rows/delta_pixel)
+num_cols = int(num_cols/delta_pixel)
 
 # Display parameters
 vmin = 0.0
