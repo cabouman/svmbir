@@ -425,6 +425,9 @@ def recon(sino, angles,
     else:
         init_image_value = 0
 
+    if p < 0:
+        raise ValueError('recon() expects non-negative float for p.')
+
     reconparams = dict()
     reconparams['prior_model'] = 'QGGMRF'
     reconparams['init_image_value'] = init_image_value
