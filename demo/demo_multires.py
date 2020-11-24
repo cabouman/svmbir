@@ -27,7 +27,7 @@ p = 1.2
 max_iterations = 500
 
 # Resolution parameters
-lr_delta_pixel = 4.0 # If you set this to 2.0, it works. But for 4.0, it crashes
+lr_delta_pixel = 2.0 # If you set this to 2.0, it works. But for 4.0, it crashes
 lr_num_rows = int(num_rows/lr_delta_pixel)
 lr_num_cols = int(num_cols/lr_delta_pixel)
 
@@ -53,12 +53,10 @@ sino = svmbir.project(angles, phantom, max(num_rows, num_cols))
 lr_recon = svmbir.recon(sino, angles, num_rows=lr_num_rows, num_cols=lr_num_cols, T=T, p=p, sharpness=sharpness, snr_db=snr_db, delta_pixel=lr_delta_pixel, max_iterations=max_iterations )
 
 # Interpolate resolution of reconstruction
-# I need to find a appropriate algorithm for resizing an array of images
-# init_image = resize(lr_recon, (num_rows, num_cols))
-# init_image=init_image,
+init_image = svmbir.recon_resize(lr_recon, (num_rows, num_cols) )
 
 # Perform full res MBIR reconstruction
-recon = svmbir.recon(sino, angles, num_rows=num_rows, num_cols=num_cols, T=T, p=p, sharpness=sharpness, snr_db=snr_db, max_iterations=max_iterations )
+recon = svmbir.recon(sino, angles, num_rows=num_rows, num_cols=num_cols, T=T, init_image=init_image, p=p, sharpness=sharpness, snr_db=snr_db, max_iterations=max_iterations )
 
 # create output folder
 os.makedirs('output', exist_ok=True)
@@ -69,6 +67,9 @@ plot_image(phantom[display_slice], title='Shepp Logan Phantom', filename='output
 # display low res reconstruction
 title = f'Slice {display_slice:d} of Low Reconstruction.'
 plot_image(lr_recon[display_slice], title=title, filename='output/multires_recon.png', vmin=vmin, vmax=vmax)
+
+# display initial image
+plot_image(init_image[display_slice], title='Initial Image', filename='output/multires_init_image.png', vmin=vmin, vmax=vmax)
 
 # display full res reconstruction
 title = f'Slice {display_slice:d} of Full Reconstruction.'

@@ -3,6 +3,7 @@ import shutil
 import argparse
 from glob import glob
 import numpy as np
+from skimage.transform import resize
 import subprocess
 import math
 import hashlib
@@ -581,3 +582,21 @@ def project(angles, image, num_channels,
         delete_data_openmbir(paths['proj_name']+'_slice', '.2Dprojection', sinoparams['num_slices'])
 
     return proj
+
+def recon_resize(recon, output_shape ):
+    """
+    Resizes a reconstruction 3D numpy array of shape (slices,rows,cols).
+
+    Args:
+        recon (ndarray): 3D numpy array containing reconstruction with shape (slices, rows, cols)
+        output_shape (tuple): (num_rows, num_cols) shape of resized output
+
+    Returns:
+        ndarray: 3D numpy array containing interpolated reconstruction with shape (num_slices, num_rows, num_cols).
+    """
+
+    recon = np.transpose(recon, (1, 2, 0))
+    recon = resize(recon, output_shape)
+    recon = np.transpose(recon, (2, 0, 1))
+
+    return recon
