@@ -42,8 +42,13 @@ sino = svmbir.project(angles, phantom, num_rows_cols )
 # Perform fixed resolution MBIR reconstruction
 recon = svmbir.recon(sino, angles, T=T, p=p, sharpness=sharpness, snr_db=snr_db)
 
+# Perform multi-resolution MBIR reconstruction
+mr_recon = svmbir.multires_recon(sino, angles, T=T, p=p, sharpness=sharpness, snr_db=snr_db)
+#stop_threshold=0.01,
+
 # Compute Normalized Root Mean Squared Error
 nrmse = svmbir.phantom.nrmse(recon, phantom)
+mr_nrmse = svmbir.phantom.nrmse(mr_recon, phantom)
 
 # create output folder
 os.makedirs('output', exist_ok=True)
@@ -55,5 +60,9 @@ plot_image(phantom[display_slice], title=title, filename='output/3d_shepp_logan_
 # display fix resolution reconstruction
 title = f'Slice {display_slice:d} of 3D Recon with NRMSE={nrmse:.3f}.'
 plot_image(recon[display_slice], title=title, filename='output/3d_shepp_logan_recon.png', vmin=vmin, vmax=vmax)
+
+# display multi-resolution reconstruction
+title = f'Slice {display_slice:d} of MultiRes 3D Recon with NRMSE={mr_nrmse:.3f}.'
+plot_image(recon[display_slice], title=title, filename='output/mr_3d_shepp_logan_phantom.png', vmin=vmin, vmax=vmax)
 
 input("press Enter")
