@@ -181,6 +181,19 @@ def delete_data_openmbir(rootPath, suffix, num_files):
 
 
 def test_pq_values(p,q):
+    """
+    Tests to make sure that p, q have value values; prints warnings if necessary; and returns valid values.
+
+    Args:
+        p (float): qGGMRF p parameter.
+
+        q (float): qGGMRF q parameter.
+
+    Returns:
+        p (float): valid p value
+        q (float): valid q value
+    """
+
     if q < 1 or q > 2:
         warnings.warn("Parameter q not in the valid range of [1,2]; Setting q = 2.")
         q = 2
