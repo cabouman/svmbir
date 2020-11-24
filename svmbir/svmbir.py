@@ -425,6 +425,8 @@ def recon(sino, angles,
     else:
         init_image_value = 0
 
+    p, q = test_pq_values(p, q)
+
     reconparams = dict()
     reconparams['prior_model'] = 'QGGMRF'
     reconparams['init_image_value'] = init_image_value
