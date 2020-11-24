@@ -611,8 +611,7 @@ def multires_recon(sino, angles,
                    stop_threshold=0.02, max_iterations=100, max_resolutions=2,
                    num_threads=None, delete_temps=True, svmbir_lib_path=__svmbir_lib_path, object_name='object',
                    verbose=1):
-    """
-    Uses fast multi-resolution algorithm to computes the 3D MBIR reconstruction.
+    """Uses fast multi-resolution algorithm to computes the 3D MBIR reconstruction.
 
     Args:
         sino (float): 3D numpy array of sinogram data with shape (num_views,num_slices,num_channels)
