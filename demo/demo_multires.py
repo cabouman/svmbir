@@ -26,13 +26,6 @@ snr_db = 30.0
 p = 1.2
 max_iterations = 500
 
-# Resolution parameters
-lr_delta_pixel = 2.0 # If you set this to 2.0, it works. But for 4.0, it crashes
-lr_num_rows = int(num_rows/lr_delta_pixel)
-lr_num_cols = int(num_cols/lr_delta_pixel)
-
-print(f'num_rows and num_cols = ({num_rows},{num_cols})')
-
 # Display parameters
 vmin = 0.0
 vmax = 1.1
@@ -49,30 +42,21 @@ sino = svmbir.project(angles, phantom, max(num_rows, num_cols))
 # Determine resulting number of views, slices, and channels
 (num_views, num_slices, num_channels) = sino.shape
 
-# Perform low res MBIR reconstruction
-lr_recon = svmbir.recon(sino, angles, num_rows=lr_num_rows, num_cols=lr_num_cols, T=T, p=p, sharpness=sharpness, snr_db=snr_db, delta_pixel=lr_delta_pixel, max_iterations=max_iterations )
+# Perform multiresolution MBIR reconstruction
+recon = svmbir.multires_recon(sino, angles, num_rows=num_rows, num_cols=num_cols, T=T, p=p, sharpness=sharpness, snr_db=snr_db, max_iterations=max_iterations )
 
-# Interpolate resolution of reconstruction
-init_image = svmbir.recon_resize(lr_recon, (num_rows, num_cols) )
-
-# Perform full res MBIR reconstruction
-recon = svmbir.recon(sino, angles, num_rows=num_rows, num_cols=num_cols, T=T, init_image=init_image, p=p, sharpness=sharpness, snr_db=snr_db, max_iterations=max_iterations )
+# Compute Normalized Root Mean Squared Error
+nrmse = svmbir.phantom.nrmse(recon, phantom)
 
 # create output folder
 os.makedirs('output', exist_ok=True)
 
 # display phantom
-plot_image(phantom[display_slice], title='Shepp Logan Phantom', filename='output/multires_phantom.png', vmin=vmin, vmax=vmax)
+title = f'Slice {display_slice:d} of 3D Shepp Logan Phantom.'
+plot_image(phantom[display_slice], title=title, filename='output/multires_phantom.png', vmin=vmin, vmax=vmax)
 
-# display low res reconstruction
-title = f'Slice {display_slice:d} of Low Reconstruction.'
-plot_image(lr_recon[display_slice], title=title, filename='output/multires_recon.png', vmin=vmin, vmax=vmax)
-
-# display initial image
-plot_image(init_image[display_slice], title='Initial Image', filename='output/multires_init_image.png', vmin=vmin, vmax=vmax)
-
-# display full res reconstruction
-title = f'Slice {display_slice:d} of Full Reconstruction.'
+# display reconstruction
+title = f'Slice {display_slice:d} of of 3D Recon with NRMSE={nrmse:.3f}.'
 plot_image(recon[display_slice], title=title, filename='output/multires_recon.png', vmin=vmin, vmax=vmax)
 
 input("press Enter")

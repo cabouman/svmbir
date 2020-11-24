@@ -600,3 +600,69 @@ def recon_resize(recon, output_shape ):
     recon = np.transpose(recon, (2, 0, 1))
 
     return recon
+
+
+def multires_recon(sino, angles,
+          center_offset=0.0, delta_channel=1.0, delta_pixel=1.0,
+          num_rows=None, num_cols=None, roi_radius=None,
+          sigma_y=None, snr_db=30.0, weights=None, weight_type='unweighted',
+          sigma_x=None, sharpness=1.0, positivity=True, p=1.2, q=2.0, T=1.0, b_interslice=1.0,
+          init_image=0.0, init_proj=None, prox_image=None,
+          stop_threshold=0.04, max_iterations=100,
+          num_threads=None, delete_temps=True, svmbir_lib_path=__svmbir_lib_path, object_name='object',
+          verbose=1):
+
+    # Determine desired values of num_rows, num_cols
+    if delta_pixel is None: delta_pixel = 1.0
+    if delta_channel is None: delta_channel = 1.0
+
+    # Determine the desired number of rows and columns in the output image
+    (num_views, num_slices, num_channels) = sino.shape
+    if num_rows is None:
+        num_rows = int(np.ceil(num_channels*delta_channel/delta_pixel))
+    if num_cols is None:
+        num_cols = int(np.ceil(num_channels*delta_channel/delta_pixel))
+
+    # Determine current level of relative decimation
+    relative_decimation = delta_pixel/delta_channel
+
+    # If resolution is too high, then lower resolution, recursively call for initial condition, and reconstruct
+    if relative_decimation < 8:
+        # Set the pixel pitch, num_rows, and num_cols for the next lower resolution
+        lr_delta_pixel = 2 * delta_pixel
+        lr_num_rows = int(np.ceil(num_rows/2))
+        lr_num_cols = int(np.ceil(num_cols/2))
+
+        # Reduce resolution of initialization image
+        if (init_image is not None) and (np.isscalar(init_image) is False):
+            init_image = recon_resize(init_image, (lr_num_rows, lr_num_cols) )
+
+        print(f'Calling multires_recon with relative decimation of {relative_decimation:.0f}.')
+        lr_recon = multires_recon(sino=sino, angles=angles,
+          center_offset=center_offset, delta_channel=delta_channel, delta_pixel=lr_delta_pixel,
+          num_rows=lr_num_rows, num_cols=lr_num_cols, roi_radius=roi_radius,
+          sigma_y=sigma_y, snr_db=snr_db, weights=weights, weight_type=weight_type,
+          sigma_x=sigma_x, sharpness=sharpness, positivity=positivity, p=p, q=q, T=T, b_interslice=b_interslice,
+          init_image=init_image, init_proj=init_proj, prox_image=prox_image,
+          stop_threshold=stop_threshold, max_iterations=max_iterations,
+          num_threads=num_threads, delete_temps=delete_temps, svmbir_lib_path=svmbir_lib_path, object_name=object_name,
+          verbose=verbose)
+
+        # Interpolate resolution of reconstruction
+        init_image = recon_resize(lr_recon, (num_rows, num_cols))
+
+    # Perform reconstruction at current resolution
+    print(f'Calling recon with relative decimation of {relative_decimation:.0f}.')
+
+    reconstruction = recon(sino=sino, angles=angles,
+      center_offset=center_offset, delta_channel=delta_channel, delta_pixel=delta_pixel,
+      num_rows=num_rows, num_cols=num_cols, roi_radius=roi_radius,
+      sigma_y=sigma_y, snr_db=snr_db, weights=weights, weight_type=weight_type,
+      sigma_x=sigma_x, sharpness=sharpness, positivity=positivity, p=p, q=q, T=T, b_interslice=b_interslice,
+      init_image=init_image, init_proj=init_proj, prox_image=prox_image,
+      stop_threshold=stop_threshold, max_iterations=max_iterations,
+      num_threads=num_threads, delete_temps=delete_temps, svmbir_lib_path=svmbir_lib_path, object_name=object_name,
+      verbose=verbose)
+
+    return reconstruction
+
