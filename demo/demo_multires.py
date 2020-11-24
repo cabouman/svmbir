@@ -30,6 +30,8 @@ delta_pixel = 4.0 # If you set this to 2.0, it works. But for 4.0, it crashes
 num_rows = int(num_rows/delta_pixel)
 num_cols = int(num_cols/delta_pixel)
 
+print(f'num_rows and num_cols = ({num_rows},{num_cols})')
+
 # Display parameters
 vmin = 0.0
 vmax = 1.1
