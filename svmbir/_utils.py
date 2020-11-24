@@ -4,6 +4,7 @@ import sys
 from glob import glob
 import numpy as np
 import pdb
+import warnings
 # pdb.set_trace()
 
 from ruamel.yaml import YAML
@@ -179,4 +180,21 @@ def delete_data_openmbir(rootPath, suffix, num_files):
         os.remove(fname)
 
 
+def test_pq_values(p,q):
+    if q < 1 or q > 2:
+        warnings.warn("Parameter q not in the valid range of [1,2]; Setting q = 2.")
+        q = 2
 
+    if p < 1:
+        warnings.warn("Parameter p < 1; Setting p = 1.")
+        p = 1
+
+    if p > 2:
+        warnings.warn("Parameter p > 2; Setting p = 2.")
+        p = 2
+
+    if p > q:
+        warnings.warn("Parameter p > q; Setting p = q.")
+        p = q
+
+    return p, q
