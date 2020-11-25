@@ -21,10 +21,10 @@ sys.path.insert(0, os.path.abspath('../..'))
 
 project = 'svmbir'
 copyright = '2020, Soumendu Smajee; Wenrui Li'
-author = 'Soumendu Majee; Wenrui Li; Sherman Jordan Kisner; Thilo Balke;Greg Buzzard; Charles A. Bouman'
+author = 'Soumendu Majee; Wenrui Li; Sherman Jordan Kisner; Thilo Balke; Greg Buzzard; Charles A. Bouman'
 
 # The full version, including alpha/beta/rc tags
-release = '1.0'
+release = '0.9'
 
 
 # -- General configuration ---------------------------------------------------

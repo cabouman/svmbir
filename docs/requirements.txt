@@ -12,6 +12,7 @@ jupyter
 py2jn
 pypandoc
 numpy
+skimage.transform
 matplotlib
 ruamel.yaml
 sphinx-rtd-theme
