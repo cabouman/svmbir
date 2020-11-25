@@ -22,6 +22,9 @@ tilt_angle = np.pi/2 # Tilt range of +-90deg
 sigma_x = 0.2
 snr_db = 40.0
 
+# Multi-resolution works much better for limited and sparse view reconstruction
+max_resolutions=1 # Use 2 additional resolutions to do reconstruction
+
 # Display parameters
 vmin = None
 vmax = None
@@ -42,10 +45,7 @@ sino = svmbir.project(angles, phantom, num_rows_cols )
 phantom_rot = np.swapaxes(phantom, 1, 2)
 
 # Perform fixed resolution MBIR reconstruction using proximal map input
-recon = svmbir.recon(sino, angles, init_image=phantom_rot, prox_image=phantom_rot, positivity=False, sigma_x=sigma_x, snr_db=snr_db)
-
-# Perform multi-resolution MBIR reconstruction using proximal map input
-mr_recon = svmbir.multires_recon(sino, angles, init_image=phantom_rot, prox_image=phantom_rot, positivity=False, sigma_x=sigma_x, snr_db=snr_db)
+recon = svmbir.recon(sino, angles, max_resolutions=max_resolutions, init_image=phantom_rot, prox_image=phantom_rot, positivity=False, sigma_x=sigma_x, snr_db=snr_db)
 
 # create output folder
 os.makedirs('output', exist_ok=True)
@@ -60,9 +60,5 @@ plot_image(phantom_rot[display_slice], title=title, filename='output/prox_rotate
 # display reconstruction
 title = f'Slice {display_slice:d} of 3D Proximal Map Recon.'
 plot_image(recon[display_slice], title=title, filename='output/prox_recon.png', vmin=vmin, vmax=vmax)
-
-# display reconstruction
-title = f'Slice {display_slice:d} of 3D Proximal Map MR Recon.'
-plot_image(recon[display_slice], title=title, filename='output/prox_mr_recon.png', vmin=vmin, vmax=vmax)
 
 input("press Enter")

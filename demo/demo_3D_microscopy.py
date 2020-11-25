@@ -24,6 +24,9 @@ T = 0.25
 snr_db = 30.0
 p = 1.2
 
+# Multi-resolution works much better for limited and sparse view reconstruction
+max_resolutions=2 # Use 2 additional resolutions to do reconstruction
+
 # Display parameters
 vmin = 0.0
 vmax = 1.1
@@ -41,7 +44,7 @@ sino = svmbir.project(angles, phantom, max(num_rows, num_cols))
 (num_views, num_slices, num_channels) = sino.shape
 
 # Perform MBIR reconstruction
-recon = svmbir.multires_recon(sino, angles, num_rows=num_rows, num_cols=num_cols, T=T, p=p, sharpness=sharpness, snr_db=snr_db )
+recon = svmbir.recon(sino, angles, num_rows=num_rows, num_cols=num_cols, max_resolutions=max_resolutions, T=T, p=p, sharpness=sharpness, snr_db=snr_db )
 
 # Compute Normalized Root Mean Squared Error
 nrmse = svmbir.phantom.nrmse(recon, phantom)
