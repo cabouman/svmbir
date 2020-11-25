@@ -646,7 +646,7 @@ def multires_recon(sino, angles,
             Option "unweighted" corresponds to unweighted reconstruction;
             Option "transmission" is the correct weighting for transmission CT with constant dosage;
             Option "transmission_root" is commonly used with transmission CT data to improve image homogeneity;
-            Option "emmission" is appropriate for emission CT data.
+            Option "emission" is appropriate for emission CT data.
 
         sigma_x (float, optional): [Default=None] Scalar value :math:`>0` that specifies the qGGMRF scale parameter.
             If None, automatically set by calling svmbir.auto_sigma_x. The parameter sigma_x can be used to directly control regularization, but this is only recommended for expert users.
@@ -682,7 +682,7 @@ def multires_recon(sino, angles,
         max_iterations (int, optional): [Default=100] Integer valued specifying the maximum number of iterations.
         The value of ``max_iterations`` may need to be increased for reconstructions with limited tilt angles or high regularization.
 
-        max_resolutions (int, optional): [Default=2] Integer valued specifying the maximum number of grid resolutions used to solve MBIR reconstruction problem.
+        max_resolutions (int, optional): [Default=2] Integer >=0 that specifies the maximum number of grid resolutions used to solve MBIR reconstruction problem.
 
         num_threads (int, optional): [Default=None] Number of compute threads requested when executed.
             If None, num_threads is set to the number of cores in the system
@@ -713,10 +713,10 @@ def multires_recon(sino, angles,
         num_cols = int(np.ceil(num_channels * delta_channel / delta_pixel))
 
     # Determine current level of relative decimation
-    relative_resolutions = math.log2(delta_pixel / delta_channel)
+    rel_log2_resolution = math.log2(delta_pixel / delta_channel)
 
     # Determine if it the algorithm so reduce resolution further
-    go_to_lower_resolution = (relative_resolutions < max_resolutions) and (min(num_rows, num_cols) > 16)
+    go_to_lower_resolution = (rel_log2_resolution < max_resolutions) and (min(num_rows, num_cols) > 16)
 
     # If resolution is too high, then lower resolution, recursively call for initial condition, and reconstruct
     if go_to_lower_resolution:
@@ -730,7 +730,7 @@ def multires_recon(sino, angles,
             init_image = recon_resize(init_image, (lr_num_rows, lr_num_cols))
 
         if verbose >= 1:
-            print(f'Calling multires_recon at grid level of {relative_resolutions:.1f}.')
+            print(f'Calling multires_recon at grid level of {rel_log2_resolution:.1f}.')
 
         lr_recon = multires_recon(sino=sino, angles=angles,
                                   center_offset=center_offset, delta_channel=delta_channel, delta_pixel=lr_delta_pixel,
@@ -749,7 +749,7 @@ def multires_recon(sino, angles,
 
     # Perform reconstruction at current resolution
     if verbose >= 1:
-        print(f'Calling recon with at grid level of {relative_resolutions:.1f}.')
+        print(f'Calling recon with at grid level of {rel_log2_resolution:.1f}.')
 
     reconstruction = recon(sino=sino, angles=angles,
                            center_offset=center_offset, delta_channel=delta_channel, delta_pixel=delta_pixel,
