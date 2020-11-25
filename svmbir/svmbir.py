@@ -273,30 +273,16 @@ def auto_sigma_x(sino, delta_channel=1.0, sharpness=1.0):
     return sigma_x
 
 
-def _sino_indicator(sino):
-    """Computes a binary function that indicates the region of sinogram support.
-
-    Args:
-        sino (ndarray):
-            3D numpy array of sinogram data with shape (num_views,num_slices,num_channels)
-
-    Returns:
-        int8: A binary value: =1 within sinogram support; =0 outside sinogram support.
-    """
-    indicator = np.int8(sino > 0.05 * np.mean(np.fabs(sino)))  # for excluding empty space from average
-    return indicator
-
-
 def recon(sino, angles,
-          center_offset=0.0, delta_channel=1.0, delta_pixel=1.0,
-          num_rows=None, num_cols=None, roi_radius=None,
-          sigma_y=None, snr_db=30.0, weights=None, weight_type='unweighted',
-          sigma_x=None, sharpness=1.0, positivity=True, p=1.2, q=2.0, T=1.0, b_interslice=1.0,
-          init_image=0.0, init_proj=None, prox_image=None,
-          stop_threshold=0.01, max_iterations=100,
-          num_threads=None, delete_temps=True, svmbir_lib_path=__svmbir_lib_path, object_name='object',
-          verbose=1):
-    """Computes 3D parallel beam MBIR reconstruction using fast fixed-resolution algorithm.
+                   center_offset=0.0, delta_channel=1.0, delta_pixel=1.0,
+                   num_rows=None, num_cols=None, roi_radius=None,
+                   sigma_y=None, snr_db=30.0, weights=None, weight_type='unweighted',
+                   sigma_x=None, sharpness=1.0, positivity=True, p=1.2, q=2.0, T=1.0, b_interslice=1.0,
+                   init_image=0.0, init_proj=None, prox_image=None,
+                   stop_threshold=0.02, max_iterations=100, max_resolutions=0,
+                   num_threads=None, delete_temps=True, svmbir_lib_path=__svmbir_lib_path, object_name='object',
+                   verbose=1):
+    """Computes 3D parallel beam MBIR reconstruction using multi-resolution SVMBIR algorithm.
 
     Args:
         sino (float): 3D numpy array of sinogram data with shape (num_views,num_slices,num_channels)
@@ -361,11 +347,13 @@ def recon(sino, angles,
         prox_image (ndarray, optional): [Default=None] 3D numpy array with proximal map input image.
             If prox_image is supplied, then the proximal map prior model is used, and the qGGMRF parameters are ignored.
 
-        stop_threshold (float, optional): [Default=0.01] Scalar valued stopping threshold in percent.
+        stop_threshold (float, optional): [Default=0.02] Scalar valued stopping threshold in percent.
             If stop_threshold=0, then run max iterations.
 
         max_iterations (int, optional): [Default=100] Integer valued specifying the maximum number of iterations.
         The value of ``max_iterations`` may need to be increased for reconstructions with limited tilt angles or high regularization.
+
+        max_resolutions (int, optional): [Default=2] Integer >=0 that specifies the maximum number of grid resolutions used to solve MBIR reconstruction problem.
 
         num_threads (int, optional): [Default=None] Number of compute threads requested when executed.
             If None, num_threads is set to the number of cores in the system
@@ -382,6 +370,93 @@ def recon(sino, angles,
 
     Returns:
         ndarray: 3D numpy array with shape (num_slices,num_rows,num_cols) containing the reconstructed 3D object in units of :math:`ALU^{-1}`.
+    """
+
+    # Determine desired values of num_rows, num_cols
+    if delta_pixel is None: delta_pixel = 1.0
+    if delta_channel is None: delta_channel = 1.0
+
+    # Determine the desired number of rows and columns in the output image
+    (num_views, num_slices, num_channels) = sino.shape
+    if num_rows is None:
+        num_rows = int(np.ceil(num_channels * delta_channel / delta_pixel))
+    if num_cols is None:
+        num_cols = int(np.ceil(num_channels * delta_channel / delta_pixel))
+
+    # Determine current level of relative decimation
+    rel_log2_resolution = math.log2(delta_pixel / delta_channel)
+
+    # Determine if it the algorithm so reduce resolution further
+    go_to_lower_resolution = (rel_log2_resolution < max_resolutions) and (min(num_rows, num_cols) > 16)
+
+    # If resolution is too high, then lower resolution, recursively call for initial condition, and reconstruct
+    if go_to_lower_resolution:
+        # Set the pixel pitch, num_rows, and num_cols for the next lower resolution
+        lr_delta_pixel = 2 * delta_pixel
+        lr_num_rows = int(np.ceil(num_rows / 2))
+        lr_num_cols = int(np.ceil(num_cols / 2))
+
+        # Reduce resolution of initialization image if there is one
+        if isinstance(init_image, np.ndarray) and (init_image.ndim == 3):
+            lr_init_image = recon_resize(init_image, (lr_num_rows, lr_num_cols))
+        else:
+            lr_init_image = init_image
+
+        # Reduce resolution of proximal image if there is one
+        if isinstance(prox_image, np.ndarray) and (prox_image.ndim == 3):
+            lr_prox_image = recon_resize(prox_image, (lr_num_rows, lr_num_cols))
+        else:
+            lr_prox_image = prox_image
+
+        if verbose >= 1:
+            print(f'Calling multires_recon at grid level of {rel_log2_resolution:.1f}.')
+
+        lr_recon = recon(sino=sino, angles=angles,
+                                  center_offset=center_offset, delta_channel=delta_channel, delta_pixel=lr_delta_pixel,
+                                  num_rows=lr_num_rows, num_cols=lr_num_cols, roi_radius=roi_radius,
+                                  sigma_y=sigma_y, snr_db=snr_db, weights=weights, weight_type=weight_type,
+                                  sigma_x=sigma_x, sharpness=sharpness, positivity=positivity, p=p, q=q, T=T,
+                                  b_interslice=b_interslice,
+                                  init_image=lr_init_image, init_proj=init_proj, prox_image=lr_prox_image,
+                                  stop_threshold=stop_threshold, max_iterations=max_iterations, max_resolutions=max_resolutions,
+                                  num_threads=num_threads, delete_temps=delete_temps, svmbir_lib_path=svmbir_lib_path,
+                                  object_name=object_name,
+                                  verbose=verbose)
+
+        # Interpolate resolution of reconstruction
+        init_image = recon_resize(lr_recon, (num_rows, num_cols))
+
+    # Perform reconstruction at current resolution
+    if verbose >= 1:
+        print(f'Calling recon with at grid level of {rel_log2_resolution:.1f}.')
+
+    reconstruction = fixed_resolution_recon(sino=sino, angles=angles,
+                           center_offset=center_offset, delta_channel=delta_channel, delta_pixel=delta_pixel,
+                           num_rows=num_rows, num_cols=num_cols, roi_radius=roi_radius,
+                           sigma_y=sigma_y, snr_db=snr_db, weights=weights, weight_type=weight_type,
+                           sigma_x=sigma_x, sharpness=sharpness, positivity=positivity, p=p, q=q, T=T,
+                           b_interslice=b_interslice,
+                           init_image=init_image, init_proj=init_proj, prox_image=prox_image,
+                           stop_threshold=stop_threshold, max_iterations=max_iterations,
+                           num_threads=num_threads, delete_temps=delete_temps, svmbir_lib_path=svmbir_lib_path,
+                           object_name=object_name,
+                           verbose=verbose)
+
+    return reconstruction
+
+
+def fixed_resolution_recon(sino, angles,
+          center_offset=0.0, delta_channel=1.0, delta_pixel=1.0,
+          num_rows=None, num_cols=None, roi_radius=None,
+          sigma_y=None, snr_db=30.0, weights=None, weight_type='unweighted',
+          sigma_x=None, sharpness=1.0, positivity=True, p=1.2, q=2.0, T=1.0, b_interslice=1.0,
+          init_image=0.0, init_proj=None, prox_image=None,
+          stop_threshold=0.01, max_iterations=100,
+          num_threads=None, delete_temps=True, svmbir_lib_path=__svmbir_lib_path, object_name='object',
+          verbose=1):
+    """Fixed resolution SVMBIR reconstruction used by recon().
+
+    Args: See recon() for argument structure
     """
 
     if num_threads is None:
@@ -600,173 +675,15 @@ def recon_resize(recon, output_shape):
     return recon
 
 
-def multires_recon(sino, angles,
-                   center_offset=0.0, delta_channel=1.0, delta_pixel=1.0,
-                   num_rows=None, num_cols=None, roi_radius=None,
-                   sigma_y=None, snr_db=30.0, weights=None, weight_type='unweighted',
-                   sigma_x=None, sharpness=1.0, positivity=True, p=1.2, q=2.0, T=1.0, b_interslice=1.0,
-                   init_image=0.0, init_proj=None, prox_image=None,
-                   stop_threshold=0.02, max_iterations=100, max_resolutions=2,
-                   num_threads=None, delete_temps=True, svmbir_lib_path=__svmbir_lib_path, object_name='object',
-                   verbose=1):
-    """Computes 3D parallel beam MBIR reconstruction using fast multi-resolution algorithm.
+def _sino_indicator(sino):
+    """Computes a binary function that indicates the region of sinogram support.
 
     Args:
-        sino (float): 3D numpy array of sinogram data with shape (num_views,num_slices,num_channels)
-
-        angles (float): 1D numpy array of view angles in radians.
-
-        center_offset (float, optional): [Default=0.0] Scalar value of offset from center-of-rotation.
-
-        delta_channel (float, optional): [Default=1.0] Scalar value of detector channel spacing in :math:`ALU`.
-
-        delta_pixel (float, optional): [Default=1.0] Scalar value of the spacing between image pixels in the 2D slice plane in :math:`ALU`.
-
-        num_rows (int, optional): [Default=None] Integer number of rows in reconstructed image.
-            If None, automatically set.
-
-        num_cols (int, optional): [Default=None] Integer number of columns in reconstructed image.
-            If None, automatically set.
-
-        roi_radius (float, optional): [Default=None] Scalar value of radius of reconstruction in :math:`ALU`.
-            If None, automatically set.
-
-        sigma_y (float, optional): [Default=None] Scalar value of noise standard deviation parameter.
-            If None, automatically set.
-
-        snr_db (float, optional): [Default=30.0] Scalar value that controls assumed signal-to-noise ratio of the data in dB.
-            Ignored if sigma_y is not None.
-
-        weights (ndarray, optional): [Default=None] 3D numpy array of weights with same shape as sino.
-
-        weight_type (string, optional): [Default="unweighted"] Type of noise model used for data.
-            If the ``weights`` array is not supplied, then the function ``svmbir.calc_weights`` is used to set weights using specified ``weight_type`` parameter.
-            Option "unweighted" corresponds to unweighted reconstruction;
-            Option "transmission" is the correct weighting for transmission CT with constant dosage;
-            Option "transmission_root" is commonly used with transmission CT data to improve image homogeneity;
-            Option "emission" is appropriate for emission CT data.
-
-        sigma_x (float, optional): [Default=None] Scalar value :math:`>0` that specifies the qGGMRF scale parameter.
-            If None, automatically set by calling svmbir.auto_sigma_x. The parameter sigma_x can be used to directly control regularization, but this is only recommended for expert users.
-
-        sharpness (float, optional):
-            [Default=0.0] Scalar value that controls level of sharpness.
-            ``sharpness=0`` is neutral; ``sharpness>0`` increases sharpness; ``sharpness<0`` reduces sharpness.
-            Ignored if sigma_x is not None.
-
-        positivity (bool, optional): [Default=True] Boolean value that determines if positivity constraint is enforced. The positivity parameter defaults to True; however, it should be changed to False when used in applications that can generate negative image values.
-
-        p (float, optional): [Default=1.2] Scalar value :math:`>1` that specifies the qGGMRF shape parameter.
-
-        q (float, optional): [Default=2.0] Scalar value :math:`>p` that specifies the qGGMRF shape parameter.
-
-        T (float, optional): [Default=1.0] Scalar value :math:`>0` that specifies the qGGMRF threshold parameter.
-
-        b_interslice (float, optional): [Default=1.0] Scalar value :math:`>0` that specifies the interslice regularization.
-            The default values of 1 should be fine for most applications.
-            However, b_interslice can be increased to values :math:`>1` in order to increase regularization along the slice axis.
-
-        init_image (float, optional): [Default=0.0] Initial value of reconstruction image, specified by either a scalar value or a 3D numpy array with shape (num_slices,num_rows,num_cols).
-
-        init_proj (None, optional): [Default=None] Initial value of forward projection of the init_image.
-            This can be used to reduce computation for the first iteration when using the proximal map option.
-
-        prox_image (ndarray, optional): [Default=None] 3D numpy array with proximal map input image.
-            If prox_image is supplied, then the proximal map prior model is used, and the qGGMRF parameters are ignored.
-
-        stop_threshold (float, optional): [Default=0.02] Scalar valued stopping threshold in percent.
-            If stop_threshold=0, then run max iterations.
-
-        max_iterations (int, optional): [Default=100] Integer valued specifying the maximum number of iterations.
-        The value of ``max_iterations`` may need to be increased for reconstructions with limited tilt angles or high regularization.
-
-        max_resolutions (int, optional): [Default=2] Integer >=0 that specifies the maximum number of grid resolutions used to solve MBIR reconstruction problem.
-
-        num_threads (int, optional): [Default=None] Number of compute threads requested when executed.
-            If None, num_threads is set to the number of cores in the system
-
-        delete_temps (bool, optional): [Default=True] Delete temporary files used in computation.
-
-        svmbir_lib_path (string, optional): [Default=~/.cache/svmbir/parbeam] Path to directory containing library of forward projection matrices.
-
-        object_name (string, optional): [Default='object'] Specifies filenames of cached files.
-            Can be changed suitably for running multiple instances of reconstructions.
-            Useful for building multi-process and multi-node functionality on top of svmbir.
-
-        verbose (int, optional): [Default=1] Possible values are {0,1,2}, where 0 is quiet, 1 prints minimal reconstruction progress information, and 2 prints the full information.
+        sino (ndarray):
+            3D numpy array of sinogram data with shape (num_views,num_slices,num_channels)
 
     Returns:
-        ndarray: 3D numpy array with shape (num_slices,num_rows,num_cols) containing the reconstructed 3D object in units of :math:`ALU^{-1}`.
+        int8: A binary value: =1 within sinogram support; =0 outside sinogram support.
     """
-
-    # Determine desired values of num_rows, num_cols
-    if delta_pixel is None: delta_pixel = 1.0
-    if delta_channel is None: delta_channel = 1.0
-
-    # Determine the desired number of rows and columns in the output image
-    (num_views, num_slices, num_channels) = sino.shape
-    if num_rows is None:
-        num_rows = int(np.ceil(num_channels * delta_channel / delta_pixel))
-    if num_cols is None:
-        num_cols = int(np.ceil(num_channels * delta_channel / delta_pixel))
-
-    # Determine current level of relative decimation
-    rel_log2_resolution = math.log2(delta_pixel / delta_channel)
-
-    # Determine if it the algorithm so reduce resolution further
-    go_to_lower_resolution = (rel_log2_resolution < max_resolutions) and (min(num_rows, num_cols) > 16)
-
-    # If resolution is too high, then lower resolution, recursively call for initial condition, and reconstruct
-    if go_to_lower_resolution:
-        # Set the pixel pitch, num_rows, and num_cols for the next lower resolution
-        lr_delta_pixel = 2 * delta_pixel
-        lr_num_rows = int(np.ceil(num_rows / 2))
-        lr_num_cols = int(np.ceil(num_cols / 2))
-
-        # Reduce resolution of initialization image if there is one
-        if isinstance(init_image, np.ndarray) and (init_image.ndim == 3):
-            lr_init_image = recon_resize(init_image, (lr_num_rows, lr_num_cols))
-        else:
-            lr_init_image = init_image
-
-        # Reduce resolution of proximal image if there is one
-        if isinstance(prox_image, np.ndarray) and (prox_image.ndim == 3):
-            lr_prox_image = recon_resize(prox_image, (lr_num_rows, lr_num_cols))
-        else:
-            lr_prox_image = prox_image
-
-        if verbose >= 1:
-            print(f'Calling multires_recon at grid level of {rel_log2_resolution:.1f}.')
-
-        lr_recon = multires_recon(sino=sino, angles=angles,
-                                  center_offset=center_offset, delta_channel=delta_channel, delta_pixel=lr_delta_pixel,
-                                  num_rows=lr_num_rows, num_cols=lr_num_cols, roi_radius=roi_radius,
-                                  sigma_y=sigma_y, snr_db=snr_db, weights=weights, weight_type=weight_type,
-                                  sigma_x=sigma_x, sharpness=sharpness, positivity=positivity, p=p, q=q, T=T,
-                                  b_interslice=b_interslice,
-                                  init_image=lr_init_image, init_proj=init_proj, prox_image=lr_prox_image,
-                                  stop_threshold=stop_threshold, max_iterations=max_iterations,
-                                  num_threads=num_threads, delete_temps=delete_temps, svmbir_lib_path=svmbir_lib_path,
-                                  object_name=object_name,
-                                  verbose=verbose)
-
-        # Interpolate resolution of reconstruction
-        init_image = recon_resize(lr_recon, (num_rows, num_cols))
-
-    # Perform reconstruction at current resolution
-    if verbose >= 1:
-        print(f'Calling recon with at grid level of {rel_log2_resolution:.1f}.')
-
-    reconstruction = recon(sino=sino, angles=angles,
-                           center_offset=center_offset, delta_channel=delta_channel, delta_pixel=delta_pixel,
-                           num_rows=num_rows, num_cols=num_cols, roi_radius=roi_radius,
-                           sigma_y=sigma_y, snr_db=snr_db, weights=weights, weight_type=weight_type,
-                           sigma_x=sigma_x, sharpness=sharpness, positivity=positivity, p=p, q=q, T=T,
-                           b_interslice=b_interslice,
-                           init_image=init_image, init_proj=init_proj, prox_image=prox_image,
-                           stop_threshold=stop_threshold, max_iterations=max_iterations,
-                           num_threads=num_threads, delete_temps=delete_temps, svmbir_lib_path=svmbir_lib_path,
-                           object_name=object_name,
-                           verbose=verbose)
-
-    return reconstruction
+    indicator = np.int8(sino > 0.05 * np.mean(np.fabs(sino)))  # for excluding empty space from average
+    return indicator
