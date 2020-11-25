@@ -1,6 +1,7 @@
 import os
 import numpy as np
 from svmbir.phantom import plot_image
+from skimage.transform import resize
 import svmbir
 
 """
@@ -23,6 +24,7 @@ sharpness = 2.0
 T = 0.25
 snr_db = 30.0
 p = 1.2
+max_iterations = 500
 
 # Display parameters
 vmin = 0.0
@@ -40,8 +42,8 @@ sino = svmbir.project(angles, phantom, max(num_rows, num_cols))
 # Determine resulting number of views, slices, and channels
 (num_views, num_slices, num_channels) = sino.shape
 
-# Perform MBIR reconstruction
-recon = svmbir.multires_recon(sino, angles, num_rows=num_rows, num_cols=num_cols, T=T, p=p, sharpness=sharpness, snr_db=snr_db )
+# Perform multiresolution MBIR reconstruction
+recon = svmbir.multires_recon(sino, angles, num_rows=num_rows, num_cols=num_cols, T=T, p=p, sharpness=sharpness, snr_db=snr_db, max_iterations=max_iterations )
 
 # Compute Normalized Root Mean Squared Error
 nrmse = svmbir.phantom.nrmse(recon, phantom)
@@ -50,10 +52,11 @@ nrmse = svmbir.phantom.nrmse(recon, phantom)
 os.makedirs('output', exist_ok=True)
 
 # display phantom
-plot_image(phantom[display_slice], title='Shepp Logan Phantom', filename='output/3D_microscopy_phantom.png', vmin=vmin, vmax=vmax)
+title = f'Slice {display_slice:d} of 3D Shepp Logan Phantom.'
+plot_image(phantom[display_slice], title=title, filename='output/multires_phantom.png', vmin=vmin, vmax=vmax)
 
 # display reconstruction
-title = f'Slice {display_slice:d} of Reconstruction with NRMSE={nrmse:.3f}.'
-plot_image(recon[display_slice], title=title, filename='output/3D_microscopy_recon.png', vmin=vmin, vmax=vmax)
+title = f'Slice {display_slice:d} of of 3D Recon with NRMSE={nrmse:.3f}.'
+plot_image(recon[display_slice], title=title, filename='output/multires_recon.png', vmin=vmin, vmax=vmax)
 
 input("press Enter")
