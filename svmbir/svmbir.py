@@ -350,8 +350,7 @@ def recon(sino, angles,
         stop_threshold (float, optional): [Default=0.02] Scalar valued stopping threshold in percent.
             If stop_threshold=0, then run max iterations.
 
-        max_iterations (int, optional): [Default=100] Integer valued specifying the maximum number of iterations.
-        The value of ``max_iterations`` may need to be increased for reconstructions with limited tilt angles or high regularization.
+        max_iterations (int, optional): [Default=100] Integer valued specifying the maximum number of iterations. The value of ``max_iterations`` may need to be increased for reconstructions with limited tilt angles or high regularization.
 
         max_resolutions (int, optional): [Default=2] Integer >=0 that specifies the maximum number of grid resolutions used to solve MBIR reconstruction problem.
 
