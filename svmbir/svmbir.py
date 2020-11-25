@@ -175,7 +175,7 @@ def _init_geometry(angles, num_channels, num_views, num_slices, num_rows, num_co
 
 
 def calc_weights(sino, weight_type):
-    """Computes the weights used in reconstruction.
+    """Computes the weights used in MBIR reconstruction.
 
     Args:
         sino (ndarray): 3D numpy array of sinogram data with shape (num_views,num_slices,num_channels)
@@ -201,7 +201,7 @@ def calc_weights(sino, weight_type):
         weights = np.exp(-sino)
     elif weight_type == 'transmission_root':
         weights = np.exp(-sino / 2)
-    elif weight_type == 'emmission':
+    elif weight_type == 'emission':
         weights = 1 / (sino + 0.1)
     else:
         raise Exception("calc_weights: undefined weight_type {}".format(weight_type))
@@ -210,7 +210,7 @@ def calc_weights(sino, weight_type):
 
 
 def auto_sigma_y(sino, weights, snr_db=30.0, delta_pixel=1.0, delta_channel=1.0):
-    """Computes the automatic value of the regularization parameter ``sigma_y`` for use in MBIR reconstruction.
+    """Computes the automatic value of ``sigma_y`` for use in MBIR reconstruction.
 
     Args:
         sino (ndarray):
@@ -245,7 +245,7 @@ def auto_sigma_y(sino, weights, snr_db=30.0, delta_pixel=1.0, delta_channel=1.0)
 
 
 def auto_sigma_x(sino, delta_channel=1.0, sharpness=1.0):
-    """Computes the automatic value of the regularization parameters sigma_x for use in MBIR reconstruction.
+    """Computes the automatic value of ``sigma_x`` for use in MBIR reconstruction.
 
     Args:
         sino (ndarray):
@@ -274,8 +274,7 @@ def auto_sigma_x(sino, delta_channel=1.0, sharpness=1.0):
 
 
 def _sino_indicator(sino):
-    """
-    Computes a binary function that indicates the region of sinogram support that is robust to noise.
+    """Computes a binary function that indicates the region of sinogram support.
 
     Args:
         sino (ndarray):
@@ -297,8 +296,7 @@ def recon(sino, angles,
           stop_threshold=0.01, max_iterations=100,
           num_threads=None, delete_temps=True, svmbir_lib_path=__svmbir_lib_path, object_name='object',
           verbose=1):
-    """
-    Computes the 3D MBIR reconstruction using a parallel beam geometry and other parameters as described below.
+    """Computes 3D parallel beam MBIR reconstruction using fast fixed-resolution algorithm.
 
     Args:
         sino (float): 3D numpy array of sinogram data with shape (num_views,num_slices,num_channels)
@@ -333,7 +331,7 @@ def recon(sino, angles,
             Option "unweighted" corresponds to unweighted reconstruction;
             Option "transmission" is the correct weighting for transmission CT with constant dosage;
             Option "transmission_root" is commonly used with transmission CT data to improve image homogeneity;
-            Option "emmission" is appropriate for emission CT data.
+            Option "emission" is appropriate for emission CT data.
 
         sigma_x (float, optional): [Default=None] Scalar value :math:`>0` that specifies the qGGMRF scale parameter.
             If None, automatically set by calling svmbir.auto_sigma_x. The parameter sigma_x can be used to directly control regularization, but this is only recommended for expert users.
@@ -504,7 +502,7 @@ def project(angles, image, num_channels,
             delta_channel=1.0, delta_pixel=1.0, center_offset=0.0, roi_radius=None,
             num_threads=None, delete_temps=True, svmbir_lib_path=__svmbir_lib_path, object_name='object',
             verbose=1):
-    """Computes the parallel beam sinogram by forward-projecting a 3D numpy array image that represents the volumetric image.
+    """Computes 3D parallel beam forward-projection.
 
     Args:
         angles (ndarray):
@@ -611,7 +609,7 @@ def multires_recon(sino, angles,
                    stop_threshold=0.02, max_iterations=100, max_resolutions=2,
                    num_threads=None, delete_temps=True, svmbir_lib_path=__svmbir_lib_path, object_name='object',
                    verbose=1):
-    """Uses fast multi-resolution algorithm to computes the 3D MBIR reconstruction.
+    """Computes 3D parallel beam MBIR reconstruction using fast multi-resolution algorithm.
 
     Args:
         sino (float): 3D numpy array of sinogram data with shape (num_views,num_slices,num_channels)
