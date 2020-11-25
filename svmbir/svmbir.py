@@ -725,9 +725,17 @@ def multires_recon(sino, angles,
         lr_num_rows = int(np.ceil(num_rows / 2))
         lr_num_cols = int(np.ceil(num_cols / 2))
 
-        # Reduce resolution of initialization image
-        if (init_image is not None) and (np.isscalar(init_image) is False):
-            init_image = recon_resize(init_image, (lr_num_rows, lr_num_cols))
+        # Reduce resolution of initialization image if there is one
+        if isinstance(init_image, np.ndarray) and (init_image.ndim == 3):
+            lr_init_image = recon_resize(init_image, (lr_num_rows, lr_num_cols))
+        else:
+            lr_init_image = init_image
+
+        # Reduce resolution of proximal image if there is one
+        if isinstance(prox_image, np.ndarray) and (prox_image.ndim == 3):
+            lr_prox_image = recon_resize(prox_image, (lr_num_rows, lr_num_cols))
+        else:
+            lr_prox_image = prox_image
 
         if verbose >= 1:
             print(f'Calling multires_recon at grid level of {rel_log2_resolution:.1f}.')
@@ -738,7 +746,7 @@ def multires_recon(sino, angles,
                                   sigma_y=sigma_y, snr_db=snr_db, weights=weights, weight_type=weight_type,
                                   sigma_x=sigma_x, sharpness=sharpness, positivity=positivity, p=p, q=q, T=T,
                                   b_interslice=b_interslice,
-                                  init_image=init_image, init_proj=init_proj, prox_image=prox_image,
+                                  init_image=lr_init_image, init_proj=init_proj, prox_image=lr_prox_image,
                                   stop_threshold=stop_threshold, max_iterations=max_iterations,
                                   num_threads=num_threads, delete_temps=delete_temps, svmbir_lib_path=svmbir_lib_path,
                                   object_name=object_name,
