@@ -390,37 +390,40 @@ def recon(sino, angles,
 
     (num_views, num_slices, num_channels) = sino.shape
 
-    if num_rows is None :
+    # Tests parameters for valid values; print warnings if necessary; and returns valid values.
+    delta_channel, delta_pixel, roi_radius = test_parameter_values(delta_channel, delta_pixel, roi_radius)
+
+    # Test for valid weight_type and set to 'unweighted' if invalid
+    weight_type = test_weight_type_value(weight_type)
+
+    if num_rows is None:
         num_rows = int(np.ceil(num_channels * delta_channel / delta_pixel))
 
-    if num_cols is None :
+    if num_cols is None:
         num_cols = int(np.ceil(num_channels * delta_channel / delta_pixel))
 
-    if roi_radius is None :
+    if roi_radius is None:
         roi_radius = float(delta_pixel * max(num_rows, num_cols))
 
-    if weights is None :
+    if weights is None:
         weights = calc_weights(sino, weight_type)
 
     # If not specified, then set regularization parameter sigma_y to automatic value
-    if sigma_y is None :
+    if sigma_y is None:
         sigma_y = auto_sigma_y(sino, weights, snr_db, delta_pixel=delta_pixel, delta_channel=delta_channel)
 
     # If not specified, then set regularization parameter sigma_x to automatic value
-    if sigma_x is None :
+    if sigma_x is None:
         sigma_x = auto_sigma_x(sino, delta_channel, sharpness)
-
-    # Tests parameters for valid values; print warnings if necessary; and returns valid values.
-    delta_channel, delta_pixel, roi_radius = test_parameter_values(delta_channel, delta_pixel, roi_radius)
 
     # Check p and q, and reset them if they are not valid
     p, q = test_pq_values(p, q)
 
     # Determine the desired number of rows and columns in the output image
     (num_views, num_slices, num_channels) = sino.shape
-    if num_rows is None :
+    if num_rows is None:
         num_rows = int(np.ceil(num_channels * delta_channel / delta_pixel))
-    if num_cols is None :
+    if num_cols is None:
         num_cols = int(np.ceil(num_channels * delta_channel / delta_pixel))
 
     # Determine current level of relative decimation
@@ -430,7 +433,7 @@ def recon(sino, angles,
     go_to_lower_resolution = (rel_log2_resolution < max_resolutions) and (min(num_rows, num_cols) > 16)
 
     # If resolution is too high, then do recursive call to lower resolutions
-    if go_to_lower_resolution :
+    if go_to_lower_resolution:
         # Set the pixel pitch, num_rows, and num_cols for the next lower resolution
         lr_delta_pixel = 2 * delta_pixel
         lr_num_rows = int(np.ceil(num_rows / 2))
