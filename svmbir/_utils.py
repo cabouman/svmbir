@@ -171,21 +171,33 @@ def test_pq_values(p, q):
     """ Tests that p, q have valid values; prints warnings if necessary; and returns valid values.
     """
 
-    if q < 1 or q > 2 :
-        warnings.warn("Parameter q not in the valid range of [1,2]; Setting q = 2.")
-        q = 2
+    # Check that p and q are floats
+    if (q is None) or (not isinstance(q, float)):
+        q = 2.0
+        warnings.warn("Parameter q does not have value type; Setting q = 2.0")
 
-    if p < 1 :
-        warnings.warn("Parameter p < 1; Setting p = 1.")
-        p = 1
+    if (p is None) or (not isinstance(p, float)):
+        p = 1.2
+        warnings.warn("Parameter q does not have value type; Setting q = 2.0")
 
-    if p > 2 :
-        warnings.warn("Parameter p > 2; Setting p = 2.")
-        p = 2
+    # Check that q is valid
+    if not (1.0 <= q <= 2.0):
+        q = 2.0
+        warnings.warn("Parameter q not in the valid range of [1,2]; Setting q = 2.0")
 
-    if p > q :
-        warnings.warn("Parameter p > q; Setting p = q.")
+    # Check that p is valid
+    if not (p >= 1.0):
+        p = 1.0
+        warnings.warn("Parameter p < 1; Setting p = 1.0")
+
+    if not (p <= 2.0):
+        p = 2.0
+        warnings.warn("Parameter p > 2; Setting p = 2.0")
+
+    # Check that p and q are jointly valid
+    if not (p < q):
         p = q
+        warnings.warn("Parameter p > q; Setting p = q.0")
 
     return p, q
 
@@ -194,15 +206,15 @@ def test_parameter_values(delta_channel, delta_pixel, roi_radius):
     """ Tests that delta_channel, delta_pixel, roi_radius have valid values; prints warnings if necessary; and returns valid values.
     """
 
-    if not ((delta_pixel is None) or (isinstance(delta_channel, float) and (delta_channel > 0))) :
+    if not ((delta_pixel is None) or (isinstance(delta_channel, float) and (delta_channel > 0))):
         warnings.warn("Parameter delta_channel is not valid float; Setting delta_channel = 1.0.")
         delta_channel = 1.0
 
-    if not ((delta_pixel is None) or (isinstance(delta_pixel, float) and (delta_pixel > 0))) :
+    if not ((delta_pixel is None) or (isinstance(delta_pixel, float) and (delta_pixel > 0))):
         warnings.warn("Parameter delta_pixel is not valid float; Setting delta_pixel = 1.0.")
         delta_pixel = 1.0
 
-    if not ((roi_radius is None) or (isinstance(roi_radius, float) and (roi_radius > 0))) :
+    if not ((roi_radius is None) or (isinstance(roi_radius, float) and (roi_radius > 0))):
         warnings.warn("Parameter roi_radius is not valid float; Setting roi_radius = 1.0.")
         roi_radius = 1.0
 

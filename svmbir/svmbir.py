@@ -44,11 +44,11 @@ _map_pyconv2camelcase = {'prior_model' : 'PriorModel',
                          'roi_radius' : 'ROIRadius'}
 
 
-def _clear_cache( svmbir_lib_path = __svmbir_lib_path ) :
+def _clear_cache( svmbir_lib_path = __svmbir_lib_path):
     shutil.rmtree(svmbir_lib_path)
 
 
-def _gen_paths( svmbir_lib_path = __svmbir_lib_path, object_name = 'object', sysmatrix_name = 'object' ) :
+def _gen_paths( svmbir_lib_path = __svmbir_lib_path, object_name = 'object', sysmatrix_name = 'object'):
     os.makedirs(os.path.join(svmbir_lib_path, 'obj'), exist_ok=True)
     os.makedirs(os.path.join(svmbir_lib_path, 'sino'), exist_ok=True)
     os.makedirs(os.path.join(svmbir_lib_path, 'weight'), exist_ok=True)
@@ -82,7 +82,7 @@ def _gen_paths( svmbir_lib_path = __svmbir_lib_path, object_name = 'object', sys
     return paths
 
 
-def _transform_pyconv2c( **kwargs ) :
+def _transform_pyconv2c( **kwargs):
     ckwargs = dict()
     for key in kwargs :
         if key in _map_pyconv2camelcase.keys() :
@@ -92,7 +92,7 @@ def _transform_pyconv2c( **kwargs ) :
     return ckwargs
 
 
-def _hash_params( angles, **kwargs ) :
+def _hash_params( angles, **kwargs):
     relevant_params = dict()
     relevant_params['Nx'] = kwargs['Nx']
     relevant_params['Ny'] = kwargs['Ny']
@@ -110,7 +110,7 @@ def _hash_params( angles, **kwargs ) :
     return hash_val, relevant_params
 
 
-def _cmd_exec( exec_path = __exec_path__, *args, **kwargs ) :
+def _cmd_exec( exec_path = __exec_path__, *args, **kwargs):
     arg_list = [exec_path]
     for key in args :
         arg_list.append('-' + key)
@@ -125,7 +125,7 @@ def _cmd_exec( exec_path = __exec_path__, *args, **kwargs ) :
     subprocess.run(arg_list)
 
 
-def _gen_sysmatrix( param_name, sysmatrix_name, verbose ) :
+def _gen_sysmatrix( param_name, sysmatrix_name, verbose):
     if os.path.exists(sysmatrix_name + '.2Dsvmatrix') :
         print('Found system matrix: {}'.format(sysmatrix_name + '.2Dsvmatrix'))
         os.utime(sysmatrix_name + '.2Dsvmatrix')  # update file modified time
@@ -135,7 +135,7 @@ def _gen_sysmatrix( param_name, sysmatrix_name, verbose ) :
 
 def _init_geometry( angles, num_channels, num_views, num_slices, num_rows, num_cols,
                     delta_channel, delta_pixel, roi_radius, center_offset, verbose,
-                    svmbir_lib_path = __svmbir_lib_path, object_name = 'object' ) :
+                    svmbir_lib_path = __svmbir_lib_path, object_name = 'object'):
     sinoparams = dict()
     sinoparams['geometry'] = '3DPARALLEL'
     sinoparams['num_channels'] = num_channels
@@ -174,7 +174,7 @@ def _init_geometry( angles, num_channels, num_views, num_slices, num_rows, num_c
     return paths, sinoparams, imgparams
 
 
-def calc_weights(sino, weight_type ) :
+def calc_weights(sino, weight_type ):
     """Computes the weights used in MBIR reconstruction.
 
     Args:
@@ -209,7 +209,7 @@ def calc_weights(sino, weight_type ) :
     return weights
 
 
-def auto_sigma_y(sino, weights, snr_db = 30.0, delta_pixel = 1.0, delta_channel = 1.0 ) :
+def auto_sigma_y(sino, weights, snr_db = 30.0, delta_pixel = 1.0, delta_channel = 1.0):
     """Computes the automatic value of ``sigma_y`` for use in MBIR reconstruction.
 
     Args:
@@ -244,7 +244,7 @@ def auto_sigma_y(sino, weights, snr_db = 30.0, delta_pixel = 1.0, delta_channel 
     return sigma_y
 
 
-def auto_sigma_x(sino, delta_channel = 1.0, sharpness = 1.0 ) :
+def auto_sigma_x(sino, delta_channel = 1.0, sharpness = 1.0 ):
     """Computes the automatic value of ``sigma_x`` for use in MBIR reconstruction.
 
     Args:
@@ -272,6 +272,25 @@ def auto_sigma_x(sino, delta_channel = 1.0, sharpness = 1.0 ) :
 
     return sigma_x
 
+
+def auto_num_rows(num_channels, delta_channel, delta_pixel):
+    """Computes the automatic value of ``num_rows``.
+    """
+    num_rows = int(np.ceil(num_channels * delta_channel / delta_pixel))
+    return num_rows
+
+
+def auto_num_cols(num_channels, delta_channel, delta_pixel):
+    """Computes the automatic value of ``num_cols``.
+    """
+    num_cols = int(np.ceil(num_channels * delta_channel / delta_pixel))
+    return num_cols
+
+def auto_num_roi_radius(delta_pixel,num_rows, num_cols):
+    """Computes the automatic value of ``num_cols``.
+    """
+    roi_radius = float(delta_pixel * max(num_rows, num_cols))
+    return roi_radius
 
 def recon(sino, angles,
            center_offset = 0.0, delta_channel = 1.0, delta_pixel = 1.0,
@@ -399,32 +418,21 @@ def recon(sino, angles,
     # Test for valid weight_type and set to 'unweighted' if invalid
     weight_type = test_weight_type_value(weight_type)
 
-    if num_rows is None:
-        num_rows = int(np.ceil(num_channels * delta_channel / delta_pixel))
+    # Set automatic values of num_rows, num_cols, and roi_radius
+    if num_rows is None: num_rows = auto_num_rows(num_channels, delta_channel, delta_pixel)
+    if num_cols is None: num_cols = auto_num_cols(num_channels, delta_channel, delta_pixel)
+    if roi_radius is None: roi_radius = auto_num_roi_radius(delta_pixel, num_rows, num_cols)
 
-    if num_cols is None:
-        num_cols = int(np.ceil(num_channels * delta_channel / delta_pixel))
+    # Set automatic values for weights
+    if weights is None: weights = calc_weights(sino, weight_type)
 
-    if roi_radius is None:
-        roi_radius = float(delta_pixel * max(num_rows, num_cols))
-
-    if weights is None:
-        weights = calc_weights(sino, weight_type)
-
-    # If not specified, then set regularization parameter sigma_y to automatic value
+    # Set automatic value of sigma_y
     if sigma_y is None:
         sigma_y = auto_sigma_y(sino, weights, snr_db, delta_pixel=delta_pixel, delta_channel=delta_channel)
 
-    # If not specified, then set regularization parameter sigma_x to automatic value
+    # Set automatic value of sigma_x
     if sigma_x is None:
         sigma_x = auto_sigma_x(sino, delta_channel, sharpness)
-
-    # Determine the desired number of rows and columns in the output image
-    (num_views, num_slices, num_channels) = sino.shape
-    if num_rows is None:
-        num_rows = int(np.ceil(num_channels * delta_channel / delta_pixel))
-    if num_cols is None:
-        num_cols = int(np.ceil(num_channels * delta_channel / delta_pixel))
 
     # Determine current level of relative decimation
     rel_log2_resolution = math.log2(delta_pixel / delta_channel)
