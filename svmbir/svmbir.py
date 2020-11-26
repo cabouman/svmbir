@@ -410,6 +410,9 @@ def recon(sino, angles,
     if sigma_x is None :
         sigma_x = auto_sigma_x(sino, delta_channel, sharpness)
 
+    # Tests parameters for valid values; print warnings if necessary; and returns valid values.
+    delta_channel, delta_pixel, roi_radius = test_parameter_values(delta_channel, delta_pixel, roi_radius)
+
     # Check p and q, and reset them if they are not valid
     p, q = test_pq_values(p, q)
 

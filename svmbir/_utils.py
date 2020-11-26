@@ -204,3 +204,22 @@ def test_pq_values(p,q):
         p = q
 
     return p, q
+
+
+def test_parameter_values(delta_channel, delta_pixel, roi_radius) :
+    """ Tests that delta_channel, delta_pixel, roi_radius have valid values; prints warnings if necessary; and returns valid values.
+    """
+
+    if not ( isinstance(delta_channel,float) and (delta_channel > 0) ) :
+        warnings.warn("Parameter delta_channel is not valid float; Setting delta_channel = 1.0.")
+        delta_channel = 1.0
+
+    if not ( isinstance(delta_pixel,float) and (delta_pixel > 0) ) :
+        warnings.warn("Parameter delta_pixel is not valid float; Setting delta_pixel = 1.0.")
+        delta_pixel = 1.0
+
+    if not ( isinstance(roi_radius,float) and (roi_radius > 0) ) :
+        warnings.warn("Parameter roi_radius is not valid float; Setting roi_radius = 1.0.")
+        roi_radius = 1.0
+
+    return delta_channel, delta_pixel, roi_radius
