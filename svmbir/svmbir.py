@@ -393,6 +393,9 @@ def recon(sino, angles,
     # Tests parameters for valid values; print warnings if necessary; and returns valid values.
     delta_channel, delta_pixel, roi_radius = test_parameter_values(delta_channel, delta_pixel, roi_radius)
 
+    # Check p and q, and reset them if they are not valid
+    p, q = test_pq_values(p, q)
+
     # Test for valid weight_type and set to 'unweighted' if invalid
     weight_type = test_weight_type_value(weight_type)
 
@@ -415,9 +418,6 @@ def recon(sino, angles,
     # If not specified, then set regularization parameter sigma_x to automatic value
     if sigma_x is None:
         sigma_x = auto_sigma_x(sino, delta_channel, sharpness)
-
-    # Check p and q, and reset them if they are not valid
-    p, q = test_pq_values(p, q)
 
     # Determine the desired number of rows and columns in the output image
     (num_views, num_slices, num_channels) = sino.shape
