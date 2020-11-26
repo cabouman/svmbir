@@ -285,9 +285,9 @@ def recon(sino, angles,
     """Computes 3D parallel beam MBIR reconstruction using multi-resolution SVMBIR algorithm.
 
     Args:
-        sino (float): 3D numpy array of sinogram data with shape (num_views,num_slices,num_channels)
+        sino (3D numpy array): sinogram data with shape (num_views, num_slices, num_channels)
 
-        angles (float): 1D numpy array of view angles in radians.
+        angles (1D numpy array): view angles in radians.
 
         center_offset (float, optional): [Default=0.0] Scalar value of offset from center-of-rotation.
 
@@ -310,7 +310,7 @@ def recon(sino, angles,
         snr_db (float, optional): [Default=30.0] Scalar value that controls assumed signal-to-noise ratio of the data in dB.
             Ignored if sigma_y is not None.
 
-        weights (ndarray, optional): [Default=None] 3D numpy array of weights with same shape as sino.
+        weights (3D numpy array, optional): [Default=None] weights with same shape as sino.
 
         weight_type (string, optional): [Default="unweighted"] Type of noise model used for data.
             If the ``weights`` array is not supplied, then the function ``svmbir.calc_weights`` is used to set weights using specified ``weight_type`` parameter.
@@ -319,9 +319,6 @@ def recon(sino, angles,
             Option "transmission_root" is commonly used with transmission CT data to improve image homogeneity;
             Option "emission" is appropriate for emission CT data.
 
-        sigma_x (float, optional): [Default=None] Scalar value :math:`>0` that specifies the qGGMRF scale parameter.
-            If None, automatically set by calling svmbir.auto_sigma_x. The parameter sigma_x can be used to directly control regularization, but this is only recommended for expert users.
-
         sharpness (float, optional):
             [Default=0.0] Scalar value that controls level of sharpness.
             ``sharpness=0`` is neutral; ``sharpness>0`` increases sharpness; ``sharpness<0`` reduces sharpness.
@@ -329,9 +326,12 @@ def recon(sino, angles,
 
         positivity (bool, optional): [Default=True] Boolean value that determines if positivity constraint is enforced. The positivity parameter defaults to True; however, it should be changed to False when used in applications that can generate negative image values.
 
-        p (float, optional): [Default=1.2] Scalar value :math:`>1` that specifies the qGGMRF shape parameter.
+        sigma_x (float, optional): [Default=None] Scalar value :math:`>0` that specifies the qGGMRF scale parameter.
+            If None, automatically set by calling svmbir.auto_sigma_x. The parameter sigma_x can be used to directly control regularization, but this is only recommended for expert users.
 
-        q (float, optional): [Default=2.0] Scalar value :math:`>p` that specifies the qGGMRF shape parameter.
+        p (float, optional): [Default=1.2] Scalar value in range :math:`[1,2]` that specifies the qGGMRF shape parameter.
+
+        q (float, optional): [Default=2.0] Scalar value in range :math:`[p,1]` that specifies the qGGMRF shape parameter.
 
         T (float, optional): [Default=1.0] Scalar value :math:`>0` that specifies the qGGMRF threshold parameter.
 
@@ -368,7 +368,7 @@ def recon(sino, angles,
         verbose (int, optional): [Default=1] Possible values are {0,1,2}, where 0 is quiet, 1 prints minimal reconstruction progress information, and 2 prints the full information.
 
     Returns:
-        ndarray: 3D numpy array with shape (num_slices,num_rows,num_cols) containing the reconstructed 3D object in units of :math:`ALU^{-1}`.
+        3D numpy array: 3D reconstruction with shape (num_slices,num_rows,num_cols) in units of :math:`ALU^{-1}`.
     """
 
 
@@ -409,7 +409,7 @@ def recon(sino, angles,
     if sigma_x is None :
         sigma_x = auto_sigma_x(sino, delta_channel, sharpness)
 
-    # Check p and q, and reset them if they are not
+    # Check p and q, and reset them if they are not valid
     p, q = test_pq_values(p, q)
 
     # Determine the desired number of rows and columns in the output image
