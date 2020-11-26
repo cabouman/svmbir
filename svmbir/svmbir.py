@@ -448,18 +448,18 @@ def recon(sino, angles,
         lr_num_cols = int(np.ceil(num_cols / 2))
 
         # Reduce resolution of initialization image if there is one
-        if isinstance(init_image, np.ndarray) and (init_image.ndim == 3) :
+        if isinstance(init_image, np.ndarray) and (init_image.ndim == 3):
             lr_init_image = recon_resize(init_image, (lr_num_rows, lr_num_cols))
-        else :
+        else:
             lr_init_image = init_image
 
         # Reduce resolution of proximal image if there is one
-        if isinstance(prox_image, np.ndarray) and (prox_image.ndim == 3) :
+        if isinstance(prox_image, np.ndarray) and (prox_image.ndim == 3):
             lr_prox_image = recon_resize(prox_image, (lr_num_rows, lr_num_cols))
-        else :
+        else:
             lr_prox_image = prox_image
 
-        if verbose >= 1 :
+        if verbose >= 1:
             print(f'Calling multires_recon at grid level of {rel_log2_resolution:.1f}.')
 
         lr_recon = recon(sino=sino, angles=angles,
@@ -492,7 +492,7 @@ def recon(sino, angles,
     return reconstruction
 
 
-def fixed_resolution_recon( sino, angles,
+def fixed_resolution_recon(sino, angles,
                             center_offset, delta_channel, delta_pixel,
                             num_rows, num_cols, roi_radius,
                             sigma_y, snr_db, weights, weight_type,
@@ -500,7 +500,7 @@ def fixed_resolution_recon( sino, angles,
                             init_image, init_proj, prox_image,
                             stop_threshold, max_iterations,
                             num_threads, delete_temps, svmbir_lib_path, object_name,
-                            verbose ) :
+                            verbose):
     """Fixed resolution SVMBIR reconstruction used by recon().
 
     Args: See recon() for argument structure
@@ -589,10 +589,10 @@ def fixed_resolution_recon( sino, angles,
     return x
 
 
-def project( angles, image, num_channels,
+def project(angles, image, num_channels,
              delta_channel = 1.0, delta_pixel = 1.0, center_offset = 0.0, roi_radius = None,
              num_threads = None, delete_temps = True, svmbir_lib_path = __svmbir_lib_path, object_name = 'object',
-             verbose = 1 ) :
+             verbose = 1):
     """Computes 3D parallel beam forward-projection.
 
     Args:
@@ -672,7 +672,7 @@ def project( angles, image, num_channels,
     return proj
 
 
-def recon_resize( recon, output_shape ) :
+def recon_resize(recon, output_shape):
     """Resizes a reconstruction 3D numpy array of shape (slices,rows,cols).
 
     Args:
@@ -690,7 +690,7 @@ def recon_resize( recon, output_shape ) :
     return recon
 
 
-def _sino_indicator( sino ) :
+def _sino_indicator(sino):
     """Computes a binary function that indicates the region of sinogram support.
 
     Args:
