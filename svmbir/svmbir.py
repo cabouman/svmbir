@@ -16,39 +16,39 @@ __svmbir_lib_path = os.path.join(os.path.expanduser('~'), '.cache', 'svmbir', 'p
 
 __namelen_sysmatrix = 20
 
-_map_pyconv2camelcase = {'prior_model': 'PriorModel',
-                         'init_image_value': 'InitImageValue',
-                         'p': 'p',
-                         'q': 'q',
-                         'T': 'T',
-                         'sigma_x': 'SigmaX',
-                         'sigma_y': 'SigmaY',
-                         'b_nearest': 'b_nearest',
-                         'b_diag': 'b_diag',
-                         'b_interslice': 'b_interslice',
-                         'stop_threshold': 'StopThreshold',
-                         'max_iterations': 'MaxIterations',
-                         'positivity': 'Positivity',
-                         'weight_type': 'weightType',
-                         'geometry': 'Geometry',
-                         'num_channels': 'NChannels',
-                         'num_views': 'NViews',
-                         'num_slices': 'NSlices',
-                         'delta_channel': 'DeltaChannel',
-                         'center_offset': 'CenterOffset',
-                         'delta_slice': 'DeltaSlice',
-                         'first_slice_number': 'FirstSliceNumber',
-                         'view_angle_list': 'ViewAngleList',
-                         'delta_xy': 'Deltaxy',
-                         'delta_z': 'DeltaZ',
-                         'roi_radius': 'ROIRadius'}
+_map_pyconv2camelcase = {'prior_model' : 'PriorModel',
+                         'init_image_value' : 'InitImageValue',
+                         'p' : 'p',
+                         'q' : 'q',
+                         'T' : 'T',
+                         'sigma_x' : 'SigmaX',
+                         'sigma_y' : 'SigmaY',
+                         'b_nearest' : 'b_nearest',
+                         'b_diag' : 'b_diag',
+                         'b_interslice' : 'b_interslice',
+                         'stop_threshold' : 'StopThreshold',
+                         'max_iterations' : 'MaxIterations',
+                         'positivity' : 'Positivity',
+                         'weight_type' : 'weightType',
+                         'geometry' : 'Geometry',
+                         'num_channels' : 'NChannels',
+                         'num_views' : 'NViews',
+                         'num_slices' : 'NSlices',
+                         'delta_channel' : 'DeltaChannel',
+                         'center_offset' : 'CenterOffset',
+                         'delta_slice' : 'DeltaSlice',
+                         'first_slice_number' : 'FirstSliceNumber',
+                         'view_angle_list' : 'ViewAngleList',
+                         'delta_xy' : 'Deltaxy',
+                         'delta_z' : 'DeltaZ',
+                         'roi_radius' : 'ROIRadius'}
 
 
-def _clear_cache(svmbir_lib_path=__svmbir_lib_path):
+def _clear_cache( svmbir_lib_path = __svmbir_lib_path ) :
     shutil.rmtree(svmbir_lib_path)
 
 
-def _gen_paths(svmbir_lib_path=__svmbir_lib_path, object_name='object', sysmatrix_name='object'):
+def _gen_paths( svmbir_lib_path = __svmbir_lib_path, object_name = 'object', sysmatrix_name = 'object' ) :
     os.makedirs(os.path.join(svmbir_lib_path, 'obj'), exist_ok=True)
     os.makedirs(os.path.join(svmbir_lib_path, 'sino'), exist_ok=True)
     os.makedirs(os.path.join(svmbir_lib_path, 'weight'), exist_ok=True)
@@ -82,17 +82,17 @@ def _gen_paths(svmbir_lib_path=__svmbir_lib_path, object_name='object', sysmatri
     return paths
 
 
-def _transform_pyconv2c(**kwargs):
+def _transform_pyconv2c( **kwargs ) :
     ckwargs = dict()
-    for key in kwargs:
-        if key in _map_pyconv2camelcase.keys():
+    for key in kwargs :
+        if key in _map_pyconv2camelcase.keys() :
             ckwargs[_map_pyconv2camelcase[key]] = kwargs[key]
-        else:
+        else :
             ckwargs[key] = kwargs[key]
     return ckwargs
 
 
-def _hash_params(angles, **kwargs):
+def _hash_params( angles, **kwargs ) :
     relevant_params = dict()
     relevant_params['Nx'] = kwargs['Nx']
     relevant_params['Ny'] = kwargs['Ny']
@@ -110,12 +110,12 @@ def _hash_params(angles, **kwargs):
     return hash_val, relevant_params
 
 
-def _cmd_exec(exec_path=__exec_path__, *args, **kwargs):
+def _cmd_exec( exec_path = __exec_path__, *args, **kwargs ) :
     arg_list = [exec_path]
-    for key in args:
+    for key in args :
         arg_list.append('-' + key)
 
-    for key, value in kwargs.items():
+    for key, value in kwargs.items() :
         arg_list.append('-' + key)
         arg_list.append(value)
 
@@ -125,17 +125,17 @@ def _cmd_exec(exec_path=__exec_path__, *args, **kwargs):
     subprocess.run(arg_list)
 
 
-def _gen_sysmatrix(param_name, sysmatrix_name, verbose):
-    if os.path.exists(sysmatrix_name + '.2Dsvmatrix'):
+def _gen_sysmatrix( param_name, sysmatrix_name, verbose ) :
+    if os.path.exists(sysmatrix_name + '.2Dsvmatrix') :
         print('Found system matrix: {}'.format(sysmatrix_name + '.2Dsvmatrix'))
         os.utime(sysmatrix_name + '.2Dsvmatrix')  # update file modified time
-    else:
+    else :
         _cmd_exec(i=param_name, j=param_name, m=sysmatrix_name, v=str(verbose))
 
 
-def _init_geometry(angles, num_channels, num_views, num_slices, num_rows, num_cols,
-                   delta_channel, delta_pixel, roi_radius, center_offset, verbose,
-                   svmbir_lib_path=__svmbir_lib_path, object_name='object'):
+def _init_geometry( angles, num_channels, num_views, num_slices, num_rows, num_cols,
+                    delta_channel, delta_pixel, roi_radius, center_offset, verbose,
+                    svmbir_lib_path = __svmbir_lib_path, object_name = 'object' ) :
     sinoparams = dict()
     sinoparams['geometry'] = '3DPARALLEL'
     sinoparams['num_channels'] = num_channels
@@ -165,8 +165,8 @@ def _init_geometry(angles, num_channels, num_views, num_slices, num_rows, num_co
     write_params(paths['sinoparams_fname'], **sinoparams_c)
     write_params(paths['imgparams_fname'], **imgparams_c)
 
-    with open(paths['view_angle_list_fname'], 'w') as fileID:
-        for angle in list(angles):
+    with open(paths['view_angle_list_fname'], 'w') as fileID :
+        for angle in list(angles) :
             fileID.write(str(angle) + "\n")
 
     _gen_sysmatrix(paths['param_name'], paths['sysmatrix_name'], verbose)
@@ -174,7 +174,7 @@ def _init_geometry(angles, num_channels, num_views, num_slices, num_rows, num_co
     return paths, sinoparams, imgparams
 
 
-def calc_weights(sino, weight_type):
+def calc_weights( sino, weight_type ) :
     """Computes the weights used in MBIR reconstruction.
 
     Args:
@@ -195,21 +195,21 @@ def calc_weights(sino, weight_type):
     Raises:
         Exception: Description
     """
-    if weight_type == 'unweighted':
+    if weight_type == 'unweighted' :
         weights = np.ones(sino.shape)
-    elif weight_type == 'transmission':
+    elif weight_type == 'transmission' :
         weights = np.exp(-sino)
-    elif weight_type == 'transmission_root':
+    elif weight_type == 'transmission_root' :
         weights = np.exp(-sino / 2)
-    elif weight_type == 'emission':
+    elif weight_type == 'emission' :
         weights = 1 / (sino + 0.1)
-    else:
+    else :
         raise Exception("calc_weights: undefined weight_type {}".format(weight_type))
 
     return weights
 
 
-def auto_sigma_y(sino, weights, snr_db=30.0, delta_pixel=1.0, delta_channel=1.0):
+def auto_sigma_y( sino, weights, snr_db = 30.0, delta_pixel = 1.0, delta_channel = 1.0 ) :
     """Computes the automatic value of ``sigma_y`` for use in MBIR reconstruction.
 
     Args:
@@ -244,7 +244,7 @@ def auto_sigma_y(sino, weights, snr_db=30.0, delta_pixel=1.0, delta_channel=1.0)
     return sigma_y
 
 
-def auto_sigma_x(sino, delta_channel=1.0, sharpness=1.0):
+def auto_sigma_x( sino, delta_channel = 1.0, sharpness = 1.0 ) :
     """Computes the automatic value of ``sigma_x`` for use in MBIR reconstruction.
 
     Args:
@@ -273,15 +273,15 @@ def auto_sigma_x(sino, delta_channel=1.0, sharpness=1.0):
     return sigma_x
 
 
-def recon(sino, angles,
-                   center_offset=0.0, delta_channel=1.0, delta_pixel=1.0,
-                   num_rows=None, num_cols=None, roi_radius=None,
-                   sigma_y=None, snr_db=30.0, weights=None, weight_type='unweighted',
-                   sigma_x=None, sharpness=1.0, positivity=True, p=1.2, q=2.0, T=1.0, b_interslice=1.0,
-                   init_image=0.0, init_proj=None, prox_image=None,
-                   stop_threshold=0.02, max_iterations=100, max_resolutions=0,
-                   num_threads=None, delete_temps=True, svmbir_lib_path=__svmbir_lib_path, object_name='object',
-                   verbose=1):
+def recon( sino, angles,
+           center_offset = 0.0, delta_channel = 1.0, delta_pixel = 1.0,
+           num_rows = None, num_cols = None, roi_radius = None,
+           sigma_y = None, snr_db = 30.0, weights = None, weight_type = 'unweighted',
+           sharpness = 1.0, positivity = True, sigma_x = None, p = 1.2, q = 2.0, T = 1.0, b_interslice = 1.0,
+           init_image = 0.0, init_proj = None, prox_image = None,
+           max_resolutions = 0, stop_threshold = 0.02, max_iterations = 100,
+           num_threads = None, delete_temps = True, svmbir_lib_path = __svmbir_lib_path, object_name = 'object',
+           verbose = 1 ) :
     """Computes 3D parallel beam MBIR reconstruction using multi-resolution SVMBIR algorithm.
 
     Args:
@@ -371,15 +371,11 @@ def recon(sino, angles,
         ndarray: 3D numpy array with shape (num_slices,num_rows,num_cols) containing the reconstructed 3D object in units of :math:`ALU^{-1}`.
     """
 
-    # Determine desired values of num_rows, num_cols
-    if delta_pixel is None: delta_pixel = 1.0
-    if delta_channel is None: delta_channel = 1.0
-
     # Determine the desired number of rows and columns in the output image
     (num_views, num_slices, num_channels) = sino.shape
-    if num_rows is None:
+    if num_rows is None :
         num_rows = int(np.ceil(num_channels * delta_channel / delta_pixel))
-    if num_cols is None:
+    if num_cols is None :
         num_cols = int(np.ceil(num_channels * delta_channel / delta_pixel))
 
     # Determine current level of relative decimation
@@ -389,109 +385,111 @@ def recon(sino, angles,
     go_to_lower_resolution = (rel_log2_resolution < max_resolutions) and (min(num_rows, num_cols) > 16)
 
     # If resolution is too high, then lower resolution, recursively call for initial condition, and reconstruct
-    if go_to_lower_resolution:
+    if go_to_lower_resolution :
         # Set the pixel pitch, num_rows, and num_cols for the next lower resolution
         lr_delta_pixel = 2 * delta_pixel
         lr_num_rows = int(np.ceil(num_rows / 2))
         lr_num_cols = int(np.ceil(num_cols / 2))
 
         # Reduce resolution of initialization image if there is one
-        if isinstance(init_image, np.ndarray) and (init_image.ndim == 3):
+        if isinstance(init_image, np.ndarray) and (init_image.ndim == 3) :
             lr_init_image = recon_resize(init_image, (lr_num_rows, lr_num_cols))
-        else:
+        else :
             lr_init_image = init_image
 
         # Reduce resolution of proximal image if there is one
-        if isinstance(prox_image, np.ndarray) and (prox_image.ndim == 3):
+        if isinstance(prox_image, np.ndarray) and (prox_image.ndim == 3) :
             lr_prox_image = recon_resize(prox_image, (lr_num_rows, lr_num_cols))
-        else:
+        else :
             lr_prox_image = prox_image
 
-        if verbose >= 1:
+        if verbose >= 1 :
             print(f'Calling multires_recon at grid level of {rel_log2_resolution:.1f}.')
 
         lr_recon = recon(sino=sino, angles=angles,
-                                  center_offset=center_offset, delta_channel=delta_channel, delta_pixel=lr_delta_pixel,
-                                  num_rows=lr_num_rows, num_cols=lr_num_cols, roi_radius=roi_radius,
-                                  sigma_y=sigma_y, snr_db=snr_db, weights=weights, weight_type=weight_type,
-                                  sigma_x=sigma_x, sharpness=sharpness, positivity=positivity, p=p, q=q, T=T,
-                                  b_interslice=b_interslice,
-                                  init_image=lr_init_image, init_proj=init_proj, prox_image=lr_prox_image,
-                                  stop_threshold=stop_threshold, max_iterations=max_iterations, max_resolutions=max_resolutions,
-                                  num_threads=num_threads, delete_temps=delete_temps, svmbir_lib_path=svmbir_lib_path,
-                                  object_name=object_name,
-                                  verbose=verbose)
+                         center_offset=center_offset, delta_channel=delta_channel, delta_pixel=lr_delta_pixel,
+                         num_rows=lr_num_rows, num_cols=lr_num_cols, roi_radius=roi_radius,
+                         sigma_y=sigma_y, snr_db=snr_db, weights=weights, weight_type=weight_type,
+                         sigma_x=sigma_x, sharpness=sharpness, positivity=positivity, p=p, q=q, T=T,
+                         b_interslice=b_interslice,
+                         init_image=lr_init_image, init_proj=init_proj, prox_image=lr_prox_image,
+                         stop_threshold=stop_threshold, max_iterations=max_iterations, max_resolutions=max_resolutions,
+                         num_threads=num_threads, delete_temps=delete_temps, svmbir_lib_path=svmbir_lib_path,
+                         object_name=object_name,
+                         verbose=verbose)
 
         # Interpolate resolution of reconstruction
         init_image = recon_resize(lr_recon, (num_rows, num_cols))
 
     # Perform reconstruction at current resolution
-    if verbose >= 1:
+    if verbose >= 1 :
         print(f'Calling recon with at grid level of {rel_log2_resolution:.1f}.')
 
     reconstruction = fixed_resolution_recon(sino=sino, angles=angles,
-                           center_offset=center_offset, delta_channel=delta_channel, delta_pixel=delta_pixel,
-                           num_rows=num_rows, num_cols=num_cols, roi_radius=roi_radius,
-                           sigma_y=sigma_y, snr_db=snr_db, weights=weights, weight_type=weight_type,
-                           sigma_x=sigma_x, sharpness=sharpness, positivity=positivity, p=p, q=q, T=T,
-                           b_interslice=b_interslice,
-                           init_image=init_image, init_proj=init_proj, prox_image=prox_image,
-                           stop_threshold=stop_threshold, max_iterations=max_iterations,
-                           num_threads=num_threads, delete_temps=delete_temps, svmbir_lib_path=svmbir_lib_path,
-                           object_name=object_name,
-                           verbose=verbose)
+                                            center_offset=center_offset, delta_channel=delta_channel,
+                                            delta_pixel=delta_pixel,
+                                            num_rows=num_rows, num_cols=num_cols, roi_radius=roi_radius,
+                                            sigma_y=sigma_y, snr_db=snr_db, weights=weights, weight_type=weight_type,
+                                            sigma_x=sigma_x, sharpness=sharpness, positivity=positivity, p=p, q=q, T=T,
+                                            b_interslice=b_interslice,
+                                            init_image=init_image, init_proj=init_proj, prox_image=prox_image,
+                                            stop_threshold=stop_threshold, max_iterations=max_iterations,
+                                            num_threads=num_threads, delete_temps=delete_temps,
+                                            svmbir_lib_path=svmbir_lib_path,
+                                            object_name=object_name,
+                                            verbose=verbose)
 
     return reconstruction
 
 
-def fixed_resolution_recon(sino, angles,
-          center_offset=0.0, delta_channel=1.0, delta_pixel=1.0,
-          num_rows=None, num_cols=None, roi_radius=None,
-          sigma_y=None, snr_db=30.0, weights=None, weight_type='unweighted',
-          sigma_x=None, sharpness=1.0, positivity=True, p=1.2, q=2.0, T=1.0, b_interslice=1.0,
-          init_image=0.0, init_proj=None, prox_image=None,
-          stop_threshold=0.01, max_iterations=100,
-          num_threads=None, delete_temps=True, svmbir_lib_path=__svmbir_lib_path, object_name='object',
-          verbose=1):
+def fixed_resolution_recon( sino, angles,
+                            center_offset, delta_channel, delta_pixel,
+                            num_rows, num_cols, roi_radius,
+                            sigma_y, snr_db, weights, weight_type,
+                            sharpness, positivity, sigma_x, p, q, T, b_interslice,
+                            init_image, init_proj, prox_image,
+                            stop_threshold, max_iterations,
+                            num_threads, delete_temps, svmbir_lib_path, object_name,
+                            verbose ) :
     """Fixed resolution SVMBIR reconstruction used by recon().
 
     Args: See recon() for argument structure
     """
 
-    if num_threads is None:
+    if num_threads is None :
         num_threads = cpu_count(logical=False)
 
     os.environ['OMP_NUM_THREADS'] = str(num_threads)
     os.environ['OMP_DYNAMIC'] = 'true'
 
-    if sino.ndim == 2:
+    if sino.ndim == 2 :
         sino = sino[:, np.newaxis, :]
         print(
             "svmbir.recon() warning: Input sino array only 2D. Adding singleton dimension to slice index to make it 3D.")
 
     (num_views, num_slices, num_channels) = sino.shape
 
-    if num_rows is None:
+    if num_rows is None :
         num_rows = int(np.ceil(num_channels * delta_channel / delta_pixel))
 
-    if num_cols is None:
+    if num_cols is None :
         num_cols = int(np.ceil(num_channels * delta_channel / delta_pixel))
 
-    if roi_radius is None:
+    if roi_radius is None :
         roi_radius = float(delta_pixel * max(num_rows, num_cols))
 
-    if weights is None:
+    if weights is None :
         weights = calc_weights(sino, weight_type)
 
-    if sigma_y is None:
+    if sigma_y is None :
         sigma_y = auto_sigma_y(sino, weights, snr_db, delta_pixel=delta_pixel, delta_channel=delta_channel)
 
-    if sigma_x is None:
+    if sigma_x is None :
         sigma_x = auto_sigma_x(sino, delta_channel, sharpness)
 
-    if np.isscalar(init_image):
+    if np.isscalar(init_image) :
         init_image_value = init_image
-    else:
+    else :
         init_image_value = 0
 
     p, q = test_pq_values(p, q)
@@ -524,15 +522,15 @@ def fixed_resolution_recon(sino, angles,
                     s=paths['sino_name'], r=paths['recon_name'], m=paths['sysmatrix_name'],
                     w=paths['wght_name'], f=paths['proj_name'], v=str(verbose))
 
-    if not np.isscalar(init_image):
+    if not np.isscalar(init_image) :
         write_recon_openmbir(init_image, paths['init_name'] + '_slice', '.2Dimgdata')
         cmd_args['t'] = paths['init_name']
 
-    if init_proj is not None:
+    if init_proj is not None :
         write_sino_openmbir(init_proj, paths['init_proj_name'] + '_slice', '.2Dsinodata')
         cmd_args['e'] = paths['init_proj_name']
 
-    if prox_image is not None:
+    if prox_image is not None :
         write_recon_openmbir(prox_image, paths['prox_name'] + '_slice', '.2Dimgdata')
         cmd_args['p'] = paths['prox_name']
         reconparams['prior_model'] = 'PandP'
@@ -549,7 +547,7 @@ def fixed_resolution_recon(sino, angles,
     x = read_recon_openmbir(paths['recon_name'] + '_slice', '.2Dimgdata',
                             imgparams['Nx'], imgparams['Ny'], imgparams['Nz'])
 
-    if delete_temps:
+    if delete_temps :
         os.remove(paths['sinoparams_fname'])
         os.remove(paths['imgparams_fname'])
         os.remove(paths['reconparams_fname'])
@@ -560,22 +558,22 @@ def fixed_resolution_recon(sino, angles,
         delete_data_openmbir(paths['proj_name'] + '_slice', '.2Dprojection', sinoparams['num_slices'])
         delete_data_openmbir(paths['wght_name'] + '_slice', '.2Dweightdata', sinoparams['num_slices'])
 
-        if not np.isscalar(init_image):
+        if not np.isscalar(init_image) :
             delete_data_openmbir(paths['init_name'] + '_slice', '.2Dimgdata', imgparams['Nz'])
 
-        if init_proj is not None:
+        if init_proj is not None :
             delete_data_openmbir(paths['init_proj_name'] + '_slice', '.2Dprojection', sinoparams['num_slices'])
 
-        if prox_image is not None:
+        if prox_image is not None :
             delete_data_openmbir(paths['prox_name'] + '_slice', '.2Dimgdata', imgparams['Nz'])
 
     return x
 
 
-def project(angles, image, num_channels,
-            delta_channel=1.0, delta_pixel=1.0, center_offset=0.0, roi_radius=None,
-            num_threads=None, delete_temps=True, svmbir_lib_path=__svmbir_lib_path, object_name='object',
-            verbose=1):
+def project( angles, image, num_channels,
+             delta_channel = 1.0, delta_pixel = 1.0, center_offset = 0.0, roi_radius = None,
+             num_threads = None, delete_temps = True, svmbir_lib_path = __svmbir_lib_path, object_name = 'object',
+             verbose = 1 ) :
     """Computes 3D parallel beam forward-projection.
 
     Args:
@@ -614,7 +612,7 @@ def project(angles, image, num_channels,
     Returns:
         ndarray: 3D numpy array containing sinogram with shape (num_views, num_slices, num_channels).
     """
-    if num_threads is None:
+    if num_threads is None :
         num_threads = cpu_count(logical=False)
 
     os.environ['OMP_NUM_THREADS'] = str(num_threads)
@@ -625,7 +623,7 @@ def project(angles, image, num_channels,
     num_cols = image.shape[2]
     num_views = len(angles)
 
-    if roi_radius is None:
+    if roi_radius is None :
         roi_radius = float(delta_pixel * max(num_rows, num_cols))
 
     paths, sinoparams, imgparams = _init_geometry(angles, center_offset=center_offset,
@@ -644,7 +642,7 @@ def project(angles, image, num_channels,
     proj = read_sino_openmbir(paths['proj_name'] + '_slice', '.2Dprojection',
                               sinoparams['num_views'], sinoparams['num_slices'], sinoparams['num_channels'])
 
-    if delete_temps:
+    if delete_temps :
         os.remove(paths['sinoparams_fname'])
         os.remove(paths['imgparams_fname'])
         os.remove(paths['view_angle_list_fname'])
@@ -655,9 +653,8 @@ def project(angles, image, num_channels,
     return proj
 
 
-def recon_resize(recon, output_shape):
-    """
-    Resizes a reconstruction 3D numpy array of shape (slices,rows,cols).
+def recon_resize( recon, output_shape ) :
+    """Resizes a reconstruction 3D numpy array of shape (slices,rows,cols).
 
     Args:
         recon (ndarray): 3D numpy array containing reconstruction with shape (slices, rows, cols)
@@ -674,7 +671,7 @@ def recon_resize(recon, output_shape):
     return recon
 
 
-def _sino_indicator(sino):
+def _sino_indicator( sino ) :
     """Computes a binary function that indicates the region of sinogram support.
 
     Args:
