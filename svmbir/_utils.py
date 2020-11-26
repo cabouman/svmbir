@@ -9,9 +9,9 @@ import warnings
 
 from ruamel.yaml import YAML
 
-############################################################################
-## mbir read/modify Param Files
-############################################################################
+##################################
+## mbir read/modify Param Files ##
+##################################
 
 def parse_params(default_params, **kwargs):
     
@@ -94,9 +94,9 @@ def readAngleList(filePath):
     return angleList
 
 
-############################################################################
-## mbir read/write/delete Binary Files
-############################################################################
+#########################################
+## mbir read/write/delete Binary Files ##
+#########################################
 
 def read_sino_openmbir(rootPath, suffix, N_theta, N_z, N_y):
 
@@ -179,19 +179,12 @@ def delete_data_openmbir(rootPath, suffix, num_files):
     for i, fname in enumerate(fname_list):
         os.remove(fname)
 
+##########################################
+## mbir Test for valid parameter values ##
+##########################################
 
 def test_pq_values(p,q):
-    """
-    Tests to make sure that p, q have value values; prints warnings if necessary; and returns valid values.
-
-    Args:
-        p (float): qGGMRF p parameter.
-
-        q (float): qGGMRF q parameter.
-
-    Returns:
-        p (float): valid p value
-        q (float): valid q value
+    """ Tests that p, q have valid values; prints warnings if necessary; and returns valid values.
     """
 
     if q < 1 or q > 2:

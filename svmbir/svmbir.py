@@ -285,9 +285,9 @@ def recon(sino, angles,
     """Computes 3D parallel beam MBIR reconstruction using multi-resolution SVMBIR algorithm.
 
     Args:
-        sino (3D numpy array): sinogram data with shape (num_views, num_slices, num_channels)
+        sino (ndarray): 3D sinogram array with shape (num_views, num_slices, num_channels)
 
-        angles (1D numpy array): view angles in radians.
+        angles (ndarray): 1D view angles array in radians.
 
         center_offset (float, optional): [Default=0.0] Scalar value of offset from center-of-rotation.
 
@@ -310,7 +310,7 @@ def recon(sino, angles,
         snr_db (float, optional): [Default=30.0] Scalar value that controls assumed signal-to-noise ratio of the data in dB.
             Ignored if sigma_y is not None.
 
-        weights (3D numpy array, optional): [Default=None] weights with same shape as sino.
+        weights (ndarray, optional): [Default=None] 3D weights array with same shape as sino.
 
         weight_type (string, optional): [Default="unweighted"] Type of noise model used for data.
             If the ``weights`` array is not supplied, then the function ``svmbir.calc_weights`` is used to set weights using specified ``weight_type`` parameter.
@@ -344,7 +344,7 @@ def recon(sino, angles,
         init_proj (None, optional): [Default=None] Initial value of forward projection of the init_image.
             This can be used to reduce computation for the first iteration when using the proximal map option.
 
-        prox_image (ndarray, optional): [Default=None] 3D numpy array with proximal map input image.
+        prox_image (ndarray, optional): [Default=None] 3D proximal map input image.
             If prox_image is supplied, then the proximal map prior model is used, and the qGGMRF parameters are ignored.
 
         stop_threshold (float, optional): [Default=0.02] Scalar valued stopping threshold in percent.
@@ -382,7 +382,8 @@ def recon(sino, angles,
     os.environ['OMP_NUM_THREADS'] = str(num_threads)
     os.environ['OMP_DYNAMIC'] = 'true'
 
-    # If sino is only 2D, then make it 3D
+    # Test for valid sino structure, and if necessary, make it 3D
+    assert isinstance(sino, np.ndarray) and ((sino.ndim == 3) or (sino.ndim == 2)), "Invalid sinogram input"
     if sino.ndim == 2 :
         sino = sino[:, np.newaxis, :]
         print("svmbir.recon() warning: Input sino array only 2D. Added singleton dimension to slice index to make it 3D.")
