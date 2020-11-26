@@ -174,7 +174,7 @@ def _init_geometry( angles, num_channels, num_views, num_slices, num_rows, num_c
     return paths, sinoparams, imgparams
 
 
-def calc_weights( sino, weight_type ) :
+def calc_weights(sino, weight_type ) :
     """Computes the weights used in MBIR reconstruction.
 
     Args:
@@ -209,7 +209,7 @@ def calc_weights( sino, weight_type ) :
     return weights
 
 
-def auto_sigma_y( sino, weights, snr_db = 30.0, delta_pixel = 1.0, delta_channel = 1.0 ) :
+def auto_sigma_y(sino, weights, snr_db = 30.0, delta_pixel = 1.0, delta_channel = 1.0 ) :
     """Computes the automatic value of ``sigma_y`` for use in MBIR reconstruction.
 
     Args:
@@ -244,7 +244,7 @@ def auto_sigma_y( sino, weights, snr_db = 30.0, delta_pixel = 1.0, delta_channel
     return sigma_y
 
 
-def auto_sigma_x( sino, delta_channel = 1.0, sharpness = 1.0 ) :
+def auto_sigma_x(sino, delta_channel = 1.0, sharpness = 1.0 ) :
     """Computes the automatic value of ``sigma_x`` for use in MBIR reconstruction.
 
     Args:
@@ -273,7 +273,7 @@ def auto_sigma_x( sino, delta_channel = 1.0, sharpness = 1.0 ) :
     return sigma_x
 
 
-def recon( sino, angles,
+def recon(sino, angles,
            center_offset = 0.0, delta_channel = 1.0, delta_pixel = 1.0,
            num_rows = None, num_cols = None, roi_radius = None,
            sigma_y = None, snr_db = 30.0, weights = None, weight_type = 'unweighted',
@@ -371,6 +371,47 @@ def recon( sino, angles,
         ndarray: 3D numpy array with shape (num_slices,num_rows,num_cols) containing the reconstructed 3D object in units of :math:`ALU^{-1}`.
     """
 
+
+    ##################################################################
+    # Perform error checking to make sure parameter values are valid #
+    ##################################################################
+
+    # If not specified, then set number of threads = to number of processors
+    if num_threads is None :
+        num_threads = cpu_count(logical=False)
+    os.environ['OMP_NUM_THREADS'] = str(num_threads)
+    os.environ['OMP_DYNAMIC'] = 'true'
+
+    # If sino is only 2D, then make it 3D
+    if sino.ndim == 2 :
+        sino = sino[:, np.newaxis, :]
+        print("svmbir.recon() warning: Input sino array only 2D. Added singleton dimension to slice index to make it 3D.")
+
+    (num_views, num_slices, num_channels) = sino.shape
+
+    if num_rows is None :
+        num_rows = int(np.ceil(num_channels * delta_channel / delta_pixel))
+
+    if num_cols is None :
+        num_cols = int(np.ceil(num_channels * delta_channel / delta_pixel))
+
+    if roi_radius is None :
+        roi_radius = float(delta_pixel * max(num_rows, num_cols))
+
+    if weights is None :
+        weights = calc_weights(sino, weight_type)
+
+    # If not specified, then set regularization parameter sigma_y to automatic value
+    if sigma_y is None :
+        sigma_y = auto_sigma_y(sino, weights, snr_db, delta_pixel=delta_pixel, delta_channel=delta_channel)
+
+    # If not specified, then set regularization parameter sigma_x to automatic value
+    if sigma_x is None :
+        sigma_x = auto_sigma_x(sino, delta_channel, sharpness)
+
+    # Check p and q, and reset them if they are not
+    p, q = test_pq_values(p, q)
+
     # Determine the desired number of rows and columns in the output image
     (num_views, num_slices, num_channels) = sino.shape
     if num_rows is None :
@@ -381,10 +422,10 @@ def recon( sino, angles,
     # Determine current level of relative decimation
     rel_log2_resolution = math.log2(delta_pixel / delta_channel)
 
-    # Determine if it the algorithm so reduce resolution further
+    # Determine if it the algorithm should reduce resolution further
     go_to_lower_resolution = (rel_log2_resolution < max_resolutions) and (min(num_rows, num_cols) > 16)
 
-    # If resolution is too high, then lower resolution, recursively call for initial condition, and reconstruct
+    # If resolution is too high, then do recursive call to lower resolutions
     if go_to_lower_resolution :
         # Set the pixel pitch, num_rows, and num_cols for the next lower resolution
         lr_delta_pixel = 2 * delta_pixel
@@ -410,12 +451,10 @@ def recon( sino, angles,
                          center_offset=center_offset, delta_channel=delta_channel, delta_pixel=lr_delta_pixel,
                          num_rows=lr_num_rows, num_cols=lr_num_cols, roi_radius=roi_radius,
                          sigma_y=sigma_y, snr_db=snr_db, weights=weights, weight_type=weight_type,
-                         sigma_x=sigma_x, sharpness=sharpness, positivity=positivity, p=p, q=q, T=T,
-                         b_interslice=b_interslice,
+                         sharpness=sharpness, positivity=positivity, sigma_x=sigma_x, p=p, q=q, T=T, b_interslice=b_interslice,
                          init_image=lr_init_image, init_proj=init_proj, prox_image=lr_prox_image,
                          stop_threshold=stop_threshold, max_iterations=max_iterations, max_resolutions=max_resolutions,
-                         num_threads=num_threads, delete_temps=delete_temps, svmbir_lib_path=svmbir_lib_path,
-                         object_name=object_name,
+                         num_threads=num_threads, delete_temps=delete_temps, svmbir_lib_path=svmbir_lib_path, object_name=object_name,
                          verbose=verbose)
 
         # Interpolate resolution of reconstruction
@@ -426,17 +465,13 @@ def recon( sino, angles,
         print(f'Calling recon with at grid level of {rel_log2_resolution:.1f}.')
 
     reconstruction = fixed_resolution_recon(sino=sino, angles=angles,
-                                            center_offset=center_offset, delta_channel=delta_channel,
-                                            delta_pixel=delta_pixel,
+                                            center_offset=center_offset, delta_channel=delta_channel, delta_pixel=delta_pixel,
                                             num_rows=num_rows, num_cols=num_cols, roi_radius=roi_radius,
                                             sigma_y=sigma_y, snr_db=snr_db, weights=weights, weight_type=weight_type,
-                                            sigma_x=sigma_x, sharpness=sharpness, positivity=positivity, p=p, q=q, T=T,
-                                            b_interslice=b_interslice,
+                                            sharpness=sharpness, positivity=positivity, sigma_x=sigma_x, p=p, q=q, T=T, b_interslice=b_interslice,
                                             init_image=init_image, init_proj=init_proj, prox_image=prox_image,
                                             stop_threshold=stop_threshold, max_iterations=max_iterations,
-                                            num_threads=num_threads, delete_temps=delete_temps,
-                                            svmbir_lib_path=svmbir_lib_path,
-                                            object_name=object_name,
+                                            num_threads=num_threads, delete_temps=delete_temps, svmbir_lib_path=svmbir_lib_path, object_name=object_name,
                                             verbose=verbose)
 
     return reconstruction
@@ -456,43 +491,12 @@ def fixed_resolution_recon( sino, angles,
     Args: See recon() for argument structure
     """
 
-    if num_threads is None :
-        num_threads = cpu_count(logical=False)
-
-    os.environ['OMP_NUM_THREADS'] = str(num_threads)
-    os.environ['OMP_DYNAMIC'] = 'true'
-
-    if sino.ndim == 2 :
-        sino = sino[:, np.newaxis, :]
-        print(
-            "svmbir.recon() warning: Input sino array only 2D. Adding singleton dimension to slice index to make it 3D.")
-
     (num_views, num_slices, num_channels) = sino.shape
-
-    if num_rows is None :
-        num_rows = int(np.ceil(num_channels * delta_channel / delta_pixel))
-
-    if num_cols is None :
-        num_cols = int(np.ceil(num_channels * delta_channel / delta_pixel))
-
-    if roi_radius is None :
-        roi_radius = float(delta_pixel * max(num_rows, num_cols))
-
-    if weights is None :
-        weights = calc_weights(sino, weight_type)
-
-    if sigma_y is None :
-        sigma_y = auto_sigma_y(sino, weights, snr_db, delta_pixel=delta_pixel, delta_channel=delta_channel)
-
-    if sigma_x is None :
-        sigma_x = auto_sigma_x(sino, delta_channel, sharpness)
 
     if np.isscalar(init_image) :
         init_image_value = init_image
     else :
         init_image_value = 0
-
-    p, q = test_pq_values(p, q)
 
     reconparams = dict()
     reconparams['prior_model'] = 'QGGMRF'
