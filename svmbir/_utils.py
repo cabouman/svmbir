@@ -13,7 +13,7 @@ from ruamel.yaml import YAML
 ## mbir read/modify Param Files ##
 ##################################
 
-def parse_params( default_params, **kwargs ) :
+def parse_params(default_params, **kwargs):
     params = dict(default_params)
     common_keys = set(kwargs.keys()) & set(params.keys())
     for key in common_keys :
@@ -22,7 +22,7 @@ def parse_params( default_params, **kwargs ) :
     return params
 
 
-def read_params( params_path ) :
+def read_params(params_path):
     with open(params_path, 'r') as fileID :
         yaml = YAML()
         params = yaml.load(fileID)
@@ -30,7 +30,7 @@ def read_params( params_path ) :
     return params
 
 
-def print_params( params, start_str = '' ) :
+def print_params(params, start_str = ''):
     for key, value in params.items() :
         if isinstance(value, dict) :
             print('{}:'.format(key))
@@ -39,7 +39,7 @@ def print_params( params, start_str = '' ) :
             print(start_str + '{}: {}'.format(key, value))
 
 
-def modify_params( filePath, **kwargs ) :
+def modify_params(filePath, **kwargs):
     with open(filePath, 'r') as fileID :
         yaml = YAML()
         yaml_dict = yaml.load(fileID)
@@ -53,19 +53,19 @@ def modify_params( filePath, **kwargs ) :
         yaml.dump(yaml_dict, fileID)
 
 
-def sanitize_params( params ) :
-    if isinstance(params, dict) :
+def sanitize_params(params):
+    if isinstance(params, dict):
         params = dict(params)
-        for key in params :
+        for key in params:
             params[key] = sanitize_params(params[key])
 
-    if isinstance(params, (np.ndarray, np.generic)) :
+    if isinstance(params, (np.ndarray, np.generic)):
         params = params.tolist()
 
     return params
 
 
-def write_params( filePath, **kwargs ) :
+def write_params(filePath, **kwargs):
     kwargs = sanitize_params(kwargs)
     # print(kwargs)
     # sys.stdout.flush()
@@ -75,7 +75,7 @@ def write_params( filePath, **kwargs ) :
         yaml.dump(kwargs, fileID)
 
 
-def readAngleList( filePath ) :
+def readAngleList(filePath):
     with open(filePath, 'r') as fileID :
         lines = fileID.read().split("\n")
 
@@ -91,7 +91,7 @@ def readAngleList( filePath ) :
 ## mbir read/write/delete Binary Files ##
 #########################################
 
-def read_sino_openmbir( rootPath, suffix, N_theta, N_z, N_y ) :
+def read_sino_openmbir(rootPath, suffix, N_theta, N_z, N_y):
     fname_list = generateFileList(N_z, rootPath, suffix, numdigit=4)
 
     sizesArray = (N_z, N_theta, N_y)
@@ -108,7 +108,7 @@ def read_sino_openmbir( rootPath, suffix, N_theta, N_z, N_y ) :
     return x
 
 
-def write_sino_openmbir( x, rootPath, suffix ) :
+def write_sino_openmbir(x, rootPath, suffix):
     # shape of x = N_theta x N_z  x N_y
 
     assert len(x.shape) == 3, 'data must be 3D'
@@ -122,7 +122,7 @@ def write_sino_openmbir( x, rootPath, suffix ) :
             x[i].astype('float32').flatten('C').tofile(fileID)
 
 
-def read_recon_openmbir( rootPath, suffix, N_x, N_y, N_z ) :
+def read_recon_openmbir(rootPath, suffix, N_x, N_y, N_z):
     fname_list = generateFileList(N_z, rootPath, suffix, numdigit=4)
 
     sizesArray = (N_z, N_y, N_x)
@@ -136,7 +136,7 @@ def read_recon_openmbir( rootPath, suffix, N_x, N_y, N_z ) :
     return x
 
 
-def write_recon_openmbir( x, rootPath, suffix ) :
+def write_recon_openmbir(x, rootPath, suffix):
     # shape of x = N_z x N_y x N_x
 
     assert len(x.shape) == 3, 'data must be 3D'
@@ -148,7 +148,7 @@ def write_recon_openmbir( x, rootPath, suffix ) :
             x[i].astype('float32').flatten('C').tofile(fileID)
 
 
-def generateFileList( numFiles, fileRoot, suffix, numdigit = 0 ) :
+def generateFileList(numFiles, fileRoot, suffix, numdigit = 0):
     fileList = []
     for i in range(numFiles) :
         fileList.append(fileRoot + str(i).zfill(numdigit) + suffix)
@@ -197,7 +197,7 @@ def test_params_line1(center_offset, delta_channel, delta_pixel):
     return center_offset, delta_channel, delta_pixel
 
 
-def test_params_line2(num_rows, num_cols, roi_radius) :
+def test_params_line2(num_rows, num_cols, roi_radius):
 
     if not ((roi_radius is None) or isinstance(num_rows, int)):
         warnings.warn("Parameter num_rows is not valid int; Setting num_rows = None.")

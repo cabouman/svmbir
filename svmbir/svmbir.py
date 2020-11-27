@@ -44,11 +44,11 @@ _map_pyconv2camelcase = {'prior_model' : 'PriorModel',
                          'roi_radius' : 'ROIRadius'}
 
 
-def _clear_cache( svmbir_lib_path = __svmbir_lib_path):
+def _clear_cache(svmbir_lib_path = __svmbir_lib_path):
     shutil.rmtree(svmbir_lib_path)
 
 
-def _gen_paths( svmbir_lib_path = __svmbir_lib_path, object_name = 'object', sysmatrix_name = 'object'):
+def _gen_paths(svmbir_lib_path = __svmbir_lib_path, object_name = 'object', sysmatrix_name = 'object'):
     os.makedirs(os.path.join(svmbir_lib_path, 'obj'), exist_ok=True)
     os.makedirs(os.path.join(svmbir_lib_path, 'sino'), exist_ok=True)
     os.makedirs(os.path.join(svmbir_lib_path, 'weight'), exist_ok=True)
@@ -82,7 +82,7 @@ def _gen_paths( svmbir_lib_path = __svmbir_lib_path, object_name = 'object', sys
     return paths
 
 
-def _transform_pyconv2c( **kwargs):
+def _transform_pyconv2c(**kwargs):
     ckwargs = dict()
     for key in kwargs :
         if key in _map_pyconv2camelcase.keys() :
@@ -92,7 +92,7 @@ def _transform_pyconv2c( **kwargs):
     return ckwargs
 
 
-def _hash_params( angles, **kwargs):
+def _hash_params(angles, **kwargs):
     relevant_params = dict()
     relevant_params['Nx'] = kwargs['Nx']
     relevant_params['Ny'] = kwargs['Ny']
@@ -110,7 +110,7 @@ def _hash_params( angles, **kwargs):
     return hash_val, relevant_params
 
 
-def _cmd_exec( exec_path = __exec_path__, *args, **kwargs):
+def _cmd_exec(exec_path = __exec_path__, *args, **kwargs):
     arg_list = [exec_path]
     for key in args :
         arg_list.append('-' + key)
@@ -125,7 +125,7 @@ def _cmd_exec( exec_path = __exec_path__, *args, **kwargs):
     subprocess.run(arg_list)
 
 
-def _gen_sysmatrix( param_name, sysmatrix_name, verbose):
+def _gen_sysmatrix(param_name, sysmatrix_name, verbose):
     if os.path.exists(sysmatrix_name + '.2Dsvmatrix') :
         print('Found system matrix: {}'.format(sysmatrix_name + '.2Dsvmatrix'))
         os.utime(sysmatrix_name + '.2Dsvmatrix')  # update file modified time
@@ -302,7 +302,7 @@ def recon(sino, angles,
            init_image = 0.0, prox_image = None, init_proj = None,
            max_resolutions = 0, stop_threshold = 0.02, max_iterations = 100,
            num_threads = None, delete_temps = True, svmbir_lib_path = __svmbir_lib_path, object_name = 'object',
-           verbose = 1 ) :
+           verbose = 1) :
     """Computes 3D parallel beam MBIR reconstruction using multi-resolution SVMBIR algorithm.
 
     Args:
