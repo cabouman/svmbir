@@ -286,18 +286,20 @@ def auto_num_cols(num_channels, delta_channel, delta_pixel):
     num_cols = int(np.ceil(num_channels * delta_channel / delta_pixel))
     return num_cols
 
-def auto_num_roi_radius(delta_pixel,num_rows, num_cols):
+
+def auto_roi_radius(delta_pixel, num_rows, num_cols):
     """Computes the automatic value of ``num_cols``.
     """
     roi_radius = float(delta_pixel * max(num_rows, num_cols))
     return roi_radius
+
 
 def recon(sino, angles,
            center_offset = 0.0, delta_channel = 1.0, delta_pixel = 1.0,
            num_rows = None, num_cols = None, roi_radius = None,
            sigma_y = None, snr_db = 30.0, weights = None, weight_type = 'unweighted',
            sharpness = 1.0, positivity = True, sigma_x = None, p = 1.2, q = 2.0, T = 1.0, b_interslice = 1.0,
-           init_image = 0.0, init_proj = None, prox_image = None,
+           init_image = 0.0, prox_image = None, init_proj = None,
            max_resolutions = 0, stop_threshold = 0.02, max_iterations = 100,
            num_threads = None, delete_temps = True, svmbir_lib_path = __svmbir_lib_path, object_name = 'object',
            verbose = 1 ) :
@@ -321,7 +323,7 @@ def recon(sino, angles,
             If None, automatically set.
 
         roi_radius (float, optional): [Default=None] Scalar value of radius of reconstruction in :math:`ALU`.
-            If None, automatically set.
+            If None, automatically set with auto_roi_radius().
 
         sigma_y (float, optional): [Default=None] Scalar value of noise standard deviation parameter.
             If None, automatically set with auto_sigma_y.
@@ -402,30 +404,31 @@ def recon(sino, angles,
     os.environ['OMP_NUM_THREADS'] = str(num_threads)
     os.environ['OMP_DYNAMIC'] = 'true'
 
-    # Test for valid sino structure, and if necessary, make it 3D
-    assert isinstance(sino, np.ndarray) and ((sino.ndim == 3) or (sino.ndim == 2)), "Invalid sinogram input"
-    if sino.ndim == 2 :
-        sino = sino[:, np.newaxis, :]
-        print("svmbir.recon() warning: Input sino array only 2D. Added singleton dimension to slice index to make it 3D.")
-
+    # Test for valid sino and angles structure. If sino is 2D, make it 3D
+    sino = test_params_line0(sino, angles)
     (num_views, num_slices, num_channels) = sino.shape
 
-    # Tests parameters for valid values; print warnings if necessary; and returns valid values.
-    delta_channel, delta_pixel, roi_radius = test_parameter_values(delta_channel, delta_pixel, roi_radius)
-
-    # Check p and q, and reset them if they are not valid
-    p, q = test_pq_values(p, q)
-
-    # Test for valid weight_type and set to 'unweighted' if invalid
-    weight_type = test_weight_type_value(weight_type)
+    # Tests parameters for valid types and values; print warnings if necessary; and return default values.
+    center_offset, delta_channel, delta_pixel = test_params_line1(center_offset, delta_channel, delta_pixel)
+    num_rows, num_cols, roi_radius = test_params_line2(num_rows, num_cols, roi_radius)
+    sigma_y, snr_db, weights, weight_type = test_params_line3(sigma_y, snr_db, weights, weight_type)
+    sharpness, positivity, sigma_x = test_params_line4(sharpness, positivity, sigma_x)
+    p, q, T, b_interslice = test_pqtb_values(p, q, T, b_interslice)
+    init_image, prox_image, init_proj = test_params_line5(init_image, prox_image, init_proj)
+    max_resolutions, stop_threshold, max_iterations = test_params_line6(max_resolutions, stop_threshold, max_iterations)
+    num_threads, delete_temps, verbose = test_params_line7(num_threads, delete_temps, verbose)
 
     # Set automatic values of num_rows, num_cols, and roi_radius
-    if num_rows is None: num_rows = auto_num_rows(num_channels, delta_channel, delta_pixel)
-    if num_cols is None: num_cols = auto_num_cols(num_channels, delta_channel, delta_pixel)
-    if roi_radius is None: roi_radius = auto_num_roi_radius(delta_pixel, num_rows, num_cols)
+    if num_rows is None:
+        num_rows = auto_num_rows(num_channels, delta_channel, delta_pixel)
+    if num_cols is None:
+        num_cols = auto_num_cols(num_channels, delta_channel, delta_pixel)
+    if roi_radius is None:
+        roi_radius = auto_roi_radius(delta_pixel, num_rows, num_cols)
 
     # Set automatic values for weights
-    if weights is None: weights = calc_weights(sino, weight_type)
+    if weights is None:
+        weights = calc_weights(sino, weight_type)
 
     # Set automatic value of sigma_y
     if sigma_y is None:
@@ -468,7 +471,7 @@ def recon(sino, angles,
                          num_rows=lr_num_rows, num_cols=lr_num_cols, roi_radius=roi_radius,
                          sigma_y=sigma_y, snr_db=snr_db, weights=weights, weight_type=weight_type,
                          sharpness=sharpness, positivity=positivity, sigma_x=sigma_x, p=p, q=q, T=T, b_interslice=b_interslice,
-                         init_image=lr_init_image, init_proj=init_proj, prox_image=lr_prox_image,
+                         init_image=lr_init_image, prox_image=lr_prox_image, init_proj=init_proj,
                          stop_threshold=stop_threshold, max_iterations=max_iterations, max_resolutions=max_resolutions,
                          num_threads=num_threads, delete_temps=delete_temps, svmbir_lib_path=svmbir_lib_path, object_name=object_name,
                          verbose=verbose)
@@ -485,7 +488,7 @@ def recon(sino, angles,
                                             num_rows=num_rows, num_cols=num_cols, roi_radius=roi_radius,
                                             sigma_y=sigma_y, snr_db=snr_db, weights=weights, weight_type=weight_type,
                                             sharpness=sharpness, positivity=positivity, sigma_x=sigma_x, p=p, q=q, T=T, b_interslice=b_interslice,
-                                            init_image=init_image, init_proj=init_proj, prox_image=prox_image,
+                                            init_image=init_image, prox_image=prox_image, init_proj=init_proj,
                                             stop_threshold=stop_threshold, max_iterations=max_iterations,
                                             delete_temps=delete_temps, svmbir_lib_path=svmbir_lib_path, object_name=object_name,
                                             verbose=verbose)
@@ -498,7 +501,7 @@ def fixed_resolution_recon(sino, angles,
                             num_rows, num_cols, roi_radius,
                             sigma_y, snr_db, weights, weight_type,
                             sharpness, positivity, sigma_x, p, q, T, b_interslice,
-                            init_image, init_proj, prox_image,
+                            init_image, prox_image, init_proj,
                             stop_threshold, max_iterations,
                             delete_temps, svmbir_lib_path, object_name,
                             verbose):
@@ -614,7 +617,7 @@ def project(angles, image, num_channels,
             [Default=0.0] Scalar value of offset from center-of-rotation.
         roi_radius (None, optional):
             [Default=None] Scalar value of radius of reconstruction in :math:`ALU`.
-            If None, automatically set by calling svmbir.auto_roi_radius.
+            If None, automatically set with auto_roi_radius.
             Pixels outside the radius roi_radius in the :math:`(x,y)` plane are disregarded in forward projection.
             The automatically set size of roi_radius is choosen so that it inscribes the largest axis of the recon image with a shape (num_slices,num_row,num_col).
         num_threads (int, optional): [Default=None] Number of compute threads requested when executed.

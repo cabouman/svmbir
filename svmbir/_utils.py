@@ -163,22 +163,116 @@ def delete_data_openmbir(rootPath, suffix, num_files):
         os.remove(fname)
 
 
-##########################################
-## mbir Test for valid parameter values ##
-##########################################
+##############################
+## Parameter Test Functions ##
+##############################
 
-def test_pq_values(p, q):
+def test_params_line0(sino, angles):
+
+    # Test for valid sino structure, and if necessary, make it 3D
+    assert isinstance(sino, np.ndarray) and ((sino.ndim == 3) or (sino.ndim == 2)), "Invalid sinogram input"
+    if sino.ndim == 2 :
+        sino = sino[:, np.newaxis, :]
+        print("svmbir.recon() warning: Input sino array only 2D. Added singleton dimension to slice index to make it 3D.")
+
+    assert isinstance(angles, np.ndarray) and (angles.ndim == 1), "Invalid angle array input"
+
+    return sino
+
+
+def test_params_line1(center_offset, delta_channel, delta_pixel):
+
+    if not isinstance(center_offset, float):
+        warnings.warn("Parameter center_offset is not valid float; Setting center_offset = 0.0.")
+        delta_channel = 0.0
+
+    if not isinstance(delta_channel, float):
+        warnings.warn("Parameter delta_channel is not valid float; Setting delta_channel = 1.0.")
+        delta_channel = 1.0
+
+    if not ((delta_pixel is None) or (isinstance(delta_pixel, float) and (delta_pixel > 0))):
+        warnings.warn("Parameter delta_pixel is not valid float; Setting delta_pixel = 1.0.")
+        delta_pixel = 1.0
+
+    return center_offset, delta_channel, delta_pixel
+
+
+def test_params_line2(num_rows, num_cols, roi_radius) :
+
+    if not ((roi_radius is None) or isinstance(num_rows, int)):
+        warnings.warn("Parameter num_rows is not valid int; Setting num_rows = None.")
+        num_rows = None
+
+    if not ((roi_radius is None) or isinstance(num_cols, int)):
+        warnings.warn("Parameter num_rows is not valid int; Setting num_cols = None.")
+        num_cols = None
+
+    if not ((roi_radius is None) or ((isinstance(roi_radius, float) and (roi_radius > 0)))):
+        warnings.warn("Parameter roi_radius is not valid float; Setting roi_radius = None.")
+        roi_radius = None
+
+    return num_rows, num_cols, roi_radius
+
+
+def test_params_line3(sigma_y, snr_db, weights, weight_type):
+
+    if not ((sigma_y is None) or (isinstance(sigma_y, float) and (sigma_y > 0))):
+        warnings.warn("Parameter sigma_y is not valid float; Setting sigma_y = None.")
+        sigma_y = None
+
+    if not isinstance(snr_db, float):
+        warnings.warn("Parameter snr_db is not valid float; Setting snr_db = 30.")
+        snr_db = 30
+
+    if not ((weights is None) or (isinstance(weights, np.ndarray) or (weights.ndim == 3))):
+        warnings.warn("Parameter weights is not valid 3D np array; Setting weights = None.")
+        weights = None
+
+    list_of_weights = ['unweighted', 'transmission', 'transmission_root', 'emission']
+    if not (isinstance(weight_type, str) and (weight_type in list_of_weights)):
+        warnings.warn("Parameter weight_type is not valid string; Setting roi_radius = 'unweighted'")
+        weight_type = 'unweighted'
+
+    return sigma_y, snr_db, weights, weight_type
+
+
+def test_params_line4(sharpness, positivity, sigma_x):
+
+    if not isinstance(sharpness, float):
+        warnings.warn("Parameter sharpness is not valid float; Setting sharpness = 0.0.")
+        sharpness = 0.0
+
+    if not isinstance(positivity, bool):
+        warnings.warn("Parameter positivity is not valid boolean; Setting positivity = True.")
+        positivity = True
+
+    if not ((sigma_x is None) or isinstance(sigma_x, float)):
+        warnings.warn("Parameter weights is not valid float; Setting weights = None.")
+        weights = None
+
+    return sharpness, positivity, sigma_x
+
+
+def test_pqtb_values(p, q, T, b_interslice):
     """ Tests that p, q have valid values; prints warnings if necessary; and returns valid values.
     """
 
-    # Check that p and q are floats
-    if (q is None) or (not isinstance(q, float)):
+    # Check that p, q, T, b_interslice are floats
+    if not isinstance(q, float):
         q = 2.0
-        warnings.warn("Parameter q does not have value type; Setting q = 2.0")
+        warnings.warn("Parameter q is wrong type; Setting q = 2.0")
 
-    if (p is None) or (not isinstance(p, float)):
+    if not isinstance(p, float):
         p = 1.2
-        warnings.warn("Parameter q does not have value type; Setting q = 2.0")
+        warnings.warn("Parameter q is wrong type; Setting q = 2.0")
+
+    if not isinstance(p, float):
+        T = 1.0
+        warnings.warn("Parameter T is wrong type; Setting T = 1.0")
+
+    if not isinstance(p, float):
+        b_interslice = 1.0
+        warnings.warn("Parameter T is wrong type; Setting b_interslice = 1.0")
 
     # Check that q is valid
     if not (1.0 <= q <= 2.0):
@@ -199,35 +293,55 @@ def test_pq_values(p, q):
         p = q
         warnings.warn("Parameter p > q; Setting p = q.0")
 
-    return p, q
+    return p, q, T, b_interslice
 
 
-def test_parameter_values(delta_channel, delta_pixel, roi_radius):
-    """ Tests that delta_channel, delta_pixel, roi_radius have valid values; prints warnings if necessary; and returns valid values.
-    """
+def test_params_line5(init_image, prox_image, init_proj):
 
-    if not ((delta_pixel is None) or (isinstance(delta_channel, float) and (delta_channel > 0))):
-        warnings.warn("Parameter delta_channel is not valid float; Setting delta_channel = 1.0.")
-        delta_channel = 1.0
+    if not (isinstance(init_image, float) or (isinstance(init_image, np.ndarray) and (init_image.ndim == 3))):
+        warnings.warn("Parameter init_image is not either a valid float or 3D np array; Setting init_image = 0.0.")
+        init_image = 0.0
 
-    if not ((delta_pixel is None) or (isinstance(delta_pixel, float) and (delta_pixel > 0))):
-        warnings.warn("Parameter delta_pixel is not valid float; Setting delta_pixel = 1.0.")
-        delta_pixel = 1.0
+    if not ((prox_image is None) or (isinstance(prox_image, np.ndarray) and (prox_image.ndim == 3))):
+        warnings.warn("Parameter prox_image is not a valid 3D np array; Setting prox_image = None.")
+        prox_image = None
 
-    if not ((roi_radius is None) or (isinstance(roi_radius, float) and (roi_radius > 0))):
-        warnings.warn("Parameter roi_radius is not valid float; Setting roi_radius = 1.0.")
-        roi_radius = 1.0
+    if not ((init_proj is None) or (isinstance(init_proj, np.ndarray) and (init_proj.ndim == 3))):
+        warnings.warn("Parameter init_proj is not a valid 3D np array; Setting init_proj = None.")
+        init_proj = None
 
-    return delta_channel, delta_pixel, roi_radius
+    return init_image, prox_image, init_proj
 
 
-def test_weight_type_value(weight_type):
-    """ Tests that weight_type has a valid value; prints warnings if necessary; and returns valid values.
-    """
-    list_of_weights = ['unweighted', 'transmission', 'transmission_root', 'emission']
+def test_params_line6(max_resolutions, stop_threshold, max_iterations):
 
-    if not ((weight_type is None) or (isinstance(weight_type, str) and (weight_type in list_of_weights))) :
-        warnings.warn("Parameter weight_type is not valid string; Setting roi_radius = 'unweighted'")
-        weight_type = 'unweighted'
+    if not (isinstance(max_resolutions, int) and (max_resolutions >= 0)):
+        warnings.warn("Parameter max_resolutions is not valid int; Setting max_resolutions = 0.")
+        max_resolutions = 0
 
-    return weight_type
+    if not (isinstance(stop_threshold, float) and (stop_threshold > 0)):
+        warnings.warn("Parameter stop_threshold is not valid float; Setting stop_threshold = 0.0.")
+        stop_threshold = 0.0
+
+    if not (isinstance(max_iterations, int) and (max_iterations > 0)):
+        warnings.warn("Parameter max_iterations is not valid int; Setting max_iterations = 100.")
+        max_iterations = 100
+
+    return max_resolutions, stop_threshold, max_iterations
+
+
+def test_params_line7(num_threads, delete_temps, verbose):
+
+    if not (isinstance(num_threads, int) and (num_threads > 0)):
+        warnings.warn("Parameter num_threads is not valid int; Setting num_threads = None.")
+        num_threads = None
+
+    if not isinstance(delete_temps, bool):
+        warnings.warn("Parameter delete_temps is not valid boolean; Setting delete_temps = True.")
+        delete_temps = True
+
+    if not (isinstance(verbose, int) and (verbose >= 0)):
+        warnings.warn("Parameter verbose is not valid int; Setting verbose = 100.")
+        verbose = 1
+
+    return num_threads, delete_temps, verbose
