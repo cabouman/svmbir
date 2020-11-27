@@ -324,7 +324,7 @@ def recon(sino, angles,
             If None, automatically set.
 
         sigma_y (float, optional): [Default=None] Scalar value of noise standard deviation parameter.
-            If None, automatically set.
+            If None, automatically set with auto_sigma_y.
 
         snr_db (float, optional): [Default=30.0] Scalar value that controls assumed signal-to-noise ratio of the data in dB.
             Ignored if sigma_y is not None.
@@ -346,7 +346,7 @@ def recon(sino, angles,
         positivity (bool, optional): [Default=True] Boolean value that determines if positivity constraint is enforced. The positivity parameter defaults to True; however, it should be changed to False when used in applications that can generate negative image values.
 
         sigma_x (float, optional): [Default=None] Scalar value :math:`>0` that specifies the qGGMRF scale parameter.
-            If None, automatically set by calling svmbir.auto_sigma_x. The parameter sigma_x can be used to directly control regularization, but this is only recommended for expert users.
+            If None, automatically set with auto_sigma_x. The parameter sigma_x can be used to directly control regularization, but this is only recommended for expert users.
 
         p (float, optional): [Default=1.2] Scalar value in range :math:`[1,2]` that specifies the qGGMRF shape parameter.
 
@@ -396,6 +396,7 @@ def recon(sino, angles,
     ##################################################################
 
     # If not specified, then set number of threads = to number of processors
+    # This could get call multiple times recursively. Is that a problem?
     if num_threads is None :
         num_threads = cpu_count(logical=False)
     os.environ['OMP_NUM_THREADS'] = str(num_threads)
@@ -486,7 +487,7 @@ def recon(sino, angles,
                                             sharpness=sharpness, positivity=positivity, sigma_x=sigma_x, p=p, q=q, T=T, b_interslice=b_interslice,
                                             init_image=init_image, init_proj=init_proj, prox_image=prox_image,
                                             stop_threshold=stop_threshold, max_iterations=max_iterations,
-                                            num_threads=num_threads, delete_temps=delete_temps, svmbir_lib_path=svmbir_lib_path, object_name=object_name,
+                                            delete_temps=delete_temps, svmbir_lib_path=svmbir_lib_path, object_name=object_name,
                                             verbose=verbose)
 
     return reconstruction
@@ -499,7 +500,7 @@ def fixed_resolution_recon(sino, angles,
                             sharpness, positivity, sigma_x, p, q, T, b_interslice,
                             init_image, init_proj, prox_image,
                             stop_threshold, max_iterations,
-                            num_threads, delete_temps, svmbir_lib_path, object_name,
+                            delete_temps, svmbir_lib_path, object_name,
                             verbose):
     """Fixed resolution SVMBIR reconstruction used by recon().
 
