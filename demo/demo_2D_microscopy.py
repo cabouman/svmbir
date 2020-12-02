@@ -22,7 +22,7 @@ T = 1
 p = 1.2
 sharpness = 0.0
 snr_db = 30.0
-max_iterations = 500
+max_resolutions=2
 
 # Display parameters
 vmin = 0.0
@@ -42,7 +42,7 @@ sino = svmbir.project(angles, phantom, max(num_rows, num_cols))
 (num_views, num_slices, num_channels) = sino.shape
 
 # Perform MBIR reconstruction
-recon = svmbir.recon(sino, angles, num_rows=num_rows, num_cols=num_cols, T=T, p=p, sharpness=sharpness, snr_db=snr_db, max_iterations=max_iterations )
+recon = svmbir.recon(sino, angles, num_rows=num_rows, num_cols=num_cols, T=T, p=p, max_resolutions=max_resolutions, sharpness=sharpness, snr_db=snr_db )
 
 # Compute Normalized Root Mean Squared Error
 nrmse = svmbir.phantom.nrmse(recon[0], phantom[0])

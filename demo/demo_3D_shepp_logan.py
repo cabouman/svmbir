@@ -39,7 +39,7 @@ sino = svmbir.project(angles, phantom, num_rows_cols )
 # Determine resulting number of views, slices, and channels
 (num_views, num_slices, num_channels) = sino.shape
 
-# Perform MBIR reconstruction
+# Perform fixed resolution MBIR reconstruction
 recon = svmbir.recon(sino, angles, T=T, p=p, sharpness=sharpness, snr_db=snr_db)
 
 # Compute Normalized Root Mean Squared Error
@@ -52,8 +52,8 @@ os.makedirs('output', exist_ok=True)
 title = f'Slice {display_slice:d} of 3D Shepp Logan Phantom.'
 plot_image(phantom[display_slice], title=title, filename='output/3d_shepp_logan_phantom.png', vmin=vmin, vmax=vmax)
 
-# display reconstruction
-title = f'Slice {display_slice:d} of of 3D Recon with NRMSE={nrmse:.3f}.'
+# display fix resolution reconstruction
+title = f'Slice {display_slice:d} of 3D Recon with NRMSE={nrmse:.3f}.'
 plot_image(recon[display_slice], title=title, filename='output/3d_shepp_logan_recon.png', vmin=vmin, vmax=vmax)
 
 input("press Enter")

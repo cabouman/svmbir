@@ -43,11 +43,15 @@ sino = svmbir.project(angles, phantom, max(num_rows, num_cols))
 # Determine resulting number of views, slices, and channels
 (num_views, num_slices, num_channels) = sino.shape
 
-# Perform MBIR reconstruction
-recon = svmbir.recon(sino, angles, num_rows=num_rows, num_cols=num_cols, max_resolutions=max_resolutions, T=T, p=p, sharpness=sharpness, snr_db=snr_db )
+# Perform fixed resolution MBIR reconstruction
+recon = svmbir.recon(sino, angles, num_rows=num_rows, num_cols=num_cols, T=T, p=p, sharpness=sharpness, snr_db=snr_db )
+
+# Perform multi-resolution MBIR reconstruction
+mr_recon = svmbir.recon(sino, angles, num_rows=num_rows, num_cols=num_cols, T=T, p=p, max_resolutions=max_resolutions, sharpness=sharpness, snr_db=snr_db )
 
 # Compute Normalized Root Mean Squared Error
 nrmse = svmbir.phantom.nrmse(recon, phantom)
+mr_nrmse = svmbir.phantom.nrmse(mr_recon, phantom)
 
 # create output folder
 os.makedirs('output', exist_ok=True)
@@ -55,8 +59,12 @@ os.makedirs('output', exist_ok=True)
 # display phantom
 plot_image(phantom[display_slice], title='Shepp Logan Phantom', filename='output/3D_microscopy_phantom.png', vmin=vmin, vmax=vmax)
 
-# display reconstruction
-title = f'Slice {display_slice:d} of Reconstruction with NRMSE={nrmse:.3f}.'
-plot_image(recon[display_slice], title=title, filename='output/3D_microscopy_recon.png', vmin=vmin, vmax=vmax)
+# display fixed resolution reconstruction
+title = f'Slice {display_slice:d} of Fixed Res Recon with NRMSE={nrmse:.3f}.'
+plot_image(recon[display_slice], title=title, filename='output/mr_3D_microscopy_recon.png', vmin=vmin, vmax=vmax)
+
+# display multi-resolution reconstruction
+title = f'Slice {display_slice:d} of Multi-Res Recon with NRMSE={mr_nrmse:.3f}.'
+plot_image(recon[display_slice], title=title, filename='output/mr_3D_microscopy_recon.png', vmin=vmin, vmax=vmax)
 
 input("press Enter")
