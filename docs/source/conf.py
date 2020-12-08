@@ -42,8 +42,7 @@ extensions = [
     'sphinx.ext.autosummary',
     'sphinx.ext.napoleon',
     'sphinxcontrib.bibtex',
-    'sphinx.ext.viewcode',
-    'recommonmark'
+    'sphinx.ext.viewcode'
 ]
 
 exclude_patterns = ['_build', '**.ipynb_checkpoints']
