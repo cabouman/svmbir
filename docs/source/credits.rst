@@ -4,7 +4,7 @@ Credits
 SVMBIR Development Team
 -----------------------
 
-We thank the SVMBIR Development Team listed below in alphabetical order for their contributions to this software:
+The SVMBIR Development Team is listed below in alphabetical order:
 
     Thilo Balke, Charles A. Bouman, Gregery T. Buzzard, Maliha Hossain, Sherman Jordan Kisner, Wenrui Li, Soumendu Majee, Samuel Midkiff, Amit Sabne, Venkatesh Sridhar, Singanalllur Venkatakrishnan, Xiao Wang, and Brendt Wohlberg.
 
