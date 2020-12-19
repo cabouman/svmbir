@@ -362,7 +362,7 @@ def fixed_resolution_recon(sino, angles,
 def project(image, sinoparams, settings):
 
     paths = settings['paths']
-    verbose = 2 #settings['verbose']
+    verbose = settings['verbose']
     imgparams = settings['imgparams']
     delete_temps = settings['delete_temps']
 
