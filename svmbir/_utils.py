@@ -184,7 +184,7 @@ def test_params_line1(center_offset, delta_channel, delta_pixel):
 
     if not isinstance(center_offset, float):
         warnings.warn("Parameter center_offset is not valid float; Setting center_offset = 0.0.")
-        delta_channel = 0.0
+        center_offset = 0.0
 
     if not isinstance(delta_channel, float):
         warnings.warn("Parameter delta_channel is not valid float; Setting delta_channel = 1.0.")
@@ -266,11 +266,11 @@ def test_pqtb_values(p, q, T, b_interslice):
         p = 1.2
         warnings.warn("Parameter q is wrong type; Setting q = 2.0")
 
-    if not isinstance(p, float):
+    if not isinstance(T, float):
         T = 1.0
         warnings.warn("Parameter T is wrong type; Setting T = 1.0")
 
-    if not isinstance(p, float):
+    if not isinstance(b_interslice, float):
         b_interslice = 1.0
         warnings.warn("Parameter T is wrong type; Setting b_interslice = 1.0")
 
