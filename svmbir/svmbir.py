@@ -254,7 +254,7 @@ def auto_sigma_x(sino, delta_channel = 1.0, sharpness = 1.0 ):
             [Default=1.0] Scalar value of detector channel spacing in :math:`ALU`.
         sharpness (float, optional):
             [Default=0.0] Scalar value that controls level of sharpness.
-            ``sharpness=0`` is neutral; ``sharpness>0`` increases sharpness; ``sharpness<0`` reduces sharpness
+            ``sharpness=0.0`` is neutral; ``sharpness>0`` increases sharpness; ``sharpness<0`` reduces sharpness
 
     Returns:
         float: Automatic value of regularization parameter.
@@ -288,9 +288,10 @@ def auto_num_cols(num_channels, delta_channel, delta_pixel):
 
 
 def auto_roi_radius(delta_pixel, num_rows, num_cols):
-    """Computes the automatic value of ``num_cols``.
+    """Computes the automatic value of ``roi_radius``.
+       Chosen so that it inscribes the largest axis of the recon image.
     """
-    roi_radius = float(delta_pixel * max(num_rows, num_cols))
+    roi_radius = float(delta_pixel * max(num_rows, num_cols))/2.0
     return roi_radius
 
 
@@ -324,6 +325,7 @@ def recon(sino, angles,
 
         roi_radius (float, optional): [Default=None] Scalar value of radius of reconstruction in :math:`ALU`.
             If None, automatically set with auto_roi_radius().
+            Pixels outside the radius roi_radius in the :math:`(x,y)` plane are disregarded in the reconstruction.
 
         sigma_y (float, optional): [Default=None] Scalar value of noise standard deviation parameter.
             If None, automatically set with auto_sigma_y.
@@ -342,7 +344,7 @@ def recon(sino, angles,
 
         sharpness (float, optional):
             [Default=0.0] Scalar value that controls level of sharpness.
-            ``sharpness=0`` is neutral; ``sharpness>0`` increases sharpness; ``sharpness<0`` reduces sharpness.
+            ``sharpness=0.0`` is neutral; ``sharpness>0`` increases sharpness; ``sharpness<0`` reduces sharpness.
             Ignored if sigma_x is not None.
 
         positivity (bool, optional): [Default=True] Boolean value that determines if positivity constraint is enforced. The positivity parameter defaults to True; however, it should be changed to False when used in applications that can generate negative image values.
@@ -357,7 +359,7 @@ def recon(sino, angles,
         T (float, optional): [Default=1.0] Scalar value :math:`>0` that specifies the qGGMRF threshold parameter.
 
         b_interslice (float, optional): [Default=1.0] Scalar value :math:`>0` that specifies the interslice regularization.
-            The default values of 1 should be fine for most applications.
+            The default value of 1.0 should be fine for most applications.
             However, b_interslice can be increased to values :math:`>1` in order to increase regularization along the slice axis.
 
         init_image (float, optional): [Default=0.0] Initial value of reconstruction image, specified by either a scalar value or a 3D numpy array with shape (num_slices,num_rows,num_cols).
@@ -369,7 +371,7 @@ def recon(sino, angles,
             If prox_image is supplied, then the proximal map prior model is used, and the qGGMRF parameters are ignored.
 
         stop_threshold (float, optional): [Default=0.02] Scalar valued stopping threshold in percent.
-            If stop_threshold=0, then run max iterations.
+            If stop_threshold=0.0, then run max iterations.
 
         max_iterations (int, optional): [Default=100] Integer valued specifying the maximum number of iterations. The value of ``max_iterations`` may need to be increased for reconstructions with limited tilt angles or high regularization.
 
@@ -606,7 +608,7 @@ def project(angles, image, num_channels,
         image (ndarray):
             3D numpy array of image being forward projected.
             The image is a 3D image with a shape of (num_slices,num_row,num_col) where num_slices is the number of sinogram slices.
-            The image should be 0 outside the ROI as defined by roi_radius.
+            The image should be 0 outside the ROI as defined by roi_radius (those pixel will be disregarded).
         num_channels (int):
             Integer number of sinogram channels.
         delta_channel (float, optional):
@@ -615,11 +617,9 @@ def project(angles, image, num_channels,
             [Default=1.0] Scalar value of the spacing between image pixels in the 2D slice plane in :math:`ALU`.
         center_offset (float, optional):
             [Default=0.0] Scalar value of offset from center-of-rotation.
-        roi_radius (None, optional):
-            [Default=None] Scalar value of radius of reconstruction in :math:`ALU`.
-            If None, automatically set with auto_roi_radius.
-            Pixels outside the radius roi_radius in the :math:`(x,y)` plane are disregarded in forward projection.
-            The automatically set size of roi_radius is choosen so that it inscribes the largest axis of the recon image with a shape (num_slices,num_row,num_col).
+        roi_radius (float, optional): [Default=None] Scalar value of radius of reconstruction in :math:`ALU`.
+            If None, automatically set with auto_roi_radius().
+            Pixels outside the radius roi_radius in the :math:`(x,y)` plane are disregarded in the forward projection.
         num_threads (int, optional): [Default=None] Number of compute threads requested when executed.
             If None, num_threads is set to the number of cores in the system
         delete_temps (bool, optional):
