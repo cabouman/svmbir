@@ -198,7 +198,6 @@ def _fixed_res_recon_c(reconparams, imgparams, sinoparams, data, settings):
 
     write_sino_openmbir(sino, paths['sino_name'] + '_slice', '.2Dsinodata')
     write_sino_openmbir(weights, paths['wght_name'] + '_slice', '.2Dweightdata')
-    del weights  ### WHY IS THIS DELETED HERE????
 
     _cmd_exec(**cmd_args)
 
