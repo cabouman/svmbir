@@ -34,7 +34,8 @@ setup(
      author_email='smajee@purdue.edu',
      packages=['svmbir'], 
      python_requires='>=3.6',
-     install_requires=['numpy', 'ruamel.yaml', 'matplotlib', 'psutil'], #external packages as dependencies
+     #external packages as dependencies
+     install_requires=['numpy','ruamel.yaml','matplotlib','psutil','pytest','scikit-image'], 
      package_data={'svmbir': [exec_file]}
      # package_data={'svmbir': ['sv-mbirct/bin/mbir_ct']}
      # ext_modules=[mbir_ct]
