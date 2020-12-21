@@ -375,7 +375,7 @@ def recon(sino, angles,
 
         max_iterations (int, optional): [Default=100] Integer valued specifying the maximum number of iterations. The value of ``max_iterations`` may need to be increased for reconstructions with limited tilt angles or high regularization.
 
-        max_resolutions (int, optional): [Default=2] Integer >=0 that specifies the maximum number of grid resolutions used to solve MBIR reconstruction problem.
+        max_resolutions (int, optional): [Default=0] Integer >=0 that specifies the maximum number of grid resolutions used to solve MBIR reconstruction problem.
 
         num_threads (int, optional): [Default=None] Number of compute threads requested when executed.
             If None, num_threads is set to the number of cores in the system
@@ -483,7 +483,7 @@ def recon(sino, angles,
 
     # Perform reconstruction at current resolution
     if verbose >= 1 :
-        print(f'Calling recon with at grid level of {rel_log2_resolution:.1f}.')
+        print(f'Calling recon at grid level of {rel_log2_resolution:.1f}.')
 
     reconstruction = fixed_resolution_recon(sino=sino, angles=angles,
                                             center_offset=center_offset, delta_channel=delta_channel, delta_pixel=delta_pixel,
