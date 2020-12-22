@@ -30,21 +30,37 @@ if os.environ.get('CC') =='gcc':
                       extra_compile_args=["-O3", "-fopenmp","-Wno-unknown-pragmas"],
                       extra_link_args=["-lm","-fopenmp"])
 
-# Install
-setup(
-     name='svmbir',
-     version='1.0',
-     description="Python code for fast parallel-beam MBIR (Model Based Iterative Reconstruction) ",
-     long_description=long_description,
-     long_description_content_type="text/markdown",
-     author='Soumendu Majee',
-     author_email='smajee@purdue.edu',
-     packages=PACKAGES,
-     python_requires='>=3.6',
-     #external packages as dependencies
-     install_requires=['numpy','ruamel.yaml','matplotlib','psutil','pytest','scikit-image','Cython'],
-     package_data={'svmbir': [exec_file]},
-     cmdclass = {"build_ext": build_ext},
-     ext_modules = [c_extension]
-)
+    # Install
+    setup(
+         name='svmbir',
+         version='1.0',
+         description="Python code for fast parallel-beam MBIR (Model Based Iterative Reconstruction) ",
+         long_description=long_description,
+         long_description_content_type="text/markdown",
+         author='Soumendu Majee',
+         author_email='smajee@purdue.edu',
+         packages=PACKAGES,
+         python_requires='>=3.6',
+         #external packages as dependencies
+         install_requires=['numpy','ruamel.yaml','matplotlib','psutil','pytest','scikit-image','Cython'],
+         package_data={'svmbir': [exec_file]},
+         cmdclass = {"build_ext": build_ext},
+         ext_modules = [c_extension]
+    )
+else:
+    # Install
+    setup(
+        name='svmbir',
+        version='1.0',
+        description="Python code for fast parallel-beam MBIR (Model Based Iterative Reconstruction) ",
+        long_description=long_description,
+        long_description_content_type="text/markdown",
+        author='Soumendu Majee',
+        author_email='smajee@purdue.edu',
+        packages=['svmbir'],
+        python_requires='>=3.6',
+        # external packages as dependencies
+        install_requires=['numpy', 'ruamel.yaml', 'matplotlib', 'psutil', 'pytest', 'scikit-image'],
+        package_data={'svmbir': [exec_file]}
+    )
 
