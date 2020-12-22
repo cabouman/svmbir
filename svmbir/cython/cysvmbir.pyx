@@ -41,7 +41,8 @@ cdef extern from "../sv-mbirct/src/A_comp.h":
     char verboseLevel);
 
 
-cdef write_ImageParams3D(ImageParams3D* imgparams, py_imageparams):
+cdef write_ImageParams3D(ImageParams3D* imgparams,
+                         py_imageparams):
     imgparams.Nx = py_imageparams['Nx']
     imgparams.Ny = py_imageparams['Ny']
     imgparams.Deltaxy = py_imageparams['Deltaxy']
@@ -52,7 +53,9 @@ cdef write_ImageParams3D(ImageParams3D* imgparams, py_imageparams):
     imgparams.NumSliceDigits = py_imageparams['NumSliceDigits']
 
 
-cdef write_SinoParams3D(SinoParams3DParallel* sinoparams, py_sinoparams, float[:] ViewAngles):
+cdef write_SinoParams3D(SinoParams3DParallel* sinoparams,
+                        py_sinoparams,
+                        float[:] ViewAngles):
     sinoparams.NChannels = py_sinoparams['NChannels']
     sinoparams.DeltaChannel = py_sinoparams['DeltaChannel']
     sinoparams.CenterOffset = py_sinoparams['CenterOffset']
@@ -64,7 +67,10 @@ cdef write_SinoParams3D(SinoParams3DParallel* sinoparams, py_sinoparams, float[:
     sinoparams.NumSliceDigits = py_sinoparams['NumSliceDigits']
 
 
-def cy_AmatrixComputeToFile(py_imageparams, py_sinoparams, char[:] Amatrix_fname, char verboseLevel):
+def cy_AmatrixComputeToFile(py_imageparams,
+                            py_sinoparams,
+                            char[:] Amatrix_fname,
+                            char verboseLevel):
     '''
     Cython wrapper that calls c code to compute A matrix to file.
     Args:
