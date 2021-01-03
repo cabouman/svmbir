@@ -35,11 +35,20 @@ cdef extern from "../sv-mbirct/src/MBIRModularDefs.h":
 # Import a c function to compute A matrix.
 cdef extern from "../sv-mbirct/src/A_comp.h":
     void AmatrixComputeToFile(
-    ImageParams3D imgparams,
-    SinoParams3DParallel sinoparams,
-    char *Amatrix_fname,
-    char verboseLevel);
+        ImageParams3D imgparams,
+        SinoParams3DParallel sinoparams,
+        char *Amatrix_fname,
+        char verboseLevel);
 
+# Import a c function to project a 3D object to sinogram with a computed A matrix.
+cdef extern from "../sv-mbirct/src/recon3d.h":
+    void forwardProject(
+        float *image,
+        float *proj,
+        ImageParams3D imgparams,
+        SinoParams3DParallel sinoparams,
+        char *Amatrix_fname,
+        char verboseLevel);
 
 cdef write_ImageParams3D(ImageParams3D* imgparams,
                          py_imageparams):
@@ -92,3 +101,38 @@ def cy_AmatrixComputeToFile(py_imageparams,
 
     # Compute A matrix.
     AmatrixComputeToFile(imgparams,sinoparams,&Amatrix_fname[0],verboseLevel)
+
+def cy_forwardProject(cnp.ndarray py_image,
+                      py_imageparams,
+                      py_sinoparams,
+                      char[:] Amatrix_fname,
+                      char verboseLevel):
+    # Get shapes of image and projection
+    cdef int nslices = np.shape(py_image)[0]
+    cdef int nrows = np.shape(py_image)[1]
+    cdef int ncols_img = np.shape(py_image)[2]
+
+    cdef int nviews = py_sinoparams['NViews']
+    cdef int nchannels = py_sinoparams['NChannels']
+
+
+    if not py_image.flags["C_CONTIGUOUS"]:
+        raise AttributeError("3D np.ndarrays must be C-contiguous")
+
+    cdef cnp.ndarray[float, ndim=3, mode="c"] cy_image = py_image
+
+    # Allocates memory, without initialization, for matrix to be passed back from C subroutine
+    cdef cnp.ndarray[float, ndim=3, mode="c"] py_proj = np.empty((nslices, nviews, nchannels), dtype=ctypes.c_float)
+
+    cdef ImageParams3D imgparams
+    cdef SinoParams3DParallel sinoparams
+
+    # Write parameter to c structures based on given py parameter List.
+    write_ImageParams3D(&imgparams, py_imageparams)
+    write_SinoParams3D(&sinoparams, py_sinoparams, py_sinoparams['ViewAngles'])
+
+    # Forward projection by calling C subroutine
+    forwardProject(&cy_image[0,0,0], &py_proj[0,0,0], imgparams,sinoparams,&Amatrix_fname[0],verboseLevel)
+
+    # Return cython ndarray
+    return py_proj

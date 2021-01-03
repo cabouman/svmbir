@@ -8,3 +8,4 @@ demo/output/*.png
 demo/run_demos_script
 pnp-demo/output/*.png
 docs/build/
+demo_cy/output/
