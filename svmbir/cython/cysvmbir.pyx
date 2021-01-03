@@ -107,6 +107,19 @@ def cy_forwardProject(cnp.ndarray py_image,
                       py_sinoparams,
                       char[:] Amatrix_fname,
                       char verboseLevel):
+    '''
+    Cython wrapper that calls c code to project a 3D image to sinogram.
+    Args:
+        py_image: 3D numpy float array with a shape of (num_slices,num_row,num_col). The 3D numpy float array should has C continuous order.
+        py_imageparams: python dictionary stores image parameters
+        py_sinoparams: python dictionary stores sinogram parameters
+        Amatrix_fname: path to store computed A matrix.
+        verboseLevel: Possible values are {0,1,2}, where 0 is quiet, 1 prints minimal reconstruction progress information, and 2 prints the full information.
+
+    Returns:
+        py_proj: 3D numpy float array with a shape of (num_slices,num_views,num_channels) that is the projection from give 3D image.
+
+    '''
     # Get shapes of image and projection
     cdef int nslices = np.shape(py_image)[0]
     cdef int nrows = np.shape(py_image)[1]
