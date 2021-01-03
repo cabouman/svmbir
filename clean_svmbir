@@ -1,6 +1,6 @@
 #!/bin/bash
 
-/bin/rm svmbir/cython/cysvmbir.c
+/bin/rm svmbir/cysvmbir.c
 /bin/rm -r build
 /bin/rm -r svmbir.egg-info
 /bin/rm -r dist

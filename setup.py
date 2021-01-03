@@ -20,10 +20,10 @@ SRC_DIR = PACKAGES_DIR + "/sv-mbirct/src/"
 
 # OpenMP gcc compile: tested for MacOS and Linux
 if os.environ.get('CC') =='gcc':
-    c_extension = Extension(PACKAGES_DIR + ".cython.cysvmbir",
+    c_extension = Extension(PACKAGES_DIR + ".cysvmbir",
                       [SRC_DIR + "A_comp.c", SRC_DIR + "allocate.c", SRC_DIR + "heap.c",
                        SRC_DIR + "icd3d.c", SRC_DIR + "initialize.c", SRC_DIR + "MBIRModularUtils.c",
-                       SRC_DIR + "recon3d.c", PACKAGES_DIR + "/cython/cysvmbir.pyx"],
+                       SRC_DIR + "recon3d.c", PACKAGES_DIR + "/cysvmbir.pyx"],
                       libraries=[],
                       include_dirs=[np.get_include()],
                       # for gcc-10 "-std=c11" can be added as a flag

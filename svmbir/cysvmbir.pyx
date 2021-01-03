@@ -4,7 +4,7 @@ cimport cython          # Import cython package
 cimport numpy as cnp    # Import specialized cython support for numpy
 
 # Import c data structure
-cdef extern from "../sv-mbirct/src/MBIRModularDefs.h":
+cdef extern from "./sv-mbirct/src/MBIRModularDefs.h":
     # 3D Sinogram Parameters 
     struct SinoParams3DParallel:
         int NChannels;         # Number of channels in detector 
@@ -33,7 +33,7 @@ cdef extern from "../sv-mbirct/src/MBIRModularDefs.h":
         int NumSliceDigits;     # Number of slice numbers digits used in file name
 
 # Import a c function to compute A matrix.
-cdef extern from "../sv-mbirct/src/A_comp.h":
+cdef extern from "./sv-mbirct/src/A_comp.h":
     void AmatrixComputeToFile(
         ImageParams3D imgparams,
         SinoParams3DParallel sinoparams,
@@ -41,7 +41,7 @@ cdef extern from "../sv-mbirct/src/A_comp.h":
         char verboseLevel);
 
 # Import a c function to project a 3D object to sinogram with a computed A matrix.
-cdef extern from "../sv-mbirct/src/recon3d.h":
+cdef extern from "./sv-mbirct/src/recon3d.h":
     void forwardProject(
         float *image,
         float *proj,
