@@ -1,6 +1,6 @@
 import os
 import numpy as np
-from svmbir.cython.cysvmbir import *
+from svmbir.cysvmbir import *
 
 
 def string_to_char_array(input_str):

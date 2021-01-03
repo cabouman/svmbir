@@ -1,7 +1,7 @@
 import os
 import numpy as np
 import svmbir
-from svmbir.cython.cysvmbir import *
+from svmbir.cysvmbir import *
 import svmbir.py_c_interface as pci
 from svmbir.phantom import plot_image
 
