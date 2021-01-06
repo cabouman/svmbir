@@ -319,7 +319,7 @@ def test_params_line6(max_resolutions, stop_threshold, max_iterations):
         warnings.warn("Parameter max_resolutions is not valid int; Setting max_resolutions = 0.")
         max_resolutions = 0
 
-    if not (isinstance(stop_threshold, float) and (stop_threshold > 0)):
+    if not (isinstance(stop_threshold, float) and (stop_threshold >= 0)):
         warnings.warn("Parameter stop_threshold is not valid float; Setting stop_threshold = 0.0.")
         stop_threshold = 0.0
 

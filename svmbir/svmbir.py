@@ -275,17 +275,23 @@ def recon(sino, angles,
         sigma_x = auto_sigma_x(sino, delta_channel, sharpness)
 
     # Determine current level of relative decimation
-    rel_log2_resolution = math.log2(delta_pixel / delta_channel)
+    #rel_log2_resolution = math.log2(delta_pixel / delta_channel)
 
     # Determine if it the algorithm should reduce resolution further
-    go_to_lower_resolution = (rel_log2_resolution < max_resolutions) and (min(num_rows, num_cols) > 16)
+    #go_to_lower_resolution = (rel_log2_resolution < max_resolutions) and (min(num_rows, num_cols) > 16)
+    go_to_lower_resolution = (max_resolutions > 0) and (min(num_rows, num_cols) > 16)
 
     # If resolution is too high, then do recursive call to lower resolutions
     if go_to_lower_resolution:
+        new_max_resolutions = max_resolutions-1;
+
         # Set the pixel pitch, num_rows, and num_cols for the next lower resolution
         lr_delta_pixel = 2 * delta_pixel
         lr_num_rows = int(np.ceil(num_rows / 2))
         lr_num_cols = int(np.ceil(num_cols / 2))
+
+        # Set value of sigma_y for lower resolution
+        lr_sigma_y = auto_sigma_y(sino, weights, snr_db, delta_pixel=lr_delta_pixel, delta_channel=delta_channel)
 
         # Reduce resolution of initialization image if there is one
         if isinstance(init_image, np.ndarray) and (init_image.ndim == 3):
@@ -300,24 +306,27 @@ def recon(sino, angles,
             lr_prox_image = prox_image
 
         if verbose >= 1:
-            print(f'Calling multires_recon at grid level of {rel_log2_resolution:.1f}.')
+            #print(f'Calling multires_recon at grid level of {rel_log2_resolution:.1f}.')
+            print(f'Calling multires_recon for axial size (rows,cols)=({lr_num_rows},{lr_num_cols}).')
 
         lr_recon = recon(sino=sino, angles=angles,
                          center_offset=center_offset, delta_channel=delta_channel, delta_pixel=lr_delta_pixel,
                          num_rows=lr_num_rows, num_cols=lr_num_cols, roi_radius=roi_radius,
-                         sigma_y=sigma_y, snr_db=snr_db, weights=weights, weight_type=weight_type,
+                         sigma_y=lr_sigma_y, snr_db=snr_db, weights=weights, weight_type=weight_type,
                          sharpness=sharpness, positivity=positivity, sigma_x=sigma_x, p=p, q=q, T=T, b_interslice=b_interslice,
                          init_image=lr_init_image, prox_image=lr_prox_image, init_proj=init_proj,
-                         stop_threshold=stop_threshold, max_iterations=max_iterations, max_resolutions=max_resolutions,
+                         stop_threshold=stop_threshold, max_iterations=max_iterations, max_resolutions=new_max_resolutions,
                          num_threads=num_threads, delete_temps=delete_temps, svmbir_lib_path=svmbir_lib_path, object_name=object_name,
                          verbose=verbose)
 
         # Interpolate resolution of reconstruction
         init_image = recon_resize(lr_recon, (num_rows, num_cols))
+        del lr_recon
 
     # Perform reconstruction at current resolution
     if verbose >= 1 :
-        print(f'Calling recon at grid level of {rel_log2_resolution:.1f}.')
+        #print(f'Calling recon at grid level of {rel_log2_resolution:.1f}.')
+        print(f'Calling recon for axial size (rows,cols)=({num_rows},{num_cols}).')
 
     reconstruction = pci.fixed_resolution_recon(sino=sino, angles=angles,
                                             center_offset=center_offset, delta_channel=delta_channel, delta_pixel=delta_pixel,
