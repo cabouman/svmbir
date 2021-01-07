@@ -182,6 +182,14 @@ def test_params_line0(sino, angles):
 
 def test_params_line1(center_offset, delta_channel, delta_pixel):
 
+    # Convert parameter ints to floats
+    if isinstance(center_offset,int):
+        center_offset = float(center_offset)
+    if isinstance(delta_channel,int):
+        delta_channel = float(delta_channel)
+    if isinstance(delta_pixel,int):
+        delta_pixel = float(delta_pixel)
+
     if not isinstance(center_offset, float):
         warnings.warn("Parameter center_offset is not valid float; Setting center_offset = 0.0.")
         center_offset = 0.0
@@ -199,6 +207,10 @@ def test_params_line1(center_offset, delta_channel, delta_pixel):
 
 def test_params_line2(num_rows, num_cols, roi_radius):
 
+    # Convert parameter ints to floats
+    if isinstance(roi_radius,int):
+        roi_radius = float(roi_radius)
+
     if not ((roi_radius is None) or isinstance(num_rows, int)):
         warnings.warn("Parameter num_rows is not valid int; Setting num_rows = None.")
         num_rows = None
@@ -215,6 +227,12 @@ def test_params_line2(num_rows, num_cols, roi_radius):
 
 
 def test_params_line3(sigma_y, snr_db, weights, weight_type):
+
+    # Convert parameter ints to floats
+    if isinstance(sigma_y,int):
+        sigma_y = float(sigma_y)
+    if isinstance(snr_db,int):
+        snr_db = float(snr_db)
 
     if not ((sigma_y is None) or (isinstance(sigma_y, float) and (sigma_y > 0))):
         warnings.warn("Parameter sigma_y is not valid float; Setting sigma_y = None.")
@@ -238,6 +256,12 @@ def test_params_line3(sigma_y, snr_db, weights, weight_type):
 
 def test_params_line4(sharpness, positivity, sigma_x):
 
+    # Convert parameter ints to floats
+    if isinstance(sharpness,int):
+        sharpness = float(sharpness)
+    if isinstance(sigma_x,int):
+        sigma_x = float(sigma_x)
+
     if not isinstance(sharpness, float):
         warnings.warn("Parameter sharpness is not valid float; Setting sharpness = 0.0.")
         sharpness = 0.0
@@ -246,9 +270,9 @@ def test_params_line4(sharpness, positivity, sigma_x):
         warnings.warn("Parameter positivity is not valid boolean; Setting positivity = True.")
         positivity = True
 
-    if not ((sigma_x is None) or isinstance(sigma_x, float)):
-        warnings.warn("Parameter weights is not valid float; Setting weights = None.")
-        weights = None
+    if not ((sigma_x is None) or (isinstance(sigma_x, float) and (sigma_x > 0))):
+        warnings.warn("Parameter sigma_x is not valid float; Setting sigma_x = None.")
+        sigma_x = None
 
     return sharpness, positivity, sigma_x
 
@@ -256,6 +280,16 @@ def test_params_line4(sharpness, positivity, sigma_x):
 def test_pqtb_values(p, q, T, b_interslice):
     """ Tests that p, q have valid values; prints warnings if necessary; and returns valid values.
     """
+
+    # Convert parameter ints to floats
+    if isinstance(p,int):
+        p = float(p)
+    if isinstance(q,int):
+        q = float(q)
+    if isinstance(T,int):
+        T = float(T)
+    if isinstance(b_interslice,int):
+        b_interslice = float(b_interslice)
 
     # Check that p, q, T, b_interslice are floats
     if not isinstance(q, float):
