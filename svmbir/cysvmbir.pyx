@@ -43,8 +43,8 @@ cdef extern from "./sv-mbirct/src/A_comp.h":
 # Import a c function to project a 3D object to sinogram with a computed A matrix.
 cdef extern from "./sv-mbirct/src/recon3d.h":
     void forwardProject(
-        float *image,
         float *proj,
+        float *image,
         ImageParams3D imgparams,
         SinoParams3DParallel sinoparams,
         char *Amatrix_fname,
@@ -145,7 +145,7 @@ def cy_forwardProject(cnp.ndarray py_image,
     write_SinoParams3D(&sinoparams, py_sinoparams, py_sinoparams['ViewAngles'])
 
     # Forward projection by calling C subroutine
-    forwardProject(&cy_image[0,0,0], &py_proj[0,0,0], imgparams,sinoparams,&Amatrix_fname[0],verboseLevel)
+    forwardProject(&py_proj[0,0,0], &cy_image[0,0,0], imgparams,sinoparams,&Amatrix_fname[0],verboseLevel)
 
     # Return cython ndarray
     return py_proj
