@@ -50,8 +50,8 @@ cdef extern from "./sv-mbirct/src/recon3d.h":
         char *Amatrix_fname,
         char verboseLevel);
 
-cdef write_ImageParams3D(ImageParams3D* imgparams,
-                         py_imageparams):
+cdef convert_py2c_ImageParams3D(ImageParams3D* imgparams,
+                                py_imageparams):
     imgparams.Nx = py_imageparams['Nx']
     imgparams.Ny = py_imageparams['Ny']
     imgparams.Deltaxy = py_imageparams['Deltaxy']
@@ -62,7 +62,7 @@ cdef write_ImageParams3D(ImageParams3D* imgparams,
     imgparams.NumSliceDigits = py_imageparams['NumSliceDigits']
 
 
-cdef write_SinoParams3D(SinoParams3DParallel* sinoparams,
+cdef convert_py2c_SinoParams3D(SinoParams3DParallel* sinoparams,
                         py_sinoparams,
                         float[:] ViewAngles):
     sinoparams.NChannels = py_sinoparams['NChannels']
@@ -95,9 +95,9 @@ def cy_AmatrixComputeToFile(py_imageparams,
     cdef ImageParams3D imgparams
     cdef SinoParams3DParallel sinoparams
 
-    # Write parameter to c structures based on given py parameter List.
-    write_ImageParams3D(&imgparams, py_imageparams)
-    write_SinoParams3D(&sinoparams, py_sinoparams, py_sinoparams['ViewAngles'])
+    # Convert parameter python dictionaries to c structures based on given py parameter List.
+    convert_py2c_ImageParams3D(&imgparams, py_imageparams)
+    convert_py2c_SinoParams3D(&sinoparams, py_sinoparams, py_sinoparams['ViewAngles'])
 
     # Compute A matrix.
     AmatrixComputeToFile(imgparams,sinoparams,&Amatrix_fname[0],verboseLevel)
@@ -141,8 +141,8 @@ def cy_forwardProject(cnp.ndarray py_image,
     cdef SinoParams3DParallel sinoparams
 
     # Write parameter to c structures based on given py parameter List.
-    write_ImageParams3D(&imgparams, py_imageparams)
-    write_SinoParams3D(&sinoparams, py_sinoparams, py_sinoparams['ViewAngles'])
+    convert_py2c_ImageParams3D(&imgparams, py_imageparams)
+    convert_py2c_SinoParams3D(&sinoparams, py_sinoparams, py_sinoparams['ViewAngles'])
 
     # Forward projection by calling C subroutine
     forwardProject(&py_proj[0,0,0], &cy_image[0,0,0], imgparams,sinoparams,&Amatrix_fname[0],verboseLevel)
