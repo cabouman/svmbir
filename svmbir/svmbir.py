@@ -274,11 +274,7 @@ def recon(sino, angles,
     if sigma_x is None:
         sigma_x = auto_sigma_x(sino, delta_channel, sharpness)
 
-    # Determine current level of relative decimation
-    #rel_log2_resolution = math.log2(delta_pixel / delta_channel)
-
     # Determine if it the algorithm should reduce resolution further
-    #go_to_lower_resolution = (rel_log2_resolution < max_resolutions) and (min(num_rows, num_cols) > 16)
     go_to_lower_resolution = (max_resolutions > 0) and (min(num_rows, num_cols) > 16)
 
     # If resolution is too high, then do recursive call to lower resolutions
@@ -290,8 +286,8 @@ def recon(sino, angles,
         lr_num_rows = int(np.ceil(num_rows / 2))
         lr_num_cols = int(np.ceil(num_cols / 2))
 
-        # Set value of sigma_y for lower resolution
-        lr_sigma_y = auto_sigma_y(sino, weights, snr_db, delta_pixel=lr_delta_pixel, delta_channel=delta_channel)
+        # Rescale sigma_y for lower resolution
+        lr_sigma_y = 2.0**0.5 * sigma_y
 
         # Reduce resolution of initialization image if there is one
         if isinstance(init_image, np.ndarray) and (init_image.ndim == 3):
@@ -306,7 +302,6 @@ def recon(sino, angles,
             lr_prox_image = prox_image
 
         if verbose >= 1:
-            #print(f'Calling multires_recon at grid level of {rel_log2_resolution:.1f}.')
             print(f'Calling multires_recon for axial size (rows,cols)=({lr_num_rows},{lr_num_cols}).')
 
         lr_recon = recon(sino=sino, angles=angles,
@@ -325,7 +320,6 @@ def recon(sino, angles,
 
     # Perform reconstruction at current resolution
     if verbose >= 1 :
-        #print(f'Calling recon at grid level of {rel_log2_resolution:.1f}.')
         print(f'Calling recon for axial size (rows,cols)=({num_rows},{num_cols}).')
 
     reconstruction = pci.fixed_resolution_recon(sino=sino, angles=angles,
