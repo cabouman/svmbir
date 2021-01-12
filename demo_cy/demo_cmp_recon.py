@@ -153,7 +153,8 @@ if __name__ == '__main__':
                          stop_threshold = py_reconparams['StopThreshold'],
                          max_iterations = py_reconparams['MaxIterations'],
                          max_resolutions= 0,
-                         verbose =2)
+                         verbose =2,
+                         num_threads=1.0)
     # display sinogram
     plot_image(recon[display_slice], title=title_recon, filename='output/3d_recon_py.png',vmin=vmin, vmax=vmax)
 
