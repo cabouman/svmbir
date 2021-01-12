@@ -222,13 +222,14 @@ def cy_forwardProject(cnp.ndarray py_image,
 
 def cy_MBIRReconstruct(cnp.ndarray py_sino,
                        cnp.ndarray py_weight,
-                       cnp.ndarray py_proj_init,
-                       cnp.ndarray py_proximalmap,
                        py_imageparams,
                        py_sinoparams,
                        py_reconparams,
                        char[:] Amatrix_fname,
-                       char verboseLevel):
+                       char verboseLevel,
+                       cnp.ndarray py_image_init = None,
+                       cnp.ndarray py_proj_init = None,
+                       cnp.ndarray py_proximalmap = None):
     '''
 
     Args:
@@ -257,22 +258,39 @@ def cy_MBIRReconstruct(cnp.ndarray py_sino,
     cdef int nchannels = np.shape(py_sino)[2]
 
 
+
     if not py_sino.flags["C_CONTIGUOUS"]:
         raise AttributeError("For py_sino, 3D np.ndarrays must be C-contiguous")
+
     if not py_weight.flags["C_CONTIGUOUS"]:
         raise AttributeError("For py_weight, 3D np.ndarrays must be C-contiguous")
-    if not py_proj_init.flags["C_CONTIGUOUS"]:
-        raise AttributeError("For py_proj_init, 3D np.ndarrays must be C-contiguous")
-    if not py_proximalmap.flags["C_CONTIGUOUS"]:
-        raise AttributeError("For py_proximalmap, 3D np.ndarrays must be C-contiguous")
 
     cdef cnp.ndarray[float, ndim=3, mode="c"] cy_sino = py_sino
     cdef cnp.ndarray[float, ndim=3, mode="c"] cy_weight = py_weight
-    cdef cnp.ndarray[float, ndim=3, mode="c"] cy_proj_init = py_proj_init
-    cdef cnp.ndarray[float, ndim=3, mode="c"] cy_proximalmap = py_proximalmap
+    cdef cnp.ndarray[float, ndim=3, mode="c"] cy_proj_init
+    cdef cnp.ndarray[float, ndim=3, mode="c"] cy_proximalmap
+
+    if py_image_init is not None:
+        if not py_image_init.flags["C_CONTIGUOUS"]:
+            raise AttributeError("For py_image_init, 3D np.ndarrays must be C-contiguous")
+
+    if py_proj_init is not None:
+        if not py_proj_init.flags["C_CONTIGUOUS"]:
+            raise AttributeError("For py_proj_init, 3D np.ndarrays must be C-contiguous")
+        cy_proj_init = py_proj_init
+
+
+    if py_proximalmap is not None:
+        if not py_proximalmap.flags["C_CONTIGUOUS"]:
+            raise AttributeError("For py_proximalmap, 3D np.ndarrays must be C-contiguous")
+        cy_proximalmap = py_proximalmap
 
     # Allocates memory, without initialization, for matrix to be passed back from C subroutine
-    cdef cnp.ndarray[float, ndim=3, mode="c"] py_image = np.zeros((nslices, nrows, ncols), dtype=ctypes.c_float)
+    cdef cnp.ndarray[float, ndim=3, mode="c"] py_image
+    if py_image_init is not None:
+        py_image = np.copy(py_image_init).astype(ctypes.c_float)
+    else:
+        py_image = np.zeros((nslices, nrows, ncols), dtype=ctypes.c_float)
 
     cdef ImageParams3D imgparams
     cdef SinoParams3DParallel sinoparams
@@ -287,8 +305,8 @@ def cy_MBIRReconstruct(cnp.ndarray py_sino,
     MBIRReconstruct(&py_image[0,0,0],
                     &cy_sino[0,0,0],
                     &cy_weight[0,0,0],
-                    NULL,
-                    NULL,
+                    &cy_proj_init[0,0,0] if py_proj_init is not None else NULL,
+                    &cy_proximalmap[0,0,0] if py_proximalmap is not None else NULL,
                     imgparams,
                     sinoparams,
                     reconparams,

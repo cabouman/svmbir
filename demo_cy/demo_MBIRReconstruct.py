@@ -119,8 +119,6 @@ if __name__ == '__main__':
     vmax = 1.2
     image_py = cy_MBIRReconstruct(proj_cy,
                        weight_cy,
-                       proj_init_cy,
-                       proximalmap_cy,
                        py_imageparams,
                        py_sinoparams,
                        py_reconparams,
@@ -129,3 +127,24 @@ if __name__ == '__main__':
 
     # display image
     plot_image(image_py[display_slice], title=title_recon, filename='output/3d_recon_cy.png',vmin=vmin, vmax=vmax)
+
+    # Rotate image to use as input to proximal map
+    phantom_rot = np.swapaxes(phantom, 1, 2)
+    phantom_rot = np.ascontiguousarray(phantom_rot, dtype=np.single)
+    py_reconparams['Positivity']  = 0
+    py_reconparams['SigmaX'] = 0.2
+    py_reconparams['MaxIterations'] = 100
+    image_prox = cy_MBIRReconstruct(proj_cy,
+                       weight_cy,
+                       py_imageparams,
+                       py_sinoparams,
+                       py_reconparams,
+                       Amatrix_fname,
+                       2,
+                       py_image_init = phantom_rot,
+                       py_proximalmap = phantom_rot)
+    # Display parameters
+    vmin = None
+    vmax = None
+    # display image
+    plot_image(image_prox[display_slice], title=title_recon, filename='output/3d_prox_cy.png',vmin=vmin, vmax=vmax)
