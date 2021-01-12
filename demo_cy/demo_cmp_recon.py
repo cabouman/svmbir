@@ -96,10 +96,10 @@ if __name__ == '__main__':
     py_reconparams = dict()
     py_reconparams['ReconType'] = 1
     py_reconparams['InitImageValue'] = 0.0
-    py_reconparams['StopThreshold']  = 0.02
-    py_reconparams['MaxIterations'] = 20
+    py_reconparams['StopThreshold']  = 0.001
+    py_reconparams['MaxIterations'] = 100
     py_reconparams['Positivity']  = 1
-    py_reconparams['SigmaY'] = svmbir.auto_sigma_y(np.swapaxes(proj_cy,0,1), weight_py, snr_db = 40.0)
+    py_reconparams['SigmaY'] = svmbir.auto_sigma_y(np.swapaxes(proj_cy,0,1), weight_py, snr_db = snr_db)
     print(py_reconparams['SigmaY'])
     py_reconparams['weightType'] = 1
     py_reconparams['b_nearest']  = 1.0
@@ -152,10 +152,13 @@ if __name__ == '__main__':
                          b_interslice = py_reconparams['b_interslice'],
                          stop_threshold = py_reconparams['StopThreshold'],
                          max_iterations = py_reconparams['MaxIterations'],
+                         max_resolutions= 0,
                          verbose =2)
     # display sinogram
     plot_image(recon[display_slice], title=title_recon, filename='output/3d_recon_py.png',vmin=vmin, vmax=vmax)
 
     # Compute Normalized Root Mean Squared Error
     nrmse = svmbir.phantom.nrmse(image_py, recon)
-    print("error: %f"%nrmse)
+    print("svmbir error: %f" % svmbir.phantom.nrmse(recon, phantom))
+    print("cython error: %f" % svmbir.phantom.nrmse(image_py, phantom))
+    print("RMSE between svmbir and cython: %f" % svmbir.phantom.nrmse(image_py, recon))
