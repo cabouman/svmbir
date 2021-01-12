@@ -236,13 +236,14 @@ def cy_MBIRReconstruct(cnp.ndarray py_sino,
 
         py_sino: 3D numpy float array with a shape of (num_slices,num_views,num_channels) that is the projection from give 3D image.
         py_weight: 3D numpy float array with a shape of (num_slices,num_views,num_channels)
-        py_proj_init: 3D numpy float array with a shape of (num_slices,num_views,num_channels)
-        py_proximalmap: 3D numpy float array with a shape of (num_slices,num_row,num_col).
         py_imageparams: python dictionary stores image parameters
         py_sinoparams: python dictionary stores sinogram parameters
         py_reconparams: python dictionary stores reconstruction parameters
         Amatrix_fname: path to store computed A matrix.
         verboseLevel: Possible values are {0,1,2}, where 0 is quiet, 1 prints minimal reconstruction progress information, and 2 prints the full information.
+        py_image_init: 3D numpy float array with a shape of (num_slices,num_row,num_col). The 3D numpy float array should has C continuous order.
+        py_proj_init: 3D numpy float array with a shape of (num_slices,num_views,num_channels). The 3D numpy float array should has C continuous order.
+        py_proximalmap: 3D numpy float array with a shape of (num_slices,num_row,num_col). The 3D numpy float array should has C continuous order.
 
     Returns:
         py_image: 3D numpy float array with a shape of (num_slices,num_row,num_col). The 3D numpy float array should has C continuous order.
@@ -290,7 +291,7 @@ def cy_MBIRReconstruct(cnp.ndarray py_sino,
     if py_image_init is not None:
         py_image = np.copy(py_image_init).astype(ctypes.c_float)
     else:
-        py_image = np.zeros((nslices, nrows, ncols), dtype=ctypes.c_float)
+        py_image = np.zeros((nslices, nrows, ncols), dtype=ctypes.c_float)+py_reconparams['InitImageValue']
 
     cdef ImageParams3D imgparams
     cdef SinoParams3DParallel sinoparams
