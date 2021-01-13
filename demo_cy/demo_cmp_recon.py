@@ -28,7 +28,6 @@ if __name__ == '__main__':
     os.makedirs('output', exist_ok=True)
 
     tilt_angle = np.pi / 2  # Tilt range of +-90deg
-    snr_db = 30
     # Set image parameters
     py_imageparams = dict()
     py_imageparams['Nx'] = 256
@@ -121,12 +120,13 @@ if __name__ == '__main__':
     vmin = 1.0
     vmax = 1.2
     image_py = cy_MBIRReconstruct(proj_cy,
-                       weight_cy,
+                       weight_cy/py_reconparams['SigmaY']/py_reconparams['SigmaY'],
                        py_imageparams,
                        py_sinoparams,
                        py_reconparams,
                        Amatrix_fname,
-                       2)
+                       2,
+                       py_proj_init = proj_init_cy)
 
     # display image
     plot_image(image_py[display_slice], title=title_recon, filename='output/3d_recon_cy.png',vmin=vmin, vmax=vmax)
@@ -140,9 +140,9 @@ if __name__ == '__main__':
                          num_rows = py_imageparams['Ny'],
                          num_cols = py_imageparams['Nx'],
                          roi_radius = py_imageparams['ROIRadius'],
-                         sigma_y = py_reconparams['SigmaY'],
+                         sigma_y = svmbir.auto_sigma_y(np.swapaxes(proj_cy,0,1), weight_py, snr_db = 40.0),
                          snr_db = snr_db,
-                         weight_type = 'unweighted',
+                         weights = weight_py,
                          sharpness = sharpness,
                          positivity=py_reconparams['Positivity'],
                          sigma_x = py_reconparams['SigmaX'],
@@ -154,7 +154,7 @@ if __name__ == '__main__':
                          max_iterations = py_reconparams['MaxIterations'],
                          max_resolutions= 0,
                          verbose =2,
-                         num_threads=1.0)
+                         num_threads=1)
     # display sinogram
     plot_image(recon[display_slice], title=title_recon, filename='output/3d_recon_py.png',vmin=vmin, vmax=vmax)
 

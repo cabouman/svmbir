@@ -27,8 +27,8 @@ if os.environ.get('CC') =='gcc':
                       libraries=[],
                       include_dirs=[np.get_include()],
                       # for gcc-10 "-std=c11" can be added as a flag
-                      extra_compile_args=["-O3", "-fopenmp","-Wno-unknown-pragmas"],
-                      extra_link_args=["-lm","-fopenmp"])
+                      extra_compile_args=["-O3", "-fopenmp","-Wno-unknown-pragmas","-DTEST"],
+                      extra_link_args=["-lm","-fopenmp","-DTEST"])
 
     # Install
     setup(
