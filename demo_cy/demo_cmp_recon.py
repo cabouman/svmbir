@@ -47,6 +47,18 @@ if __name__ == '__main__':
     py_sinoparams['CenterOffset'] = 0.0
     py_sinoparams['NViews'] = 144
     py_sinoparams['ViewAngles'] = np.linspace(-tilt_angle, tilt_angle, py_sinoparams['NViews'], endpoint=False).astype(np.single)
+
+    file1 = open("Viewsangle.txt", "w")
+    for view in py_sinoparams['ViewAngles']:
+        file1.write(str(view) + "\n")
+    file1.close()
+
+    file1 = open("Viewsangle.txt", "r")
+    ss = file1.readlines()
+    for i in range(py_sinoparams['NViews']):
+        py_sinoparams['ViewAngles'][i] = float(ss[i][:-1])
+    file1.close()
+
     py_sinoparams['NSlices'] = 33
     py_sinoparams['DeltaSlice'] = 1.0
     py_sinoparams['FirstSliceNumber'] = 0
@@ -98,7 +110,7 @@ if __name__ == '__main__':
     py_reconparams['StopThreshold']  = 0.001
     py_reconparams['MaxIterations'] = 100
     py_reconparams['Positivity']  = 1
-    py_reconparams['SigmaY'] = svmbir.auto_sigma_y(np.swapaxes(proj_cy,0,1), weight_py, snr_db = snr_db)
+    py_reconparams['SigmaY'] = 1.0 #svmbir.auto_sigma_y(np.swapaxes(proj_cy,0,1), weight_py, snr_db = snr_db)
     print(py_reconparams['SigmaY'])
     py_reconparams['weightType'] = 1
     py_reconparams['b_nearest']  = 1.0
@@ -108,7 +120,7 @@ if __name__ == '__main__':
     py_reconparams['q'] = 2.0
     py_reconparams['T'] = 0.1
 
-    py_reconparams['SigmaX'] = svmbir.auto_sigma_x(np.swapaxes(proj_cy,0,1), sharpness = sharpness)
+    py_reconparams['SigmaX'] = 0.23 #svmbir.auto_sigma_x(np.swapaxes(proj_cy,0,1), sharpness = sharpness)
     print(py_reconparams['SigmaX'])
     py_reconparams['pow_sigmaX_p'] = np.power(py_reconparams['SigmaX'],py_reconparams['p'])
     py_reconparams['pow_sigmaX_q'] = np.power(py_reconparams['SigmaX'],py_reconparams['q'])
@@ -119,6 +131,8 @@ if __name__ == '__main__':
     # Display parameters
     vmin = 1.0
     vmax = 1.2
+    os.environ['OMP_NUM_THREADS'] = '1'
+
     image_py = cy_MBIRReconstruct(proj_cy,
                        weight_cy/py_reconparams['SigmaY']/py_reconparams['SigmaY'],
                        py_imageparams,
