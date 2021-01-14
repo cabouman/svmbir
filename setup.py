@@ -19,16 +19,26 @@ PACKAGES = [PACKAGES_DIR]
 SRC_DIR = PACKAGES_DIR + "/sv-mbirct/src/"
 
 # OpenMP gcc compile: tested for MacOS and Linux
-if os.environ.get('CC') =='gcc':
+if os.environ.get('CC') =='gcc' or os.environ.get('CC') =='icc':
+    if os.environ.get('CC') =='gcc':
+        # for gcc-10 "-std=c11" can be added as a flag
+        extra_compile_args=["-O3", "-fopenmp","-Wno-unknown-pragmas"]
+        extra_link_args=["-lm","-fopenmp"]
+
+    if os.environ.get('CC') =='icc':
+        extra_compile_args=["-DICC","-qopenmp","-no-prec-div", "-restrict" ,"-ipo","-inline-calloc",
+                            "-qopt-calloc","-no-ansi-alias","-xCORE-AVX2"]
+        extra_link_args=["-lm","-DICC","-qopenmp","-no-prec-div", "-restrict" ,"-ipo","-inline-calloc",
+                         "-qopt-calloc","-no-ansi-alias","-xCORE-AVX2"]
+
     c_extension = Extension(PACKAGES_DIR + ".cysvmbir",
-                      [SRC_DIR + "A_comp.c", SRC_DIR + "allocate.c", SRC_DIR + "heap.c",
-                       SRC_DIR + "icd3d.c", SRC_DIR + "initialize.c", SRC_DIR + "MBIRModularUtils.c",
-                       SRC_DIR + "recon3d.c", PACKAGES_DIR + "/cysvmbir.pyx"],
-                      libraries=[],
-                      include_dirs=[np.get_include()],
-                      # for gcc-10 "-std=c11" can be added as a flag
-                      extra_compile_args=["-O3", "-fopenmp","-Wno-unknown-pragmas"],
-                      extra_link_args=["-lm","-fopenmp"])
+                  [SRC_DIR + "A_comp.c", SRC_DIR + "allocate.c", SRC_DIR + "heap.c",
+                   SRC_DIR + "icd3d.c", SRC_DIR + "initialize.c", SRC_DIR + "MBIRModularUtils.c",
+                   SRC_DIR + "recon3d.c", PACKAGES_DIR + "/cysvmbir.pyx"],
+                  libraries=[],
+                  include_dirs=[np.get_include()],
+                  extra_compile_args=extra_compile_args,
+                  extra_link_args=extra_link_args)
 
     # Install
     setup(

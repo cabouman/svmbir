@@ -137,12 +137,6 @@ cdef convert_py2c_ReconParams3D(ReconParams* reconparams,
     reconparams.q = py_reconparams['q']                             # q-GGMRF q parameter (q=2 is typical choice)
     reconparams.T = py_reconparams['T']                             # q-GGMRF T parameter
     reconparams.SigmaX = py_reconparams['SigmaX']                   # q-GGMRF sigma_x parameter (mm-1)
-    # QGGMRF derived parameters
-    reconparams.pow_sigmaX_p = py_reconparams['pow_sigmaX_p']       # pow(sigmaX,p)
-    reconparams.pow_sigmaX_q = py_reconparams['pow_sigmaX_q']       # pow(sigmaX,q)
-    reconparams.pow_T_qmp = py_reconparams['pow_T_qmp']             # pow(T,q-p)
-    # Proximal map prior for Plug & Play
-    reconparams.SigmaXsq = py_reconparams['SigmaXsq']               # derived parameter: SigmaX^2
 
 
 def cy_AmatrixComputeToFile(py_imageparams,
