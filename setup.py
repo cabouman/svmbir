@@ -19,17 +19,19 @@ PACKAGES = [PACKAGES_DIR]
 SRC_DIR = PACKAGES_DIR + "/sv-mbirct/src/"
 
 # OpenMP gcc compile: tested for MacOS and Linux
-if os.environ.get('CC') =='gcc' or os.environ.get('CC') =='icc':
+if os.environ.get('CC') in ['gcc','icc','clang']:
     if os.environ.get('CC') =='gcc':
-        # for gcc-10 "-std=c11" can be added as a flag
-        extra_compile_args=["-O3", "-fopenmp","-Wno-unknown-pragmas"]
-        extra_link_args=["-lm","-fopenmp"]
+        extra_compile_args=["-std=c11","-O3","-fopenmp","-Wno-unknown-pragmas"]
+        extra_link_args=["-lm"]
 
     if os.environ.get('CC') =='icc':
-        extra_compile_args=["-DICC","-qopenmp","-no-prec-div", "-restrict" ,"-ipo","-inline-calloc",
+        extra_compile_args=["-O3","-DICC","-qopenmp","-no-prec-div","-restrict","-ipo","-inline-calloc",
                             "-qopt-calloc","-no-ansi-alias","-xCORE-AVX2"]
-        extra_link_args=["-lm","-DICC","-qopenmp","-no-prec-div", "-restrict" ,"-ipo","-inline-calloc",
-                         "-qopt-calloc","-no-ansi-alias","-xCORE-AVX2"]
+        extra_link_args=["-lm"]
+
+    if os.environ.get('CC') =='clang':
+        extra_compile_args=["-O3","-Xclang", "-fopenmp","-Wno-unknown-pragmas"]
+        extra_link_args=["-lm"]
 
     c_extension = Extension(PACKAGES_DIR + ".cysvmbir",
                   [SRC_DIR + "A_comp.c", SRC_DIR + "allocate.c", SRC_DIR + "heap.c",
@@ -73,4 +75,5 @@ else:
         install_requires=['numpy', 'ruamel.yaml', 'matplotlib', 'psutil', 'pytest', 'scikit-image'],
         package_data={'svmbir': [exec_file]}
     )
+
 
