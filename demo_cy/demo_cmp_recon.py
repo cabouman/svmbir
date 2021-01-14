@@ -122,9 +122,9 @@ if __name__ == '__main__':
 
     py_reconparams['SigmaX'] = 0.23 #svmbir.auto_sigma_x(np.swapaxes(proj_cy,0,1), sharpness = sharpness)
     print(py_reconparams['SigmaX'])
-    py_reconparams['pow_sigmaX_p'] = np.power(py_reconparams['SigmaX'],py_reconparams['p'])
-    py_reconparams['pow_sigmaX_q'] = np.power(py_reconparams['SigmaX'],py_reconparams['q'])
-    py_reconparams['pow_T_qmp'] = np.power(py_reconparams['T'], py_reconparams['q'] - py_reconparams['p'])
+    py_reconparams['pow_sigmaX_p'] = np.power(py_reconparams['SigmaX'],py_reconparams['p'], dtype = np.single)
+    py_reconparams['pow_sigmaX_q'] = np.power(py_reconparams['SigmaX'],py_reconparams['q'], dtype = np.single)
+    py_reconparams['pow_T_qmp'] = np.power(py_reconparams['T'], py_reconparams['q'] - py_reconparams['p'], dtype = np.single)
     py_reconparams['SigmaXsq'] = py_reconparams['SigmaX']**2
 
 
@@ -154,7 +154,7 @@ if __name__ == '__main__':
                          num_rows = py_imageparams['Ny'],
                          num_cols = py_imageparams['Nx'],
                          roi_radius = py_imageparams['ROIRadius'],
-                         sigma_y = svmbir.auto_sigma_y(np.swapaxes(proj_cy,0,1), weight_py, snr_db = 40.0),
+                         sigma_y = py_reconparams['SigmaY'], #svmbir.auto_sigma_y(np.swapaxes(proj_cy,0,1), weight_py, snr_db = 40.0),
                          snr_db = snr_db,
                          weights = weight_py,
                          sharpness = sharpness,
