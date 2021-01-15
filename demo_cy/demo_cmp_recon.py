@@ -48,12 +48,12 @@ if __name__ == '__main__':
     py_sinoparams['NViews'] = 144
     py_sinoparams['ViewAngles'] = np.linspace(-tilt_angle, tilt_angle, py_sinoparams['NViews'], endpoint=False).astype(np.single)
 
-    file1 = open("Viewsangle.txt", "w")
+    file1 = open("./output/Viewsangle.txt", "w")
     for view in py_sinoparams['ViewAngles']:
         file1.write(str(view) + "\n")
     file1.close()
 
-    file1 = open("Viewsangle.txt", "r")
+    file1 = open("./output/Viewsangle.txt", "r")
     ss = file1.readlines()
     for i in range(py_sinoparams['NViews']):
         py_sinoparams['ViewAngles'][i] = float(ss[i][:-1])
