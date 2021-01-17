@@ -5,7 +5,7 @@
 import math
 from psutil import cpu_count
 from skimage.transform import resize  # Do we need to choose this more carefully?
-import svmbir.py_c_interface as pci
+import svmbir.interface_py_c as pci
 from ._utils import *
 
 def calc_weights(sino, weight_type ):

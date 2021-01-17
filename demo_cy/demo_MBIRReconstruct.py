@@ -2,7 +2,7 @@ import os
 import numpy as np
 import svmbir
 from svmbir.cysvmbir import *
-import svmbir.py_c_interface as pci
+import svmbir.interface_py_c as pci
 from svmbir.phantom import plot_image
 
 def string_to_char_array(input_str):
