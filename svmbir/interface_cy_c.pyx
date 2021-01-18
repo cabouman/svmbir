@@ -6,6 +6,7 @@ import os
 import hashlib
 
 __svmbir_lib_path = os.path.join(os.path.expanduser('~'), '.cache', 'svmbir', 'parbeam')
+__namelen_sysmatrix = 20
 
 # Import c data structure
 cdef extern from "./sv-mbirct/src/MBIRModularDefs.h":
@@ -251,12 +252,16 @@ def _init_geometry( angles, num_channels, num_views, num_slices, num_rows, num_c
 
     # Get info needed for c
     hash_val, relevant_params = _hash_params(angles.astype(np.single), **{**sinoparams, **imgparams})
-    paths = _gen_paths(svmbir_lib_path, object_name=object_name, sysmatrix_name=hash_val)
+    paths = _gen_paths(svmbir_lib_path, object_name=object_name, sysmatrix_name=hash_val[:__namelen_sysmatrix])
 
     # Then call cython function to get the system matrix - the output dict can be used to pass the matrix itself
     # and/or to pass path information to a file containing the matrix
-    Amatrix_fname = string_to_char_array(paths['sysmatrix_name'])
-    AmatrixComputeToFile(imgparams_c,sinoparams_c,&Amatrix_fname[0],verbose)
+    if os.path.exists(paths['sysmatrix_name'] + '.2Dsvmatrix') :
+        print('Found system matrix: {}'.format(paths['sysmatrix_name'] + '.2Dsvmatrix'))
+        os.utime(paths['sysmatrix_name'] + '.2Dsvmatrix')  # update file modified time
+    else :
+        Amatrix_fname = string_to_char_array(paths['sysmatrix_name'] + '.2Dsvmatrix')
+        AmatrixComputeToFile(imgparams_c,sinoparams_c,&Amatrix_fname[0],verbose)
 
     return paths, sinoparams, imgparams
 
@@ -290,7 +295,7 @@ def project(image, sinoparams, settings):
     convert_py2c_ImageParams3D(&imgparams_c, imageparams)
     convert_py2c_SinoParams3D(&sinoparams_c, sinoparams, sinoparams['view_angle_list'])
 
-    Amatrix_fname = string_to_char_array(paths['sysmatrix_name'])
+    Amatrix_fname = string_to_char_array(paths['sysmatrix_name']+ '.2Dsvmatrix')
 
     # Forward projection by calling C subroutine
     forwardProject(&proj[0,0,0], &cy_image[0,0,0], imgparams_c, sinoparams_c, &Amatrix_fname[0],verbose)
@@ -342,7 +347,7 @@ def fixed_resolution_recon(sino, angles,
     cdef int ncols = imgparams['Nx']
     py_sino = np.swapaxes(sino, 0, 1)
     py_sino = np.ascontiguousarray(py_sino, dtype=np.single)
-    py_weight = np.swapaxes(weights, 0, 1)
+    py_weight = np.swapaxes(weights, 0, 1)/sigma_y**2
     py_weight = np.ascontiguousarray(py_weight, dtype=np.single)
 
 
@@ -383,7 +388,7 @@ def fixed_resolution_recon(sino, angles,
     convert_py2c_SinoParams3D(&sinoparams_c, sinoparams, angles.astype(np.single))
     convert_py2c_ReconParams3D(&reconparams_c, reconparams)
 
-    Amatrix_fname = string_to_char_array(paths['sysmatrix_name'])
+    Amatrix_fname = string_to_char_array(paths['sysmatrix_name']+ '.2Dsvmatrix')
 
     # Forward projection by calling C subroutine
     MBIRReconstruct(&py_image[0,0,0],
