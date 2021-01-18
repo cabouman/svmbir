@@ -178,7 +178,10 @@ def _fixed_res_recon_c(reconparams, imgparams, sinoparams, data, settings):
     # Interface to disk and command line
     cmd_args = dict(i=paths['param_name'], j=paths['param_name'], k=paths['param_name'],
                     s=paths['sino_name'], r=paths['recon_name'], m=paths['sysmatrix_name'],
-                    w=paths['wght_name'], f=paths['proj_name'], v=str(verbose))
+                    w=paths['wght_name'], v=str(verbose))
+
+    # We're doing anything with projection of the output, so removing to save work
+    #cmd_args['f'] = paths['proj_name']
 
     if not np.isscalar(init_image):
         write_recon_openmbir(init_image, paths['init_name'] + '_slice', '.2Dimgdata')
@@ -212,7 +215,7 @@ def _fixed_res_recon_c(reconparams, imgparams, sinoparams, data, settings):
 
         delete_data_openmbir(paths['recon_name'] + '_slice', '.2Dimgdata', imgparams['Nz'])
         delete_data_openmbir(paths['sino_name'] + '_slice', '.2Dsinodata', sinoparams['num_slices'])
-        delete_data_openmbir(paths['proj_name'] + '_slice', '.2Dprojection', sinoparams['num_slices'])
+        #delete_data_openmbir(paths['proj_name'] + '_slice', '.2Dprojection', sinoparams['num_slices'])
         delete_data_openmbir(paths['wght_name'] + '_slice', '.2Dweightdata', sinoparams['num_slices'])
 
         if not np.isscalar(init_image):
