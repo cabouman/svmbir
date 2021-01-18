@@ -33,10 +33,10 @@ if os.environ.get('CC') in ['gcc','icc','clang']:
         extra_compile_args=["-O3","-Xclang", "-fopenmp","-Wno-unknown-pragmas"]
         extra_link_args=["-lm"]
 
-    c_extension = Extension(PACKAGES_DIR + ".cysvmbir",
+    c_extension = Extension(PACKAGES_DIR + ".interface_cy_c",
                   [SRC_DIR + "A_comp.c", SRC_DIR + "allocate.c", SRC_DIR + "heap.c",
                    SRC_DIR + "icd3d.c", SRC_DIR + "initialize.c", SRC_DIR + "MBIRModularUtils.c",
-                   SRC_DIR + "recon3d.c", PACKAGES_DIR + "/cysvmbir.pyx"],
+                   SRC_DIR + "recon3d.c", PACKAGES_DIR + "/interface_cy_c.pyx"],
                   libraries=[],
                   include_dirs=[np.get_include()],
                   extra_compile_args=extra_compile_args,
