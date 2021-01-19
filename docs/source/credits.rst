@@ -14,7 +14,7 @@ SVMBIR Sponsors
 
 We would like to thank the following sponsors for their financial support in the development of both this python package and the super-voxel MBIR C-code:
 
-    * The U.S. Department of Homeland Security (DHS) under SBIR Award D15PC00110, subcontracted through High Performance Imaging LLC.
+    * The U.S. Department of Homeland Security (DHS) under SBIR Award D15PC00110 awarded to High Performance Imaging LLC.
     * The DHS ALERT Center for Excellence under Grant Award 2013-ST-061-ED0001.
     * The Laboratory Directed Research and Development program of Los Alamos National Laboratory under project number 20200061DR.
     * The National Science Foundation under grant number CCF-1763896.
