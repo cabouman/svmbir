@@ -1,6 +1,5 @@
 #!/bin/bash
 
-/bin/rm svmbir/cysvmbir.c
 /bin/rm svmbir/interface_cy_c.c
 /bin/rm -r build
 /bin/rm -r svmbir.egg-info
