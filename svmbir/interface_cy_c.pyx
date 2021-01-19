@@ -156,35 +156,10 @@ def string_to_char_array(input_str):
 
 
 def _gen_paths(svmbir_lib_path = __svmbir_lib_path, object_name = 'object', sysmatrix_name = 'object'):
-    os.makedirs(os.path.join(svmbir_lib_path, 'obj'), exist_ok=True)
-    os.makedirs(os.path.join(svmbir_lib_path, 'sino'), exist_ok=True)
-    os.makedirs(os.path.join(svmbir_lib_path, 'weight'), exist_ok=True)
-    os.makedirs(os.path.join(svmbir_lib_path, 'recon'), exist_ok=True)
-    os.makedirs(os.path.join(svmbir_lib_path, 'init'), exist_ok=True)
-    os.makedirs(os.path.join(svmbir_lib_path, 'proj'), exist_ok=True)
-    os.makedirs(os.path.join(svmbir_lib_path, 'init_proj'), exist_ok=True)
-    os.makedirs(os.path.join(svmbir_lib_path, 'prox'), exist_ok=True)
     os.makedirs(os.path.join(svmbir_lib_path, 'sysmatrix'), exist_ok=True)
-    os.makedirs(os.path.join(svmbir_lib_path, 'par'), exist_ok=True)
 
     paths = dict()
-    paths['sino_name'] = os.path.join(svmbir_lib_path, 'sino', object_name)
-    paths['wght_name'] = os.path.join(svmbir_lib_path, 'weight', object_name)
-    paths['recon_name'] = os.path.join(svmbir_lib_path, 'recon', object_name)
-    paths['init_name'] = os.path.join(svmbir_lib_path, 'init', object_name)
-    paths['proj_name'] = os.path.join(svmbir_lib_path, 'proj', object_name)
-    paths['init_proj_name'] = os.path.join(svmbir_lib_path, 'init_proj', object_name)
-    paths['prox_name'] = os.path.join(svmbir_lib_path, 'prox', object_name)
-
     paths['sysmatrix_name'] = os.path.join(svmbir_lib_path, 'sysmatrix', sysmatrix_name)
-
-    paths['param_name'] = os.path.join(svmbir_lib_path, 'par', object_name)
-    paths['sinoparams_fname'] = paths['param_name'] + '.sinoparams'
-    paths['imgparams_fname'] = paths['param_name'] + '.imgparams'
-    paths['reconparams_fname'] = paths['param_name'] + '.reconparams'
-    paths['view_angle_list_fname'] = paths['param_name'] + '.ViewAngleList'
-
-    paths['view_angle_list_name'] = object_name + '.ViewAngleList'
 
     return paths
 
