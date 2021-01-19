@@ -6,10 +6,13 @@ import math
 from psutil import cpu_count
 import shutil
 from skimage.transform import resize  # Do we need to choose this more carefully?
-import svmbir.interface_cy_c as pci
 import numpy as np
 import os
 import svmbir._utils as utils
+if os.environ.get('CLIB') =='CMD_LINE':
+    import svmbir.interface_py_c as ci
+else:
+    import svmbir.interface_cy_c as ci
 
 __svmbir_lib_path = os.path.join(os.path.expanduser('~'), '.cache', 'svmbir', 'parbeam')
 
@@ -335,15 +338,15 @@ def recon(sino, angles,
     if verbose >= 1 :
         print(f'Calling recon for axial size (rows,cols)=({num_rows},{num_cols}).')
 
-    reconstruction = pci.fixed_resolution_recon(sino=sino, angles=angles,
-                                            center_offset=center_offset, delta_channel=delta_channel, delta_pixel=delta_pixel,
-                                            num_rows=num_rows, num_cols=num_cols, roi_radius=roi_radius,
-                                            sigma_y=sigma_y, snr_db=snr_db, weights=weights, weight_type=weight_type,
-                                            sharpness=sharpness, positivity=positivity, sigma_x=sigma_x, p=p, q=q, T=T, b_interslice=b_interslice,
-                                            init_image=init_image, prox_image=prox_image, init_proj=init_proj,
-                                            stop_threshold=stop_threshold, max_iterations=max_iterations,
-                                            delete_temps=delete_temps, svmbir_lib_path=svmbir_lib_path, object_name=object_name,
-                                            verbose=verbose)
+    reconstruction = ci.fixed_resolution_recon(sino=sino, angles=angles,
+                                               center_offset=center_offset, delta_channel=delta_channel, delta_pixel=delta_pixel,
+                                               num_rows=num_rows, num_cols=num_cols, roi_radius=roi_radius,
+                                               sigma_y=sigma_y, snr_db=snr_db, weights=weights, weight_type=weight_type,
+                                               sharpness=sharpness, positivity=positivity, sigma_x=sigma_x, p=p, q=q, T=T, b_interslice=b_interslice,
+                                               init_image=init_image, prox_image=prox_image, init_proj=init_proj,
+                                               stop_threshold=stop_threshold, max_iterations=max_iterations,
+                                               delete_temps=delete_temps, svmbir_lib_path=svmbir_lib_path, object_name=object_name,
+                                               verbose=verbose)
 
     return reconstruction
 
@@ -403,13 +406,13 @@ def project(angles, image, num_channels,
     if roi_radius is None :
         roi_radius = float(delta_pixel * max(num_rows, num_cols))
 
-    paths, sinoparams, imgparams = pci._init_geometry(angles, center_offset=center_offset,
-                                                  num_channels=num_channels, num_views=num_views, num_slices=num_slices,
-                                                  num_rows=num_rows, num_cols=num_cols,
-                                                  delta_channel=delta_channel, delta_pixel=delta_pixel,
-                                                  roi_radius=roi_radius,
-                                                  svmbir_lib_path=svmbir_lib_path, object_name=object_name,
-                                                  verbose=verbose)
+    paths, sinoparams, imgparams = ci._init_geometry(angles, center_offset=center_offset,
+                                                     num_channels=num_channels, num_views=num_views, num_slices=num_slices,
+                                                     num_rows=num_rows, num_cols=num_cols,
+                                                     delta_channel=delta_channel, delta_pixel=delta_pixel,
+                                                     roi_radius=roi_radius,
+                                                     svmbir_lib_path=svmbir_lib_path, object_name=object_name,
+                                                     verbose=verbose)
 
     # Collect settings to pass to C
     settings = dict()
@@ -419,7 +422,7 @@ def project(angles, image, num_channels,
     settings['delete_temps'] = delete_temps
 
     # Do the projection
-    proj = pci.project(image, sinoparams, settings)
+    proj = ci.project(image, sinoparams, settings)
 
     return proj
 
