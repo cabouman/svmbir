@@ -6,6 +6,7 @@ import os
 import hashlib
 
 __svmbir_lib_path = os.path.join(os.path.expanduser('~'), '.cache', 'svmbir', 'parbeam')
+
 __namelen_sysmatrix = 20
 
 # Import c data structure

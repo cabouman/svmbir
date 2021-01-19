@@ -4,9 +4,20 @@
 
 import math
 from psutil import cpu_count
+import shutil
 from skimage.transform import resize  # Do we need to choose this more carefully?
 import svmbir.interface_cy_c as pci
 from ._utils import *
+
+__svmbir_lib_path = os.path.join(os.path.expanduser('~'), '.cache', 'svmbir', 'parbeam')
+
+def _svmbir_lib_path():
+    return __svmbir_lib_path
+
+
+def _clear_cache(svmbir_lib_path = __svmbir_lib_path):
+    shutil.rmtree(svmbir_lib_path)
+
 
 def calc_weights(sino, weight_type ):
     """Computes the weights used in MBIR reconstruction.
@@ -136,7 +147,7 @@ def recon(sino, angles,
            sharpness = 1.0, positivity = True, sigma_x = None, p = 1.2, q = 2.0, T = 1.0, b_interslice = 1.0,
            init_image = 0.0, prox_image = None, init_proj = None,
            max_resolutions = 0, stop_threshold = 0.02, max_iterations = 100,
-           num_threads = None, delete_temps = True, svmbir_lib_path = pci.__svmbir_lib_path, object_name = 'object',
+           num_threads = None, delete_temps = True, svmbir_lib_path = __svmbir_lib_path, object_name = 'object',
            verbose = 1) :
     """Computes 3D parallel beam MBIR reconstruction using multi-resolution SVMBIR algorithm.
 
@@ -338,7 +349,7 @@ def recon(sino, angles,
 
 def project(angles, image, num_channels,
              delta_channel = 1.0, delta_pixel = 1.0, center_offset = 0.0, roi_radius = None,
-             num_threads = None, delete_temps = True, svmbir_lib_path = pci.__svmbir_lib_path, object_name = 'object',
+             num_threads = None, delete_temps = True, svmbir_lib_path = __svmbir_lib_path, object_name = 'object',
              verbose = 1):
     """Computes 3D parallel beam forward-projection.
 

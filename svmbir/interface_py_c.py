@@ -4,7 +4,6 @@
 
 # These imports are needed only for read/write and command line interfaces
 import subprocess
-import shutil
 import os
 import hashlib
 from ._utils import *
@@ -16,10 +15,9 @@ Overview:
 ##################################################################
 # Items that are needed for read/write to disk interface
 ##################################################################
+__svmbir_lib_path = os.path.join(os.path.expanduser('~'), '.cache', 'svmbir', 'parbeam')
 
 __exec_path__ = os.path.realpath(os.path.join(os.path.dirname(__file__), 'sv-mbirct', 'bin', 'mbir_ct'))
-
-__svmbir_lib_path = os.path.join(os.path.expanduser('~'), '.cache', 'svmbir', 'parbeam')
 
 __namelen_sysmatrix = 20
 
@@ -50,13 +48,6 @@ _map_pyconv2camelcase = {'prior_model' : 'PriorModel',
                          'delta_z' : 'DeltaZ',
                          'roi_radius' : 'ROIRadius'}
 
-
-def _svmbir_lib_path():
-    return __svmbir_lib_path
-
-
-def _clear_cache(svmbir_lib_path = __svmbir_lib_path):
-    shutil.rmtree(svmbir_lib_path)
 
 
 def _gen_paths(svmbir_lib_path = __svmbir_lib_path, object_name = 'object', sysmatrix_name = 'object'):
