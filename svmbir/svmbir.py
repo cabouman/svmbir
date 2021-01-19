@@ -7,7 +7,9 @@ from psutil import cpu_count
 import shutil
 from skimage.transform import resize  # Do we need to choose this more carefully?
 import svmbir.interface_cy_c as pci
-from ._utils import *
+import numpy as np
+import os
+import svmbir._utils as utils
 
 __svmbir_lib_path = os.path.join(os.path.expanduser('~'), '.cache', 'svmbir', 'parbeam')
 
@@ -252,18 +254,18 @@ def recon(sino, angles,
     os.environ['OMP_DYNAMIC'] = 'true'
 
     # Test for valid sino and angles structure. If sino is 2D, make it 3D
-    sino = test_params_line0(sino, angles)
+    sino = utils.test_params_line0(sino, angles)
     (num_views, num_slices, num_channels) = sino.shape
 
     # Tests parameters for valid types and values; print warnings if necessary; and return default values.
-    center_offset, delta_channel, delta_pixel = test_params_line1(center_offset, delta_channel, delta_pixel)
-    num_rows, num_cols, roi_radius = test_params_line2(num_rows, num_cols, roi_radius)
-    sigma_y, snr_db, weights, weight_type = test_params_line3(sigma_y, snr_db, weights, weight_type)
-    sharpness, positivity, sigma_x = test_params_line4(sharpness, positivity, sigma_x)
-    p, q, T, b_interslice = test_pqtb_values(p, q, T, b_interslice)
-    init_image, prox_image, init_proj = test_params_line5(init_image, prox_image, init_proj)
-    max_resolutions, stop_threshold, max_iterations = test_params_line6(max_resolutions, stop_threshold, max_iterations)
-    num_threads, delete_temps, verbose = test_params_line7(num_threads, delete_temps, verbose)
+    center_offset, delta_channel, delta_pixel = utils.test_params_line1(center_offset, delta_channel, delta_pixel)
+    num_rows, num_cols, roi_radius = utils.test_params_line2(num_rows, num_cols, roi_radius)
+    sigma_y, snr_db, weights, weight_type = utils.test_params_line3(sigma_y, snr_db, weights, weight_type)
+    sharpness, positivity, sigma_x = utils.test_params_line4(sharpness, positivity, sigma_x)
+    p, q, T, b_interslice = utils.test_pqtb_values(p, q, T, b_interslice)
+    init_image, prox_image, init_proj = utils.test_params_line5(init_image, prox_image, init_proj)
+    max_resolutions, stop_threshold, max_iterations = utils.test_params_line6(max_resolutions, stop_threshold, max_iterations)
+    num_threads, delete_temps, verbose = utils.test_params_line7(num_threads, delete_temps, verbose)
 
     # Set automatic values of num_rows, num_cols, and roi_radius
     if num_rows is None:
