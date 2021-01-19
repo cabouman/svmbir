@@ -24,7 +24,6 @@ cdef extern from "./sv-mbirct/src/MBIRModularDefs.h":
         float DeltaSlice;      # Spacing along row (slice) direction (mm)
         int FirstSliceNumber;  # Row (slice) index coresponding to first row (slice) stored in Sino array
                                # This is in absolute coordinates and is used if a partial set of slices is needed
-        int NumSliceDigits;    # Number of slice numbers digits used in file name
 
     # 3D Image parameters
     struct ImageParams3D:
@@ -36,7 +35,6 @@ cdef extern from "./sv-mbirct/src/MBIRModularDefs.h":
         int Nz;                 # Number of rows (slices) in image
         int FirstSliceNumber;   # Detector row (slice) index cooresponding to first row (slice) stored in Image array
                                 # This is in absolute coordinates and is used if a partial set of slices is needed
-        int NumSliceDigits;     # Number of slice numbers digits used in file name
 
     # Reconstruction Parameters Data Structure
     struct ReconParams:
@@ -90,6 +88,7 @@ cdef extern from "./sv-mbirct/src/recon3d.h":
         char *Amatrix_fname,
         char verboseLevel);
 
+
 cdef convert_py2c_ImageParams3D(ImageParams3D* imgparams,
                                 py_imageparams):
     imgparams.Nx = py_imageparams['Nx']
@@ -99,7 +98,7 @@ cdef convert_py2c_ImageParams3D(ImageParams3D* imgparams,
     imgparams.DeltaZ = py_imageparams['delta_z']
     imgparams.Nz = py_imageparams['Nz']
     imgparams.FirstSliceNumber = 0
-    imgparams.NumSliceDigits = 4
+
 
 cdef convert_py2c_SinoParams3D(SinoParams3DParallel* sinoparams,
                         py_sinoparams,
@@ -112,7 +111,6 @@ cdef convert_py2c_SinoParams3D(SinoParams3DParallel* sinoparams,
     sinoparams.NSlices = py_sinoparams['num_slices']
     sinoparams.DeltaSlice = py_sinoparams['delta_slice']
     sinoparams.FirstSliceNumber = 0
-    sinoparams.NumSliceDigits = 4
 
 
 cdef convert_py2c_ReconParams3D(ReconParams* reconparams,
