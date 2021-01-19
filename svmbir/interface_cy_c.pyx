@@ -240,6 +240,8 @@ def project(image, sinoparams, settings):
 
     if not image.flags["C_CONTIGUOUS"]:
         image =  np.ascontiguousarray(image, dtype=np.single)
+    else:
+        image = image.astype(np.single)
 
     cdef cnp.ndarray[float, ndim=3, mode="c"] cy_image = image
 
@@ -323,6 +325,8 @@ def fixed_resolution_recon(sino, angles,
         init_image_value = 0
         if not init_image.flags["C_CONTIGUOUS"]:
             init_image = np.ascontiguousarray(init_image, dtype=np.single)
+        else:
+            init_image = init_image.astype(np.single)
         py_image = np.copy(init_image).astype(ctypes.c_float)
     reconparams['init_image_value'] = init_image_value
 
