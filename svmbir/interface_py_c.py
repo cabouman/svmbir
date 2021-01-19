@@ -5,7 +5,6 @@
 # These imports are needed only for read/write and command line interfaces
 import subprocess
 import os
-import hashlib
 from ._utils import *
 
 """
@@ -94,23 +93,6 @@ def _transform_pyconv2c(**kwargs):
     return ckwargs
 
 
-def _hash_params(angles, **kwargs):
-    relevant_params = dict()
-    relevant_params['Nx'] = kwargs['Nx']
-    relevant_params['Ny'] = kwargs['Ny']
-    relevant_params['delta_xy'] = kwargs['delta_xy']
-    relevant_params['roi_radius'] = kwargs['roi_radius']
-    relevant_params['num_channels'] = kwargs['num_channels']
-    relevant_params['num_views'] = kwargs['num_views']
-    relevant_params['delta_channel'] = kwargs['delta_channel']
-    relevant_params['center_offset'] = kwargs['center_offset']
-
-    hash_input = str(relevant_params) + str(np.around(angles, decimals=6))
-
-    hash_val = hashlib.sha512(hash_input.encode()).hexdigest()
-
-    return hash_val, relevant_params
-
 def _gen_sysmatrix_c(sinoparams, imgparams, angles, settings):
 
     # Unpack the settings
@@ -119,7 +101,7 @@ def _gen_sysmatrix_c(sinoparams, imgparams, angles, settings):
     object_name = settings['object_name']
 
     # Get info needed for c
-    hash_val, relevant_params = _hash_params(angles, **{**sinoparams, **imgparams})
+    hash_val, relevant_params = hash_params(angles, **{**sinoparams, **imgparams})
 
     # In this version we write data to disk, which is then read by c
     # Get info for writing to disk

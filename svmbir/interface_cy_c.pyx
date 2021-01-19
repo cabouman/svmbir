@@ -3,7 +3,7 @@ import ctypes           # Import python package required to use cython
 cimport cython          # Import cython package
 cimport numpy as cnp    # Import specialized cython support for numpy
 import os
-import hashlib
+from ._utils import *
 
 __svmbir_lib_path = os.path.join(os.path.expanduser('~'), '.cache', 'svmbir', 'parbeam')
 
@@ -188,22 +188,6 @@ def _gen_paths(svmbir_lib_path = __svmbir_lib_path, object_name = 'object', sysm
 
     return paths
 
-def _hash_params(angles, **kwargs):
-    relevant_params = dict()
-    relevant_params['Nx'] = kwargs['Nx']
-    relevant_params['Ny'] = kwargs['Ny']
-    relevant_params['delta_xy'] = kwargs['delta_xy']
-    relevant_params['roi_radius'] = kwargs['roi_radius']
-    relevant_params['num_channels'] = kwargs['num_channels']
-    relevant_params['num_views'] = kwargs['num_views']
-    relevant_params['delta_channel'] = kwargs['delta_channel']
-    relevant_params['center_offset'] = kwargs['center_offset']
-
-    hash_input = str(relevant_params) + str(np.around(angles, decimals=6))
-
-    hash_val = hashlib.sha512(hash_input.encode()).hexdigest()
-
-    return hash_val, relevant_params
 
 ##################################################################
 # Items that could be converted to typed cython for interface to c
@@ -250,7 +234,7 @@ def _init_geometry( angles, num_channels, num_views, num_slices, num_rows, num_c
     convert_py2c_SinoParams3D(&sinoparams_c, sinoparams, angles.astype(np.single))
 
     # Get info needed for c
-    hash_val, relevant_params = _hash_params(angles.astype(np.single), **{**sinoparams, **imgparams})
+    hash_val, relevant_params = hash_params(angles.astype(np.single), **{**sinoparams, **imgparams})
     paths = _gen_paths(svmbir_lib_path, object_name=object_name, sysmatrix_name=hash_val[:__namelen_sysmatrix])
 
     # Then call cython function to get the system matrix - the output dict can be used to pass the matrix itself
