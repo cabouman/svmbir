@@ -338,6 +338,8 @@ def fixed_resolution_recon(sino, angles,
     if prox_image is not None:
         if not prox_image.flags["C_CONTIGUOUS"]:
             prox_image = np.ascontiguousarray(prox_image, dtype=np.single)
+        else:
+            prox_image = prox_image.astype(np.single)
         cy_prox_image = prox_image
 
 
