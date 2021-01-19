@@ -58,8 +58,6 @@ cdef extern from "./sv-mbirct/src/MBIRModularDefs.h":
         float q;                # q-GGMRF q parameter (q=2 is typical choice)
         float T;                # q-GGMRF T parameter
         float SigmaX;           # q-GGMRF sigma_x parameter (mm-1)
-        # Proximal map prior for Plug & Play
-        float *proximalmap;     # ptr to 3D proximal map image; here to carry it to the ICD update
 
 
 # Import a c function to compute A matrix.
