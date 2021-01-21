@@ -17,10 +17,17 @@ else:
 __svmbir_lib_path = os.path.join(os.path.expanduser('~'), '.cache', 'svmbir', 'parbeam')
 
 def _svmbir_lib_path():
+    """Returns the path to the cache directory used by svmbir
+    """
     return __svmbir_lib_path
 
 
 def _clear_cache(svmbir_lib_path = __svmbir_lib_path):
+    """Clears the cache files used by svmbir
+    
+    Args:
+        svmbir_lib_path (string): Path to svmbir cache directory. Defaults to __svmbir_lib_path variable
+    """
     shutil.rmtree(svmbir_lib_path)
 
 
