@@ -5,6 +5,6 @@ dependencies:
   - matplotlib
   - ruamel.yaml
   - psutil
-  - pytest
+  - pytest-cython
   - scikit-image
   - Cython
