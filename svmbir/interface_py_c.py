@@ -280,9 +280,9 @@ def fixed_resolution_recon(sino, angles,
                             stop_threshold, max_iterations,
                             delete_temps, svmbir_lib_path, object_name,
                             verbose):
-    """Fixed resolution SVMBIR reconstruction used by recon().
+    """Fixed resolution SVMBIR reconstruction used by svmbir.recon().
 
-    Args: See recon() for argument structure
+    Args: See svmbir.recon() for argument structure
     """
 
     # Collect parameters to pass to C
@@ -336,6 +336,16 @@ def fixed_resolution_recon(sino, angles,
 
 
 def project(image, sinoparams, settings):
+    """Forward projection function used by svmbir.project(). 
+    
+    Args:
+        image (ndarray): 3D Image to be projected
+        sinoparams (dict): Dictionary containing sinogram params
+        settings (dict): Dictionary containing projection settings
+    
+    Returns:
+        TYPE: Description
+    """
 
     paths = settings['paths']
     verbose = settings['verbose']
