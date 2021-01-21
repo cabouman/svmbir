@@ -10,3 +10,4 @@ pnp-demo/output/*.png
 docs/build/
 demo_cy/output/
 svmbir/*.c
+svmbir/*.so
