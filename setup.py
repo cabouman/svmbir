@@ -1,4 +1,5 @@
 import os
+import sys
 import numpy as np
 from setuptools import setup, Extension
 from Cython.Distutils import build_ext
@@ -25,6 +26,8 @@ if os.environ.get('CC') in ['gcc','icc','clang','msvc']:
         extra_link_args=["-lm"]
 
     if os.environ.get('CC') =='icc':
+        if sys.platform == 'linux':
+            os.environ['LDSHARED'] = 'icc -shared'
         extra_compile_args=["-O3","-DICC","-qopenmp","-no-prec-div","-restrict","-ipo","-inline-calloc",
                             "-qopt-calloc","-no-ansi-alias","-xCORE-AVX2"]
         extra_link_args=["-lm"]
