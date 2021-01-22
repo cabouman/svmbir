@@ -18,8 +18,8 @@ PACKAGES_DIR = 'svmbir'
 PACKAGES = [PACKAGES_DIR]
 SRC_DIR = PACKAGES_DIR + "/sv-mbirct/src/"
 
-# OpenMP gcc compile: tested for MacOS and Linux
-if os.environ.get('CC') in ['gcc','icc','clang']:
+if os.environ.get('CC') in ['gcc','icc','clang','msvc']:
+    # OpenMP gcc compile: tested for MacOS and Linux
     if os.environ.get('CC') =='gcc':
         extra_compile_args=["-std=c11","-O3","-fopenmp","-Wno-unknown-pragmas"]
         extra_link_args=["-lm"]
@@ -31,6 +31,11 @@ if os.environ.get('CC') in ['gcc','icc','clang']:
 
     if os.environ.get('CC') =='clang':
         extra_compile_args=["-O3","-Xclang", "-fopenmp","-Wno-unknown-pragmas"]
+        extra_link_args=["-lm"]
+
+    # build for Windows using MS Visual C++
+    if os.environ.get('CC') =='msvc':
+        extra_compile_args=["/std:c11","/O2","/openmp","/DMSVC"]
         extra_link_args=["-lm"]
 
     c_extension = Extension(PACKAGES_DIR + ".interface_cy_c",
