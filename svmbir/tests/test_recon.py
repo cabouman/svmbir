@@ -39,7 +39,7 @@ class Test_recon():
         (num_views, num_slices, num_channels) = sino.shape
 
         try:
-            recon = svmbir.recon(sino, angles, num_rows=num_rows, num_cols=num_cols, T=T, p=p, sharpness=sharpness, snr_db=snr_db )
+            recon = svmbir.recon(sino, angles, num_rows=num_rows, num_cols=num_cols, T=T, p=p, sharpness=sharpness, snr_db=snr_db, verbose=0)
         except Exception as e:
             print(e)
             assert 0
@@ -87,11 +87,11 @@ class Test_recon():
 
         # Perform fixed resolution MBIR reconstruction
         recon = svmbir.recon(sino, angles, num_rows=num_rows, num_cols=num_cols, max_resolutions=0, T=T,
-                             p=p, sharpness=sharpness, snr_db=snr_db, stop_threshold=0.04)
+                             p=p, sharpness=sharpness, snr_db=snr_db, stop_threshold=0.03, verbose=0)
 
         # Perform default MBIR reconstruction
         mr_recon = svmbir.recon(sino, angles, num_rows=num_rows, num_cols=num_cols, max_resolutions=2, T=T,
-                             p=p, sharpness=sharpness, snr_db=snr_db, stop_threshold=0.04)
+                             p=p, sharpness=sharpness, snr_db=snr_db, stop_threshold=0.03, verbose=0)
 
         # Compute Normalized Root Mean Squared Error
         nrmse = svmbir.phantom.nrmse(mr_recon, recon)
