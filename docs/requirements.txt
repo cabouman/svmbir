@@ -1,6 +1,6 @@
 scipy
 sphinx>=2.2
-sphinxcontrib-bibtex
+sphinxcontrib-bibtex==1.0
 ipython>=6.3.1
 numpy
 scikit-image
