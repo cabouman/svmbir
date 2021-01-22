@@ -4,6 +4,7 @@ from glob import glob
 import numpy as np
 import pdb
 import warnings
+import hashlib
 # pdb.set_trace()
 
 from ruamel.yaml import YAML
@@ -381,3 +382,21 @@ def test_params_line7(num_threads, delete_temps, verbose):
         verbose = 1
 
     return num_threads, delete_temps, verbose
+
+
+def hash_params(angles, **kwargs):
+    relevant_params = dict()
+    relevant_params['Nx'] = kwargs['Nx']
+    relevant_params['Ny'] = kwargs['Ny']
+    relevant_params['delta_xy'] = kwargs['delta_xy']
+    relevant_params['roi_radius'] = kwargs['roi_radius']
+    relevant_params['num_channels'] = kwargs['num_channels']
+    relevant_params['num_views'] = kwargs['num_views']
+    relevant_params['delta_channel'] = kwargs['delta_channel']
+    relevant_params['center_offset'] = kwargs['center_offset']
+
+    hash_input = str(relevant_params) + str(np.around(angles, decimals=6))
+
+    hash_val = hashlib.sha512(hash_input.encode()).hexdigest()
+
+    return hash_val, relevant_params

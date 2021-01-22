@@ -1,0 +1,9 @@
+#!/bin/bash
+
+/bin/rm svmbir/interface_cy_c.c
+/bin/rm svmbir/*.so
+/bin/rm -r build
+/bin/rm -r svmbir.egg-info
+/bin/rm -r dist
+
+pip uninstall svmbir

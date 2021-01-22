@@ -4,9 +4,33 @@
 
 import math
 from psutil import cpu_count
+import shutil
 from skimage.transform import resize  # Do we need to choose this more carefully?
-import svmbir.py_c_interface as pci
-from ._utils import *
+import numpy as np
+import os
+import svmbir._utils as utils
+
+if os.environ.get('CLIB') =='CMD_LINE':
+    import svmbir.interface_py_c as ci
+else:
+    import svmbir.interface_cy_c as ci
+
+__svmbir_lib_path = os.path.join(os.path.expanduser('~'), '.cache', 'svmbir', 'parbeam')
+
+def _svmbir_lib_path():
+    """Returns the path to the cache directory used by svmbir
+    """
+    return __svmbir_lib_path
+
+
+def _clear_cache(svmbir_lib_path = __svmbir_lib_path):
+    """Clears the cache files used by svmbir
+    
+    Args:
+        svmbir_lib_path (string): Path to svmbir cache directory. Defaults to __svmbir_lib_path variable
+    """
+    shutil.rmtree(svmbir_lib_path)
+
 
 def calc_weights(sino, weight_type ):
     """Computes the weights used in MBIR reconstruction.
@@ -136,7 +160,7 @@ def recon(sino, angles,
            sharpness = 1.0, positivity = True, sigma_x = None, p = 1.2, q = 2.0, T = 1.0, b_interslice = 1.0,
            init_image = 0.0, prox_image = None, init_proj = None,
            max_resolutions = 0, stop_threshold = 0.02, max_iterations = 100,
-           num_threads = None, delete_temps = True, svmbir_lib_path = pci.__svmbir_lib_path, object_name = 'object',
+           num_threads = None, delete_temps = True, svmbir_lib_path = __svmbir_lib_path, object_name = 'object',
            verbose = 1) :
     """Computes 3D parallel beam MBIR reconstruction using multi-resolution SVMBIR algorithm.
 
@@ -241,18 +265,18 @@ def recon(sino, angles,
     os.environ['OMP_DYNAMIC'] = 'true'
 
     # Test for valid sino and angles structure. If sino is 2D, make it 3D
-    sino = test_params_line0(sino, angles)
+    sino = utils.test_params_line0(sino, angles)
     (num_views, num_slices, num_channels) = sino.shape
 
     # Tests parameters for valid types and values; print warnings if necessary; and return default values.
-    center_offset, delta_channel, delta_pixel = test_params_line1(center_offset, delta_channel, delta_pixel)
-    num_rows, num_cols, roi_radius = test_params_line2(num_rows, num_cols, roi_radius)
-    sigma_y, snr_db, weights, weight_type = test_params_line3(sigma_y, snr_db, weights, weight_type)
-    sharpness, positivity, sigma_x = test_params_line4(sharpness, positivity, sigma_x)
-    p, q, T, b_interslice = test_pqtb_values(p, q, T, b_interslice)
-    init_image, prox_image, init_proj = test_params_line5(init_image, prox_image, init_proj)
-    max_resolutions, stop_threshold, max_iterations = test_params_line6(max_resolutions, stop_threshold, max_iterations)
-    num_threads, delete_temps, verbose = test_params_line7(num_threads, delete_temps, verbose)
+    center_offset, delta_channel, delta_pixel = utils.test_params_line1(center_offset, delta_channel, delta_pixel)
+    num_rows, num_cols, roi_radius = utils.test_params_line2(num_rows, num_cols, roi_radius)
+    sigma_y, snr_db, weights, weight_type = utils.test_params_line3(sigma_y, snr_db, weights, weight_type)
+    sharpness, positivity, sigma_x = utils.test_params_line4(sharpness, positivity, sigma_x)
+    p, q, T, b_interslice = utils.test_pqtb_values(p, q, T, b_interslice)
+    init_image, prox_image, init_proj = utils.test_params_line5(init_image, prox_image, init_proj)
+    max_resolutions, stop_threshold, max_iterations = utils.test_params_line6(max_resolutions, stop_threshold, max_iterations)
+    num_threads, delete_temps, verbose = utils.test_params_line7(num_threads, delete_temps, verbose)
 
     # Set automatic values of num_rows, num_cols, and roi_radius
     if num_rows is None:
@@ -322,15 +346,15 @@ def recon(sino, angles,
     if verbose >= 1 :
         print(f'Calling recon for axial size (rows,cols)=({num_rows},{num_cols}).')
 
-    reconstruction = pci.fixed_resolution_recon(sino=sino, angles=angles,
-                                            center_offset=center_offset, delta_channel=delta_channel, delta_pixel=delta_pixel,
-                                            num_rows=num_rows, num_cols=num_cols, roi_radius=roi_radius,
-                                            sigma_y=sigma_y, snr_db=snr_db, weights=weights, weight_type=weight_type,
-                                            sharpness=sharpness, positivity=positivity, sigma_x=sigma_x, p=p, q=q, T=T, b_interslice=b_interslice,
-                                            init_image=init_image, prox_image=prox_image, init_proj=init_proj,
-                                            stop_threshold=stop_threshold, max_iterations=max_iterations,
-                                            delete_temps=delete_temps, svmbir_lib_path=svmbir_lib_path, object_name=object_name,
-                                            verbose=verbose)
+    reconstruction = ci.fixed_resolution_recon(sino=sino, angles=angles,
+                                               center_offset=center_offset, delta_channel=delta_channel, delta_pixel=delta_pixel,
+                                               num_rows=num_rows, num_cols=num_cols, roi_radius=roi_radius,
+                                               sigma_y=sigma_y, snr_db=snr_db, weights=weights, weight_type=weight_type,
+                                               sharpness=sharpness, positivity=positivity, sigma_x=sigma_x, p=p, q=q, T=T, b_interslice=b_interslice,
+                                               init_image=init_image, prox_image=prox_image, init_proj=init_proj,
+                                               stop_threshold=stop_threshold, max_iterations=max_iterations,
+                                               delete_temps=delete_temps, svmbir_lib_path=svmbir_lib_path, object_name=object_name,
+                                               verbose=verbose)
 
     return reconstruction
 
@@ -338,7 +362,7 @@ def recon(sino, angles,
 
 def project(angles, image, num_channels,
              delta_channel = 1.0, delta_pixel = 1.0, center_offset = 0.0, roi_radius = None,
-             num_threads = None, delete_temps = True, svmbir_lib_path = pci.__svmbir_lib_path, object_name = 'object',
+             num_threads = None, delete_temps = True, svmbir_lib_path = __svmbir_lib_path, object_name = 'object',
              verbose = 1):
     """Computes 3D parallel beam forward-projection.
 
@@ -388,15 +412,15 @@ def project(angles, image, num_channels,
     num_views = len(angles)
 
     if roi_radius is None :
-        roi_radius = float(delta_pixel * max(num_rows, num_cols))
+        roi_radius = auto_roi_radius(delta_pixel, num_rows, num_cols)
 
-    paths, sinoparams, imgparams = pci._init_geometry(angles, center_offset=center_offset,
-                                                  num_channels=num_channels, num_views=num_views, num_slices=num_slices,
-                                                  num_rows=num_rows, num_cols=num_cols,
-                                                  delta_channel=delta_channel, delta_pixel=delta_pixel,
-                                                  roi_radius=roi_radius,
-                                                  svmbir_lib_path=svmbir_lib_path, object_name=object_name,
-                                                  verbose=verbose)
+    paths, sinoparams, imgparams = ci._init_geometry(angles, center_offset=center_offset,
+                                                     num_channels=num_channels, num_views=num_views, num_slices=num_slices,
+                                                     num_rows=num_rows, num_cols=num_cols,
+                                                     delta_channel=delta_channel, delta_pixel=delta_pixel,
+                                                     roi_radius=roi_radius,
+                                                     svmbir_lib_path=svmbir_lib_path, object_name=object_name,
+                                                     verbose=verbose)
 
     # Collect settings to pass to C
     settings = dict()
@@ -406,7 +430,7 @@ def project(angles, image, num_channels,
     settings['delete_temps'] = delete_temps
 
     # Do the projection
-    proj = pci.project(image, sinoparams, settings)
+    proj = ci.project(image, sinoparams, settings)
 
     return proj
 
