@@ -7,19 +7,15 @@ from Cython.Distutils import build_ext
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
-# Check for compiled executable
-if os.path.exists('svmbir/sv-mbirct/bin/mbir_ct'):
-     exec_file='sv-mbirct/bin/mbir_ct'
-elif os.path.exists('svmbir/sv-mbirct/bin/mbir_ct.exe'):
-     exec_file='sv-mbirct/bin/mbir_ct.exe'
-else:
-     assert False, 'Compiled executable not present in svmbir/sv-mbirct/bin/. Compile the binary executable first'
-
 PACKAGES_DIR = 'svmbir'
 PACKAGES = [PACKAGES_DIR]
 SRC_DIR = PACKAGES_DIR + "/sv-mbirct/src/"
 
-if os.environ.get('CC') in ['gcc','icc','clang','msvc']:
+if os.environ.get('CLIB') !='CMD_LINE':
+    #Check that compiler is set
+    if os.environ.get('CC') not in ['gcc','icc','clang','msvc']:
+        raise ValueError('CC flag not set to valid value. For example should be: CC=gcc')
+
     # OpenMP gcc compile: tested for MacOS and Linux
     if os.environ.get('CC') =='gcc':
         extra_compile_args=["-std=c11","-O3","-fopenmp","-Wno-unknown-pragmas"]
@@ -50,7 +46,7 @@ if os.environ.get('CC') in ['gcc','icc','clang','msvc']:
                   extra_compile_args=extra_compile_args,
                   extra_link_args=extra_link_args)
 
-    # Install
+    # Install cython version
     setup(
          name='svmbir',
          version='1.0',
@@ -63,12 +59,20 @@ if os.environ.get('CC') in ['gcc','icc','clang','msvc']:
          python_requires='>=3.6',
          #external packages as dependencies
          install_requires=['numpy','ruamel.yaml','matplotlib','psutil','pytest','scikit-image','Cython'],
-         package_data={'svmbir': [exec_file]},
+         #package_data={'svmbir': [exec_file]},
          cmdclass = {"build_ext": build_ext},
          ext_modules = [c_extension]
     )
 else:
-    # Install
+    # Check for compiled executable
+    if os.path.exists('svmbir/sv-mbirct/bin/mbir_ct') :
+        exec_file = 'sv-mbirct/bin/mbir_ct'
+    elif os.path.exists('svmbir/sv-mbirct/bin/mbir_ct.exe') :
+        exec_file = 'sv-mbirct/bin/mbir_ct.exe'
+    else :
+        assert False, 'Compiled executable not present in svmbir/sv-mbirct/bin/. Compile the binary executable first'
+
+    # Install command-line version
     setup(
         name='svmbir',
         version='1.0',

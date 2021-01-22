@@ -9,6 +9,7 @@ from skimage.transform import resize  # Do we need to choose this more carefully
 import numpy as np
 import os
 import svmbir._utils as utils
+
 if os.environ.get('CLIB') =='CMD_LINE':
     import svmbir.interface_py_c as ci
 else:
