@@ -1,6 +1,13 @@
 name: svmbir
 dependencies:
   - python>=3.6
+  - numpy
+  - matplotlib
+  - ruamel.yaml
+  - pytest
+  - scikit-image
+  - Cython
   - pip
   - pip:
-    - -r file:requirements.txt
+    - psutil
+#    - -r file:requirements.txt
