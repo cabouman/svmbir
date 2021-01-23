@@ -2,6 +2,5 @@ numpy
 matplotlib
 ruamel.yaml
 pytest
-scikit-image
 Cython
 psutil

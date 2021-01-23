@@ -1,6 +1,7 @@
 name: svmbir
 dependencies:
   - python>=3.6
+  - scikit-image
   - pip
   - pip:
     - -r file:requirements.txt
