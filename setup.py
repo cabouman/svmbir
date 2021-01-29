@@ -42,14 +42,14 @@ if os.environ.get('CLIB') !='CMD_LINE':
                    SRC_DIR + "icd3d.c", SRC_DIR + "initialize.c", SRC_DIR + "MBIRModularUtils.c",
                    SRC_DIR + "recon3d.c", PACKAGES_DIR + "/interface_cy_c.pyx"],
                   libraries=[],
-                  include_dirs=[np.get_include()],
+                  include_dirs=[np.get_include(), SRC_DIR],
                   extra_compile_args=extra_compile_args,
                   extra_link_args=extra_link_args)
 
     # Install cython version
     setup(
          name='svmbir',
-         version='1.0',
+         version='1.2',
          description="Python code for fast parallel-beam MBIR (Model Based Iterative Reconstruction) ",
          long_description=long_description,
          long_description_content_type="text/markdown",
@@ -75,7 +75,7 @@ else:
     # Install command-line version
     setup(
         name='svmbir',
-        version='1.0',
+        version='1.2',
         description="Python code for fast parallel-beam MBIR (Model Based Iterative Reconstruction) ",
         long_description=long_description,
         long_description_content_type="text/markdown",
