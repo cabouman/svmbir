@@ -39,5 +39,10 @@ Indices and tables
    examples
    api
 
+.. toctree::
+   :hidden:
+   :maxdepth: 4
+   :caption: Develop Guide
 
+   pytest
 
