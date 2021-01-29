@@ -42,7 +42,7 @@ Indices and tables
 .. toctree::
    :hidden:
    :maxdepth: 4
-   :caption: Develop Guide
+   :caption: Developer Guide
 
    pytest
 
