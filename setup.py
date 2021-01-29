@@ -49,7 +49,7 @@ if os.environ.get('CLIB') !='CMD_LINE':
     # Install cython version
     setup(
          name='svmbir',
-         version='1.2',
+         version='1.2.4',
          description="Python code for fast parallel-beam MBIR (Model Based Iterative Reconstruction) ",
          long_description=long_description,
          long_description_content_type="text/markdown",
@@ -75,7 +75,7 @@ else:
     # Install command-line version
     setup(
         name='svmbir',
-        version='1.2',
+        version='1.2.4',
         description="Python code for fast parallel-beam MBIR (Model Based Iterative Reconstruction) ",
         long_description=long_description,
         long_description_content_type="text/markdown",
