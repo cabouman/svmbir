@@ -436,7 +436,7 @@ def project(angles, image, num_channels,
 
 
 def recon_resize(recon, output_shape):
-    """Resizes a reconstruction 3D numpy array of shape (slices,rows,cols).
+    """Resizes a reconstruction by performing 2D resizing along the slices dimension
 
     Args:
         recon (ndarray): 3D numpy array containing reconstruction with shape (slices, rows, cols)
