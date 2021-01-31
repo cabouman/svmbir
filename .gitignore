@@ -11,6 +11,9 @@ docs/build/
 svmbir/*.c
 svmbir/*.so
 *.o
+build/
+dist/
+svmbir.egg-info/
 
 # sublime text config
 sftp-config.json
