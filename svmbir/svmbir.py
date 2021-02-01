@@ -6,6 +6,8 @@ import math
 from psutil import cpu_count
 import shutil
 from skimage.transform import resize  # Do we need to choose this more carefully?
+import PIL
+
 import numpy as np
 import os
 import svmbir._utils as utils
@@ -449,6 +451,11 @@ def recon_resize(recon, output_shape):
     recon = np.transpose(recon, (1, 2, 0))
     recon = resize(recon, output_shape)
     recon = np.transpose(recon, (2, 0, 1))
+
+    # for i in range(recon.shape[0]):
+    #     PIL_image = PIL.Image.fromarray(recon[i])
+    #     PIL_image_resized = PIL_image.resize((output_shape[1],output_shape[0]), resample=PIL.Image.BILINEAR)
+    #     recon[i] = np.asarray(PIL_image_resized)
 
     return recon
 
