@@ -40,7 +40,8 @@ display_slice = 16
 
 img = svmbir.phantom.gen_microscopy_sample_3d(num_rows,num_cols,num_slices)
 
-output_shape = (100,25)
+output_shape = (400,100)
+# output_shape = (100,25)
 # output_shape = (255,64)
 
 start = timeit.default_timer()
