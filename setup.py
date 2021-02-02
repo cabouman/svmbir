@@ -57,8 +57,7 @@ if os.environ.get('CLIB') !='CMD_LINE':
          author_email='smajee@purdue.edu',
          packages=PACKAGES,
          #external packages as dependencies
-         install_requires=['numpy','ruamel.yaml','matplotlib','psutil','pytest','Pillow','Cython'],
-         #package_data={'svmbir': [exec_file]},
+         install_requires=['numpy', 'Cython', 'psutil', 'Pillow'],
          cmdclass = {"build_ext": build_ext},
          ext_modules = [c_extension]
     )
@@ -82,7 +81,7 @@ else:
         author_email='smajee@purdue.edu',
         packages=['svmbir'],
         # external packages as dependencies
-        install_requires=['numpy', 'ruamel.yaml', 'matplotlib', 'psutil', 'pytest', 'Pillow'],
+        install_requires=['numpy', 'ruamel.yaml', 'psutil', 'Pillow'],
         package_data={'svmbir': [exec_file]}
     )
 
