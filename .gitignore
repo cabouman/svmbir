@@ -20,3 +20,6 @@ sftp-config.json
 
 # macos hidden file
 *.DS_Store
+
+# Pycharm idea folder
+.idea/
