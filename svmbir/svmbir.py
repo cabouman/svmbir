@@ -9,7 +9,7 @@ import numpy as np
 import os
 import svmbir._utils as utils
 
-from skimage.transform import resize  # Do we need to choose this more carefully?
+# from skimage.transform import resize  # Do we need to choose this more carefully?
 # import skimage
 import PIL
 

@@ -1,6 +1,7 @@
 numpy
+Pillow
+Cython
 matplotlib
 ruamel.yaml
 pytest
-Cython
 psutil
