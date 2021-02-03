@@ -30,7 +30,7 @@ if os.environ.get('CLIB') !='CMD_LINE':
 
     if os.environ.get('CC') =='clang':
         extra_compile_args=["-O3","-Xclang", "-fopenmp","-Wno-unknown-pragmas"]
-        extra_link_args=["-lm"]
+        extra_link_args=["-lm","-lomp"]
 
     # build for Windows using MS Visual C++
     if os.environ.get('CC') =='msvc':
