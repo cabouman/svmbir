@@ -5,10 +5,10 @@
 import math
 from psutil import cpu_count
 import shutil
-from skimage.transform import resize  # Do we need to choose this more carefully?
 import numpy as np
 import os
 import svmbir._utils as utils
+import PIL
 
 if os.environ.get('CLIB') =='CMD_LINE':
     import svmbir.interface_py_c as ci
@@ -436,7 +436,7 @@ def project(angles, image, num_channels,
 
 
 def recon_resize(recon, output_shape):
-    """Resizes a reconstruction 3D numpy array of shape (slices,rows,cols).
+    """Resizes a reconstruction by performing 2D resizing along the slices dimension
 
     Args:
         recon (ndarray): 3D numpy array containing reconstruction with shape (slices, rows, cols)
@@ -446,11 +446,13 @@ def recon_resize(recon, output_shape):
         ndarray: 3D numpy array containing interpolated reconstruction with shape (num_slices, num_rows, num_cols).
     """
 
-    recon = np.transpose(recon, (1, 2, 0))
-    recon = resize(recon, output_shape)
-    recon = np.transpose(recon, (2, 0, 1))
+    recon_resized_list = []
+    for i in range(recon.shape[0]):
+        PIL_image = PIL.Image.fromarray(recon[i])
+        PIL_image_resized = PIL_image.resize((output_shape[1],output_shape[0]), resample=PIL.Image.BILINEAR)
+        recon_resized_list.append(np.asarray(PIL_image_resized))
 
-    return recon
+    return np.stack(recon_resized_list, axis=0)
 
 
 def _sino_indicator(sino):

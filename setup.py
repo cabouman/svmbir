@@ -19,14 +19,14 @@ if os.environ.get('CLIB') !='CMD_LINE':
     # OpenMP gcc compile: tested for MacOS and Linux
     if os.environ.get('CC') =='gcc':
         extra_compile_args=["-std=c11","-O3","-fopenmp","-Wno-unknown-pragmas"]
-        extra_link_args=["-lm"]
+        extra_link_args=["-lm","-fopenmp"]
 
     if os.environ.get('CC') =='icc':
         if sys.platform == 'linux':
             os.environ['LDSHARED'] = 'icc -shared'
         extra_compile_args=["-O3","-DICC","-qopenmp","-no-prec-div","-restrict","-ipo","-inline-calloc",
                             "-qopt-calloc","-no-ansi-alias","-xCORE-AVX2"]
-        extra_link_args=["-lm"]
+        extra_link_args=["-lm","-qopenmp"]
 
     if os.environ.get('CC') =='clang':
         extra_compile_args=["-O3","-Xclang", "-fopenmp","-Wno-unknown-pragmas"]
@@ -56,10 +56,8 @@ if os.environ.get('CLIB') !='CMD_LINE':
          author='Soumendu Majee',
          author_email='smajee@purdue.edu',
          packages=PACKAGES,
-         python_requires='>=3.6',
          #external packages as dependencies
-         install_requires=['numpy','ruamel.yaml','matplotlib','psutil','pytest','scikit-image','Cython'],
-         #package_data={'svmbir': [exec_file]},
+         install_requires=['numpy', 'Cython', 'psutil', 'Pillow'],
          cmdclass = {"build_ext": build_ext},
          ext_modules = [c_extension]
     )
@@ -82,9 +80,8 @@ else:
         author='Soumendu Majee',
         author_email='smajee@purdue.edu',
         packages=['svmbir'],
-        python_requires='>=3.6',
         # external packages as dependencies
-        install_requires=['numpy', 'ruamel.yaml', 'matplotlib', 'psutil', 'pytest', 'scikit-image'],
+        install_requires=['numpy', 'ruamel.yaml', 'psutil', 'Pillow'],
         package_data={'svmbir': [exec_file]}
     )
 
