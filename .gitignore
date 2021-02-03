@@ -1,13 +1,25 @@
-*.DS_Store
-*.o
 *.pyc
 __pycache__
-sftp-config.json
-.idea
+
+# output
 demo/output/*.png
-demo/run_demos_script
-pnp-demo/output/*.png
+
+# docs
 docs/build/
-demo_cy/output/
-svmbir/*.c
+
+# compiled files
+svmbir/interface_cy_c.c
 svmbir/*.so
+*.o
+build/
+dist/
+svmbir.egg-info/
+
+# sublime text config
+sftp-config.json
+
+# macos hidden file
+*.DS_Store
+
+# Pycharm idea folder
+.idea/
