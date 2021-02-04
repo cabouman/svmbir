@@ -11,12 +11,12 @@ Developer can follow following instruction to upload package to testpypi
 
  1. Register in testpypi.
 
- 2. In Account setting, Click Add API tokens.
-    Follow testpypi's instruction and copy tokens to set up ypur local computer.
+ 2. In Account setting, Add API tokens.
 
  3. Include necessary files in MANIFEST.in.
 
- 4. Include setup.py required packages in pyproject.toml.
+ 4. Creating pyproject.toml.
+    pyproject.toml is the file that tells build tools what system you are using and what it required for building.
 
  5. Build distribution archives
 
@@ -32,7 +32,7 @@ Developer can follow following instruction to upload package to testpypi
 
     ``python3 -m twine upload --repository testpypi dist/*``
 
- 7. Create a clean envrionment and download the distribution archives
+ 7. Create a clean environment and download the distribution archives
 
 
     ``CC=gcc pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple svmbir==1.2.6.0``
