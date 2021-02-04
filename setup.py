@@ -1,6 +1,7 @@
 import os
 import sys
 import numpy as np
+import warnings
 from setuptools import setup, Extension
 from Cython.Distutils import build_ext
 
@@ -14,7 +15,9 @@ SRC_DIR = PACKAGES_DIR + "/sv-mbirct/src/"
 if os.environ.get('CLIB') !='CMD_LINE':
     #Check that compiler is set
     if os.environ.get('CC') not in ['gcc','icc','clang','msvc']:
-        raise ValueError('CC flag not set to valid value. For example should be: CC=gcc')
+        warnings.warn('CC flag not set to valid value. Automatically set CC=gcc.')
+        os.environ["CC"] = 'gcc'
+        #raise ValueError('CC flag not set to valid value. For example should be: CC=gcc')
 
     # OpenMP gcc compile: tested for MacOS and Linux
     if os.environ.get('CC') =='gcc':
