@@ -27,11 +27,16 @@ and the second command moves into the root directory of the repository.
 It is recommended that you create a conda environment.
 To do this, first install ``Anaconda``, and then create and activate an ``svmbir`` environment using the following two commands.
 
-``conda env create -f environment.yml``
+``conda create -n svmbir python=3.8``
 
 ``conda activate svmbir``
 
-This will create a conda environment with the required dependencies.
+This will create an empty conda environment.
+
+Install dependencies using:
+
+``pip install -r requirements.txt``
+
 Before running the code, this ``svmbir`` conda environment should always be activated.
 
 
