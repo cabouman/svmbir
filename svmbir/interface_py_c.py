@@ -102,7 +102,7 @@ def _gen_sysmatrix_c(sinoparams, imgparams, angles, settings):
     object_name = settings['object_name']
 
     # Get info needed for c
-    hash_val, relevant_params = utils.hash_params(angles, **{**sinoparams, **imgparams})
+    hash_val, relevant_params = utils.hash_params(angles.astype(np.single), **{**sinoparams, **imgparams})
 
     # In this version we write data to disk, which is then read by c
     # Get info for writing to disk
