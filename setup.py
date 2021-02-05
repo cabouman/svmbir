@@ -12,10 +12,26 @@ PACKAGES_DIR = 'svmbir'
 PACKAGES = [PACKAGES_DIR]
 SRC_DIR = PACKAGES_DIR + "/sv-mbirct/src/"
 
+# Check for compiled executable
+if os.path.exists('svmbir/sv-mbirct/bin/mbir_ct'):
+    exec_file = 'sv-mbirct/bin/mbir_ct'
+elif os.path.exists('svmbir/sv-mbirct/bin/mbir_ct.exe'):
+    exec_file = 'sv-mbirct/bin/mbir_ct.exe'
+else:
+    exec_file = None
+
+# If binary is present, include with installation
+if exec_file is None:
+    package_data={}
+else:
+    package_data={'svmbir': [exec_file]}
+
+# First block is cython installation
 if os.environ.get('CLIB') !='CMD_LINE':
+
     #Check that compiler is set
     if os.environ.get('CC') not in ['gcc','icc','clang','msvc']:
-        warnings.warn('CC flag not set to valid value. Automatically set CC=gcc.')
+        warnings.warn('CC environment variable not set to valid value. Using default CC=gcc.')
         os.environ["CC"] = 'gcc'
         #raise ValueError('CC flag not set to valid value. For example should be: CC=gcc')
 
@@ -61,16 +77,14 @@ if os.environ.get('CLIB') !='CMD_LINE':
          packages=PACKAGES,
          #external packages as dependencies
          install_requires=['numpy', 'Cython', 'psutil', 'Pillow'],
+         package_data=package_data,
          cmdclass = {"build_ext": build_ext},
          ext_modules = [c_extension]
     )
 else:
+
     # Check for compiled executable
-    if os.path.exists('svmbir/sv-mbirct/bin/mbir_ct') :
-        exec_file = 'sv-mbirct/bin/mbir_ct'
-    elif os.path.exists('svmbir/sv-mbirct/bin/mbir_ct.exe') :
-        exec_file = 'sv-mbirct/bin/mbir_ct.exe'
-    else :
+    if exec_file is None:
         assert False, 'Compiled executable not present in svmbir/sv-mbirct/bin/. Compile the binary executable first'
 
     # Install command-line version
@@ -85,7 +99,6 @@ else:
         packages=['svmbir'],
         # external packages as dependencies
         install_requires=['numpy', 'ruamel.yaml', 'psutil', 'Pillow'],
-        package_data={'svmbir': [exec_file]}
+        package_data=package_data
     )
-
 
