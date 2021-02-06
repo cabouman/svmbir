@@ -197,10 +197,11 @@ def _init_geometry( angles, num_channels, num_views, num_slices, num_rows, num_c
     cdef ImageParams3D imgparams_c
     cdef SinoParams3DParallel sinoparams_c
     cdef cnp.ndarray[char, ndim=1, mode="c"] Amatrix_fname
+    cdef cnp.ndarray[float, ndim=1, mode="c"] cy_angles = angles.astype(np.single)
 
     # Convert parameter python dictionaries to c structures based on given py parameter List.
     convert_py2c_ImageParams3D(&imgparams_c, imgparams)
-    convert_py2c_SinoParams3D(&sinoparams_c, sinoparams, angles.astype(np.single))
+    convert_py2c_SinoParams3D(&sinoparams_c, sinoparams, cy_angles)
 
     # Get info needed for c
     hash_val, relevant_params = utils.hash_params(angles.astype(np.single), **{**sinoparams, **imgparams})
@@ -248,6 +249,7 @@ def project(image, sinoparams, settings):
         image = image.astype(np.single)
 
     cdef cnp.ndarray[float, ndim=3, mode="c"] cy_image = image
+    cdef cnp.ndarray[float, ndim=1, mode="c"] cy_angles = sinoparams['view_angle_list']
 
     # Allocates memory, without initialization, for matrix to be passed back from C subroutine
     cdef cnp.ndarray[float, ndim=3, mode="c"] proj = np.empty((nslices, nviews, nchannels), dtype=ctypes.c_float)
@@ -257,7 +259,7 @@ def project(image, sinoparams, settings):
 
     # Write parameter to c structures based on given py parameter List.
     convert_py2c_ImageParams3D(&imgparams_c, imageparams)
-    convert_py2c_SinoParams3D(&sinoparams_c, sinoparams, sinoparams['view_angle_list'])
+    convert_py2c_SinoParams3D(&sinoparams_c, sinoparams, cy_angles)
 
     Amatrix_fname = string_to_char_array(paths['sysmatrix_name']+ '.2Dsvmatrix')
 
@@ -350,10 +352,11 @@ def fixed_resolution_recon(sino, angles,
     cdef ImageParams3D imgparams_c
     cdef SinoParams3DParallel sinoparams_c
     cdef ReconParams reconparams_c
+    cdef cnp.ndarray[float, ndim=1, mode="c"] cy_angles = angles.astype(np.single)
 
     # Write parameter to c structures based on given py parameter List.
     convert_py2c_ImageParams3D(&imgparams_c, imgparams)
-    convert_py2c_SinoParams3D(&sinoparams_c, sinoparams, angles.astype(np.single))
+    convert_py2c_SinoParams3D(&sinoparams_c, sinoparams, cy_angles)
     convert_py2c_ReconParams3D(&reconparams_c, reconparams)
 
     Amatrix_fname = string_to_char_array(paths['sysmatrix_name']+ '.2Dsvmatrix')
