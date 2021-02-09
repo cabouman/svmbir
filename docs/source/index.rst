@@ -45,4 +45,5 @@ Indices and tables
    :caption: Developer Guide
 
    pytest
+   testpypi
 
