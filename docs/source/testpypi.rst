@@ -35,7 +35,7 @@ Developer can follow following instruction to upload package to testpypi
  7. Create a clean environment and download the distribution archives
 
 
-    ``CC=gcc pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple svmbir==1.2.6.0``
+    ``CC=gcc pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple svmbir``
 
     Compilers other than gcc can also be used.
 
