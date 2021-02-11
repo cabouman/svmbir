@@ -1,7 +1,6 @@
 numpy
 Pillow
 Cython
-matplotlib
 ruamel.yaml
 pytest
 psutil
