@@ -1,6 +1,6 @@
 import os
 import numpy as np
-from svmbir.phantom import plot_image
+from demo_utils import plot_image
 import svmbir
 
 

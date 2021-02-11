@@ -7,6 +7,7 @@ import subprocess
 import os
 import numpy as np
 import svmbir._utils as utils
+from ruamel.yaml import YAML
 
 """
 Overview: 
@@ -113,8 +114,8 @@ def _gen_sysmatrix_c(sinoparams, imgparams, angles, settings):
     imgparams_c = _transform_pyconv2c(**imgparams)
 
     # Write to disk
-    utils.write_params(paths['sinoparams_fname'], **sinoparams_c)
-    utils.write_params(paths['imgparams_fname'], **imgparams_c)
+    write_params(paths['sinoparams_fname'], **sinoparams_c)
+    write_params(paths['imgparams_fname'], **imgparams_c)
 
     with open(paths['view_angle_list_fname'], 'w') as fileID :
         for angle in list(angles) :
@@ -171,7 +172,7 @@ def _fixed_res_recon_c(reconparams, imgparams, sinoparams, data, settings):
         reconparams['prior_model'] = 'PandP'
 
     reconparams_c = _transform_pyconv2c(**reconparams)
-    utils.write_params(paths['reconparams_fname'], **reconparams_c)
+    write_params(paths['reconparams_fname'], **reconparams_c)
 
     utils.write_sino_openmbir(sino, paths['sino_name'] + '_slice', '.2Dsinodata')
     utils.write_sino_openmbir(weights, paths['wght_name'] + '_slice', '.2Dweightdata')
@@ -369,3 +370,82 @@ def project(image, sinoparams, settings):
         utils.delete_data_openmbir(paths['proj_name'] + '_slice', '.2Dprojection', sinoparams['num_slices'])
 
     return proj
+
+
+##################################
+## mbir read/modify Param Files ##
+##################################
+
+def parse_params(default_params, **kwargs):
+    params = dict(default_params)
+    common_keys = set(kwargs.keys()) & set(params.keys())
+    for key in common_keys :
+        params[key] = kwargs[key]
+
+    return params
+
+
+def read_params(params_path):
+    with open(params_path, 'r') as fileID :
+        yaml = YAML()
+        params = yaml.load(fileID)
+
+    return params
+
+
+def print_params(params, start_str = ''):
+    for key, value in params.items() :
+        if isinstance(value, dict) :
+            print('{}:'.format(key))
+            print_params(value, start_str='    ')
+        else :
+            print(start_str + '{}: {}'.format(key, value))
+
+
+def modify_params(filePath, **kwargs):
+    with open(filePath, 'r') as fileID :
+        yaml = YAML()
+        yaml_dict = yaml.load(fileID)
+
+    # print(kwargs.keys())
+
+    for key in kwargs.keys() :
+        yaml_dict[key] = kwargs[key]
+
+    with open(filePath, 'w') as fileID :
+        yaml.dump(yaml_dict, fileID)
+
+
+def sanitize_params(params):
+    if isinstance(params, dict):
+        params = dict(params)
+        for key in params:
+            params[key] = sanitize_params(params[key])
+
+    if isinstance(params, (np.ndarray, np.generic)):
+        params = params.tolist()
+
+    return params
+
+
+def write_params(filePath, **kwargs):
+    kwargs = sanitize_params(kwargs)
+    # print(kwargs)
+    # sys.stdout.flush()
+
+    with open(filePath, 'w') as fileID :
+        yaml = YAML()
+        yaml.dump(kwargs, fileID)
+
+
+def readAngleList(filePath):
+    with open(filePath, 'r') as fileID :
+        lines = fileID.read().split("\n")
+
+    angleList = []
+    for line in lines :
+        if not line.isspace() and line :
+            angleList.append(float(line))
+
+    return angleList
+

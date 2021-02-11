@@ -1,5 +1,4 @@
 import numpy as np
-import matplotlib.pyplot as plt
 
 def gen_shepp_logan(num_rows,num_cols):
     """
@@ -181,30 +180,6 @@ def nrmse(image, reference_image):
     denominator = np.sqrt(((reference_image) ** 2).mean())
 
     return rmse/denominator
-
-def plot_image(img, title=None, filename=None, vmin=None, vmax=None):
-    """
-    Function to display and save a 2D array as an image.
-
-    Args:
-        img: 2D numpy array to display
-        title: Title of plot image
-        filename: A path to save plot image
-        vmin: Value mapped to black
-        vmax: Value mapped to white
-    """
-
-    plt.ion()
-    fig = plt.figure()
-    imgplot = plt.imshow(img, vmin=vmin, vmax=vmax)
-    plt.title(label=title)
-    imgplot.set_cmap('gray')
-    plt.colorbar()
-    if filename != None:
-        try:
-            plt.savefig(filename)
-        except:
-            print("plot_image() Warning: Can't write to file {}".format(filename))
 
 
 def _gen_ellipse(x_grid, y_grid, x0, y0, a, b, gray_level, theta=0):
