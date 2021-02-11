@@ -8,7 +8,7 @@ import shutil
 import numpy as np
 import os
 import svmbir._utils as utils
-import PIL
+from PIL import Image
 
 if os.environ.get('CLIB') =='CMD_LINE':
     import svmbir.interface_py_c as ci
@@ -448,8 +448,8 @@ def recon_resize(recon, output_shape):
 
     recon_resized_list = []
     for i in range(recon.shape[0]):
-        PIL_image = PIL.Image.fromarray(recon[i])
-        PIL_image_resized = PIL_image.resize((output_shape[1],output_shape[0]), resample=PIL.Image.BILINEAR)
+        PIL_image = Image.fromarray(recon[i])
+        PIL_image_resized = PIL_image.resize((output_shape[1],output_shape[0]), resample=Image.BILINEAR)
         recon_resized_list.append(np.asarray(PIL_image_resized))
 
     return np.stack(recon_resized_list, axis=0)
