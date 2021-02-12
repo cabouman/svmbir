@@ -7,6 +7,7 @@ import subprocess
 import os
 import numpy as np
 import svmbir._utils as utils
+from ruamel.yaml import YAML
 
 """
 Overview: 
@@ -113,8 +114,8 @@ def _gen_sysmatrix_c(sinoparams, imgparams, angles, settings):
     imgparams_c = _transform_pyconv2c(**imgparams)
 
     # Write to disk
-    utils.write_params(paths['sinoparams_fname'], **sinoparams_c)
-    utils.write_params(paths['imgparams_fname'], **imgparams_c)
+    write_params(paths['sinoparams_fname'], **sinoparams_c)
+    write_params(paths['imgparams_fname'], **imgparams_c)
 
     with open(paths['view_angle_list_fname'], 'w') as fileID :
         for angle in list(angles) :
@@ -158,27 +159,27 @@ def _fixed_res_recon_c(reconparams, imgparams, sinoparams, data, settings):
     #cmd_args['f'] = paths['proj_name']
 
     if not np.isscalar(init_image):
-        utils.write_recon_openmbir(init_image, paths['init_name'] + '_slice', '.2Dimgdata')
+        write_recon_openmbir(init_image, paths['init_name'] + '_slice', '.2Dimgdata')
         cmd_args['t'] = paths['init_name']
 
     if init_proj is not None:
-        utils.write_sino_openmbir(init_proj, paths['init_proj_name'] + '_slice', '.2Dsinodata')
+        write_sino_openmbir(init_proj, paths['init_proj_name'] + '_slice', '.2Dsinodata')
         cmd_args['e'] = paths['init_proj_name']
 
     if prox_image is not None:
-        utils.write_recon_openmbir(prox_image, paths['prox_name'] + '_slice', '.2Dimgdata')
+        write_recon_openmbir(prox_image, paths['prox_name'] + '_slice', '.2Dimgdata')
         cmd_args['p'] = paths['prox_name']
         reconparams['prior_model'] = 'PandP'
 
     reconparams_c = _transform_pyconv2c(**reconparams)
-    utils.write_params(paths['reconparams_fname'], **reconparams_c)
+    write_params(paths['reconparams_fname'], **reconparams_c)
 
-    utils.write_sino_openmbir(sino, paths['sino_name'] + '_slice', '.2Dsinodata')
-    utils.write_sino_openmbir(weights, paths['wght_name'] + '_slice', '.2Dweightdata')
+    write_sino_openmbir(sino, paths['sino_name'] + '_slice', '.2Dsinodata')
+    write_sino_openmbir(weights, paths['wght_name'] + '_slice', '.2Dweightdata')
 
     _cmd_exec(**cmd_args)
 
-    x = utils.read_recon_openmbir(paths['recon_name'] + '_slice', '.2Dimgdata',
+    x = read_recon_openmbir(paths['recon_name'] + '_slice', '.2Dimgdata',
                             imgparams['Nx'], imgparams['Ny'], imgparams['Nz'])
 
     if delete_temps:
@@ -187,19 +188,19 @@ def _fixed_res_recon_c(reconparams, imgparams, sinoparams, data, settings):
         os.remove(paths['reconparams_fname'])
         os.remove(paths['view_angle_list_fname'])
 
-        utils.delete_data_openmbir(paths['recon_name'] + '_slice', '.2Dimgdata', imgparams['Nz'])
-        utils.delete_data_openmbir(paths['sino_name'] + '_slice', '.2Dsinodata', sinoparams['num_slices'])
+        delete_data_openmbir(paths['recon_name'] + '_slice', '.2Dimgdata', imgparams['Nz'])
+        delete_data_openmbir(paths['sino_name'] + '_slice', '.2Dsinodata', sinoparams['num_slices'])
         #delete_data_openmbir(paths['proj_name'] + '_slice', '.2Dprojection', sinoparams['num_slices'])
-        utils.delete_data_openmbir(paths['wght_name'] + '_slice', '.2Dweightdata', sinoparams['num_slices'])
+        delete_data_openmbir(paths['wght_name'] + '_slice', '.2Dweightdata', sinoparams['num_slices'])
 
         if not np.isscalar(init_image):
-            utils.delete_data_openmbir(paths['init_name'] + '_slice', '.2Dimgdata', imgparams['Nz'])
+            delete_data_openmbir(paths['init_name'] + '_slice', '.2Dimgdata', imgparams['Nz'])
 
         if init_proj is not None:
-            utils.delete_data_openmbir(paths['init_proj_name'] + '_slice', '.2Dprojection', sinoparams['num_slices'])
+            delete_data_openmbir(paths['init_proj_name'] + '_slice', '.2Dprojection', sinoparams['num_slices'])
 
         if prox_image is not None:
-            utils.delete_data_openmbir(paths['prox_name'] + '_slice', '.2Dimgdata', imgparams['Nz'])
+            delete_data_openmbir(paths['prox_name'] + '_slice', '.2Dimgdata', imgparams['Nz'])
 
     return x
 
@@ -352,12 +353,12 @@ def project(image, sinoparams, settings):
     imgparams = settings['imgparams']
     delete_temps = settings['delete_temps']
 
-    utils.write_recon_openmbir(image, paths['recon_name'] + '_slice', '.2Dimgdata')
+    write_recon_openmbir(image, paths['recon_name'] + '_slice', '.2Dimgdata')
 
     _cmd_exec(i=paths['param_name'], j=paths['param_name'], m=paths['sysmatrix_name'],
               f=paths['proj_name'], t=paths['recon_name'], v=str(verbose))
 
-    proj = utils.read_sino_openmbir(paths['proj_name'] + '_slice', '.2Dprojection',
+    proj = read_sino_openmbir(paths['proj_name'] + '_slice', '.2Dprojection',
                               sinoparams['num_views'], sinoparams['num_slices'], sinoparams['num_channels'])
 
     if delete_temps :
@@ -365,7 +366,160 @@ def project(image, sinoparams, settings):
         os.remove(paths['imgparams_fname'])
         os.remove(paths['view_angle_list_fname'])
 
-        utils.delete_data_openmbir(paths['recon_name'] + '_slice', '.2Dimgdata', imgparams['Nz'])
-        utils.delete_data_openmbir(paths['proj_name'] + '_slice', '.2Dprojection', sinoparams['num_slices'])
+        delete_data_openmbir(paths['recon_name'] + '_slice', '.2Dimgdata', imgparams['Nz'])
+        delete_data_openmbir(paths['proj_name'] + '_slice', '.2Dprojection', sinoparams['num_slices'])
 
     return proj
+
+
+##################################
+## mbir read/modify Param Files ##
+##################################
+
+def parse_params(default_params, **kwargs):
+    params = dict(default_params)
+    common_keys = set(kwargs.keys()) & set(params.keys())
+    for key in common_keys :
+        params[key] = kwargs[key]
+
+    return params
+
+
+def read_params(params_path):
+    with open(params_path, 'r') as fileID :
+        yaml = YAML()
+        params = yaml.load(fileID)
+
+    return params
+
+
+def print_params(params, start_str = ''):
+    for key, value in params.items() :
+        if isinstance(value, dict) :
+            print('{}:'.format(key))
+            print_params(value, start_str='    ')
+        else :
+            print(start_str + '{}: {}'.format(key, value))
+
+
+def modify_params(filePath, **kwargs):
+    with open(filePath, 'r') as fileID :
+        yaml = YAML()
+        yaml_dict = yaml.load(fileID)
+
+    # print(kwargs.keys())
+
+    for key in kwargs.keys() :
+        yaml_dict[key] = kwargs[key]
+
+    with open(filePath, 'w') as fileID :
+        yaml.dump(yaml_dict, fileID)
+
+
+def sanitize_params(params):
+    if isinstance(params, dict):
+        params = dict(params)
+        for key in params:
+            params[key] = sanitize_params(params[key])
+
+    if isinstance(params, (np.ndarray, np.generic)):
+        params = params.tolist()
+
+    return params
+
+
+def write_params(filePath, **kwargs):
+    kwargs = sanitize_params(kwargs)
+    # print(kwargs)
+    # sys.stdout.flush()
+
+    with open(filePath, 'w') as fileID :
+        yaml = YAML()
+        yaml.dump(kwargs, fileID)
+
+
+def readAngleList(filePath):
+    with open(filePath, 'r') as fileID :
+        lines = fileID.read().split("\n")
+
+    angleList = []
+    for line in lines :
+        if not line.isspace() and line :
+            angleList.append(float(line))
+
+    return angleList
+
+#########################################
+## mbir read/write/delete Binary Files ##
+#########################################
+
+def read_sino_openmbir(rootPath, suffix, N_theta, N_z, N_y):
+    fname_list = generateFileList(N_z, rootPath, suffix, numdigit=4)
+
+    sizesArray = (N_z, N_theta, N_y)
+    x = np.zeros(sizesArray, dtype=np.float32)
+
+    for i, fname in enumerate(fname_list) :
+        with open(fname, 'rb') as fileID :
+            numElements = sizesArray[1] * sizesArray[2]
+            x[i] = np.fromfile(fileID, dtype='float32', count=numElements).reshape([sizesArray[1], sizesArray[2]])
+
+    # shape = N_z x N_theta x N_y
+    x = np.copy(np.swapaxes(x, 0, 1), order='C')
+
+    return x
+
+
+def write_sino_openmbir(x, rootPath, suffix):
+    # shape of x = N_theta x N_z  x N_y
+
+    assert len(x.shape) == 3, 'data must be 3D'
+
+    x = np.copy(np.swapaxes(x, 0, 1), order='C')
+
+    fname_list = generateFileList(x.shape[0], rootPath, suffix, numdigit=4)
+
+    for i, fname in enumerate(fname_list) :
+        with open(fname, 'wb') as fileID :
+            x[i].astype('float32').flatten('C').tofile(fileID)
+
+
+def read_recon_openmbir(rootPath, suffix, N_x, N_y, N_z):
+    fname_list = generateFileList(N_z, rootPath, suffix, numdigit=4)
+
+    sizesArray = (N_z, N_y, N_x)
+    x = np.zeros(sizesArray, dtype=np.float32)
+
+    for i, fname in enumerate(fname_list) :
+        with open(fname, 'rb') as fileID :
+            numElements = sizesArray[1] * sizesArray[2]
+            x[i] = np.fromfile(fileID, dtype='float32', count=numElements).reshape([sizesArray[1], sizesArray[2]])
+
+    return x
+
+
+def write_recon_openmbir(x, rootPath, suffix):
+    # shape of x = N_z x N_y x N_x
+
+    assert len(x.shape) == 3, 'data must be 3D'
+
+    fname_list = generateFileList(x.shape[0], rootPath, suffix, numdigit=4)
+
+    for i, fname in enumerate(fname_list) :
+        with open(fname, 'wb') as fileID :
+            x[i].astype('float32').flatten('C').tofile(fileID)
+
+
+def generateFileList(numFiles, fileRoot, suffix, numdigit = 0):
+    fileList = []
+    for i in range(numFiles) :
+        fileList.append(fileRoot + str(i).zfill(numdigit) + suffix)
+
+    return fileList
+
+
+def delete_data_openmbir(rootPath, suffix, num_files):
+    fname_list = generateFileList(num_files, rootPath, suffix, numdigit=4)
+
+    for i, fname in enumerate(fname_list) :
+        os.remove(fname)
