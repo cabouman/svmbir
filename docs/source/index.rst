@@ -46,4 +46,5 @@ Indices and tables
 
    pytest
    testpypi
+   docs
 
