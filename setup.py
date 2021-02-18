@@ -9,7 +9,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 name = 'svmbir'
-version = '1.2.6.1'
+version = '1.2.6.2'
 description="Python code for fast parallel-beam MBIR (Model Based Iterative Reconstruction) "
 long_description_content_type="text/markdown"
 author = 'Soumendu Majee'
