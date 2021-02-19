@@ -44,6 +44,7 @@ Indices and tables
    :maxdepth: 4
    :caption: Developer Guide
 
+   clean_install
    pytest
    testpypi
    docs
