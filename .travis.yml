@@ -1,0 +1,81 @@
+os: linux
+
+language: python
+
+python:
+  - "3.6"
+  - "3.7"
+  - "3.8"
+
+matrix:
+  include:
+  - os: osx
+    osx_image: xcode12.2
+    language: generic
+    env:
+      - MATRIX_EVAL="brew install gcc@10 &&CC=gcc-10 && CXX=g++-10"
+      - PYTHON=3.8
+
+notifications:
+  email: false
+
+addons:
+  apt:
+    packages:
+    - libfftw3-dev
+    - libatlas-dev
+    - libatlas-base-dev
+    - liblapack-dev
+    - libblas-dev
+    - gfortran
+
+before_install:
+    - export URLROOT=https://repo.continuum.io/miniconda/;
+      if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+         brew update;
+         brew upgrade;
+         brew install fftw;
+         export MCINST=Miniconda3-latest-MacOSX-x86_64.sh;
+      else
+         if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
+           export MCINST=Miniconda2-latest-Linux-x86_64.sh;
+         else
+           export MCINST=Miniconda3-latest-Linux-x86_64.sh;
+         fi
+      fi;
+      export MCURL=$URLROOT$MCINST;
+      wget $MCURL -O miniconda.sh
+    - bash miniconda.sh -b -p $HOME/miniconda
+    - export PATH="$HOME/miniconda/bin:$PATH"
+    - hash -r
+    - conda config --set always_yes yes --set changeps1 no
+    - conda update -q conda
+    - conda info -a
+    - eval "${MATRIX_EVAL}"
+
+install:
+    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+         export PYTHON_VERSION=3.8;
+      else
+         export PYTHON_VERSION=$TRAVIS_PYTHON_VERSION;
+      fi;
+      conda create --yes -q -n test-env python=$PYTHON_VERSION
+    - source activate test-env
+    - pip install -r requirements.txt
+    - if [[ "$TRAVIS_OS_NAME" != "osx" && "$TRAVIS_PYTHON_VERSION" == "3.8" ]]; then
+         conda install -c conda-forge codecov;
+      fi
+    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+          CC=gcc-10 python setup.py build_ext --inplace;
+      else
+          python setup.py build_ext --inplace;
+      fi;
+
+
+script:
+    - pytest
+
+after_success:
+    - if [[ "$TRAVIS_OS_NAME" != "osx" && "$TRAVIS_PYTHON_VERSION" == "3.8" ]]; then
+        codecov;
+      fi
