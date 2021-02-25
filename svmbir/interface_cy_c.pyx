@@ -263,20 +263,8 @@ def fixed_resolution_recon(sino, angles,
     # Collect parameters to pass to C
     (num_views, num_slices, num_channels) = sino.shape
 
-    reconparams = dict()
-    reconparams['prior_model'] = 1     # 1:QGGMRF_3D, 2:PandP
-    reconparams['p'] = p
-    reconparams['q'] = q
-    reconparams['T'] = T
-    reconparams['sigma_x'] = sigma_x
-    reconparams['sigma_y'] = sigma_y
-    reconparams['b_nearest'] = 1.0
-    reconparams['b_diag'] = 0.707
-    reconparams['b_interslice'] = b_interslice
-    reconparams['stop_threshold'] = stop_threshold
-    reconparams['max_iterations'] = max_iterations
-    reconparams['positivity'] = int(positivity)
-    reconparams['weight_type'] = 1 # How to compute weights if internal, 1: uniform, 2: exp(-y); 3: exp(-y/2), 4: 1/(y+0.1)
+    reconparams = utils.get_reconparams_dicts(sigma_y, positivity, sigma_x, p, q, T, b_interslice,
+                        stop_threshold, max_iterations, interface = 'Cython')
 
     paths, sinoparams, imgparams = _init_geometry(angles, center_offset=center_offset,
                                                   num_channels=num_channels, num_views=num_views, num_slices=num_slices,

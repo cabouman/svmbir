@@ -285,3 +285,30 @@ def get_params_dicts(angles, num_channels, num_views, num_slices, num_rows, num_
     settings['object_name'] = object_name
 
     return sinoparams, imgparams, settings
+
+def get_reconparams_dicts(sigma_y, positivity, sigma_x, p, q, T, b_interslice,
+                            stop_threshold, max_iterations,init_image_value=0, interface = 'Cython'):
+    reconparams = dict()
+    if interface == 'Command Line':
+        reconparams['prior_model'] = 'QGGMRF'
+        reconparams['init_image_value'] = init_image_value
+    else:
+        reconparams['prior_model'] = 1
+    reconparams['p'] = p
+    reconparams['q'] = q
+    reconparams['T'] = T
+    reconparams['sigma_x'] = sigma_x
+    reconparams['sigma_y'] = sigma_y
+    reconparams['b_nearest'] = 1.0
+    reconparams['b_diag'] = 0.707
+    reconparams['b_interslice'] = b_interslice
+    reconparams['stop_threshold'] = stop_threshold
+    reconparams['max_iterations'] = max_iterations
+    reconparams['positivity'] = int(positivity)
+
+    if interface == 'Command Line':
+        reconparams['weight_type'] = 'unweighted'  # constant weights
+    else:
+        reconparams['weight_type'] = 1 # How to compute weights if internal, 1: uniform, 2: exp(-y); 3: exp(-y/2), 4: 1/(y+0.1)
+
+    return reconparams
