@@ -52,7 +52,7 @@ MacOS and Windows users should refer to the instructions :ref:`below <Windows an
 
 Once the compiler and OMP libraries are installed, the following commands can be used to compile the ``svmbir`` code.
 
-For installation using the four possible compiler options, run one of the following:
+For installation using the four possible compiler options, run one of the following in a bash shell:
 
 ``CC=gcc pip install .``
 
