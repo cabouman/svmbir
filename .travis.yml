@@ -15,7 +15,15 @@ matrix:
     env:
       - MATRIX_EVAL="brew install gcc@10 &&CC=gcc-10 && CXX=g++-10"
       - PYTHON=3.8
+      - SO_COMPILER=gcc
 
+  - os: osx
+    osx_image: xcode12.2
+    language: generic
+    env:
+      - MATRIX_EVAL="curl https://mac.r-project.org/openmp/openmp-11.0.1-darwin20-Release.tar.gz | tar -xz&& sudo cp usr/local/lib/* /usr/local/lib/ &&  sudo cp usr/local/include/* /usr/local/include/ &&CC=clang "
+      - PYTHON=3.8
+      - SO_COMPILER=clang
 notifications:
   email: false
 
@@ -66,7 +74,11 @@ install:
          conda install -c conda-forge codecov;
       fi
     - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-          CC=gcc-10 python setup.py build_ext --inplace;
+          if [[ "$SO_COMPILER" == "gcc" ]]; then
+              CC=gcc-10 python setup.py build_ext --inplace;
+          else
+              CC=clang python setup.py build_ext --inplace;
+          fi;
       else
           python setup.py build_ext --inplace;
       fi;
