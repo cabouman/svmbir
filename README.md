@@ -15,6 +15,16 @@ For installation using the four possible compiler options(gcc, icc, clang, and m
 CC=gcc pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple svmbir
 ```
 
+## Running the demos
+1. Download demo.zip at https://github.com/cabouman/svmbir/blob/pypi/demo.zip.
+2. Uncompress the zip file and change into demo folder.
+3. In your terminal window, install required dependencies of demo. 
+```
+pip install -r requirements_demo.txt
+```
+4. In your terminal window, use python to run each demo.
+
+
 Full documentation is available at: https://svmbir.readthedocs.io
 
 
