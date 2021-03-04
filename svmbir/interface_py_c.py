@@ -138,69 +138,7 @@ def _gen_sysmatrix_c(sinoparams, imgparams, angles, settings):
 
 
 def _fixed_res_recon_c(reconparams, imgparams, sinoparams, data, settings):
-    # Unpack the data
-    init_image = data['init_image']
-    init_proj = data['init_proj']
-    prox_image = data['prox_image']
-    sino = data['sino']
-    weights = data['weights']
 
-    # Unpack the settings
-    verbose = settings['verbose']
-    paths = settings['paths']
-    delete_temps = settings['delete_temps']
-
-    # Interface to disk and command line
-    cmd_args = dict(i=paths['param_name'], j=paths['param_name'], k=paths['param_name'],
-                    s=paths['sino_name'], r=paths['recon_name'], m=paths['sysmatrix_name'],
-                    w=paths['wght_name'], v=str(verbose))
-
-    # We're doing anything with projection of the output, so removing to save work
-    #cmd_args['f'] = paths['proj_name']
-
-    if not np.isscalar(init_image):
-        write_recon_openmbir(init_image, paths['init_name'] + '_slice', '.2Dimgdata')
-        cmd_args['t'] = paths['init_name']
-
-    if init_proj is not None:
-        write_sino_openmbir(init_proj, paths['init_proj_name'] + '_slice', '.2Dsinodata')
-        cmd_args['e'] = paths['init_proj_name']
-
-    if prox_image is not None:
-        write_recon_openmbir(prox_image, paths['prox_name'] + '_slice', '.2Dimgdata')
-        cmd_args['p'] = paths['prox_name']
-        reconparams['prior_model'] = 'PandP'
-
-    reconparams_c = _transform_pyconv2c(**reconparams)
-    write_params(paths['reconparams_fname'], **reconparams_c)
-
-    write_sino_openmbir(sino, paths['sino_name'] + '_slice', '.2Dsinodata')
-    write_sino_openmbir(weights, paths['wght_name'] + '_slice', '.2Dweightdata')
-
-    _cmd_exec(**cmd_args)
-
-    x = read_recon_openmbir(paths['recon_name'] + '_slice', '.2Dimgdata',
-                            imgparams['Nx'], imgparams['Ny'], imgparams['Nz'])
-
-    if delete_temps:
-        os.remove(paths['sinoparams_fname'])
-        os.remove(paths['imgparams_fname'])
-        os.remove(paths['reconparams_fname'])
-        os.remove(paths['view_angle_list_fname'])
-
-        delete_data_openmbir(paths['recon_name'] + '_slice', '.2Dimgdata', imgparams['Nz'])
-        delete_data_openmbir(paths['sino_name'] + '_slice', '.2Dsinodata', sinoparams['num_slices'])
-        #delete_data_openmbir(paths['proj_name'] + '_slice', '.2Dprojection', sinoparams['num_slices'])
-        delete_data_openmbir(paths['wght_name'] + '_slice', '.2Dweightdata', sinoparams['num_slices'])
-
-        if not np.isscalar(init_image):
-            delete_data_openmbir(paths['init_name'] + '_slice', '.2Dimgdata', imgparams['Nz'])
-
-        if init_proj is not None:
-            delete_data_openmbir(paths['init_proj_name'] + '_slice', '.2Dprojection', sinoparams['num_slices'])
-
-        if prox_image is not None:
-            delete_data_openmbir(paths['prox_name'] + '_slice', '.2Dimgdata', imgparams['Nz'])
 
     return x
 
@@ -232,35 +170,9 @@ def _init_geometry( angles, num_channels, num_views, num_slices, num_rows, num_c
                     delta_channel, delta_pixel, roi_radius, center_offset, verbose,
                     svmbir_lib_path = __svmbir_lib_path, object_name = 'object'):
 
-    # Collect the information needed to pass to c
-    # - ideally these should be put in a struct that could be used by c directly
-    # First the sinogram parameters
-    sinoparams = dict()
-    sinoparams['geometry'] = '3DPARALLEL'
-    sinoparams['num_channels'] = num_channels
-    sinoparams['num_views'] = num_views
-    sinoparams['num_slices'] = num_slices
-    sinoparams['delta_channel'] = delta_channel
-    sinoparams['center_offset'] = center_offset
-    sinoparams['delta_slice'] = 1
-    sinoparams['first_slice_number'] = 0
-    sinoparams['view_angle_list'] = object_name + '.ViewAngleList'
-
-    # Then the image parameters
-    imgparams = dict()
-    imgparams['Nx'] = num_cols
-    imgparams['Ny'] = num_rows
-    imgparams['Nz'] = num_slices
-    imgparams['first_slice_number'] = 0
-    imgparams['delta_xy'] = delta_pixel
-    imgparams['delta_z'] = 1
-    imgparams['roi_radius'] = roi_radius
-
-    # Collect any info needed for c subroutine
-    settings = dict()
-    settings['verbose'] = verbose
-    settings['svmbir_lib_path'] = svmbir_lib_path
-    settings['object_name'] = object_name
+    sinoparams, imgparams, settings = utils.get_params_dicts(angles, num_channels, num_views, num_slices, num_rows, num_cols,
+                    delta_channel, delta_pixel, roi_radius, center_offset, verbose,
+                    svmbir_lib_path, object_name, interface='Command Line')
 
     # Then call c to get the system matrix - the output dict can be used to pass the matrix itself
     # and/or to pass path information to a file containing the matrix
@@ -294,21 +206,8 @@ def fixed_resolution_recon(sino, angles,
     else :
         init_image_value = 0
 
-    reconparams = dict()
-    reconparams['prior_model'] = 'QGGMRF'
-    reconparams['init_image_value'] = init_image_value
-    reconparams['p'] = p
-    reconparams['q'] = q
-    reconparams['T'] = T
-    reconparams['sigma_x'] = sigma_x
-    reconparams['sigma_y'] = sigma_y
-    reconparams['b_nearest'] = 1.0
-    reconparams['b_diag'] = 0.707
-    reconparams['b_interslice'] = b_interslice
-    reconparams['stop_threshold'] = stop_threshold
-    reconparams['max_iterations'] = max_iterations
-    reconparams['positivity'] = int(positivity)
-    reconparams['weight_type'] = 'unweighted'  # constant weights
+    reconparams = utils.get_reconparams_dicts(sigma_y, positivity, sigma_x, p, q, T, b_interslice,
+                            stop_threshold, max_iterations,init_image_value=init_image_value, interface = 'Command Line')
 
     paths, sinoparams, imgparams = _init_geometry(angles, center_offset=center_offset,
                                                   num_channels=num_channels, num_views=num_views, num_slices=num_slices,
@@ -317,21 +216,58 @@ def fixed_resolution_recon(sino, angles,
                                                   roi_radius=roi_radius,
                                                   svmbir_lib_path=svmbir_lib_path, object_name=object_name,
                                                   verbose=verbose)
-    # Collect data and settings to pass to c
-    data = dict()
-    data['init_image'] = init_image
-    data['init_proj'] = init_proj
-    data['prox_image'] = prox_image
-    data['sino'] = sino
-    data['weights'] = weights
 
-    settings = dict()
-    settings['verbose'] = verbose
-    settings['paths'] = paths
-    settings['delete_temps'] = delete_temps
+    # Interface to disk and command line
+    cmd_args = dict(i=paths['param_name'], j=paths['param_name'], k=paths['param_name'],
+                    s=paths['sino_name'], r=paths['recon_name'], m=paths['sysmatrix_name'],
+                    w=paths['wght_name'], v=str(verbose))
 
-    # Do the recon
-    x = _fixed_res_recon_c(reconparams, imgparams, sinoparams, data, settings)
+    # We're doing anything with projection of the output, so removing to save work
+    # cmd_args['f'] = paths['proj_name']
+
+    if not np.isscalar(init_image):
+        write_recon_openmbir(init_image, paths['init_name'] + '_slice', '.2Dimgdata')
+        cmd_args['t'] = paths['init_name']
+
+    if init_proj is not None:
+        write_sino_openmbir(init_proj, paths['init_proj_name'] + '_slice', '.2Dsinodata')
+        cmd_args['e'] = paths['init_proj_name']
+
+    if prox_image is not None:
+        write_recon_openmbir(prox_image, paths['prox_name'] + '_slice', '.2Dimgdata')
+        cmd_args['p'] = paths['prox_name']
+        reconparams['prior_model'] = 'PandP'
+
+    reconparams_c = _transform_pyconv2c(**reconparams)
+    write_params(paths['reconparams_fname'], **reconparams_c)
+
+    write_sino_openmbir(sino, paths['sino_name'] + '_slice', '.2Dsinodata')
+    write_sino_openmbir(weights, paths['wght_name'] + '_slice', '.2Dweightdata')
+
+    _cmd_exec(**cmd_args)
+
+    x = read_recon_openmbir(paths['recon_name'] + '_slice', '.2Dimgdata',
+                            imgparams['Nx'], imgparams['Ny'], imgparams['Nz'])
+
+    if delete_temps:
+        os.remove(paths['sinoparams_fname'])
+        os.remove(paths['imgparams_fname'])
+        os.remove(paths['reconparams_fname'])
+        os.remove(paths['view_angle_list_fname'])
+
+        delete_data_openmbir(paths['recon_name'] + '_slice', '.2Dimgdata', imgparams['Nz'])
+        delete_data_openmbir(paths['sino_name'] + '_slice', '.2Dsinodata', sinoparams['num_slices'])
+        # delete_data_openmbir(paths['proj_name'] + '_slice', '.2Dprojection', sinoparams['num_slices'])
+        delete_data_openmbir(paths['wght_name'] + '_slice', '.2Dweightdata', sinoparams['num_slices'])
+
+        if not np.isscalar(init_image):
+            delete_data_openmbir(paths['init_name'] + '_slice', '.2Dimgdata', imgparams['Nz'])
+
+        if init_proj is not None:
+            delete_data_openmbir(paths['init_proj_name'] + '_slice', '.2Dprojection', sinoparams['num_slices'])
+
+        if prox_image is not None:
+            delete_data_openmbir(paths['prox_name'] + '_slice', '.2Dimgdata', imgparams['Nz'])
 
     return x
 

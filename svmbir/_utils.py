@@ -244,3 +244,71 @@ def hash_params(angles, **kwargs):
     hash_val = hashlib.sha512(hash_input.encode()).hexdigest()
 
     return hash_val, relevant_params
+
+
+def get_params_dicts(angles, num_channels, num_views, num_slices, num_rows, num_cols,
+                    delta_channel, delta_pixel, roi_radius, center_offset, verbose,
+                    svmbir_lib_path, object_name, interface = 'Cython'):
+    # Collect the information needed to pass to c
+    # - ideally these should be put in a struct that could be used by c directly
+    # First the sinogram parameters
+    sinoparams = dict()
+    if interface == 'Command Line':
+        sinoparams['geometry'] = '3DPARALLEL'
+    sinoparams['num_channels'] = num_channels
+    sinoparams['num_views'] = num_views
+    sinoparams['num_slices'] = num_slices
+    sinoparams['delta_channel'] = delta_channel
+    sinoparams['center_offset'] = center_offset
+    sinoparams['delta_slice'] = 1
+    if interface == 'Command Line':
+        sinoparams['first_slice_number'] = 0
+        sinoparams['view_angle_list'] = object_name + '.ViewAngleList'
+    else:
+        sinoparams['view_angle_list'] = angles.astype(np.single)
+
+    # Then the image parameters
+    imgparams = dict()
+    imgparams['Nx'] = num_cols
+    imgparams['Ny'] = num_rows
+    imgparams['Nz'] = num_slices
+    if interface == 'Command Line':
+        imgparams['first_slice_number'] = 0
+    imgparams['delta_xy'] = delta_pixel
+    imgparams['delta_z'] = 1
+    imgparams['roi_radius'] = roi_radius
+
+    # Collect any info needed for c subroutine
+    settings = dict()
+    settings['verbose'] = verbose
+    settings['svmbir_lib_path'] = svmbir_lib_path
+    settings['object_name'] = object_name
+
+    return sinoparams, imgparams, settings
+
+def get_reconparams_dicts(sigma_y, positivity, sigma_x, p, q, T, b_interslice,
+                            stop_threshold, max_iterations,init_image_value=0, interface = 'Cython'):
+    reconparams = dict()
+    if interface == 'Command Line':
+        reconparams['prior_model'] = 'QGGMRF'
+        reconparams['init_image_value'] = init_image_value
+    else:
+        reconparams['prior_model'] = 1
+    reconparams['p'] = p
+    reconparams['q'] = q
+    reconparams['T'] = T
+    reconparams['sigma_x'] = sigma_x
+    reconparams['sigma_y'] = sigma_y
+    reconparams['b_nearest'] = 1.0
+    reconparams['b_diag'] = 0.707
+    reconparams['b_interslice'] = b_interslice
+    reconparams['stop_threshold'] = stop_threshold
+    reconparams['max_iterations'] = max_iterations
+    reconparams['positivity'] = int(positivity)
+
+    if interface == 'Command Line':
+        reconparams['weight_type'] = 'unweighted'  # constant weights
+    else:
+        reconparams['weight_type'] = 1 # How to compute weights if internal, 1: uniform, 2: exp(-y); 3: exp(-y/2), 4: 1/(y+0.1)
+
+    return reconparams

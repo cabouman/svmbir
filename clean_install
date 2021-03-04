@@ -8,6 +8,8 @@ conda env create -f environment.yml &&
 
 conda activate svmbir &&
 
+pip install -r demo/requirements_demo.txt
+
 source clean_svmbir &&
 
 pip install . &&

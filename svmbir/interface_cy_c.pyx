@@ -166,32 +166,9 @@ def _init_geometry( angles, num_channels, num_views, num_slices, num_rows, num_c
                     delta_channel, delta_pixel, roi_radius, center_offset, verbose,
                     svmbir_lib_path = __svmbir_lib_path, object_name = 'object'):
 
-    # Collect the information needed to pass to c
-    # - ideally these should be put in a struct that could be used by c directly
-    # First the sinogram parameters
-    sinoparams = dict()
-    sinoparams['num_channels'] = num_channels
-    sinoparams['num_views'] = num_views
-    sinoparams['num_slices'] = num_slices
-    sinoparams['delta_channel'] = delta_channel
-    sinoparams['center_offset'] = center_offset
-    sinoparams['delta_slice'] = 1
-    sinoparams['view_angle_list'] = angles.astype(np.single)
-
-    # Then the image parameters
-    imgparams = dict()
-    imgparams['Nx'] = num_cols
-    imgparams['Ny'] = num_rows
-    imgparams['Nz'] = num_slices
-    imgparams['delta_xy'] = delta_pixel
-    imgparams['delta_z'] = 1
-    imgparams['roi_radius'] = roi_radius
-
-    # Collect any info needed for c subroutine
-    settings = dict()
-    settings['verbose'] = verbose
-    settings['svmbir_lib_path'] = svmbir_lib_path
-    settings['object_name'] = object_name
+    sinoparams, imgparams, settings = utils.get_params_dicts(angles, num_channels, num_views, num_slices, num_rows, num_cols,
+                delta_channel, delta_pixel, roi_radius, center_offset, verbose,
+                svmbir_lib_path, object_name, interface='Cython')
 
     # Declare image and sinogram Parameter structures.
     cdef ImageParams3D imgparams_c
@@ -286,20 +263,8 @@ def fixed_resolution_recon(sino, angles,
     # Collect parameters to pass to C
     (num_views, num_slices, num_channels) = sino.shape
 
-    reconparams = dict()
-    reconparams['prior_model'] = 1     # 1:QGGMRF_3D, 2:PandP
-    reconparams['p'] = p
-    reconparams['q'] = q
-    reconparams['T'] = T
-    reconparams['sigma_x'] = sigma_x
-    reconparams['sigma_y'] = sigma_y
-    reconparams['b_nearest'] = 1.0
-    reconparams['b_diag'] = 0.707
-    reconparams['b_interslice'] = b_interslice
-    reconparams['stop_threshold'] = stop_threshold
-    reconparams['max_iterations'] = max_iterations
-    reconparams['positivity'] = int(positivity)
-    reconparams['weight_type'] = 1 # How to compute weights if internal, 1: uniform, 2: exp(-y); 3: exp(-y/2), 4: 1/(y+0.1)
+    reconparams = utils.get_reconparams_dicts(sigma_y, positivity, sigma_x, p, q, T, b_interslice,
+                        stop_threshold, max_iterations, interface = 'Cython')
 
     paths, sinoparams, imgparams = _init_geometry(angles, center_offset=center_offset,
                                                   num_channels=num_channels, num_views=num_views, num_slices=num_slices,
