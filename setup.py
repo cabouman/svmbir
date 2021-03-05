@@ -1,4 +1,5 @@
 import os
+import re
 import sys
 import numpy as np
 import warnings
@@ -37,13 +38,13 @@ else:
 if os.environ.get('CLIB') !='CMD_LINE':
 
     #Check that compiler is set
-    if os.environ.get('CC') not in ['gcc','icc','clang','msvc']:
+    if os.environ.get('CC') not in ['gcc','icc','clang','msvc'] and re.findall('gcc',str(os.environ.get('CC')))==[]:
         warnings.warn('CC environment variable not set to valid value. Using default CC=gcc.')
         os.environ["CC"] = 'gcc'
         #raise ValueError('CC flag not set to valid value. For example should be: CC=gcc')
 
     # OpenMP gcc compile: tested for MacOS and Linux
-    if os.environ.get('CC') =='gcc':
+    if os.environ.get('CC') =='gcc' or re.findall('gcc',str(os.environ.get('CC')))!=[]:
         extra_compile_args=["-std=c11","-O3","-fopenmp","-Wno-unknown-pragmas"]
         extra_link_args=["-lm","-fopenmp"]
 
