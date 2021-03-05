@@ -132,16 +132,6 @@ def _gen_sysmatrix_c(sinoparams, imgparams, angles, settings):
     # Return the sysmatrix (or info to get it in this case)
     return paths
 
-##################################################################
-# Items with interface to read/write and command line
-##################################################################
-
-
-def _fixed_res_recon_c(reconparams, imgparams, sinoparams, data, settings):
-
-
-    return x
-
 
 ##################################################################
 # Items that are needed for command line interface
