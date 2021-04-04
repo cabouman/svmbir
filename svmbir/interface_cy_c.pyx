@@ -257,6 +257,9 @@ def multires_recon(sino, angles, weights, weight_type, init_image, prox_image, i
     Args: See svmbir.recon() for argument structure
     """
 
+    # Declare cython image array here so we can initialize in recursion block
+    cdef cnp.ndarray[float, ndim=3, mode="c"] py_image
+
     # Determine if it the algorithm should reduce resolution further
     go_to_lower_resolution = (max_resolutions > 0) and (min(num_rows, num_cols) > 16)
 
@@ -298,8 +301,16 @@ def multires_recon(sino, angles, weights, weight_type, init_image, prox_image, i
                         verbose=verbose)
 
         # Interpolate resolution of reconstruction
-        init_image = utils.recon_resize(lr_recon, (num_rows, num_cols))
+        new_init_image = utils.recon_resize(lr_recon, (num_rows, num_cols))
         del lr_recon
+
+        # Initialize cython image array and de-allocate
+        if not new_init_image.flags["C_CONTIGUOUS"]:
+            new_init_image = np.ascontiguousarray(new_init_image, dtype=np.single)
+        else:
+            new_init_image = new_init_image.astype(np.single)
+        py_image = np.copy(new_init_image).astype(ctypes.c_float)
+        del new_init_image
 
     # Perform reconstruction at current resolution
     if verbose >= 1 :
@@ -330,20 +341,23 @@ def multires_recon(sino, angles, weights, weight_type, init_image, prox_image, i
     cdef cnp.ndarray[float, ndim=3, mode="c"] cy_weight = py_weight
     cdef cnp.ndarray[float, ndim=3, mode="c"] cy_proj_init
     cdef cnp.ndarray[float, ndim=3, mode="c"] cy_prox_image
-    cdef cnp.ndarray[float, ndim=3, mode="c"] py_image
+    #cdef cnp.ndarray[float, ndim=3, mode="c"] py_image
     cdef cnp.ndarray[char, ndim=1, mode="c"] Amatrix_fname
 
-    if np.isscalar(init_image) :
-        init_image_value = init_image
-        py_image = np.zeros((num_slices, nrows, ncols), dtype=ctypes.c_float)+init_image_value
-    else :
-        init_image_value = 0
-        if not init_image.flags["C_CONTIGUOUS"]:
-            init_image = np.ascontiguousarray(init_image, dtype=np.single)
+    if 'py_image' not in locals():
+        if np.isscalar(init_image):
+            py_image = np.zeros((num_slices, nrows, ncols), dtype=ctypes.c_float) + init_image
         else:
-            init_image = init_image.astype(np.single)
-        py_image = np.copy(init_image).astype(ctypes.c_float)
-    reconparams['init_image_value'] = init_image_value
+            if not init_image.flags["C_CONTIGUOUS"]:
+                init_image = np.ascontiguousarray(init_image, dtype=np.single)
+            else:
+                init_image = init_image.astype(np.single)
+            py_image = np.copy(init_image).astype(ctypes.c_float)
+
+    if np.isscalar(init_image):
+        reconparams['init_image_value'] = init_image
+    else:
+        reconparams['init_image_value'] = 0
 
     if init_proj is not None:
         cy_proj_init = np.swapaxes(init_proj, 0, 1)

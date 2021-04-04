@@ -225,7 +225,7 @@ def multires_recon(sino, angles, weights, weight_type, init_image, prox_image, i
                         verbose=verbose)
 
         # Interpolate resolution of reconstruction
-        init_image = utils.recon_resize(lr_recon, (num_rows, num_cols))
+        new_init_image = utils.recon_resize(lr_recon, (num_rows, num_cols))
         del lr_recon
 
     # Perform reconstruction at current resolution
@@ -259,7 +259,12 @@ def multires_recon(sino, angles, weights, weight_type, init_image, prox_image, i
     # We're doing anything with projection of the output, so removing to save work
     # cmd_args['f'] = paths['proj_name']
 
-    if not np.isscalar(init_image):
+    # Initializing initial conditon w/ multi-res result like this allows de-allocation
+    if 'new_init_image' in locals():
+        write_recon_openmbir(new_init_image, paths['init_name'] + '_slice', '.2Dimgdata')
+        cmd_args['t'] = paths['init_name']
+        del new_init_image
+    elif not np.isscalar(init_image):
         write_recon_openmbir(init_image, paths['init_name'] + '_slice', '.2Dimgdata')
         cmd_args['t'] = paths['init_name']
 
@@ -294,7 +299,7 @@ def multires_recon(sino, angles, weights, weight_type, init_image, prox_image, i
         # delete_data_openmbir(paths['proj_name'] + '_slice', '.2Dprojection', sinoparams['num_slices'])
         delete_data_openmbir(paths['wght_name'] + '_slice', '.2Dweightdata', sinoparams['num_slices'])
 
-        if not np.isscalar(init_image):
+        if 't' in cmd_args:
             delete_data_openmbir(paths['init_name'] + '_slice', '.2Dimgdata', imgparams['Nz'])
 
         if init_proj is not None:
