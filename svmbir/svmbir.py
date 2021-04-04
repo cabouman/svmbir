@@ -8,7 +8,6 @@ import shutil
 import numpy as np
 import os
 import svmbir._utils as utils
-from PIL import Image
 
 if os.environ.get('CLIB') =='CMD_LINE':
     import svmbir.interface_py_c as ci
@@ -315,13 +314,13 @@ def recon(sino, angles,
 
         # Reduce resolution of initialization image if there is one
         if isinstance(init_image, np.ndarray) and (init_image.ndim == 3):
-            lr_init_image = recon_resize(init_image, (lr_num_rows, lr_num_cols))
+            lr_init_image = utils.recon_resize(init_image, (lr_num_rows, lr_num_cols))
         else:
             lr_init_image = init_image
 
         # Reduce resolution of proximal image if there is one
         if isinstance(prox_image, np.ndarray) and (prox_image.ndim == 3):
-            lr_prox_image = recon_resize(prox_image, (lr_num_rows, lr_num_cols))
+            lr_prox_image = utils.recon_resize(prox_image, (lr_num_rows, lr_num_cols))
         else:
             lr_prox_image = prox_image
 
@@ -339,7 +338,7 @@ def recon(sino, angles,
                          verbose=verbose)
 
         # Interpolate resolution of reconstruction
-        init_image = recon_resize(lr_recon, (num_rows, num_cols))
+        init_image = utils.recon_resize(lr_recon, (num_rows, num_cols))
         del lr_recon
 
     # Perform reconstruction at current resolution
@@ -433,26 +432,6 @@ def project(angles, image, num_channels,
     proj = ci.project(image, sinoparams, settings)
 
     return proj
-
-
-def recon_resize(recon, output_shape):
-    """Resizes a reconstruction by performing 2D resizing along the slices dimension
-
-    Args:
-        recon (ndarray): 3D numpy array containing reconstruction with shape (slices, rows, cols)
-        output_shape (tuple): (num_rows, num_cols) shape of resized output
-
-    Returns:
-        ndarray: 3D numpy array containing interpolated reconstruction with shape (num_slices, num_rows, num_cols).
-    """
-
-    recon_resized_list = []
-    for i in range(recon.shape[0]):
-        PIL_image = Image.fromarray(recon[i])
-        PIL_image_resized = PIL_image.resize((output_shape[1],output_shape[0]), resample=Image.BILINEAR)
-        recon_resized_list.append(np.asarray(PIL_image_resized))
-
-    return np.stack(recon_resized_list, axis=0)
 
 
 def _sino_indicator(sino):

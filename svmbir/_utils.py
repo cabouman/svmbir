@@ -5,6 +5,7 @@ import numpy as np
 import pdb
 import warnings
 import hashlib
+from PIL import Image
 # pdb.set_trace()
 
 
@@ -312,3 +313,25 @@ def get_reconparams_dicts(sigma_y, positivity, sigma_x, p, q, T, b_interslice,
         reconparams['weight_type'] = 1 # How to compute weights if internal, 1: uniform, 2: exp(-y); 3: exp(-y/2), 4: 1/(y+0.1)
 
     return reconparams
+
+
+def recon_resize(recon, output_shape):
+    """Resizes a reconstruction by performing 2D resizing along the slices dimension
+
+    Args:
+        recon (ndarray): 3D numpy array containing reconstruction with shape (slices, rows, cols)
+        output_shape (tuple): (num_rows, num_cols) shape of resized output
+
+    Returns:
+        ndarray: 3D numpy array containing interpolated reconstruction with shape (num_slices, num_rows, num_cols).
+    """
+
+    recon_resized_list = []
+    for i in range(recon.shape[0]):
+        PIL_image = Image.fromarray(recon[i])
+        PIL_image_resized = PIL_image.resize((output_shape[1],output_shape[0]), resample=Image.BILINEAR)
+        recon_resized_list.append(np.asarray(PIL_image_resized))
+
+    return np.stack(recon_resized_list, axis=0)
+
+
