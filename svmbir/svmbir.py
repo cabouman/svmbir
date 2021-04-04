@@ -251,13 +251,7 @@ def recon(sino, angles,
         3D numpy array: 3D reconstruction with shape (num_slices,num_rows,num_cols) in units of :math:`ALU^{-1}`.
     """
 
-
-    ##################################################################
-    # Perform error checking to make sure parameter values are valid #
-    ##################################################################
-
     # If not specified, then set number of threads = to number of processors
-    # This could get call multiple times recursively. Is that a problem?
     if num_threads is None :
         num_threads = cpu_count(logical=False)
     os.environ['OMP_NUM_THREADS'] = str(num_threads)
@@ -297,63 +291,15 @@ def recon(sino, angles,
     if sigma_x is None:
         sigma_x = auto_sigma_x(sino, delta_channel, sharpness)
 
-    # Determine if it the algorithm should reduce resolution further
-    go_to_lower_resolution = (max_resolutions > 0) and (min(num_rows, num_cols) > 16)
-
-    # If resolution is too high, then do recursive call to lower resolutions
-    if go_to_lower_resolution:
-        new_max_resolutions = max_resolutions-1;
-
-        # Set the pixel pitch, num_rows, and num_cols for the next lower resolution
-        lr_delta_pixel = 2 * delta_pixel
-        lr_num_rows = int(np.ceil(num_rows / 2))
-        lr_num_cols = int(np.ceil(num_cols / 2))
-
-        # Rescale sigma_y for lower resolution
-        lr_sigma_y = 2.0**0.5 * sigma_y
-
-        # Reduce resolution of initialization image if there is one
-        if isinstance(init_image, np.ndarray) and (init_image.ndim == 3):
-            lr_init_image = utils.recon_resize(init_image, (lr_num_rows, lr_num_cols))
-        else:
-            lr_init_image = init_image
-
-        # Reduce resolution of proximal image if there is one
-        if isinstance(prox_image, np.ndarray) and (prox_image.ndim == 3):
-            lr_prox_image = utils.recon_resize(prox_image, (lr_num_rows, lr_num_cols))
-        else:
-            lr_prox_image = prox_image
-
-        if verbose >= 1:
-            print(f'Calling multires_recon for axial size (rows,cols)=({lr_num_rows},{lr_num_cols}).')
-
-        lr_recon = recon(sino=sino, angles=angles,
-                         center_offset=center_offset, delta_channel=delta_channel, delta_pixel=lr_delta_pixel,
-                         num_rows=lr_num_rows, num_cols=lr_num_cols, roi_radius=roi_radius,
-                         sigma_y=lr_sigma_y, snr_db=snr_db, weights=weights, weight_type=weight_type,
-                         sharpness=sharpness, positivity=positivity, sigma_x=sigma_x, p=p, q=q, T=T, b_interslice=b_interslice,
-                         init_image=lr_init_image, prox_image=lr_prox_image, init_proj=init_proj,
-                         stop_threshold=stop_threshold, max_iterations=max_iterations, max_resolutions=new_max_resolutions,
-                         num_threads=num_threads, delete_temps=delete_temps, svmbir_lib_path=svmbir_lib_path, object_name=object_name,
-                         verbose=verbose)
-
-        # Interpolate resolution of reconstruction
-        init_image = utils.recon_resize(lr_recon, (num_rows, num_cols))
-        del lr_recon
-
-    # Perform reconstruction at current resolution
-    if verbose >= 1 :
-        print(f'Calling recon for axial size (rows,cols)=({num_rows},{num_cols}).')
-
-    reconstruction = ci.fixed_resolution_recon(sino=sino, angles=angles,
-                                               center_offset=center_offset, delta_channel=delta_channel, delta_pixel=delta_pixel,
-                                               num_rows=num_rows, num_cols=num_cols, roi_radius=roi_radius,
-                                               sigma_y=sigma_y, snr_db=snr_db, weights=weights, weight_type=weight_type,
-                                               sharpness=sharpness, positivity=positivity, sigma_x=sigma_x, p=p, q=q, T=T, b_interslice=b_interslice,
-                                               init_image=init_image, prox_image=prox_image, init_proj=init_proj,
-                                               stop_threshold=stop_threshold, max_iterations=max_iterations,
-                                               delete_temps=delete_temps, svmbir_lib_path=svmbir_lib_path, object_name=object_name,
-                                               verbose=verbose)
+    reconstruction = ci.multires_recon(sino=sino, angles=angles, weights=weights, weight_type=weight_type,
+                                       init_image=init_image, prox_image=prox_image, init_proj=init_proj,
+                                       num_rows=num_rows, num_cols=num_cols, roi_radius=roi_radius,
+                                       delta_channel=delta_channel, delta_pixel=delta_pixel, center_offset=center_offset,
+                                       sigma_y=sigma_y, snr_db=snr_db, sigma_x=sigma_x, p=p, q=q, T=T, b_interslice=b_interslice,
+                                       sharpness=sharpness, positivity=positivity, max_resolutions=max_resolutions,
+                                       stop_threshold=stop_threshold, max_iterations=max_iterations,
+                                       delete_temps=delete_temps, svmbir_lib_path=svmbir_lib_path, object_name=object_name,
+                                       verbose=verbose)
 
     return reconstruction
 
