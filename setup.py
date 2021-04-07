@@ -78,8 +78,6 @@ if os.environ.get('CLIB') !='CMD_LINE':
          description=description,
          long_description=long_description,
          long_description_content_type=long_description_content_type,
-         author=author,
-         author_email=author_email,
          packages=packages,
          #external packages as dependencies
          install_requires=['numpy', 'Cython', 'psutil', 'Pillow'],
@@ -100,8 +98,6 @@ else:
         description=description,
         long_description=long_description,
         long_description_content_type=long_description_content_type,
-        author=author,
-        author_email=author_email,
         packages=packages,
         # external packages as dependencies
         install_requires=['numpy', 'ruamel.yaml', 'psutil', 'Pillow'],
