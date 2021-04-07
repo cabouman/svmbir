@@ -8,7 +8,6 @@ import shutil
 import numpy as np
 import os
 import svmbir._utils as utils
-from PIL import Image
 
 if os.environ.get('CLIB') =='CMD_LINE':
     import svmbir.interface_py_c as ci
@@ -154,14 +153,13 @@ def auto_roi_radius(delta_pixel, num_rows, num_cols):
 
 
 def recon(sino, angles,
-           center_offset = 0.0, delta_channel = 1.0, delta_pixel = 1.0,
-           num_rows = None, num_cols = None, roi_radius = None,
-           sigma_y = None, snr_db = 30.0, weights = None, weight_type = 'unweighted',
-           sharpness = 1.0, positivity = True, sigma_x = None, p = 1.2, q = 2.0, T = 1.0, b_interslice = 1.0,
-           init_image = 0.0, prox_image = None, init_proj = None,
-           max_resolutions = 0, stop_threshold = 0.02, max_iterations = 100,
-           num_threads = None, delete_temps = True, svmbir_lib_path = __svmbir_lib_path, object_name = 'object',
-           verbose = 1) :
+          weights = None, weight_type = 'unweighted', init_image = 0.0, prox_image = None, init_proj = None,
+          num_rows = None, num_cols = None, roi_radius = None,
+          delta_channel = 1.0, delta_pixel = 1.0, center_offset = 0.0,
+          sigma_y = None, snr_db = 30.0, sigma_x = None, p = 1.2, q = 2.0, T = 1.0, b_interslice = 1.0,
+          sharpness = 1.0, positivity = True, max_resolutions = 0, stop_threshold = 0.02, max_iterations = 100,
+          num_threads = None, delete_temps = True, svmbir_lib_path = __svmbir_lib_path, object_name = 'object',
+          verbose = 1) :
     """Computes 3D parallel beam MBIR reconstruction using multi-resolution SVMBIR algorithm.
 
     Args:
@@ -169,11 +167,22 @@ def recon(sino, angles,
 
         angles (ndarray): 1D view angles array in radians.
 
-        center_offset (float, optional): [Default=0.0] Scalar value of offset from center-of-rotation.
+        weights (ndarray, optional): [Default=None] 3D weights array with same shape as sino.
 
-        delta_channel (float, optional): [Default=1.0] Scalar value of detector channel spacing in :math:`ALU`.
+        weight_type (string, optional): [Default="unweighted"] Type of noise model used for data.
+            If the ``weights`` array is not supplied, then the function ``svmbir.calc_weights`` is used to set weights using specified ``weight_type`` parameter.
+            Option "unweighted" corresponds to unweighted reconstruction;
+            Option "transmission" is the correct weighting for transmission CT with constant dosage;
+            Option "transmission_root" is commonly used with transmission CT data to improve image homogeneity;
+            Option "emission" is appropriate for emission CT data.
 
-        delta_pixel (float, optional): [Default=1.0] Scalar value of the spacing between image pixels in the 2D slice plane in :math:`ALU`.
+        init_image (float, optional): [Default=0.0] Initial value of reconstruction image, specified by either a scalar value or a 3D numpy array with shape (num_slices,num_rows,num_cols).
+
+        prox_image (ndarray, optional): [Default=None] 3D proximal map input image.
+            If prox_image is supplied, then the proximal map prior model is used, and the qGGMRF parameters are ignored.
+
+        init_proj (None, optional): [Default=None] Initial value of forward projection of the init_image.
+            This can be used to reduce computation for the first iteration when using the proximal map option.
 
         num_rows (int, optional): [Default=None] Integer number of rows in reconstructed image.
             If None, automatically set.
@@ -185,27 +194,17 @@ def recon(sino, angles,
             If None, automatically set with auto_roi_radius().
             Pixels outside the radius roi_radius in the :math:`(x,y)` plane are disregarded in the reconstruction.
 
+        delta_channel (float, optional): [Default=1.0] Scalar value of detector channel spacing in :math:`ALU`.
+
+        delta_pixel (float, optional): [Default=1.0] Scalar value of the spacing between image pixels in the 2D slice plane in :math:`ALU`.
+
+        center_offset (float, optional): [Default=0.0] Scalar value of offset from center-of-rotation.
+
         sigma_y (float, optional): [Default=None] Scalar value of noise standard deviation parameter.
             If None, automatically set with auto_sigma_y.
 
         snr_db (float, optional): [Default=30.0] Scalar value that controls assumed signal-to-noise ratio of the data in dB.
             Ignored if sigma_y is not None.
-
-        weights (ndarray, optional): [Default=None] 3D weights array with same shape as sino.
-
-        weight_type (string, optional): [Default="unweighted"] Type of noise model used for data.
-            If the ``weights`` array is not supplied, then the function ``svmbir.calc_weights`` is used to set weights using specified ``weight_type`` parameter.
-            Option "unweighted" corresponds to unweighted reconstruction;
-            Option "transmission" is the correct weighting for transmission CT with constant dosage;
-            Option "transmission_root" is commonly used with transmission CT data to improve image homogeneity;
-            Option "emission" is appropriate for emission CT data.
-
-        sharpness (float, optional):
-            [Default=0.0] Scalar value that controls level of sharpness.
-            ``sharpness=0.0`` is neutral; ``sharpness>0`` increases sharpness; ``sharpness<0`` reduces sharpness.
-            Ignored if sigma_x is not None.
-
-        positivity (bool, optional): [Default=True] Boolean value that determines if positivity constraint is enforced. The positivity parameter defaults to True; however, it should be changed to False when used in applications that can generate negative image values.
 
         sigma_x (float, optional): [Default=None] Scalar value :math:`>0` that specifies the qGGMRF scale parameter.
             If None, automatically set with auto_sigma_x. The parameter sigma_x can be used to directly control regularization, but this is only recommended for expert users.
@@ -220,20 +219,19 @@ def recon(sino, angles,
             The default value of 1.0 should be fine for most applications.
             However, b_interslice can be increased to values :math:`>1` in order to increase regularization along the slice axis.
 
-        init_image (float, optional): [Default=0.0] Initial value of reconstruction image, specified by either a scalar value or a 3D numpy array with shape (num_slices,num_rows,num_cols).
+        sharpness (float, optional):
+            [Default=0.0] Scalar value that controls level of sharpness.
+            ``sharpness=0.0`` is neutral; ``sharpness>0`` increases sharpness; ``sharpness<0`` reduces sharpness.
+            Ignored if sigma_x is not None.
 
-        init_proj (None, optional): [Default=None] Initial value of forward projection of the init_image.
-            This can be used to reduce computation for the first iteration when using the proximal map option.
+        positivity (bool, optional): [Default=True] Boolean value that determines if positivity constraint is enforced. The positivity parameter defaults to True; however, it should be changed to False when used in applications that can generate negative image values.
 
-        prox_image (ndarray, optional): [Default=None] 3D proximal map input image.
-            If prox_image is supplied, then the proximal map prior model is used, and the qGGMRF parameters are ignored.
+        max_resolutions (int, optional): [Default=0] Integer >=0 that specifies the maximum number of grid resolutions used to solve MBIR reconstruction problem.
 
         stop_threshold (float, optional): [Default=0.02] Scalar valued stopping threshold in percent.
             If stop_threshold=0.0, then run max iterations.
 
         max_iterations (int, optional): [Default=100] Integer valued specifying the maximum number of iterations. The value of ``max_iterations`` may need to be increased for reconstructions with limited tilt angles or high regularization.
-
-        max_resolutions (int, optional): [Default=0] Integer >=0 that specifies the maximum number of grid resolutions used to solve MBIR reconstruction problem.
 
         num_threads (int, optional): [Default=None] Number of compute threads requested when executed.
             If None, num_threads is set to the number of cores in the system
@@ -252,13 +250,7 @@ def recon(sino, angles,
         3D numpy array: 3D reconstruction with shape (num_slices,num_rows,num_cols) in units of :math:`ALU^{-1}`.
     """
 
-
-    ##################################################################
-    # Perform error checking to make sure parameter values are valid #
-    ##################################################################
-
     # If not specified, then set number of threads = to number of processors
-    # This could get call multiple times recursively. Is that a problem?
     if num_threads is None :
         num_threads = cpu_count(logical=False)
     os.environ['OMP_NUM_THREADS'] = str(num_threads)
@@ -298,63 +290,15 @@ def recon(sino, angles,
     if sigma_x is None:
         sigma_x = auto_sigma_x(sino, delta_channel, sharpness)
 
-    # Determine if it the algorithm should reduce resolution further
-    go_to_lower_resolution = (max_resolutions > 0) and (min(num_rows, num_cols) > 16)
-
-    # If resolution is too high, then do recursive call to lower resolutions
-    if go_to_lower_resolution:
-        new_max_resolutions = max_resolutions-1;
-
-        # Set the pixel pitch, num_rows, and num_cols for the next lower resolution
-        lr_delta_pixel = 2 * delta_pixel
-        lr_num_rows = int(np.ceil(num_rows / 2))
-        lr_num_cols = int(np.ceil(num_cols / 2))
-
-        # Rescale sigma_y for lower resolution
-        lr_sigma_y = 2.0**0.5 * sigma_y
-
-        # Reduce resolution of initialization image if there is one
-        if isinstance(init_image, np.ndarray) and (init_image.ndim == 3):
-            lr_init_image = recon_resize(init_image, (lr_num_rows, lr_num_cols))
-        else:
-            lr_init_image = init_image
-
-        # Reduce resolution of proximal image if there is one
-        if isinstance(prox_image, np.ndarray) and (prox_image.ndim == 3):
-            lr_prox_image = recon_resize(prox_image, (lr_num_rows, lr_num_cols))
-        else:
-            lr_prox_image = prox_image
-
-        if verbose >= 1:
-            print(f'Calling multires_recon for axial size (rows,cols)=({lr_num_rows},{lr_num_cols}).')
-
-        lr_recon = recon(sino=sino, angles=angles,
-                         center_offset=center_offset, delta_channel=delta_channel, delta_pixel=lr_delta_pixel,
-                         num_rows=lr_num_rows, num_cols=lr_num_cols, roi_radius=roi_radius,
-                         sigma_y=lr_sigma_y, snr_db=snr_db, weights=weights, weight_type=weight_type,
-                         sharpness=sharpness, positivity=positivity, sigma_x=sigma_x, p=p, q=q, T=T, b_interslice=b_interslice,
-                         init_image=lr_init_image, prox_image=lr_prox_image, init_proj=init_proj,
-                         stop_threshold=stop_threshold, max_iterations=max_iterations, max_resolutions=new_max_resolutions,
-                         num_threads=num_threads, delete_temps=delete_temps, svmbir_lib_path=svmbir_lib_path, object_name=object_name,
-                         verbose=verbose)
-
-        # Interpolate resolution of reconstruction
-        init_image = recon_resize(lr_recon, (num_rows, num_cols))
-        del lr_recon
-
-    # Perform reconstruction at current resolution
-    if verbose >= 1 :
-        print(f'Calling recon for axial size (rows,cols)=({num_rows},{num_cols}).')
-
-    reconstruction = ci.fixed_resolution_recon(sino=sino, angles=angles,
-                                               center_offset=center_offset, delta_channel=delta_channel, delta_pixel=delta_pixel,
-                                               num_rows=num_rows, num_cols=num_cols, roi_radius=roi_radius,
-                                               sigma_y=sigma_y, snr_db=snr_db, weights=weights, weight_type=weight_type,
-                                               sharpness=sharpness, positivity=positivity, sigma_x=sigma_x, p=p, q=q, T=T, b_interslice=b_interslice,
-                                               init_image=init_image, prox_image=prox_image, init_proj=init_proj,
-                                               stop_threshold=stop_threshold, max_iterations=max_iterations,
-                                               delete_temps=delete_temps, svmbir_lib_path=svmbir_lib_path, object_name=object_name,
-                                               verbose=verbose)
+    reconstruction = ci.multires_recon(sino=sino, angles=angles, weights=weights, weight_type=weight_type,
+                                       init_image=init_image, prox_image=prox_image, init_proj=init_proj,
+                                       num_rows=num_rows, num_cols=num_cols, roi_radius=roi_radius,
+                                       delta_channel=delta_channel, delta_pixel=delta_pixel, center_offset=center_offset,
+                                       sigma_y=sigma_y, snr_db=snr_db, sigma_x=sigma_x, p=p, q=q, T=T, b_interslice=b_interslice,
+                                       sharpness=sharpness, positivity=positivity, max_resolutions=max_resolutions,
+                                       stop_threshold=stop_threshold, max_iterations=max_iterations,
+                                       delete_temps=delete_temps, svmbir_lib_path=svmbir_lib_path, object_name=object_name,
+                                       verbose=verbose)
 
     return reconstruction
 
@@ -433,26 +377,6 @@ def project(angles, image, num_channels,
     proj = ci.project(image, sinoparams, settings)
 
     return proj
-
-
-def recon_resize(recon, output_shape):
-    """Resizes a reconstruction by performing 2D resizing along the slices dimension
-
-    Args:
-        recon (ndarray): 3D numpy array containing reconstruction with shape (slices, rows, cols)
-        output_shape (tuple): (num_rows, num_cols) shape of resized output
-
-    Returns:
-        ndarray: 3D numpy array containing interpolated reconstruction with shape (num_slices, num_rows, num_cols).
-    """
-
-    recon_resized_list = []
-    for i in range(recon.shape[0]):
-        PIL_image = Image.fromarray(recon[i])
-        PIL_image_resized = PIL_image.resize((output_shape[1],output_shape[0]), resample=Image.BILINEAR)
-        recon_resized_list.append(np.asarray(PIL_image_resized))
-
-    return np.stack(recon_resized_list, axis=0)
 
 
 def _sino_indicator(sino):

@@ -246,19 +246,75 @@ def project(image, sinoparams, settings):
     # Return cython ndarray
     return np.swapaxes(proj,0,1)
 
-def fixed_resolution_recon(sino, angles,
-                            center_offset, delta_channel, delta_pixel,
-                            num_rows, num_cols, roi_radius,
-                            sigma_y, snr_db, weights, weight_type,
-                            sharpness, positivity, sigma_x, p, q, T, b_interslice,
-                            init_image, prox_image, init_proj,
-                            stop_threshold, max_iterations,
-                            delete_temps, svmbir_lib_path, object_name,
-                            verbose):
-    """Fixed resolution SVMBIR reconstruction used by svmbir.recon().
+
+def multires_recon(sino, angles, weights, weight_type, init_image, prox_image, init_proj,
+                   num_rows, num_cols, roi_radius, delta_channel, delta_pixel, center_offset,
+                   sigma_y, snr_db, sigma_x, p, q, T, b_interslice,
+                   sharpness, positivity, max_resolutions, stop_threshold, max_iterations,
+                   delete_temps, svmbir_lib_path, object_name, verbose):
+    """Multi-resolution SVMBIR reconstruction used by svmbir.recon().
 
     Args: See svmbir.recon() for argument structure
     """
+
+    # Declare cython image array here so we can initialize in recursion block
+    cdef cnp.ndarray[float, ndim=3, mode="c"] py_image
+
+    # Determine if it the algorithm should reduce resolution further
+    go_to_lower_resolution = (max_resolutions > 0) and (min(num_rows, num_cols) > 16)
+
+    # If resolution is too high, then do recursive call to lower resolutions
+    if go_to_lower_resolution:
+        new_max_resolutions = max_resolutions-1;
+
+        # Set the pixel pitch, num_rows, and num_cols for the next lower resolution
+        lr_delta_pixel = 2 * delta_pixel
+        lr_num_rows = int(np.ceil(num_rows / 2))
+        lr_num_cols = int(np.ceil(num_cols / 2))
+
+        # Rescale sigma_y for lower resolution
+        lr_sigma_y = 2.0**0.5 * sigma_y
+
+        # Reduce resolution of initialization image if there is one
+        if isinstance(init_image, np.ndarray) and (init_image.ndim == 3):
+            lr_init_image = utils.recon_resize(init_image, (lr_num_rows, lr_num_cols))
+        else:
+            lr_init_image = init_image
+
+        # Reduce resolution of proximal image if there is one
+        if isinstance(prox_image, np.ndarray) and (prox_image.ndim == 3):
+            lr_prox_image = utils.recon_resize(prox_image, (lr_num_rows, lr_num_cols))
+        else:
+            lr_prox_image = prox_image
+
+        if verbose >= 1:
+            print(f'Calling multires_recon for axial size (rows,cols)=({lr_num_rows},{lr_num_cols}).')
+
+        lr_recon = multires_recon(sino=sino, angles=angles, weights=weights, weight_type=weight_type,
+                        init_image=lr_init_image, prox_image=lr_prox_image, init_proj=init_proj,
+                        num_rows=lr_num_rows, num_cols=lr_num_cols, roi_radius=roi_radius,
+                        delta_channel=delta_channel, delta_pixel=lr_delta_pixel, center_offset=center_offset,
+                        sigma_y=lr_sigma_y, snr_db=snr_db, sigma_x=sigma_x, p=p,q=q,T=T,b_interslice=b_interslice,
+                        sharpness=sharpness, positivity=positivity, max_resolutions=new_max_resolutions,
+                        stop_threshold=stop_threshold, max_iterations=max_iterations,
+                        delete_temps=delete_temps, svmbir_lib_path=svmbir_lib_path, object_name=object_name,
+                        verbose=verbose)
+
+        # Interpolate resolution of reconstruction
+        new_init_image = utils.recon_resize(lr_recon, (num_rows, num_cols))
+        del lr_recon
+
+        # Initialize cython image array and de-allocate
+        if not new_init_image.flags["C_CONTIGUOUS"]:
+            new_init_image = np.ascontiguousarray(new_init_image, dtype=np.single)
+        else:
+            new_init_image = new_init_image.astype(np.single)
+        py_image = np.copy(new_init_image).astype(ctypes.c_float)
+        del new_init_image
+
+    # Perform reconstruction at current resolution
+    if verbose >= 1 :
+        print(f'Reconstructing axial size (rows,cols)=({num_rows},{num_cols}).')
 
     # Collect parameters to pass to C
     (num_views, num_slices, num_channels) = sino.shape
@@ -281,30 +337,31 @@ def fixed_resolution_recon(sino, angles,
     py_weight = np.swapaxes(weights, 0, 1)/sigma_y**2
     py_weight = np.ascontiguousarray(py_weight, dtype=np.single)
 
-
     cdef cnp.ndarray[float, ndim=3, mode="c"] cy_sino = py_sino
     cdef cnp.ndarray[float, ndim=3, mode="c"] cy_weight = py_weight
     cdef cnp.ndarray[float, ndim=3, mode="c"] cy_proj_init
     cdef cnp.ndarray[float, ndim=3, mode="c"] cy_prox_image
-    cdef cnp.ndarray[float, ndim=3, mode="c"] py_image
+    #cdef cnp.ndarray[float, ndim=3, mode="c"] py_image
     cdef cnp.ndarray[char, ndim=1, mode="c"] Amatrix_fname
 
-    if np.isscalar(init_image) :
-        init_image_value = init_image
-        py_image = np.zeros((num_slices, nrows, ncols), dtype=ctypes.c_float)+init_image_value
-    else :
-        init_image_value = 0
-        if not init_image.flags["C_CONTIGUOUS"]:
-            init_image = np.ascontiguousarray(init_image, dtype=np.single)
+    if 'py_image' not in locals():
+        if np.isscalar(init_image):
+            py_image = np.zeros((num_slices, nrows, ncols), dtype=ctypes.c_float) + init_image
         else:
-            init_image = init_image.astype(np.single)
-        py_image = np.copy(init_image).astype(ctypes.c_float)
-    reconparams['init_image_value'] = init_image_value
+            if not init_image.flags["C_CONTIGUOUS"]:
+                init_image = np.ascontiguousarray(init_image, dtype=np.single)
+            else:
+                init_image = init_image.astype(np.single)
+            py_image = np.copy(init_image).astype(ctypes.c_float)
+
+    if np.isscalar(init_image):
+        reconparams['init_image_value'] = init_image
+    else:
+        reconparams['init_image_value'] = 0
 
     if init_proj is not None:
         cy_proj_init = np.swapaxes(init_proj, 0, 1)
         cy_proj_init = np.ascontiguousarray(cy_proj_init, dtype=np.single)
-
 
     if prox_image is not None:
         if not prox_image.flags["C_CONTIGUOUS"]:
@@ -312,7 +369,6 @@ def fixed_resolution_recon(sino, angles,
         else:
             prox_image = prox_image.astype(np.single)
         cy_prox_image = prox_image
-
 
     cdef ImageParams3D imgparams_c
     cdef SinoParams3DParallel sinoparams_c
