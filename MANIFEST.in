@@ -1,0 +1,13 @@
+include MANIFEST.in
+include pytest.ini
+include LICENSE
+include environment.yml
+include requirements.txt
+include pyproject.toml
+
+recursive-include svmbir *.pyx
+recursive-include demo *.py
+
+include svmbir/tests/*.py
+include svmbir/sv-mbirct/src/*.h
+include svmbir/sv-mbirct/src/*.c
