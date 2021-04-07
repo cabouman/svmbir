@@ -16,7 +16,7 @@ CC=gcc pip install -i https://test.pypi.org/simple/ --extra-index-url https://py
 ```
 
 ## Running the demos
-1. Download demo.zip at https://github.com/cabouman/svmbir/blob/pypi/demo.zip.
+1. Download demo.zip at https://github.com/cabouman/svmbir/blob/master/demo.zip.
 2. Uncompress the zip file and change into demo folder.
 3. In your terminal window, install required dependencies of demo. 
 ```
