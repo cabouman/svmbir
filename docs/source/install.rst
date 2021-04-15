@@ -6,6 +6,24 @@ This section covers the basics of how to download and install svmbir.
 At this time, the ``svmbir`` package must be built from source.
 In the future, we also plan to make it installable from ``PyPI`` or ``Conda``.
 
+Install through PyPI
+-----------------------------------------
+1. *Create a Virtual Environment:*
+
+It is recommended that you create a conda environment.
+To do this, first install ``Anaconda``, and then create and activate an ``svmbir`` environment using the following two commands.
+
+``conda create -n svmbir python=3.8``
+
+``conda activate svmbir``
+
+This will create an empty conda environment.
+
+2. *Use pip to install package:*
+
+To install through PyPI, make sure that you have the standard gcc compiler.
+
+``pip install svmbir``
 
 Downloading and Installing svmbir Package
 -----------------------------------------
