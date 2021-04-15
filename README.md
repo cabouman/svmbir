@@ -10,6 +10,7 @@ Full documentation is available at: https://svmbir.readthedocs.io
 - Create an empty environment.
 ```
 conda create -n svmbir python=3.8
+conda activate svmbir
 ```
 - pip install from pypi. 
 
