@@ -221,9 +221,9 @@ def project(image, sinoparams, settings):
     cdef cnp.ndarray[char, ndim=1, mode="c"] Amatrix_fname
 
     if not image.flags["C_CONTIGUOUS"]:
-        image =  np.ascontiguousarray(image, dtype=np.single)
+        image = np.ascontiguousarray(image, dtype=np.single)
     else:
-        image = image.astype(np.single)
+        image = image.astype(np.single, copy=False)
 
     cdef cnp.ndarray[float, ndim=3, mode="c"] cy_image = image
     cdef cnp.ndarray[float, ndim=1, mode="c"] cy_angles = sinoparams['view_angle_list']
@@ -308,7 +308,7 @@ def multires_recon(sino, angles, weights, weight_type, init_image, prox_image, i
         if not new_init_image.flags["C_CONTIGUOUS"]:
             new_init_image = np.ascontiguousarray(new_init_image, dtype=np.single)
         else:
-            new_init_image = new_init_image.astype(np.single)
+            new_init_image = new_init_image.astype(np.single, copy=False)
         py_image = np.copy(new_init_image).astype(ctypes.c_float)
         del new_init_image
 
@@ -351,7 +351,7 @@ def multires_recon(sino, angles, weights, weight_type, init_image, prox_image, i
             if not init_image.flags["C_CONTIGUOUS"]:
                 init_image = np.ascontiguousarray(init_image, dtype=np.single)
             else:
-                init_image = init_image.astype(np.single)
+                init_image = init_image.astype(np.single, copy=False)
             py_image = np.copy(init_image).astype(ctypes.c_float)
 
     if np.isscalar(init_image):
@@ -367,7 +367,7 @@ def multires_recon(sino, angles, weights, weight_type, init_image, prox_image, i
         if not prox_image.flags["C_CONTIGUOUS"]:
             prox_image = np.ascontiguousarray(prox_image, dtype=np.single)
         else:
-            prox_image = prox_image.astype(np.single)
+            prox_image = prox_image.astype(np.single, copy=False)
         cy_prox_image = prox_image
 
     cdef ImageParams3D imgparams_c
