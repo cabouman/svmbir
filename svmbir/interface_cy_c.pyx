@@ -309,8 +309,10 @@ def multires_recon(sino, angles, weights, weight_type, init_image, prox_image, i
             new_init_image = np.ascontiguousarray(new_init_image, dtype=np.single)
         else:
             new_init_image = new_init_image.astype(np.single, copy=False)
-        py_image = np.copy(new_init_image).astype(ctypes.c_float)
-        del new_init_image
+        # Is a copy needed?
+        #py_image = np.copy(new_init_image).astype(ctypes.c_float)
+        #del new_init_image
+        py_image = new_init_image
 
     # Perform reconstruction at current resolution
     if verbose >= 1 :
@@ -352,7 +354,9 @@ def multires_recon(sino, angles, weights, weight_type, init_image, prox_image, i
                 init_image = np.ascontiguousarray(init_image, dtype=np.single)
             else:
                 init_image = init_image.astype(np.single, copy=False)
-            py_image = np.copy(init_image).astype(ctypes.c_float)
+            # Is a copy needed?
+            #py_image = np.copy(init_image).astype(ctypes.c_float)
+            py_image = init_image
 
     if np.isscalar(init_image):
         reconparams['init_image_value'] = init_image
