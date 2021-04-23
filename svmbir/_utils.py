@@ -326,12 +326,12 @@ def recon_resize(recon, output_shape):
         ndarray: 3D numpy array containing interpolated reconstruction with shape (num_slices, num_rows, num_cols).
     """
 
-    recon_resized_list = []
+    recon_resized = np.empty((recon.shape[0],output_shape[0],output_shape[1]), dtype=recon.dtype)
     for i in range(recon.shape[0]):
         PIL_image = Image.fromarray(recon[i])
         PIL_image_resized = PIL_image.resize((output_shape[1],output_shape[0]), resample=Image.BILINEAR)
-        recon_resized_list.append(np.asarray(PIL_image_resized))
+        recon_resized[i] = np.array(PIL_image_resized)
 
-    return np.stack(recon_resized_list, axis=0)
+    return recon_resized
 
 
