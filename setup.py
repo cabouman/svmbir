@@ -13,6 +13,10 @@ name = 'svmbir'
 version = '0.2.2'
 description="Python code for fast parallel-beam MBIR (Model Based Iterative Reconstruction) "
 long_description_content_type="text/markdown"
+url="https://github.com/cabouman/svmbir"
+maintainer="Charles A. Bouman"
+maintainer_email="charles.bouman@gmail.edu"
+license="BSD-3-Clause"
 
 packages_dir = 'svmbir'
 packages = [packages_dir]
@@ -26,20 +30,17 @@ elif os.path.exists('svmbir/sv-mbirct/bin/mbir_ct.exe'):
 else:
     exec_file = None
 
-# If binary is present, include with installation
-if exec_file is None:
-    package_data={}
-else:
-    package_data={'svmbir': [exec_file]}
 
-# First block is cython installation
-if os.environ.get('CLIB') !='CMD_LINE':
+# Set up install for Cython or Command line interface
+if os.environ.get('CLIB') != 'CMD_LINE':
+    # Cython interface install set up
 
-    #Check that compiler is set
+    install_requires=['numpy','Cython','psutil','Pillow']  # external package dependencies
+
+    # Check that compiler is set
     if os.environ.get('CC') not in ['gcc','icc','clang','msvc'] and re.findall('gcc',str(os.environ.get('CC')))==[]:
         warnings.warn('CC environment variable not set to valid value. Using default CC=gcc.')
         os.environ["CC"] = 'gcc'
-        #raise ValueError('CC flag not set to valid value. For example should be: CC=gcc')
 
     # OpenMP gcc compile: tested for MacOS and Linux
     if os.environ.get('CC') =='gcc' or re.findall('gcc',str(os.environ.get('CC')))!=[]:
@@ -71,36 +72,42 @@ if os.environ.get('CLIB') !='CMD_LINE':
                             extra_compile_args=extra_compile_args,
                             extra_link_args=extra_link_args)
 
-    # Install cython version
-    setup(
-         name=name,
-         version=version,
-         description=description,
-         long_description=long_description,
-         long_description_content_type=long_description_content_type,
-         packages=packages,
-         #external packages as dependencies
-         install_requires=['numpy', 'Cython', 'psutil', 'Pillow'],
-         package_data=package_data,
-         cmdclass = {"build_ext": build_ext},
-         ext_modules = [c_extension]
-    )
+    cmdclass = {"build_ext": build_ext}
+    ext_modules = [c_extension]
+
+    # If cmdline executable is present, include with installation
+    if exec_file is None:
+        package_data={}
+    else:
+        package_data={'svmbir': [exec_file]}
+
 else:
+    # Command-line interface install set up
 
     # Check for compiled executable
     if exec_file is None:
         assert False, 'Compiled executable not present in svmbir/sv-mbirct/bin/. Compile the binary executable first'
+    else:
+        package_data={'svmbir': [exec_file]}
 
-    # Install command-line version
-    setup(
-        name=name,
-        version=version,
-        description=description,
-        long_description=long_description,
-        long_description_content_type=long_description_content_type,
-        packages=packages,
-        # external packages as dependencies
-        install_requires=['numpy', 'ruamel.yaml', 'psutil', 'Pillow'],
-        package_data=package_data
-    )
+    install_requires=['numpy','ruamel.yaml','psutil','Pillow']  # external package dependencies
+    cmdclass = {}
+    ext_modules = None
+
+
+setup(name=name,
+      version=version,
+      description=description,
+      long_description=long_description,
+      long_description_content_type=long_description_content_type,
+      url=url,
+      maintainer=maintainer,
+      maintainer_email=maintainer_email,
+      license=license,
+      packages=packages,
+      install_requires=install_requires,
+      package_data=package_data,
+      cmdclass=cmdclass,
+      ext_modules=ext_modules)
+
 
