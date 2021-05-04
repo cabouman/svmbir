@@ -49,8 +49,8 @@ if os.environ.get('CLIB') !='CMD_LINE':
     if os.environ.get('CC') =='icc':
         if sys.platform == 'linux':
             os.environ['LDSHARED'] = 'icc -shared'
-        extra_compile_args=["-O3","-DICC","-qopenmp","-no-prec-div","-restrict","-ipo","-inline-calloc",
-                            "-qopt-calloc","-no-ansi-alias","-xCORE-AVX2"]
+        extra_compile_args=["-O3","-DICC","-qopenmp","-no-prec-div","-restrict","-inline-calloc","-qopt-calloc",
+                            "-no-ansi-alias","-xCORE-AVX2"]
         extra_link_args=["-lm","-qopenmp"]
 
     if os.environ.get('CC') =='clang':
