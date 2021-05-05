@@ -157,7 +157,7 @@ def recon(sino, angles,
           num_rows = None, num_cols = None, roi_radius = None,
           delta_channel = 1.0, delta_pixel = 1.0, center_offset = 0.0,
           sigma_y = None, snr_db = 30.0, sigma_x = None, p = 1.2, q = 2.0, T = 1.0, b_interslice = 1.0,
-          sharpness = 1.0, positivity = True, max_resolutions = 0, stop_threshold = 0.02, max_iterations = 100,
+          sharpness = 0.0, positivity = True, max_resolutions = 0, stop_threshold = 0.02, max_iterations = 100,
           num_threads = None, delete_temps = True, svmbir_lib_path = __svmbir_lib_path, object_name = 'object',
           verbose = 1) :
     """Computes 3D parallel beam MBIR reconstruction using multi-resolution SVMBIR algorithm.
