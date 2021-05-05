@@ -5,7 +5,7 @@ Upload package to PyPI
 Upload package to PyPI with MacOS
 ---------------------------------
 
-Developer can follow following instruction to upload package to PyPI
+Developers can follow the following instructions to upload the svmbir package to PyPI
 
  1. Change to svmbir directory.
 
