@@ -101,7 +101,7 @@ def auto_sigma_y(sino, weights, snr_db = 30.0, delta_pixel = 1.0, delta_channel 
     return sigma_y
 
 
-def auto_sigma_x(sino, delta_channel = 1.0, sharpness = 1.0 ):
+def auto_sigma_x(sino, delta_channel = 1.0, sharpness = 0.0 ):
     """Computes the automatic value of ``sigma_x`` for use in MBIR reconstruction.
 
     Args:
