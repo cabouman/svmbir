@@ -160,7 +160,9 @@ def recon(sino, angles,
           sharpness = 1.0, positivity = True, max_resolutions = 0, stop_threshold = 0.02, max_iterations = 100,
           num_threads = None, delete_temps = True, svmbir_lib_path = __svmbir_lib_path, object_name = 'object',
           verbose = 1) :
-    """Computes 3D parallel beam MBIR reconstruction using multi-resolution SVMBIR algorithm.
+    """recon(sino, angles, weights = None, weight_type = 'unweighted', init_image = 0.0, prox_image = None, init_proj = None, num_rows = None, num_cols = None, roi_radius = None, delta_channel = 1.0, delta_pixel = 1.0, center_offset = 0.0, sigma_y = None, snr_db = 30.0, sigma_x = None, p = 1.2, q = 2.0, T = 1.0, b_interslice = 1.0, sharpness = 1.0, positivity = True, max_resolutions = 0, stop_threshold = 0.02, max_iterations = 100, num_threads = None, delete_temps = True, svmbir_lib_path = '~/.cache/svmbir/parbeam', object_name = 'object', verbose = 1)
+
+    Computes 3D parallel beam MBIR reconstruction using multi-resolution SVMBIR algorithm.
 
     Args:
         sino (ndarray): 3D sinogram array with shape (num_views, num_slices, num_channels)
@@ -308,7 +310,9 @@ def project(angles, image, num_channels,
              delta_channel = 1.0, delta_pixel = 1.0, center_offset = 0.0, roi_radius = None,
              num_threads = None, delete_temps = True, svmbir_lib_path = __svmbir_lib_path, object_name = 'object',
              verbose = 1):
-    """Computes 3D parallel beam forward-projection.
+    """project(angles, image, num_channels, delta_channel = 1.0, delta_pixel = 1.0, center_offset = 0.0, roi_radius = None, num_threads = None, delete_temps = True, svmbir_lib_path = '~/.cache/svmbir/parbeam', object_name = 'object', verbose = 1)
+
+    Computes 3D parallel beam forward-projection.
 
     Args:
         angles (ndarray):
