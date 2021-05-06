@@ -14,7 +14,7 @@ if os.environ.get('CLIB') =='CMD_LINE':
 else:
     import svmbir.interface_cy_c as ci
 
-__svmbir_lib_path = os.path.join(os.path.expanduser('~'), '.cache', 'svmbir', 'parbeam')
+__svmbir_lib_path = os.path.join(os.path.expanduser('~'), '.cache', 'svmbir')
 
 def _svmbir_lib_path():
     """Returns the path to the cache directory used by svmbir
@@ -160,7 +160,7 @@ def recon(sino, angles,
           sharpness = 1.0, positivity = True, max_resolutions = 0, stop_threshold = 0.02, max_iterations = 100,
           num_threads = None, delete_temps = True, svmbir_lib_path = __svmbir_lib_path, object_name = 'object',
           verbose = 1) :
-    """recon(sino, angles, weights = None, weight_type = 'unweighted', init_image = 0.0, prox_image = None, init_proj = None, num_rows = None, num_cols = None, roi_radius = None, delta_channel = 1.0, delta_pixel = 1.0, center_offset = 0.0, sigma_y = None, snr_db = 30.0, sigma_x = None, p = 1.2, q = 2.0, T = 1.0, b_interslice = 1.0, sharpness = 1.0, positivity = True, max_resolutions = 0, stop_threshold = 0.02, max_iterations = 100, num_threads = None, delete_temps = True, svmbir_lib_path = '~/.cache/svmbir/parbeam', object_name = 'object', verbose = 1)
+    """recon(sino, angles, weights = None, weight_type = 'unweighted', init_image = 0.0, prox_image = None, init_proj = None, num_rows = None, num_cols = None, roi_radius = None, delta_channel = 1.0, delta_pixel = 1.0, center_offset = 0.0, sigma_y = None, snr_db = 30.0, sigma_x = None, p = 1.2, q = 2.0, T = 1.0, b_interslice = 1.0, sharpness = 1.0, positivity = True, max_resolutions = 0, stop_threshold = 0.02, max_iterations = 100, num_threads = None, delete_temps = True, svmbir_lib_path = '~/.cache/svmbir', object_name = 'object', verbose = 1)
 
     Computes 3D parallel beam MBIR reconstruction using multi-resolution SVMBIR algorithm.
 
@@ -240,7 +240,7 @@ def recon(sino, angles,
 
         delete_temps (bool, optional): [Default=True] Delete temporary files used in computation.
 
-        svmbir_lib_path (string, optional): [Default=~/.cache/svmbir/parbeam] Path to directory containing library of forward projection matrices.
+        svmbir_lib_path (string, optional): [Default='~/.cache/svmbir'] Path to directory containing library of forward projection matrices.
 
         object_name (string, optional): [Default='object'] Specifies filenames of cached files.
             Can be changed suitably for running multiple instances of reconstructions.
@@ -307,10 +307,10 @@ def recon(sino, angles,
 
 
 def project(angles, image, num_channels,
-             delta_channel = 1.0, delta_pixel = 1.0, center_offset = 0.0, roi_radius = None,
-             num_threads = None, delete_temps = True, svmbir_lib_path = __svmbir_lib_path, object_name = 'object',
-             verbose = 1):
-    """project(angles, image, num_channels, delta_channel = 1.0, delta_pixel = 1.0, center_offset = 0.0, roi_radius = None, num_threads = None, delete_temps = True, svmbir_lib_path = '~/.cache/svmbir/parbeam', object_name = 'object', verbose = 1)
+            delta_channel = 1.0, delta_pixel = 1.0, center_offset = 0.0, roi_radius = None,
+            num_threads = None, delete_temps = True, svmbir_lib_path = __svmbir_lib_path, object_name = 'object',
+            verbose = 1):
+    """project(angles, image, num_channels, delta_channel = 1.0, delta_pixel = 1.0, center_offset = 0.0, roi_radius = None, num_threads = None, delete_temps = True, svmbir_lib_path = '~/.cache/svmbir', object_name = 'object', verbose = 1)
 
     Computes 3D parallel beam forward-projection.
 
@@ -338,7 +338,7 @@ def project(angles, image, num_channels,
         delete_temps (bool, optional):
             [Default=True] Delete temporary files used in computation.
         svmbir_lib_path (string, optional):
-            [Default=~/.cache/svmbir/parbeam] String containing path to directory containing library of forward projection matrices and temp file.
+            [Default='~/.cache/svmbir'] String containing path to directory containing library of forward projection matrices and temp file.
         object_name (string, optional):
             [Default='object'] Specifies filenames of cached files.
             Can be changed suitably for running multiple instances of forward projections.
