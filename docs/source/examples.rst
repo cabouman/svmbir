@@ -2,9 +2,9 @@
 Examples
 ========
 
-The package contains a number of example bash scripts in the ``svmbir/demo`` folder.
-These bash scripts can be used as templates for new users.
-The following Jupyter Notebooks example illustrates how a 3D Shepp and Logan phantom can be generated, forward projected, and then reconstructed.
+The package contains a number of example Python scripts in the ``svmbir/demo`` folder.
+These scripts can be used as templates for new users.
+The next page contains a Jupyter notebook example in which a 3D Shepp-Logan phantom is generated, forward projected, and reconstructed.
 
 .. toctree::
    :titlesonly:

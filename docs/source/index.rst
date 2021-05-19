@@ -36,8 +36,8 @@ Indices and tables
    :caption: User Guide
 
    install
-   examples
    api
+   examples
 
 .. toctree::
    :hidden:
@@ -46,7 +46,7 @@ Indices and tables
 
    clean_install
    pytest
-   testpypi
+   release
    pypi
    docs
 
