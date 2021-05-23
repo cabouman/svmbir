@@ -1,6 +1,6 @@
-==============
+==================
 Clean installation
-==============
+==================
 
 A clean installation of svmbir can be done by running:
 

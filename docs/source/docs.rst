@@ -1,31 +1,32 @@
 ===============================
-Build documentation with sphnix
+Build documentation with Sphinx
 ===============================
 
 Build HTML locally
 ------------------
 
-1. Go to docs folder.
+1. Go to the docs folder
 
 	``cd docs``
 
-2. Install sphnix dependencies.
+2. Install sphinx dependencies if they're not already
 
-	``pip install -r docs/requirements.txt``
+	``pip install -r requirements_docs.txt``
 
-3. Build HTML automatically.
+  The documentation contains a Jupyter Notebook example which will require Pandoc.
+  If the build in the next step fails Pandoc will have to be
+  `[installed] <https://pandoc.org/installing.html>`__.
+  On a Mac with Homebrew, run ``brew install pandoc``.
+
+3. Build HTML files
 
 	``SVMBIR_BUILD_DOCS=true make html``
 
-4. Check HTML.
+If the build was successful, the HTML files will be in the build/html folder.
+Open index.html to review the documentation.
 
-	``cd build/html``
-
-If build successfully, html files will be in build folder.
-Click index.html and go to API reference to see if everything works good.
-
-Build HTML in readthedoc
-------------------------
+Build HTML in readthedocs
+-------------------------
 
 1. Register in readthedocs.
 2. Import your project from GitHub.
