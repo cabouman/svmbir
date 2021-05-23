@@ -25,7 +25,8 @@ copyright = '2020, SVMBIR Development Team'
 author = 'SVMBIR Development Team'
 
 # The full version, including alpha/beta/rc tags
-release = '0.9'
+#version = '0.2'
+release = '0.2'
 
 
 # -- General configuration ---------------------------------------------------
