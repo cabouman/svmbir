@@ -6,7 +6,7 @@ Features
 --------
 * Easy-to-use python code for fast parallel-beam MBIR (Model Based Iterative Reconstruction)
 
-* Interface to HPImaging's C code implementation of the super-voxel algorithm :cite:`wang2016high` :cite:`wang2017massively`, `[sv-mbirct] <https://github.com/HPImaging/sv-mbirct>`_
+* Interface to HPImaging's optimized C implementation `[sv-mbirct] <https://github.com/HPImaging/sv-mbirct>`_ of the super-voxel algorithm :cite:`wang2016high` :cite:`wang2017massively`
 
 * Supports MBIR reconstruction with Bayesian and Plug-and-Play prior models.
 
