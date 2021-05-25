@@ -11,12 +11,12 @@ Build HTML locally
 
 2. Install sphinx dependencies if they're not already
 
-	``pip install -r requirements_docs.txt``
+	``pip install -r requirements.txt``
 
   The documentation contains a Jupyter Notebook example which will require Pandoc.
   If the build in the next step fails Pandoc will have to be
   `[installed] <https://pandoc.org/installing.html>`__.
-  On a Mac with Homebrew, run ``brew install pandoc``.
+  On a Mac with Homebrew, run ``brew install pandoc`` .
 
 3. Build HTML files
 
