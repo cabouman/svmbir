@@ -67,7 +67,7 @@ Upload to TestPyPI and test installation
 	| ``conda list | grep svmbir``
 	| ``python -c "import svmbir"``
 
- 4. Run one of the `demo scripts <https://github.com/cabouman/svmbir/tree/master/demo>`_
+ 4. Run one of the `demo scripts <examples.html>`_
 
  5. Remove temporary environment
 
@@ -88,27 +88,31 @@ Upload to PyPI and test installation
  For authentication, you'll also need to add API tokens from Account Settings.
 
 
- 1. Upload package to pypi. NOTE you cannot upload same version more than once.
+ 1. Activate pypi environment.
+
+	``conda activate svmbir_pypi``
+
+ 2. Upload package to pypi. NOTE you cannot upload same version more than once.
 
 	``python -m twine upload dist/*``
 
     View the package upload here: `<https://pypi.org/project/svmbir/>`_
 
- 2. Create a clean environment and install the package
+ 3. Create a clean environment and install the package
 
 	| ``conda create --name svmbir_temp python=3.8``
 	| ``conda activate svmbir_temp``
 	| ``pip install svmbir``
 	| OR ``pip install svmbir==0.2.0`` for a specific version number
 
- 3. Check the installation
+ 4. Check the installation
 
 	| ``conda list | grep svmbir``
 	| ``python -c "import svmbir"``
 
- 4. Run one of the `demo scripts <https://github.com/cabouman/svmbir/tree/master/demo>`_
+ 5. Run one of the `demo scripts <examples.html>`_
 
- 5. Remove temporary environment
+ 6. Remove temporary environment
 
 	| ``conda deactivate``
 	| ``conda remove --name svmbir_temp --all``

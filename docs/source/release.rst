@@ -26,7 +26,7 @@ NOTE Only a few dedicated maintainers should do this.
 	| ``git tag v<ver_no> -a -m "version <ver_no>"   # ex. git tag v0.2.10 -a -m "version 0.2.10"``
 	| ``git push origin <tagname>   # ex. git push origin v0.2.10``
 
-6. Rebuild `documentation <docs.html>`_ (automatic?)
+6. Review documentation `locally <docs.html>`_.
 
 7. Build/upload package to `TestPyPI <pypi.html>`_ and test installation.
 
