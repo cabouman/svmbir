@@ -103,14 +103,14 @@ Installation on Windows and MacOS
 Below are some tips for compiling and running the package under the Windows and MacOSx operating systems.
 Linux is more straight forward.
 
-**1. Intel icc Compiler:**
+1. **Intel icc Compiler:**
 The Intel compiler and OMP libraries when coupled with the appropriate Intel x86 processor
 can substantially increase ``svmbir`` performance by enabling the AVX2 instructor set.
 The ``icc/OpenMP`` compiler and libraries exists for Linux, Windows, and MacOS, but may need to be purchased.
 The icc compiler is available `[here] <https://software.intel.com/content/www/us/en/develop/tools/parallel-studio-xe.html>`__.
 
 
-**2. Windows Installation:**
+2. **Windows Installation:**
 The package will run under Windows, but there tend to be more things that can go wrong due to the wide variety of possible configurations. The following list of recommended configurations have been tested to work, but others are possible:
 
 * *64-bit gcc or Intel icc compiler:* For the command line version, make sure to install a 64bit compiler such as the ``MinGW_64`` available from `[here] <http://winlibs.com>`__ or the Intel ``icc`` compiler as described above. Commonly used gcc compilers are only 32bit and will create ``calloc`` errors when addressing array sizes greater than 2Gb.
@@ -125,7 +125,7 @@ If this occurs, then the problem can be resolved by manually moving the file.
 
 .. _Mac gcc:
 
-**3. Installation of gcc on MacOS:**
+3. **Installation of gcc on MacOS:**
 If you are installing from PyPI, then we recommend you use the gcc compiler.
 In order to install gcc, you should do the following:
 
@@ -149,7 +149,7 @@ In order to install gcc, you should do the following:
 
 .. _Mac clang:
 
-**4. Installation of clang on MacOS:**
+4. **Installation of clang on MacOS:**
 Some MacOS users use the ``clang`` compiler provided as part of the Xcode Developer Tools.
 However, this is not recommended for PyPI installation.
 In this case, the ``gcc`` command in the MacOS environment is **not** actually ``gcc``.
@@ -184,7 +184,7 @@ This will generate a splash screen that requests permision of OSx to execute the
 In addition, after OS updates, you may need to reinstall the Xcode toolkit using the command: ``xcode-select --install``
 
 
-**5. Compile C-Code (Legacy Instructions):**
+5. **Compile C-Code (Legacy Instructions):**
 
 This section includes information on how to compile the code for the CMD_LINE interface. This is an older legacy version of the code.
 So it is not needed for most users.
