@@ -5,16 +5,11 @@ Build documentation with Sphinx
 Build HTML locally
 ------------------
 
-1. Make sure the svmbir dependencies are installed in your conda environment.
-To do this, go to the package root directory and run:
-
-	``pip install -r requirements.txt``
-
-2. Then go to the docs folder
+1. Go to the docs folder
 
 	``cd docs``
 
-2. Install sphinx dependencies
+2. Install sphinx dependencies if they're not already
 
 	``pip install -r requirements.txt``
 
@@ -27,7 +22,7 @@ To do this, go to the package root directory and run:
 
 	``SVMBIR_BUILD_DOCS=true make html``
 
-If the build was successful, the HTML files will be in the svmbir/docs/build/html folder.
+If the build was successful, the HTML files will be in the build/html folder.
 Open index.html to review the documentation.
 
 Build HTML in readthedocs
