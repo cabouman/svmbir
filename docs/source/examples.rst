@@ -26,14 +26,3 @@ These scripts can be used as templates for new users.
 4. In your terminal window, use python to run each demo.
 
 
-
-Jupyter Notebook Example
-------------------------
-
-The next page contains a Jupyter notebook example in which a 3D Shepp-Logan phantom is generated, forward projected, and reconstructed.
-
-.. toctree::
-   :titlesonly:
-   :hidden:
-
-   ipynb/demo_3D_shepp_logan
