@@ -37,7 +37,6 @@ release = '0.2'
 extensions = [
     'IPython.sphinxext.ipython_console_highlighting',
     'IPython.sphinxext.ipython_directive',
-    'nbsphinx',
     'sphinx.ext.autodoc',
     'sphinx.ext.mathjax',
     'sphinx.ext.todo',
