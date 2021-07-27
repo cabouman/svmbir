@@ -49,7 +49,7 @@ Build distribution files
 Delocate wheel files
 --------------------
 
-``delocate-wheel`` will generate a fixed wheel with dylib files inside the fixed_wheels folder.
+``delocate-wheel`` will generate a fixed wheel with dylib files from an existing wheel.
 Below commands generate a fixed wheel, move it to the original wheel location, and clean temporary files.
 
     | ``cd dist``
