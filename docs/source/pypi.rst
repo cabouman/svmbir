@@ -24,14 +24,15 @@ MANIFEST.in and pyproject.toml.
 Set up environment
 ------------------
 
-In addition to the standard svmbir requirements, two additional packages are needed
+In addition to the standard svmbir requirements, three additional packages are needed
 for the build and upload.
 
     | ``conda create --name svmbir_pypi python=3.8``
     | ``conda activate svmbir_pypi``
     | ``pip install -r requirements.txt``
-    | ``pip install setuptools twine``
+    | ``pip install setuptools twine delocate``
 
+``setuptools`` packages Python projects, ``twine`` uploads package to PyPI, and ``delocate`` finds and copys needed dynamic libraries to a directory within a package.
 
 Build distribution files
 ------------------------
@@ -41,6 +42,21 @@ Build distribution files
     Use gcc here for the binary distribution. For now other supported compilers
     will require the user to install the package from source.
 
+    For MacOS developers, you should use the oldest MacOS system you have to build
+    the package(Currently, we use MacOS 10.14 to build the package).
+
+
+Deloacte wheel files
+--------------------
+
+``delocate-wheel`` will generate a fixed wheel with dylib files inside the fixed_wheels folder.
+Below commands generate a fixed wheel, move it to the original wheel location, and clean temporary files.
+
+    | ``cd dist``
+    | ``delocate-wheel -w fixed_wheels -v svmbir-0.2.0-cp38-cp38-macosx_10_9_x86_64.whl`` (change version no.)
+    | ``mv fixed_wheels/svmbir-0.2.0-cp38-cp38-macosx_10_9_x86_64.whl ./`` (change version no.)
+    | ``rm -r fixed_wheels``
+    | ``cd ..``
 
 Upload to TestPyPI and test installation
 ----------------------------------------
