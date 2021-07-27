@@ -46,7 +46,7 @@ Build distribution files
     the package(Currently, we use MacOS 10.14 to build the package).
 
 
-Deloacte wheel files
+Delocate wheel files
 --------------------
 
 ``delocate-wheel`` will generate a fixed wheel with dylib files inside the fixed_wheels folder.
