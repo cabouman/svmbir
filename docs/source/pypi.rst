@@ -53,8 +53,8 @@ Delocate wheel files
 The commands below generate a fixed wheel, move it to the original wheel location, and clean temporary files.
 
     | ``cd dist``
-    | ``delocate-wheel -w fixed_wheels -v svmbir-0.2.0-cp38-cp38-macosx_10_9_x86_64.whl`` (change version no.)
-    | ``mv fixed_wheels/svmbir-0.2.0-cp38-cp38-macosx_10_9_x86_64.whl ./`` (change version no.)
+    | ``delocate-wheel -w fixed_wheels -v svmbir-0.2.3-cp38-cp38-macosx_10_9_x86_64.whl`` (change version no.)
+    | ``mv fixed_wheels/svmbir-0.2.3-cp38-cp38-macosx_10_9_x86_64.whl ./`` (change version no.)
     | ``rm -r fixed_wheels``
     | ``cd ..``
 
@@ -70,13 +70,13 @@ Upload to TestPyPI and test installation
 	``python -m twine upload --repository testpypi dist/*``
 
     View the package upload here:
-    `https://test.pypi.org/project/svmbir/0.2.0/ <https://test.pypi.org/project/svmbir/>`__ (add version no.)
+    `https://test.pypi.org/project/svmbir/0.2.3/ <https://test.pypi.org/project/svmbir/>`__ (add version no.)
 
  2. Create a clean environment and install the package
 
   | ``conda create --name svmbir_temp python=3.8``
   | ``conda activate svmbir_temp``
-  | ``pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple svmbir==0.2.0`` (change version no.)
+  | ``pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple svmbir==0.2.3`` (change version no.)
 
  3. Check the installation
 
@@ -119,7 +119,7 @@ Upload to PyPI and test installation
 	| ``conda create --name svmbir_temp python=3.8``
 	| ``conda activate svmbir_temp``
 	| ``pip install svmbir``
-	| OR ``pip install svmbir==0.2.0`` for a specific version number
+	| OR ``pip install svmbir==0.2.3`` for a specific version number
 
  4. Check the installation
 
