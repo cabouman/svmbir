@@ -50,7 +50,7 @@ Delocate wheel files
 --------------------
 
 ``delocate-wheel`` will generate a fixed wheel with dylib files from an existing wheel.
-Below commands generate a fixed wheel, move it to the original wheel location, and clean temporary files.
+The commands below generate a fixed wheel, move it to the original wheel location, and clean temporary files.
 
     | ``cd dist``
     | ``delocate-wheel -w fixed_wheels -v svmbir-0.2.0-cp38-cp38-macosx_10_9_x86_64.whl`` (change version no.)
