@@ -3,6 +3,7 @@ import ctypes           # Import python package required to use cython
 cimport cython          # Import cython package
 cimport numpy as cnp    # Import specialized cython support for numpy
 import os
+import random
 import svmbir._utils as utils
 
 __svmbir_lib_path = os.path.join(os.path.expanduser('~'), '.cache', 'svmbir', 'parbeam')
@@ -174,6 +175,7 @@ def _init_geometry( angles, num_channels, num_views, num_slices, num_rows, num_c
     cdef ImageParams3D imgparams_c
     cdef SinoParams3DParallel sinoparams_c
     cdef cnp.ndarray[char, ndim=1, mode="c"] Amatrix_fname
+    cdef cnp.ndarray[char, ndim=1, mode="c"] Amatrix_fname_tmp
     cdef cnp.ndarray[float, ndim=1, mode="c"] cy_angles = angles.astype(np.single)
 
     # Convert parameter python dictionaries to c structures based on given py parameter List.
@@ -186,13 +188,17 @@ def _init_geometry( angles, num_channels, num_views, num_slices, num_rows, num_c
 
     # Then call cython function to get the system matrix - the output dict can be used to pass the matrix itself
     # and/or to pass path information to a file containing the matrix
-    if os.path.exists(paths['sysmatrix_name'] + '.2Dsvmatrix') :
-        print('Found system matrix: {}'.format(paths['sysmatrix_name'] + '.2Dsvmatrix'))
-        os.utime(paths['sysmatrix_name'] + '.2Dsvmatrix')  # update file modified time
+    Amatrix_file = paths['sysmatrix_name'] + '.2Dsvmatrix'
+    if os.path.exists(Amatrix_file) :
+        print('Found system matrix: {}'.format(Amatrix_file))
+        os.utime(Amatrix_file)  # update file modified time
+    # if matrix file does not exist, then write to tmp file and rename
     else :
-        Amatrix_fname = string_to_char_array(paths['sysmatrix_name'] + '.2Dsvmatrix')
-        AmatrixComputeToFile(imgparams_c,sinoparams_c,&Amatrix_fname[0],verbose)
-
+        Amatrix_file_tmp = paths['sysmatrix_name'] + '_pid' + str(os.getpid()) + '_rndnum' + str(random.randint(0,1000)) + '.2Dsvmatrix'
+        Amatrix_fname_tmp = string_to_char_array(Amatrix_file_tmp)
+        AmatrixComputeToFile(imgparams_c,sinoparams_c,&Amatrix_fname_tmp[0],verbose)
+        os.rename(Amatrix_file_tmp,Amatrix_file)
+    
     return paths, sinoparams, imgparams
 
 def project(image, sinoparams, settings):

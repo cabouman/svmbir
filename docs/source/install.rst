@@ -31,10 +31,14 @@ In order to install using PyPI, run the following commands:
 
 	``pip install svmbir``
 
+
   If a wheel is available for your platform, this will install the binaries to your system.
   If not available, this will build from source files in which case a standard gcc compiler
   needs to be available on your system.
 
+  If your MacOS older than 10.14, you should install gcc (:ref:`see here <Mac gcc>`) and run below command to build the package from source files.
+
+    ``pip install --no-binary svmbir svmbir``
 
 Downloading and installing from source
 -----------------------------------------
