@@ -43,7 +43,7 @@ Build distribution files
     will require the user to install the package from source.
 
     For MacOS developers, you should use the oldest MacOS system you have to build
-    the package(Currently, we use MacOS 10.14 to build the package).
+    the package. (Currently, we use MacOS 10.14 to build the package).
 
 
 Delocate wheel files
