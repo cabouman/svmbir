@@ -29,11 +29,11 @@ In order to install using PyPI, run the following commands:
 
 2. Install from PyPI
 
-	``pip install svmbir``
+	| ``pip install svmbir``
 
   If you have previously installed svmbir, and you would like to upgrade, you can use the command:
   
-	``pip install svmbir --upgrade``
+	| ``pip install svmbir --upgrade``
 
   If a wheel is available for your platform, this will install the binaries to your system.
   If not available, this will build from source files in which case a standard gcc compiler
