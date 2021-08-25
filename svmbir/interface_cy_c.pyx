@@ -190,8 +190,9 @@ def _init_geometry( angles, num_channels, num_views, num_slices, num_rows, num_c
     # and/or to pass path information to a file containing the matrix
     Amatrix_file = paths['sysmatrix_name'] + '.2Dsvmatrix'
     if os.path.exists(Amatrix_file) :
-        print('Found system matrix: {}'.format(Amatrix_file))
         os.utime(Amatrix_file)  # update file modified time
+        if verbose > 0:
+            print('Found system matrix: {}'.format(Amatrix_file))
     # if matrix file does not exist, then write to tmp file and rename
     else :
         Amatrix_file_tmp = paths['sysmatrix_name'] + '_pid' + str(os.getpid()) + '_rndnum' + str(random.randint(0,1000)) + '.2Dsvmatrix'
