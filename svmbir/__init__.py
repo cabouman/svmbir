@@ -1,3 +1,3 @@
 from .svmbir import *
 from .phantom import *
-__all__ =['_svmbir_lib_path','_clear_cache','auto_sigma_x','auto_sigma_y', 'calc_weights','project','recon']
+__all__ =['_svmbir_lib_path','_clear_cache','auto_sigma_x','auto_sigma_y', 'calc_weights','project','backproject','recon']

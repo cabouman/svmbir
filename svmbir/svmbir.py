@@ -308,46 +308,45 @@ def recon(sino, angles,
 
 def project(angles, image, num_channels,
             delta_channel = 1.0, delta_pixel = 1.0, center_offset = 0.0, roi_radius = None,
-            num_threads = None, delete_temps = True, svmbir_lib_path = __svmbir_lib_path, object_name = 'object',
-            verbose = 1):
-    """project(angles, image, num_channels, delta_channel = 1.0, delta_pixel = 1.0, center_offset = 0.0, roi_radius = None, num_threads = None, delete_temps = True, svmbir_lib_path = '~/.cache/svmbir', object_name = 'object', verbose = 1)
+            num_threads = None, svmbir_lib_path = __svmbir_lib_path, delete_temps = True, 
+            object_name = 'object', verbose = 1):
+    """project(angles, image, num_channels, delta_channel = 1.0, delta_pixel = 1.0, center_offset = 0.0, roi_radius = None, num_threads = None, svmbir_lib_path = '~/.cache/svmbir', delete_temps = True, object_name = 'object', verbose = 1)
 
     Computes 3D parallel beam forward-projection.
 
     Args:
         angles (ndarray):
             1D numpy array of view angles in radians.
-            The 1D array is organized so that angles[k] is the angle in radians for view :math:`k`.
+            'angles[k]' is the angle in radians for view :math:`k`.
         image (ndarray):
-            3D numpy array of image being forward projected.
-            The image is a 3D image with a shape of (num_slices,num_row,num_col) where num_slices is the number of sinogram slices.
-            The image should be 0 outside the ROI as defined by roi_radius (those pixel will be disregarded).
+            3D numpy array of image being projected.
+            The image shape is (num_slices,num_rows,num_cols). The output will contain 'num_slices' projections.
+            Note the image is considered 0 outside the 'roi_radius' (disregarded pixels).
         num_channels (int):
-            Integer number of sinogram channels.
+            Number of sinogram channels.
         delta_channel (float, optional):
-            [Default=1.0] Scalar value of detector channel spacing in :math:`ALU`.
+            [Default=1.0] Detector channel spacing in :math:`ALU`.
         delta_pixel (float, optional):
-            [Default=1.0] Scalar value of the spacing between image pixels in the 2D slice plane in :math:`ALU`.
+            [Default=1.0] Size of image pixels in the 2D slice plane in :math:`ALU`.
         center_offset (float, optional):
-            [Default=0.0] Scalar value of offset from center-of-rotation.
-        roi_radius (float, optional): [Default=None] Scalar value of radius of reconstruction in :math:`ALU`.
-            If None, automatically set with auto_roi_radius().
-            Pixels outside the radius roi_radius in the :math:`(x,y)` plane are disregarded in the forward projection.
+            [Default=0.0] Offset from center-of-rotation in 'fractional number of channels' units.
+        roi_radius (float, optional): [Default=None] Radius of relevant image region in :math:`ALU`.
+            Pixels outside the radius are disregarded in the forward projection.
+            If not given, the value is set with auto_roi_radius().
         num_threads (int, optional): [Default=None] Number of compute threads requested when executed.
-            If None, num_threads is set to the number of cores in the system
-        delete_temps (bool, optional):
-            [Default=True] Delete temporary files used in computation.
+            If None, num_threads is set to the number of cores in the system.
         svmbir_lib_path (string, optional):
-            [Default='~/.cache/svmbir'] String containing path to directory containing library of forward projection matrices and temp file.
+            [Default='~/.cache/svmbir'] Path to directory containing library of projection matrices and temp files.
+        delete_temps (bool, optional):
+            [Default=True] Delete any temporary files generated during computation. Unused for cython version.
         object_name (string, optional):
-            [Default='object'] Specifies filenames of cached files.
-            Can be changed suitably for running multiple instances of forward projections.
-            Useful for building multi-process and multi-node functionality on top of svmbir.
-        verbose (int, optional): [Default=1] Set to 0 for quiet mode.
+            [Default='object'] Specifies base filename of temporary files. Unused for cython version.
+        verbose (int, optional): [Default=1] Level of printed status output. {0,1,2} Set to 0 for quiet mode.
 
     Returns:
         ndarray: 3D numpy array containing projection with shape (num_views, num_slices, num_channels).
     """
+
     if num_threads is None :
         num_threads = cpu_count(logical=False)
 
@@ -387,42 +386,40 @@ def project(angles, image, num_channels,
 
 def backproject(sino, angles, num_rows=None, num_cols=None,
             delta_channel = 1.0, delta_pixel = 1.0, center_offset = 0.0, roi_radius = None,
-            num_threads = None, delete_temps = True, svmbir_lib_path = __svmbir_lib_path, object_name = 'object',
-            verbose = 1):
-    """backproject(sino, angles, num_rows = None, num_cols = None, delta_channel = 1.0, delta_pixel = 1.0, center_offset = 0.0, roi_radius = None, num_threads = None, delete_temps = True, svmbir_lib_path = '~/.cache/svmbir', object_name = 'object', verbose = 1)
+            num_threads = None, svmbir_lib_path = __svmbir_lib_path, delete_temps = True, 
+            object_name = 'object', verbose = 1):
+    """backproject(sino, angles, num_rows = None, num_cols = None, delta_channel = 1.0, delta_pixel = 1.0, center_offset = 0.0, roi_radius = None, num_threads = None, svmbir_lib_path = '~/.cache/svmbir', delete_temps = True, object_name = 'object', verbose = 1)
 
     Computes 3D parallel beam back-projection.
 
     Args:
         sino (ndarray):
-            3D numpy array of sinogram with shape (num_views,num_slices,num_channels).
+            3D numpy array of input sinogram with shape (num_views,num_slices,num_channels).
         angles (ndarray):
             1D numpy array of view angles in radians.
-            The 1D array is organized so that angles[k] is the angle in radians for view :math:`k`.
+            'angles[k]' is the angle in radians for view :math:`k`.
         num_rows (int, optional):
             [Default=num_channels] Integer number of output image rows.
         num_cols (int, optional):
             [Default=num_channels] Integer number of output image columns.
         delta_channel (float, optional):
-            [Default=1.0] Scalar value of detector channel spacing in :math:`ALU`.
+            [Default=1.0] Detector channel spacing in :math:`ALU`.
         delta_pixel (float, optional):
-            [Default=1.0] Scalar value of the spacing between image pixels in the 2D slice plane in :math:`ALU`.
+            [Default=1.0] Size of image pixels in the 2D slice plane in :math:`ALU`.
         center_offset (float, optional):
-            [Default=0.0] Scalar value of offset from center-of-rotation.
-        roi_radius (float, optional): [Default=None] Scalar value of radius of reconstruction in :math:`ALU`.
-            If None, automatically set with auto_roi_radius().
-            Pixels outside the radius roi_radius in the :math:`(x,y)` plane are disregarded in the forward projection.
+            [Default=0.0] Offset from center-of-rotation in 'fractional number of channels' units.
+        roi_radius (float, optional): [Default=None] Radius of relevant image region in :math:`ALU`.
+            Pixels outside the radius are disregarded in the forward projection.
+            If not given, the value is set with auto_roi_radius().
         num_threads (int, optional): [Default=None] Number of compute threads requested when executed.
             If None, num_threads is set to the number of cores in the system
-        delete_temps (bool, optional):
-            [Default=True] Delete temporary files used in computation.
         svmbir_lib_path (string, optional):
-            [Default='~/.cache/svmbir'] String containing path to directory containing library of forward projection matrices and temp file.
+            [Default='~/.cache/svmbir'] Path to directory containing library of projection matrices and temp files.
+        delete_temps (bool, optional):
+            [Default=True] Delete any temporary files generated during computation. Unused for cython version.
         object_name (string, optional):
-            [Default='object'] Specifies filenames of cached files.
-            Can be changed suitably for running multiple instances of forward projections.
-            Useful for building multi-process and multi-node functionality on top of svmbir.
-        verbose (int, optional): [Default=1] Set to 0 for quiet mode.
+            [Default='object'] Specifies base filename of temporary files. Unused for cython version.
+        verbose (int, optional): [Default=1] Level of printed status output. {0,1,2} Set to 0 for quiet mode.
 
     Returns:
         ndarray: 3D numpy array containing back projected image (num_slices,num_rows,num_cols).
