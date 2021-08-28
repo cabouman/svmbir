@@ -260,11 +260,11 @@ def backproject(sino, settings):
     """Back projection function used by svmbir.backproject().
 
     Args:
-        sino (ndarray): 3D sinogram
+        sino (ndarray): 3D sinogram of shape (num_angles,num_slices,num_channels)
         settings (dict): Dictionary containing back projection settings
 
     Returns:
-        ndarray: Description
+        ndarray: Backprojected image of shape (num_slices,num_rows,num_cols)
     """
 
     paths = settings['paths']
@@ -281,6 +281,8 @@ def backproject(sino, settings):
     cdef int nchannels = sinoparams['num_channels']
     cdef cnp.ndarray[char, ndim=1, mode="c"] Amatrix_fname
 
+    # the C routine expects (Nslices,Nangles,Nchannels)
+    sino = np.swapaxes(sino,0,1)
     if not sino.flags["C_CONTIGUOUS"]:
         sino = np.ascontiguousarray(sino, dtype=np.single)
     else:
