@@ -373,12 +373,13 @@ def project(angles, image, num_channels,
     # Collect settings to pass to C
     settings = dict()
     settings['paths'] = paths
-    settings['verbose'] = verbose
     settings['imgparams'] = imgparams
+    settings['sinoparams'] = sinoparams
+    settings['verbose'] = verbose
     settings['delete_temps'] = delete_temps
 
     # Do the projection
-    proj = ci.project(image, sinoparams, settings)
+    proj = ci.project(image, settings)
 
     return proj
 
@@ -458,9 +459,9 @@ def backproject(sino, angles, num_rows=None, num_cols=None,
     # Collect settings to pass to C
     settings = dict()
     settings['paths'] = paths
-    settings['verbose'] = verbose
     settings['imgparams'] = imgparams
     settings['sinoparams'] = sinoparams
+    settings['verbose'] = verbose
     settings['delete_temps'] = delete_temps
 
     return ci.backproject(sino, settings)

@@ -312,12 +312,11 @@ def multires_recon(sino, angles, weights, weight_type, init_image, prox_image, i
     return x
 
 
-def project(image, sinoparams, settings):
+def project(image, settings):
     """Forward projection function used by svmbir.project(). 
     
     Args:
         image (ndarray): 3D Image to be projected
-        sinoparams (dict): Dictionary containing sinogram params
         settings (dict): Dictionary containing projection settings
     
     Returns:
@@ -325,8 +324,9 @@ def project(image, sinoparams, settings):
     """
 
     paths = settings['paths']
-    verbose = settings['verbose']
     imgparams = settings['imgparams']
+    sinoparams = settings['sinoparams']
+    verbose = settings['verbose']
     delete_temps = settings['delete_temps']
 
     write_recon_openmbir(image, paths['recon_name'] + '_slice', '.2Dimgdata')
