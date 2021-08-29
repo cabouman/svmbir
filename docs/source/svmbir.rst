@@ -11,6 +11,7 @@ svmbir
 
       auto_sigma_x
       auto_sigma_y
+      backproject
       calc_weights
       project
       recon

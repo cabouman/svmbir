@@ -312,12 +312,11 @@ def multires_recon(sino, angles, weights, weight_type, init_image, prox_image, i
     return x
 
 
-def project(image, sinoparams, settings):
+def project(image, settings):
     """Forward projection function used by svmbir.project(). 
     
     Args:
         image (ndarray): 3D Image to be projected
-        sinoparams (dict): Dictionary containing sinogram params
         settings (dict): Dictionary containing projection settings
     
     Returns:
@@ -325,8 +324,9 @@ def project(image, sinoparams, settings):
     """
 
     paths = settings['paths']
-    verbose = settings['verbose']
     imgparams = settings['imgparams']
+    sinoparams = settings['sinoparams']
+    verbose = settings['verbose']
     delete_temps = settings['delete_temps']
 
     write_recon_openmbir(image, paths['recon_name'] + '_slice', '.2Dimgdata')
@@ -346,6 +346,46 @@ def project(image, sinoparams, settings):
         delete_data_openmbir(paths['proj_name'] + '_slice', '.2Dprojection', sinoparams['num_slices'])
 
     return proj
+
+
+def backproject(sino, settings):
+    """Back projection function used by svmbir.backproject().
+
+    Args:
+        sino (ndarray): 3D sinogram
+        settings (dict): Dictionary containing back projection settings
+
+    Returns:
+        ndarray: Description
+    """
+
+    paths = settings['paths']
+    verbose = settings['verbose']
+    imgparams = settings['imgparams']
+    sinoparams = settings['sinoparams']
+    delete_temps = settings['delete_temps']
+
+    write_sino_openmbir(sino, paths['sino_name'] + '_slice', '.2Dsinodata')
+
+    cmd_args = dict(i=paths['param_name'], j=paths['param_name'], m=paths['sysmatrix_name'],
+                    s=paths['sino_name'], r=paths['recon_name'], v=str(verbose))
+
+    cmd_opts = ['b']
+
+    _cmd_exec(__exec_path__,*cmd_opts,**cmd_args)
+
+    image = read_recon_openmbir(paths['recon_name'] + '_slice', '.2Dimgdata',
+                                imgparams['Nx'], imgparams['Ny'], imgparams['Nz'])
+
+    if delete_temps :
+        os.remove(paths['sinoparams_fname'])
+        os.remove(paths['imgparams_fname'])
+        os.remove(paths['view_angle_list_fname'])
+
+        delete_data_openmbir(paths['recon_name'] + '_slice', '.2Dimgdata', imgparams['Nz'])
+        delete_data_openmbir(paths['sino_name'] + '_slice', '.2Dsinodata', sinoparams['num_slices'])
+
+    return image
 
 
 ##################################
