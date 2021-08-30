@@ -306,22 +306,22 @@ def recon(sino, angles,
 
 
 
-def project(angles, image, num_channels,
+def project(image, angles, num_channels,
             delta_channel = 1.0, delta_pixel = 1.0, center_offset = 0.0, roi_radius = None,
             num_threads = None, svmbir_lib_path = __svmbir_lib_path, delete_temps = True, 
             object_name = 'object', verbose = 1):
-    """project(angles, image, num_channels, delta_channel = 1.0, delta_pixel = 1.0, center_offset = 0.0, roi_radius = None, num_threads = None, svmbir_lib_path = '~/.cache/svmbir', delete_temps = True, object_name = 'object', verbose = 1)
+    """project(image, angles, num_channels, delta_channel = 1.0, delta_pixel = 1.0, center_offset = 0.0, roi_radius = None, num_threads = None, svmbir_lib_path = '~/.cache/svmbir', delete_temps = True, object_name = 'object', verbose = 1)
 
     Computes 3D parallel beam forward-projection.
 
     Args:
-        angles (ndarray):
-            1D numpy array of view angles in radians.
-            'angles[k]' is the angle in radians for view :math:`k`.
         image (ndarray):
             3D numpy array of image being projected.
             The image shape is (num_slices,num_rows,num_cols). The output will contain 'num_slices' projections.
             Note the image is considered 0 outside the 'roi_radius' (disregarded pixels).
+        angles (ndarray):
+            1D numpy array of view angles in radians.
+            'angles[k]' is the angle in radians for view :math:`k`.
         num_channels (int):
             Number of sinogram channels.
         delta_channel (float, optional):
@@ -346,6 +346,15 @@ def project(angles, image, num_channels,
     Returns:
         ndarray: 3D numpy array containing projection with shape (num_views, num_slices, num_channels).
     """
+
+    # Check for order of first 2 arguments. From v0.2.4, order is project(image,angles,...)
+    if len(image.shape) < len(angles.shape):
+        print("WARNING: Check the argument order svmbir.project(image,angles,...)")
+        print("**This is the correct order as of svmbir v0.2.4")
+        print("**Swapping and proceeding...")
+        temp_id = image
+        image = angles
+        angles = temp_id
 
     if num_threads is None :
         num_threads = cpu_count(logical=False)
