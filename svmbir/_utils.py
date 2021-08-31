@@ -100,7 +100,7 @@ def test_params_line3(sigma_y, snr_db, weights, weight_type):
     return sigma_y, snr_db, weights, weight_type
 
 
-def test_params_line4(sharpness, positivity, sigma_x):
+def test_params_line4(sharpness, positivity, sigma_x, sigma_p):
 
     # Convert parameter ints to floats
     if isinstance(sharpness,int):
@@ -119,8 +119,12 @@ def test_params_line4(sharpness, positivity, sigma_x):
     if not ((sigma_x is None) or (isinstance(sigma_x, float) and (sigma_x > 0))):
         warnings.warn("Parameter sigma_x is not valid float; Setting sigma_x = None.")
         sigma_x = None
+    
+    if not ((sigma_p is None) or (isinstance(sigma_p, float) and (sigma_p > 0))):
+        warnings.warn("Parameter sigma_p is not valid float; Setting sigma_p = None.")
+        sigma_p = None
 
-    return sharpness, positivity, sigma_x
+    return sharpness, positivity, sigma_x, sigma_p
 
 
 def test_pqtb_values(p, q, T, b_interslice):

@@ -129,6 +129,34 @@ def auto_sigma_x(sino, delta_channel = 1.0, sharpness = 0.0 ):
 
     return sigma_x
 
+def auto_sigma_p(sino, delta_channel = 1.0, sharpness = 0.0 ):
+    """Computes the automatic value of ``sigma_p`` for use in MBIR reconstruction.
+
+    Args:
+        sino (ndarray):
+            3D numpy array of sinogram data with shape (num_views,num_slices,num_channels)
+        delta_channel (float, optional):
+            [Default=1.0] Scalar value of detector channel spacing in :math:`ALU`.
+        sharpness (float, optional):
+            [Default=0.0] Scalar value that controls level of sharpness.
+            ``sharpness=0.0`` is neutral; ``sharpness>0`` increases sharpness; ``sharpness<0`` reduces sharpness
+
+    Returns:
+        float: Automatic value of regularization parameter.
+    """
+    (num_views, num_slices, num_channels) = sino.shape
+
+    # Compute indicator function for sinogram support
+    sino_indicator = _sino_indicator(sino)
+
+    # Compute a typical image value by dividing average sinogram value by a typical projection path length
+    typical_img_value = np.average(sino, weights=sino_indicator) / (num_channels * delta_channel)
+
+    # Compute sigma_p as the typical image value when sharpness==0
+    sigma_p = (2 ** sharpness) * typical_img_value
+
+    return sigma_p
+
 
 def auto_num_rows(num_channels, delta_channel, delta_pixel):
     """Computes the automatic value of ``num_rows``.
@@ -156,7 +184,7 @@ def recon(sino, angles,
           weights = None, weight_type = 'unweighted', init_image = 0.0, prox_image = None, init_proj = None,
           num_rows = None, num_cols = None, roi_radius = None,
           delta_channel = 1.0, delta_pixel = 1.0, center_offset = 0.0,
-          sigma_y = None, snr_db = 30.0, sigma_x = None, p = 1.2, q = 2.0, T = 1.0, b_interslice = 1.0,
+          sigma_y = None, snr_db = 30.0, sigma_x = None, sigma_p = None, p = 1.2, q = 2.0, T = 1.0, b_interslice = 1.0,
           sharpness = 0.0, positivity = True, max_resolutions = 0, stop_threshold = 0.02, max_iterations = 100,
           num_threads = None, delete_temps = True, svmbir_lib_path = __svmbir_lib_path, object_name = 'object',
           verbose = 1) :
@@ -209,7 +237,12 @@ def recon(sino, angles,
             Ignored if sigma_y is not None.
 
         sigma_x (float, optional): [Default=None] Scalar value :math:`>0` that specifies the qGGMRF scale parameter.
-            If None, automatically set with auto_sigma_x. The parameter sigma_x can be used to directly control regularization, but this is only recommended for expert users.
+            Ignored if prox_image is not None.
+            If None and prox_image is also None, automatically set with auto_sigma_x. The parameter sigma_x can be used to directly control regularization, but this is only recommended for expert users.
+        
+        sigma_p (float, optional): [Default=None] Scalar value :math:`>0` that specifies the regularization level of proximal map prior term.
+            Ignored if prox_image is None.
+            If None and proximal image is not None, automatically set with auto_sigma_p. The parameter sigma_p can be used to directly control regularization for the prior term of proximal map, but this is only recommended for expert users.
 
         p (float, optional): [Default=1.2] Scalar value in range :math:`[1,2]` that specifies the qGGMRF shape parameter.
 
@@ -224,7 +257,7 @@ def recon(sino, angles,
         sharpness (float, optional):
             [Default=0.0] Scalar value that controls level of sharpness.
             ``sharpness=0.0`` is neutral; ``sharpness>0`` increases sharpness; ``sharpness<0`` reduces sharpness.
-            Ignored if sigma_x is not None.
+            Ignored if sigma_x is not None in qGGMRF mode, or if sigma_p is not None in proximal map mode.
 
         positivity (bool, optional): [Default=True] Boolean value that determines if positivity constraint is enforced. The positivity parameter defaults to True; however, it should be changed to False when used in applications that can generate negative image values.
 
@@ -266,7 +299,7 @@ def recon(sino, angles,
     center_offset, delta_channel, delta_pixel = utils.test_params_line1(center_offset, delta_channel, delta_pixel)
     num_rows, num_cols, roi_radius = utils.test_params_line2(num_rows, num_cols, roi_radius)
     sigma_y, snr_db, weights, weight_type = utils.test_params_line3(sigma_y, snr_db, weights, weight_type)
-    sharpness, positivity, sigma_x = utils.test_params_line4(sharpness, positivity, sigma_x)
+    sharpness, positivity, sigma_x, sigma_p = utils.test_params_line4(sharpness, positivity, sigma_x, sigma_p)
     p, q, T, b_interslice = utils.test_pqtb_values(p, q, T, b_interslice)
     init_image, prox_image, init_proj = utils.test_params_line5(init_image, prox_image, init_proj)
     max_resolutions, stop_threshold, max_iterations = utils.test_params_line6(max_resolutions, stop_threshold, max_iterations)
@@ -289,9 +322,15 @@ def recon(sino, angles,
         sigma_y = auto_sigma_y(sino, weights, snr_db, delta_pixel=delta_pixel, delta_channel=delta_channel)
 
     # Set automatic value of sigma_x
-    if sigma_x is None:
-        sigma_x = auto_sigma_x(sino, delta_channel, sharpness)
-
+    # if qGGMRF mode, then set sigma_x either using the provided value by user, or with auto_sigma_x
+    if prox_image is None:
+        if sigma_x is None:
+            sigma_x = auto_sigma_x(sino, delta_channel, sharpness)
+    # if proximal map mode, then overwrite sigma_x with sigma_p
+    else:
+        if sigma_p is None:
+            sigma_p = auto_sigma_p(sino, delta_channel, sharpness)
+        sigma_x = sigma_p
     reconstruction = ci.multires_recon(sino=sino, angles=angles, weights=weights, weight_type=weight_type,
                                        init_image=init_image, prox_image=prox_image, init_proj=init_proj,
                                        num_rows=num_rows, num_cols=num_cols, roi_radius=roi_radius,
