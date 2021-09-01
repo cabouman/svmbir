@@ -238,11 +238,11 @@ def recon(sino, angles,
 
         sigma_x (float, optional): [Default=None] Scalar value :math:`>0` that specifies the qGGMRF scale parameter.
             Ignored if prox_image is not None.
-            If None and prox_image is also None, automatically set with auto_sigma_x. The parameter sigma_x can be used to directly control regularization, but this is only recommended for expert users.
+            If None and prox_image is also None, automatically set with auto_sigma_x. Regularization should be controled with the ``sharpness`` parameter, but ``sigma_x`` can be set directly by expert users.
         
         sigma_p (float, optional): [Default=None] Scalar value :math:`>0` that specifies the proximal map parameter.
             Ignored if prox_image is None.
-            If None and proximal image is not None, automatically set with auto_sigma_p. The parameter sigma_p can be used to directly control the proximal map parameter.
+            If None and proximal image is not None, automatically set with auto_sigma_p. Regularization should be controled with the ``sharpness`` parameter, but ``sigma_p`` can be set directly by expert users.
 
         p (float, optional): [Default=1.2] Scalar value in range :math:`[1,2]` that specifies the qGGMRF shape parameter.
 
@@ -257,7 +257,7 @@ def recon(sino, angles,
         sharpness (float, optional):
             [Default=0.0] Scalar value that controls level of sharpness.
             ``sharpness=0.0`` is neutral; ``sharpness>0`` increases sharpness; ``sharpness<0`` reduces sharpness.
-            Ignored if sigma_x is not None in qGGMRF mode, or if sigma_p is not None in proximal map mode.
+            Ignored if ``sigma_x`` is not None in qGGMRF mode, or if ``sigma_p`` is not None in proximal map mode.
 
         positivity (bool, optional): [Default=True] Boolean value that determines if positivity constraint is enforced. The positivity parameter defaults to True; however, it should be changed to False when used in applications that can generate negative image values.
 
