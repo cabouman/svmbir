@@ -240,9 +240,9 @@ def recon(sino, angles,
             Ignored if prox_image is not None.
             If None and prox_image is also None, automatically set with auto_sigma_x. The parameter sigma_x can be used to directly control regularization, but this is only recommended for expert users.
         
-        sigma_p (float, optional): [Default=None] Scalar value :math:`>0` that specifies the regularization level of proximal map prior term.
+        sigma_p (float, optional): [Default=None] Scalar value :math:`>0` that specifies the proximal map parameter.
             Ignored if prox_image is None.
-            If None and proximal image is not None, automatically set with auto_sigma_p. The parameter sigma_p can be used to directly control regularization for the prior term of proximal map, but this is only recommended for expert users.
+            If None and proximal image is not None, automatically set with auto_sigma_p. The parameter sigma_p can be used to directly control the proximal map parameter.
 
         p (float, optional): [Default=1.2] Scalar value in range :math:`[1,2]` that specifies the qGGMRF shape parameter.
 
