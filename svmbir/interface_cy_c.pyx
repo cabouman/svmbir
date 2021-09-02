@@ -14,30 +14,30 @@ __namelen_sysmatrix = 20
 cdef extern from "./sv-mbirct/src/MBIRModularDefs.h":
     # 3D Sinogram Parameters
     struct SinoParams3DParallel:
-        int NChannels;         # Number of channels in detector
-        float DeltaChannel;    # Detector spacing (mm)
-        float CenterOffset;    # Offset of center-of-rotation ...
-                               # Computed from center of detector in increasing direction (no. of channels)
-                               # This can be fractional though
-        int NViews;            # Number of view angles
-        float *ViewAngles;     # Array of NTheta view angle entries in degrees
-        int NSlices;           # Number of rows (slices) stored in Sino array
-        float DeltaSlice;      # Spacing along row (slice) direction (mm)
-
+        int NChannels;          # Number of channels in detector
+        float DeltaChannel;     # Detector spacing
+        float CenterOffset;     # Offset of center-of-rotation ...
+                                # Computed from center of detector in increasing direction (no. of channels)
+                                # This can be fractional though
+        int NViews;             # Number of view angles
+        float *ViewAngles;      # Array of NTheta view angle entries in degrees
+        int NSlices;            # Number of rows (slices) stored in Sino array
+        float DeltaSlice;       # Spacing along row (slice) direction
+        int FirstSliceNumber;   # Unused but will set to zero for clean C function summary
 
     # 3D Image parameters
     struct ImageParams3D:
         int Nx;                 # Number of columns in image
         int Ny;                 # Number of rows in image
-        float Deltaxy;          # Spacing between pixels in x and y direction (mm)
-        float ROIRadius;        # Radius of the reconstruction (mm)
-        float DeltaZ;           # Spacing between pixels in z direction (mm) [This should be equal to DeltaSlice
-        int Nz;                 # Number of rows (slices) in image
-
+        int Nz;                 # Number slices in image
+        float Deltaxy;          # Spacing between pixels in x and y direction
+        float DeltaZ;           # Spacing between pixels in z direction [This should be equal to DeltaSlice
+        float ROIRadius;        # Radius of the reconstruction
+        int FirstSliceNumber;   # Unused but will set to zero for clean C function summary
 
     # Reconstruction Parameters Data Structure
     struct ReconParams:
-        char ReconType;         # 1:QGGMRF_3D, 2:PandP
+        char ReconType;         # 1:QGGMRF, 2:PandP, 3:Backproject
         # General parameters
         float InitImageValue;   # Initial Condition pixel value. In our examples usually chosen as ...
         float StopThreshold;    # Stopping threshold in percent
@@ -54,8 +54,7 @@ cdef extern from "./sv-mbirct/src/MBIRModularDefs.h":
         float p;                # q-GGMRF p parameter
         float q;                # q-GGMRF q parameter (q=2 is typical choice)
         float T;                # q-GGMRF T parameter
-        float SigmaX;           # q-GGMRF sigma_x parameter (mm-1)
-
+        float SigmaX;           # q-GGMRF sigma_x parameter
 
 # Import a c function to compute A matrix.
 cdef extern from "./sv-mbirct/src/A_comp.h":
@@ -73,6 +72,7 @@ cdef extern from "./sv-mbirct/src/recon3d.h":
         ImageParams3D imgparams,
         SinoParams3DParallel sinoparams,
         char *Amatrix_fname,
+        char backproject_flag,
         char verboseLevel);
 
     void MBIRReconstruct(
@@ -96,6 +96,7 @@ cdef convert_py2c_ImageParams3D(ImageParams3D* imgparams,
     imgparams.ROIRadius = py_imageparams['roi_radius']
     imgparams.DeltaZ = py_imageparams['delta_z']
     imgparams.Nz = py_imageparams['Nz']
+    imgparams.FirstSliceNumber = 0
 
 
 cdef convert_py2c_SinoParams3D(SinoParams3DParallel* sinoparams,
@@ -108,11 +109,12 @@ cdef convert_py2c_SinoParams3D(SinoParams3DParallel* sinoparams,
     sinoparams.ViewAngles = &ViewAngles[0] # Assign pointer for float array in C data structure
     sinoparams.NSlices = py_sinoparams['num_slices']
     sinoparams.DeltaSlice = py_sinoparams['delta_slice']
+    sinoparams.FirstSliceNumber = 0
 
 
 cdef convert_py2c_ReconParams3D(ReconParams* reconparams,
                                 py_reconparams):
-    reconparams.ReconType = py_reconparams['prior_model']           # 1:QGGMRF_3D, 2:PandP
+    reconparams.ReconType = py_reconparams['prior_model']           # 1:QGGMRF, 2:PandP, 3:Backproject
     # General parameters
     reconparams.InitImageValue = py_reconparams['init_image_value']   # Initial Condition pixel value. In our examples usually chosen as ...
     reconparams.StopThreshold = py_reconparams['stop_threshold']     # Stopping threshold in percent
@@ -129,7 +131,7 @@ cdef convert_py2c_ReconParams3D(ReconParams* reconparams,
     reconparams.p = py_reconparams['p']                             # q-GGMRF p parameter
     reconparams.q = py_reconparams['q']                             # q-GGMRF q parameter (q=2 is typical choice)
     reconparams.T = py_reconparams['T']                             # q-GGMRF T parameter
-    reconparams.SigmaX = py_reconparams['sigma_x']                   # q-GGMRF sigma_x parameter (mm-1)
+    reconparams.SigmaX = py_reconparams['sigma_x']                   # q-GGMRF sigma_x parameter
 
 
 def string_to_char_array(input_str):
@@ -190,8 +192,9 @@ def _init_geometry( angles, num_channels, num_views, num_slices, num_rows, num_c
     # and/or to pass path information to a file containing the matrix
     Amatrix_file = paths['sysmatrix_name'] + '.2Dsvmatrix'
     if os.path.exists(Amatrix_file) :
-        print('Found system matrix: {}'.format(Amatrix_file))
         os.utime(Amatrix_file)  # update file modified time
+        if verbose > 0:
+            print('Found system matrix: {}'.format(Amatrix_file))
     # if matrix file does not exist, then write to tmp file and rename
     else :
         Amatrix_file_tmp = paths['sysmatrix_name'] + '_pid' + str(os.getpid()) + '_rndnum' + str(random.randint(0,1000)) + '.2Dsvmatrix'
@@ -201,31 +204,29 @@ def _init_geometry( angles, num_channels, num_views, num_slices, num_rows, num_c
     
     return paths, sinoparams, imgparams
 
-def project(image, sinoparams, settings):
-    """Forward projection function used by svmbir.project(). 
-    
+
+def project(image, settings):
+    """Forward projection function used by svmbir.project().
+
     Args:
         image (ndarray): 3D Image to be projected
-        sinoparams (dict): Dictionary containing sinogram params
         settings (dict): Dictionary containing projection settings
-    
+
     Returns:
         TYPE: Description
     """
 
     paths = settings['paths']
+    imgparams = settings['imgparams']
+    sinoparams = settings['sinoparams']
     verbose = settings['verbose']
-    imageparams = settings['imgparams']
 
     # Get shapes of image and projection
-    cdef int nslices = np.shape(image)[0]
-    cdef int nrows = np.shape(image)[1]
-    cdef int ncols_img = np.shape(image)[2]
+    nslices = image.shape[0]
+    nviews = sinoparams['num_views']
+    nchannels = sinoparams['num_channels']
 
-    cdef int nviews = sinoparams['num_views']
-    cdef int nchannels = sinoparams['num_channels']
-    cdef cnp.ndarray[char, ndim=1, mode="c"] Amatrix_fname
-
+    # Ensure image memory is aligned properly
     if not image.flags["C_CONTIGUOUS"]:
         image = np.ascontiguousarray(image, dtype=np.single)
     else:
@@ -237,20 +238,69 @@ def project(image, sinoparams, settings):
     # Allocates memory, without initialization, for matrix to be passed back from C subroutine
     cdef cnp.ndarray[float, ndim=3, mode="c"] proj = np.empty((nslices, nviews, nchannels), dtype=ctypes.c_float)
 
+    # Write parameter to c structures based on given py parameter List.
     cdef ImageParams3D imgparams_c
     cdef SinoParams3DParallel sinoparams_c
-
-    # Write parameter to c structures based on given py parameter List.
-    convert_py2c_ImageParams3D(&imgparams_c, imageparams)
+    convert_py2c_ImageParams3D(&imgparams_c, imgparams)
     convert_py2c_SinoParams3D(&sinoparams_c, sinoparams, cy_angles)
 
+    cdef cnp.ndarray[char, ndim=1, mode="c"] Amatrix_fname
     Amatrix_fname = string_to_char_array(paths['sysmatrix_name']+ '.2Dsvmatrix')
 
     # Forward projection by calling C subroutine
-    forwardProject(&proj[0,0,0], &cy_image[0,0,0], imgparams_c, sinoparams_c, &Amatrix_fname[0],verbose)
+    forwardProject(&proj[0,0,0], &cy_image[0,0,0], imgparams_c, sinoparams_c, &Amatrix_fname[0], 0, verbose)
 
     # Return cython ndarray
     return np.swapaxes(proj,0,1)
+
+
+def backproject(sino, settings):
+    """Back projection function used by svmbir.backproject().
+
+    Args:
+        sino (ndarray): 3D sinogram of shape (num_angles,num_slices,num_channels)
+        settings (dict): Dictionary containing back projection settings
+
+    Returns:
+        ndarray: Backprojected image of shape (num_slices,num_rows,num_cols)
+    """
+
+    paths = settings['paths']
+    imgparams = settings['imgparams']
+    sinoparams = settings['sinoparams']
+    verbose = settings['verbose']
+
+    # Get shapes of sinogram and image
+    nslices = sino.shape[1]
+    nrows = imgparams['Ny']
+    ncols = imgparams['Nx']
+
+    # the C routine expects (Nslices,Nangles,Nchannels)
+    sino = np.swapaxes(sino,0,1)
+    if not sino.flags["C_CONTIGUOUS"]:
+        sino = np.ascontiguousarray(sino, dtype=np.single)
+    else:
+        sino = sino.astype(np.single, copy=False)
+
+    cdef cnp.ndarray[float, ndim=3, mode="c"] cy_sino = sino
+    cdef cnp.ndarray[float, ndim=1, mode="c"] cy_angles = sinoparams['view_angle_list']
+
+    # Allocates memory, without initialization, for matrix to be passed back from C subroutine
+    cdef cnp.ndarray[float, ndim=3, mode="c"] image = np.empty((nslices,nrows,ncols), dtype=ctypes.c_float)
+
+    # Write parameters to c structures
+    cdef ImageParams3D imgparams_c
+    cdef SinoParams3DParallel sinoparams_c
+    convert_py2c_ImageParams3D(&imgparams_c, imgparams)
+    convert_py2c_SinoParams3D(&sinoparams_c, sinoparams, cy_angles)
+
+    cdef cnp.ndarray[char, ndim=1, mode="c"] Amatrix_fname
+    Amatrix_fname = string_to_char_array(paths['sysmatrix_name']+ '.2Dsvmatrix')
+
+    # Back project by calling C subroutine
+    forwardProject(&cy_sino[0,0,0], &image[0,0,0], imgparams_c, sinoparams_c, &Amatrix_fname[0], 1, verbose)
+
+    return image
 
 
 def multires_recon(sino, angles, weights, weight_type, init_image, prox_image, init_proj,

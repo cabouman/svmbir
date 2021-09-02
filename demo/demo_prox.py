@@ -19,15 +19,15 @@ num_views = 144
 tilt_angle = np.pi/2 # Tilt range of +-90deg
 
 # Reconstruction parameters
-sigma_x = 0.2
+sigma_p = 0.2
 snr_db = 40.0
 
 # Multi-resolution works much better for limited and sparse view reconstruction
 max_resolutions=1 # Use 2 additional resolutions to do reconstruction
 
 # Display parameters
-vmin = None
-vmax = None
+vmin = 1.0
+vmax = 1.2
 
 # Generate phantom with a single slice
 phantom = svmbir.phantom.gen_shepp_logan_3d(num_rows_cols,num_rows_cols,num_slices)
@@ -36,7 +36,7 @@ phantom = svmbir.phantom.gen_shepp_logan_3d(num_rows_cols,num_rows_cols,num_slic
 angles = np.linspace(-tilt_angle, tilt_angle, num_views, endpoint=False)
 
 # Generate sinogram by projecting phantom
-sino = svmbir.project(angles, phantom, num_rows_cols )
+sino = svmbir.project(phantom, angles, num_rows_cols )
 
 # Determine resulting number of views, slices, and channels
 (num_views, num_slices, num_channels) = sino.shape
@@ -45,7 +45,7 @@ sino = svmbir.project(angles, phantom, num_rows_cols )
 phantom_rot = np.swapaxes(phantom, 1, 2)
 
 # Perform fixed resolution MBIR reconstruction using proximal map input
-recon = svmbir.recon(sino, angles, max_resolutions=max_resolutions, init_image=phantom_rot, prox_image=phantom_rot, positivity=False, sigma_x=sigma_x, snr_db=snr_db)
+recon = svmbir.recon(sino, angles, max_resolutions=max_resolutions, init_image=phantom_rot, prox_image=phantom_rot, positivity=False, sigma_p=sigma_p, snr_db=snr_db)
 
 # create output folder
 os.makedirs('output', exist_ok=True)

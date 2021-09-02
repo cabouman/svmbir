@@ -36,7 +36,7 @@ phantom = np.expand_dims(phantom, axis=0)
 angles = np.linspace(-tilt_angle, tilt_angle, num_views)
 
 # Generate sinogram by projecting phantom
-sino = svmbir.project(angles, phantom, max(num_rows, num_cols))
+sino = svmbir.project(phantom, angles, max(num_rows, num_cols))
 
 # Determine resulting number of views, slices, and channels
 (num_views, num_slices, num_channels) = sino.shape

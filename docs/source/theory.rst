@@ -80,10 +80,10 @@ In this case, the reconstruction solves the optimization problem:
 
 .. math::
 
-    {\hat x} = \arg \min_x \left\{ f(x) + \frac{1}{2\sigma_x^2} \Vert x -v \Vert^2 \right\}
+    {\hat x} = \arg \min_x \left\{ f(x) + \frac{1}{2\sigma_p^2} \Vert x -v \Vert^2 \right\}
 
 where the quantities correspond to the following python variables:
 
 * :math:`v` corresponds to ``prox_image``
-* :math:`\sigma_x` corresponds to ``sigma_x``
+* :math:`\sigma_p` corresponds to ``sigma_p``
 
