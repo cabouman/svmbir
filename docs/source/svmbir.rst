@@ -9,6 +9,7 @@ svmbir
 
    .. autosummary::
 
+      auto_sigma_p
       auto_sigma_x
       auto_sigma_y
       backproject
