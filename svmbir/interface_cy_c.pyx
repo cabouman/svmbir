@@ -15,14 +15,14 @@ cdef extern from "./sv-mbirct/src/MBIRModularDefs.h":
     # 3D Sinogram Parameters
     struct SinoParams3DParallel:
         int NChannels;          # Number of channels in detector
-        float DeltaChannel;     # Detector spacing (mm)
+        float DeltaChannel;     # Detector spacing
         float CenterOffset;     # Offset of center-of-rotation ...
                                 # Computed from center of detector in increasing direction (no. of channels)
                                 # This can be fractional though
         int NViews;             # Number of view angles
         float *ViewAngles;      # Array of NTheta view angle entries in degrees
         int NSlices;            # Number of rows (slices) stored in Sino array
-        float DeltaSlice;       # Spacing along row (slice) direction (mm)
+        float DeltaSlice;       # Spacing along row (slice) direction
         int FirstSliceNumber;   # Unused but will set to zero for clean C function summary
 
     # 3D Image parameters
@@ -30,9 +30,9 @@ cdef extern from "./sv-mbirct/src/MBIRModularDefs.h":
         int Nx;                 # Number of columns in image
         int Ny;                 # Number of rows in image
         int Nz;                 # Number slices in image
-        float Deltaxy;          # Spacing between pixels in x and y direction (mm)
-        float DeltaZ;           # Spacing between pixels in z direction (mm) [This should be equal to DeltaSlice
-        float ROIRadius;        # Radius of the reconstruction (mm)
+        float Deltaxy;          # Spacing between pixels in x and y direction
+        float DeltaZ;           # Spacing between pixels in z direction [This should be equal to DeltaSlice
+        float ROIRadius;        # Radius of the reconstruction
         int FirstSliceNumber;   # Unused but will set to zero for clean C function summary
 
     # Reconstruction Parameters Data Structure
@@ -54,7 +54,7 @@ cdef extern from "./sv-mbirct/src/MBIRModularDefs.h":
         float p;                # q-GGMRF p parameter
         float q;                # q-GGMRF q parameter (q=2 is typical choice)
         float T;                # q-GGMRF T parameter
-        float SigmaX;           # q-GGMRF sigma_x parameter (mm-1)
+        float SigmaX;           # q-GGMRF sigma_x parameter
 
 # Import a c function to compute A matrix.
 cdef extern from "./sv-mbirct/src/A_comp.h":
@@ -131,7 +131,7 @@ cdef convert_py2c_ReconParams3D(ReconParams* reconparams,
     reconparams.p = py_reconparams['p']                             # q-GGMRF p parameter
     reconparams.q = py_reconparams['q']                             # q-GGMRF q parameter (q=2 is typical choice)
     reconparams.T = py_reconparams['T']                             # q-GGMRF T parameter
-    reconparams.SigmaX = py_reconparams['sigma_x']                   # q-GGMRF sigma_x parameter (mm-1)
+    reconparams.SigmaX = py_reconparams['sigma_x']                   # q-GGMRF sigma_x parameter
 
 
 def string_to_char_array(input_str):
