@@ -13,6 +13,56 @@ from PIL import Image
 ## Parameter Test Functions ##
 ##############################
 
+def test_args_angles(angles):
+    "Test validity of 'angles' argument"
+
+    # allow scalar angle input, convert to ndarray
+    if isinstance(angles,float) or isinstance(angles,int):
+        print("Warning: 'angles' input is a scalar. Converting to numpy array w/ size 1")
+        angles = np.array([angles])
+
+    if not isinstance(angles,np.ndarray) and (angles.ndim == 1):
+        raise Exception("Error: 'angles' input not a 1D numpy array")
+
+    return angles
+
+def test_args_sino(sino, angles):
+    "Test for valid sino structure. If 2D given, convert to 3D"
+
+    angles = test_args_angles(angles)
+
+    if isinstance(sino,np.ndarray) and (sino.ndim in [1,2,3]) :
+        if sino.ndim == 1 :
+            print("Warning: Input sino array only 1D. Adding singletons for slice and angle axes.")
+            sino = sino[np.newaxis, np.newaxis, :]
+        if sino.ndim == 2 :
+            if angles.size > 1 :
+                print("Warning: Input sino array only 2D. Adding singleton for slice axis.")
+                sino = sino[:, np.newaxis, :]
+            else:
+                print("Warning: Input sino array only 2D. Adding singleton for angle axis.")
+                sino = sino[np.newaxis, :, :]
+    else:
+        raise Exception("Error: 'sino' input is not a 3D numpy array")
+
+    if sino.shape[0] != angles.size :
+        raise Exception("Error: Input 'sino' and 'angles' shapes don't agree")
+
+    return sino
+
+def test_args_image(image):
+    "Test for valid image structure. If 2D given, convert to 3D"
+
+    if isinstance(image,np.ndarray) and ((image.ndim==2) or (image.ndim==3)):
+        if image.ndim == 2 :
+            print("Warning: Input image array only 2D. Adding singleton for slice axis.")
+            image = image[np.newaxis, :, :]
+    else:
+        raise Exception("Error: image input is not a 3D numpy array")
+
+    return image
+
+
 def test_params_line0(sino, angles):
 
     # Test for valid sino structure, and if necessary, make it 3D

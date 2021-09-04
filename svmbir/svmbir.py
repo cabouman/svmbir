@@ -298,7 +298,8 @@ def recon(sino, angles,
     os.environ['OMP_DYNAMIC'] = 'true'
 
     # Test for valid sino and angles structure. If sino is 2D, make it 3D
-    sino = utils.test_params_line0(sino, angles)
+    angles = utils.test_args_angles(angles)
+    sino = utils.test_args_sino(sino,angles)
     (num_views, num_slices, num_channels) = sino.shape
 
     # Tests parameters for valid types and values; print warnings if necessary; and return default values.
@@ -392,14 +393,18 @@ def project(image, angles, num_channels,
         ndarray: 3D numpy array containing projection with shape (num_views, num_slices, num_channels).
     """
 
-    # Check for order of first 2 arguments. From v0.2.4, order is project(image,angles,...)
-    if len(image.shape) < len(angles.shape):
+    # Temporary check for argument order. From v0.2.4, order is project(image,angles,...)
+    if isinstance(image,np.ndarray) and isinstance(angles,np.ndarray) and (image.ndim < angles.ndim):
         print("WARNING: Check the argument order svmbir.project(image,angles,...)")
-        print("**This is the correct order as of svmbir v0.2.4")
+        print("**This is the order definition as of svmbir v0.2.4")
         print("**Swapping and proceeding...")
         temp_id = image
         image = angles
         angles = temp_id
+
+    # validate input arguments
+    image = utils.test_args_image(image)
+    angles = utils.test_args_angles(angles)
 
     if num_threads is None :
         num_threads = cpu_count(logical=False)
@@ -478,6 +483,10 @@ def backproject(sino, angles, num_rows=None, num_cols=None,
     Returns:
         ndarray: 3D numpy array containing back projected image (num_slices,num_rows,num_cols).
     """
+
+    # validate input arguments
+    angles = utils.test_args_angles(angles)
+    sino = utils.test_args_sino(sino,angles)
 
     if num_threads is None :
         num_threads = cpu_count(logical=False)
