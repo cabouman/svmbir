@@ -13,6 +13,13 @@ from PIL import Image
 ## Parameter Test Functions ##
 ##############################
 
+def int_to_float(arg):
+    "Convert int argument to float, otherwise pass through"
+    if isinstance(arg,int):
+        return float(arg)
+    else:
+        return arg
+
 def test_args_angles(angles):
     "Test validity of 'angles' argument"
 
@@ -107,16 +114,16 @@ def test_params_line2(num_rows, num_cols, roi_radius):
     if isinstance(roi_radius,int):
         roi_radius = float(roi_radius)
 
-    if not ((roi_radius is None) or isinstance(num_rows, int)):
-        warnings.warn("Parameter num_rows is not valid int; Setting num_rows = None.")
+    if not ((num_rows is None) or isinstance(num_rows, int)):
+        warnings.warn("Parameter num_rows is not a valid int. Setting to default.")
         num_rows = None
 
-    if not ((roi_radius is None) or isinstance(num_cols, int)):
-        warnings.warn("Parameter num_rows is not valid int; Setting num_cols = None.")
+    if not ((num_cols is None) or isinstance(num_cols, int)):
+        warnings.warn("Parameter num_cols is not a valid int. Setting to default.")
         num_cols = None
 
     if not ((roi_radius is None) or ((isinstance(roi_radius, float) and (roi_radius > 0)))):
-        warnings.warn("Parameter roi_radius is not valid float; Setting roi_radius = None.")
+        warnings.warn("Parameter roi_radius is not valid. Setting to default.")
         roi_radius = None
 
     return num_rows, num_cols, roi_radius
@@ -124,16 +131,12 @@ def test_params_line2(num_rows, num_cols, roi_radius):
 
 def test_params_line3(sigma_y, snr_db, weights, weight_type):
 
-    # Convert parameter ints to floats
-    if isinstance(sigma_y,int):
-        sigma_y = float(sigma_y)
-    if isinstance(snr_db,int):
-        snr_db = float(snr_db)
-
+    sigma_y = int_to_float(sigma_y)
     if not ((sigma_y is None) or (isinstance(sigma_y, float) and (sigma_y > 0))):
         warnings.warn("Parameter sigma_y is not valid float; Setting sigma_y = None.")
         sigma_y = None
 
+    snr_db = int_to_float(snr_db)
     if not isinstance(snr_db, float):
         warnings.warn("Parameter snr_db is not valid float; Setting snr_db = 30.")
         snr_db = 30
@@ -152,12 +155,7 @@ def test_params_line3(sigma_y, snr_db, weights, weight_type):
 
 def test_params_line4(sharpness, positivity, sigma_x, sigma_p):
 
-    # Convert parameter ints to floats
-    if isinstance(sharpness,int):
-        sharpness = float(sharpness)
-    if isinstance(sigma_x,int):
-        sigma_x = float(sigma_x)
-
+    sharpness = int_to_float(sharpness)
     if not isinstance(sharpness, float):
         warnings.warn("Parameter sharpness is not valid float; Setting sharpness = 0.0.")
         sharpness = 0.0
@@ -166,6 +164,7 @@ def test_params_line4(sharpness, positivity, sigma_x, sigma_p):
         warnings.warn("Parameter positivity is not valid boolean; Setting positivity = True.")
         positivity = True
 
+    sigma_x = int_to_float(sigma_x)
     if not ((sigma_x is None) or (isinstance(sigma_x, float) and (sigma_x > 0))):
         warnings.warn("Parameter sigma_x is not valid float; Setting sigma_x = None.")
         sigma_x = None
@@ -198,7 +197,7 @@ def test_pqtb_values(p, q, T, b_interslice):
 
     if not isinstance(p, float):
         p = 1.2
-        warnings.warn("Parameter q is wrong type; Setting q = 2.0")
+        warnings.warn("Parameter p is wrong type; Setting p = 1.2")
 
     if not isinstance(T, float):
         T = 1.0
@@ -206,7 +205,7 @@ def test_pqtb_values(p, q, T, b_interslice):
 
     if not isinstance(b_interslice, float):
         b_interslice = 1.0
-        warnings.warn("Parameter T is wrong type; Setting b_interslice = 1.0")
+        warnings.warn("Parameter b_intersize not valid float; Setting b_interslice = 1.0")
 
     # Check that q is valid
     if not (1.0 <= q <= 2.0):
@@ -223,9 +222,9 @@ def test_pqtb_values(p, q, T, b_interslice):
         warnings.warn("Parameter p > 2; Setting p = 2.0")
 
     # Check that p and q are jointly valid
-    if not (p < q):
+    if p > q:
         p = q
-        warnings.warn("Parameter p > q; Setting p = q.0")
+        warnings.warn("Parameter p > q; Setting p = q")
 
     return p, q, T, b_interslice
 
