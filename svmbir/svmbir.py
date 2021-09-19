@@ -2,7 +2,6 @@
 # Copyright (C) by
 # All rights reserved.
 
-import math
 from psutil import cpu_count
 import shutil
 import numpy as np
