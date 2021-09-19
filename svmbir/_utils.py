@@ -70,6 +70,171 @@ def test_args_image(image):
     return image
 
 
+def test_args_geom(num_rows, num_cols, delta_pixel, roi_radius, delta_channel, center_offset):
+
+    if not num_rows is None:
+        if not (isinstance(num_rows, int) and num_rows>0):
+            warnings.warn("Parameter num_rows not a valid int. Setting to default.")
+            num_rows = None
+
+    if not num_cols is None:
+        if not (isinstance(num_cols, int) and num_cols>0):
+            warnings.warn("Parameter num_cols not a valid int. Setting to default.")
+            num_cols = None
+
+    delta_pixel = int_to_float(delta_pixel)
+    if not ((delta_pixel is None) or (isinstance(delta_pixel, float) and (delta_pixel > 0))):
+        warnings.warn("Parameter delta_pixel is not valid float; Setting delta_pixel = 1.0.")
+        delta_pixel = 1.0
+
+    roi_radius = int_to_float(roi_radius)
+    if not ((roi_radius is None) or ((isinstance(roi_radius, float) and (roi_radius > 0)))):
+        warnings.warn("Parameter roi_radius is not valid. Setting to default.")
+        roi_radius = None
+
+    delta_channel = int_to_float(delta_channel)
+    if not (isinstance(delta_channel, float) and delta_channel>0):
+        warnings.warn("Parameter delta_channel is not valid float; Setting delta_channel = 1.0.")
+        delta_channel = 1.0
+
+    center_offset = int_to_float(center_offset)
+    if not isinstance(center_offset, float):
+        warnings.warn("Parameter center_offset is not valid float; Setting center_offset = 0.0.")
+        center_offset = 0.0
+
+    return num_rows, num_cols, delta_pixel, roi_radius, delta_channel, center_offset
+
+
+def test_args_recon(sharpness, positivity, max_resolutions, stop_threshold, max_iterations):
+
+    sharpness = int_to_float(sharpness)
+    if not isinstance(sharpness, float):
+        warnings.warn("Parameter sharpness is not valid float; Setting sharpness = 0.0.")
+        sharpness = 0.0
+
+    if not isinstance(positivity, bool):
+        warnings.warn("Parameter positivity is not valid boolean; Setting positivity = True.")
+        positivity = True
+
+    if not (isinstance(max_resolutions, int) and (max_resolutions >= 0)):
+        warnings.warn("Parameter max_resolutions is not valid int; Setting max_resolutions = 0.")
+        max_resolutions = 0
+
+    if isinstance(stop_threshold,int):
+        stop_threshold = float(stop_threshold)
+    if not (isinstance(stop_threshold, float) and (stop_threshold >= 0)):
+        warnings.warn("Parameter stop_threshold is not valid float; Setting stop_threshold = 0.0.")
+        stop_threshold = 0.0
+
+    if not (isinstance(max_iterations, int) and (max_iterations > 0)):
+        warnings.warn("Parameter max_iterations is not valid int; Setting max_iterations = 100.")
+        max_iterations = 100
+
+    return sharpness, positivity, max_resolutions, stop_threshold, max_iterations
+
+
+def test_args_inits(init_image, prox_image, init_proj, weights, weight_type):
+
+    init_image = int_to_float(init_image)
+    if not (isinstance(init_image, float) or (isinstance(init_image, np.ndarray) and (init_image.ndim == 3))):
+        warnings.warn("Parameter init_image is not a valid float or 3D ndarray. Setting init_image = 0.0.")
+        init_image = 0.0
+
+    if not ((prox_image is None) or (isinstance(prox_image, np.ndarray) and (prox_image.ndim == 3))):
+        warnings.warn("Parameter prox_image is not a valid 3D ndarray. Setting prox_image = None.")
+        prox_image = None
+
+    if not ((init_proj is None) or (isinstance(init_proj, np.ndarray) and (init_proj.ndim == 3))):
+        warnings.warn("Parameter init_proj is not a valid 3D ndarray; Setting init_proj = None.")
+        init_proj = None
+
+    if not ((weights is None) or (isinstance(weights, np.ndarray) or (weights.ndim == 3))):
+        warnings.warn("Parameter weights is not valid 3D np array; Setting weights = None.")
+        weights = None
+
+    list_of_weights = ['unweighted', 'transmission', 'transmission_root', 'emission']
+    if not (isinstance(weight_type, str) and (weight_type in list_of_weights)):
+        warnings.warn("Parameter weight_type is not valid string; Setting roi_radius = 'unweighted'")
+        weight_type = 'unweighted'
+
+    return init_image, prox_image, init_proj, weights, weight_type
+
+
+def test_args_noise(sigma_y, snr_db, sigma_x, sigma_p):
+
+    sigma_y = int_to_float(sigma_y)
+    if not ((sigma_y is None) or (isinstance(sigma_y, float) and (sigma_y > 0))):
+        warnings.warn("Parameter sigma_y is not a valid float. Setting to default.")
+        sigma_y = None
+
+    snr_db = int_to_float(snr_db)
+    if not isinstance(snr_db, float):
+        warnings.warn("Parameter snr_db is not a valid float. Setting snr_db = 30.")
+        snr_db = 30
+
+    sigma_x = int_to_float(sigma_x)
+    if not ((sigma_x is None) or (isinstance(sigma_x, float) and (sigma_x > 0))):
+        warnings.warn("Parameter sigma_x is not a valid float. Setting to default.")
+        sigma_x = None
+
+    sigma_p = int_to_float(sigma_p)
+    if not ((sigma_p is None) or (isinstance(sigma_p, float) and (sigma_p > 0))):
+        warnings.warn("Parameter sigma_p is not a valid float. Setting to default.")
+        sigma_p = None
+
+    return sigma_y, snr_db, sigma_x, sigma_p
+
+
+def test_args_qggmrf(p, q, T, b_interslice):
+
+    # Check that q is valid
+    q = int_to_float(q)
+    if not (isinstance(q, float) and (1.0 <= q <= 2.0)):
+        q = 2.0
+        warnings.warn("Parameter q not in the valid range of [1,2]; Setting q = 2.0")
+
+    # Check that p is valid
+    p = int_to_float(p)
+    if not (isinstance(p, float) and (1.0 <= p <= 2.0)):
+        p = 1.2
+        warnings.warn("Parameter p not in the valid range [1,2]; Setting p = 1.2")
+
+    # Check that p and q are jointly valid
+    if p > q:
+        p = q
+        warnings.warn("Parameter p > q; Setting p = q.")
+
+    T = int_to_float(T)
+    if not (isinstance(T, float) and T>0):
+        T = 1.0
+        warnings.warn("Parameter T is invalid; Setting T = 1.0")
+
+    b_interslice = int_to_float(b_interslice)
+    if not (isinstance(b_interslice, float) and b_interslice>0):
+        b_interslice = 1.0
+        warnings.warn("Parameter b_interslice is invalid; Setting b_interslice = 1.0")
+
+    return p, q, T, b_interslice
+
+
+def test_args_sys(num_threads, delete_temps, verbose):
+
+    if not (isinstance(num_threads, int) and (num_threads > 0)):
+        warnings.warn("Parameter num_threads is not a valid int. Setting to default.")
+        num_threads = None
+
+    if not isinstance(delete_temps, bool):
+        warnings.warn("Parameter delete_temps is not valid. Setting delete_temps = True.")
+        delete_temps = True
+
+    if not (isinstance(verbose, int) and (verbose >= 0)):
+        warnings.warn("Parameter verbose is not valid. Setting verbose = 1.")
+        verbose = 1
+
+    return num_threads, delete_temps, verbose
+
+
+
 def test_params_line0(sino, angles):
 
     # Test for valid sino structure, and if necessary, make it 3D
