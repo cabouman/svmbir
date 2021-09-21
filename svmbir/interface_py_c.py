@@ -489,7 +489,8 @@ def read_sino_openmbir(rootPath, suffix, N_theta, N_z, N_y):
 def write_sino_openmbir(x, rootPath, suffix):
     # shape of x = N_theta x N_z  x N_y
 
-    assert len(x.shape) == 3, 'data must be 3D'
+    if len(x.shape) != 3:
+        raise Exception("write_sino_openmbir(): Error! Input must be 3D")
 
     x = np.copy(np.swapaxes(x, 0, 1), order='C')
 
@@ -517,7 +518,8 @@ def read_recon_openmbir(rootPath, suffix, N_x, N_y, N_z):
 def write_recon_openmbir(x, rootPath, suffix):
     # shape of x = N_z x N_y x N_x
 
-    assert len(x.shape) == 3, 'data must be 3D'
+    if len(x.shape) != 3:
+        raise Exception("write_recon_openmbir(): Error! Input must be 3D")
 
     fname_list = generateFileList(x.shape[0], rootPath, suffix, numdigit=4)
 
