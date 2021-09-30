@@ -29,7 +29,7 @@ vmax = 1.2
 phantom = svmbir.phantom.gen_shepp_logan(num_rows_cols, num_rows_cols)
 phantom = np.expand_dims(phantom, axis=0)
 
-# Generate array of view angles form -180 to 180 degs
+# Generate the array of view angles
 angles = np.linspace(-tilt_angle, tilt_angle, num_views, endpoint=False)
 
 # Generate sinogram by projecting phantom

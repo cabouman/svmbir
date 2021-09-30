@@ -34,7 +34,7 @@ vmax = 1.1
 # Generate phantom
 phantom = svmbir.phantom.gen_microscopy_sample_3d(num_rows,num_cols,num_slices)
 
-# Generate array of view angles form -180 to 180 degs
+# Generate the array of view angles
 angles = np.linspace(-tilt_angle, tilt_angle, num_views)
 
 # Generate sinogram by projecting phantom
