@@ -30,6 +30,19 @@ def _clear_cache(svmbir_lib_path = __svmbir_lib_path):
     """
     shutil.rmtree(svmbir_lib_path)
 
+def sino_sort(sino, angles, weights=None):
+    """ Sort sinogram views (and sinogram weights if provided) corrresponding to view angles that are in monotonically increasing order on the interval :math:`[0,2\pi]` 
+    
+    Args:
+        sino (ndarray): 3D numpy array of unsorted sinogram data with shape (num_views,num_slices,num_channels)
+        angles (ndarray): 1D unsorted view angles array in radians.
+        weights (ndarray, optional): [Default=None] 3D unsorted weights array with same shape as sino. 
+    Returns:
+        sino (ndarray): 3D numpy array of sorted sinogram data with shape (num_views,num_slices,num_channels)
+        angles (ndarray): 1D sorted view angles array that are in monotonically increasing order on the interval :math:`[0,2\pi].
+        weights (ndarray): 3D unsorted weights array with same shape as sino. Return None if input weights=None is provided. 
+    """ 
+    return sino, angles, weights
 
 def calc_weights(sino, weight_type ):
     """Computes the weights used in MBIR reconstruction.
