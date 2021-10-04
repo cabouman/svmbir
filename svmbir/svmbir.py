@@ -31,7 +31,7 @@ def _clear_cache(svmbir_lib_path = __svmbir_lib_path):
     shutil.rmtree(svmbir_lib_path)
 
 def sino_sort(sino, angles, weights=None):
-    """ Sort sinogram views (and sinogram weights if provided) corrresponding to view angles that are in monotonically increasing order on the interval :math:`[0,2\pi]` 
+    """ Sort sinogram views (and sinogram weights if provided) corresponding to view angles that are in monotonically increasing order on the interval :math:`[0,2\pi]` 
     
     Args:
         sino (ndarray): 3D numpy array of unsorted sinogram data with shape (num_views,num_slices,num_channels)
