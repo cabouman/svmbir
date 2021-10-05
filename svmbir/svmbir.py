@@ -41,7 +41,7 @@ def sino_sort(sino, angles, weights=None):
     Returns:
         sino (ndarray): 3D numpy array of sorted sinogram data with shape (num_views,num_slices,num_channels)
         angles (ndarray): 1D sorted view angles array that are in monotonically increasing order on the interval :math:`[0,2\pi].
-        weights (ndarray): 3D unsorted weights array with same shape as sino. Return None if input weights=None is provided. 
+        weights (ndarray): 3D sorted weights array with same shape as sino. Return None if input weights=None is provided. 
     """ 
     return sino, angles, weights
 
