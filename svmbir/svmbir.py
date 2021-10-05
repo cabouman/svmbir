@@ -33,7 +33,7 @@ def _clear_cache(svmbir_lib_path = __svmbir_lib_path):
 
 def sino_sort(sino, angles, weights=None):
     """ Sort sinogram views (and sinogram weights if provided) corresponding to view angles that are in monotonically increasing order on the interval :math:`[0,2\pi]` 
-    
+        The input arrays will remain unchanged. The sorted sino, angles, and weights arrays will be created in new memory addresses.
     Args:
         sino (ndarray): 3D numpy array of unsorted sinogram data with shape (num_views,num_slices,num_channels)
         angles (ndarray): 1D unsorted view angles array in radians.
@@ -43,6 +43,15 @@ def sino_sort(sino, angles, weights=None):
         angles (ndarray): 1D sorted view angles array that are in monotonically increasing order on the interval :math:`[0,2\pi].
         weights (ndarray): 3D unsorted weights array with same shape as sino. Return None if input weights=None is provided. 
     """ 
+    # First, make the range of angles from 0 to 360 degrees by performing modulo operation
+    angles = np.mod(angles, 2*np.pi)
+    # Second, get the indices of the angles from smallest to the largest (ascending order)
+    idx = np.argsort(angles)
+    # Third, use these indices to sort sino, angles, and weights (if any)
+    sino = sino[idx]
+    angles = angles[idx]
+    if weights is not None:
+        weights = weights[idx]
     return sino, angles, weights
 
 
