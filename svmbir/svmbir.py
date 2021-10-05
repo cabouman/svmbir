@@ -39,19 +39,19 @@ def sino_sort(sino, angles, weights=None):
         angles (ndarray): 1D unsorted view angles array in radians.
         weights (ndarray, optional): [Default=None] 3D unsorted weights array with same shape as sino. 
     Returns:
-        sino (ndarray): 3D numpy array of sorted sinogram data with shape (num_views,num_slices,num_channels)
-        angles (ndarray): 1D sorted view angles array that are in monotonically increasing order on the interval :math:`[0,2\pi].
-        weights (ndarray): 3D sorted weights array with same shape as sino. Return None if input weights=None is provided. 
+        sorted_sino (ndarray): 3D numpy array of sorted sinogram data with shape (num_views,num_slices,num_channels)
+        sorted_angles (ndarray): 1D sorted view angles array that are in monotonically increasing order on the interval :math:`[0,2\pi].
+        sorted_weights (ndarray): 3D sorted weights array with same shape as sino. Return None if input weights=None is provided. 
     """ 
     # First, make the range of angles from 0 to 360 degrees by performing modulo operation
     angles = np.mod(angles, 2*np.pi)
     # Second, get the indices of the angles from smallest to the largest (ascending order)
-    idx = np.argsort(angles)
+    sorted_indices = np.argsort(angles)
     # Third, use these indices to sort sino, angles, and weights (if any)
-    sino = sino[idx]
-    angles = angles[idx]
+    sino = np.array(sino)[sorted_indices]
+    angles = angles[sorted_indices]
     if weights is not None:
-        weights = weights[idx]
+        weights = np.array(weights)[sorted_indices]
     return sino, angles, weights
 
 
