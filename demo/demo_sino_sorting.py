@@ -105,12 +105,12 @@ title = f'Slice {display_slice:d} of 3D Recon of the sorted data.'
 plot_image(recon_sorted[display_slice], title=title, filename='output/3d_shepp_logan_recon_sorted.png', vmin=vmin, vmax=vmax)
 
 # display diff image of reconstructions using original and shuffled sinogram
-title = f'Slice {display_slice:d} of Diff image between reconstructions with original and shuffled sinogram.'
+title = f'Diff image between recon with original and shuffled sinogram.'
 diff_orig_shuffled = recon_original - recon_shuffled
 plot_image(diff_orig_shuffled[display_slice], title=title, filename='output/diff_recon_orig_shuffled.png', vmin=-vmax/100., vmax=vmax/100.)
 
 # display diff image of reconstructions using shuffled and sorted sinogram
-title = f'Slice {display_slice:d} of Diff image between reconstructions with shuffled and sorted sinogram.'
+title = f'Diff image between recon with shuffled and sorted sinogram.'
 diff_shuffled_sorted = recon_shuffled - recon_sorted
 plot_image(diff_shuffled_sorted[display_slice], title=title, filename='output/diff_recon_orig_sorted.png', vmin=-vmax/100., vmax=vmax/100.)
 
