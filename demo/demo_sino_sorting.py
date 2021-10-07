@@ -53,6 +53,8 @@ weights_original = svmbir.calc_weights(sino_original, weight_type='transmission'
 # Perform fixed resolution MBIR reconstruction with original data
 start_original = time.time()
 recon_original = svmbir.recon(sino_original, angles_original, T=T, p=p, sharpness=sharpness, snr_db=snr_db)
+recon_original_copy = svmbir.recon(sino_original, angles_original, T=T, p=p, sharpness=sharpness, snr_db=snr_db)
+print("NRMSE between two recons using exactly same sino is: ",svmbir.phantom.nrmse(recon_original,recon_original_copy))
 end_original = time.time()
 
 # Shuffle the angles and corresponding data
@@ -120,7 +122,7 @@ print('Processing time for shuffled: ', end_shuffled-start_shuffled, 's')
 print('Processing time for sorted: ', end_sorted-start_sorted, 's')
 
 # display nrmse of recon and weights before and after sorting
-print('NRMSE between original and shuffled sinogram = ', svmbir.phantom.nrmse(sino_original, sino_sorted))
+print('NRMSE between original and sorted sinogram = ', svmbir.phantom.nrmse(sino_original, sino_sorted))
 print('NRMSE between reconstructions using original and shuffled sinogram = ', svmbir.phantom.nrmse(recon_original, recon_shuffled))
 print('NRMSE between reconstructions using shuffled and sorted sinogram = ', svmbir.phantom.nrmse(recon_shuffled, recon_sorted))
 print('NRMSE between original weights and sorted weights = ', svmbir.phantom.nrmse(weights_original, weights_sorted))
