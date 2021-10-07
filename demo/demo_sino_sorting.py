@@ -53,8 +53,6 @@ weights_original = svmbir.calc_weights(sino_original, weight_type='transmission'
 # Perform fixed resolution MBIR reconstruction with original data
 start_original = time.time()
 recon_original = svmbir.recon(sino_original, angles_original, T=T, p=p, sharpness=sharpness, snr_db=snr_db)
-recon_original_copy = svmbir.recon(sino_original, angles_original, T=T, p=p, sharpness=sharpness, snr_db=snr_db)
-print("NRMSE between two recons using exactly same sino is: ",svmbir.phantom.nrmse(recon_original,recon_original_copy))
 end_original = time.time()
 
 # Shuffle the angles and corresponding data
@@ -63,9 +61,6 @@ np.random.shuffle(idx)
 angles_shuffled = angles_original[idx]
 sino_shuffled = sino_original[idx]
 weights_shuffled = weights_original[idx]
-print('Shuffled angles object id: ', id(angles_shuffled))
-print('Shuffled sinogram object id: ', id(sino_shuffled))
-print('Shuffled weights object id: ', id(weights_shuffled))
 plt.plot(angles_shuffled, label='Shuffled')
 
 # Perform fixed resolution MBIR reconstruction with shuffled data
@@ -73,11 +68,14 @@ start_shuffled = time.time()
 recon_shuffled = svmbir.recon(sino_shuffled, angles_shuffled, T=T, p=p, sharpness=sharpness, snr_db=snr_db)
 end_shuffled = time.time()
 
+# check if the sino_sort function will change the input array by printing out first element of input arrays of sino, angles and weights before and after the function call
+print("First element of shuffled sino, angles, and weights before sorting = ",sino_shuffled[0,0,0], angles_shuffled[0], weights_shuffled[0,0,0])
+
 # Sort the angles and corresponding data to ascending order
 sino_sorted, angles_sorted, weights_sorted = svmbir.sino_sort(sino_shuffled, angles_shuffled, weights_shuffled)
-print('Sorted angles object id: ', id(angles_sorted))
-print('Sorted sinogram object id: ', id(sino_sorted))
-print('Sorted weights object id: ', id(weights_sorted))
+
+print("First element of shuffled sino, angles, and weights after sorting = ",sino_shuffled[0,0,0], angles_shuffled[0], weights_shuffled[0,0,0])
+
 plt.plot(angles_sorted, label='Sorted')
 
 # Perform fixed resolution MBIR reconstruction with sorted data
@@ -126,7 +124,6 @@ print('NRMSE between original and sorted sinogram = ', svmbir.phantom.nrmse(sino
 print('NRMSE between reconstructions using original and shuffled sinogram = ', svmbir.phantom.nrmse(recon_original, recon_shuffled))
 print('NRMSE between reconstructions using shuffled and sorted sinogram = ', svmbir.phantom.nrmse(recon_shuffled, recon_sorted))
 print('NRMSE between original weights and sorted weights = ', svmbir.phantom.nrmse(weights_original, weights_sorted))
-
 
 input("press Enter")
 
