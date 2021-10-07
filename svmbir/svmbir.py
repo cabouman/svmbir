@@ -49,9 +49,12 @@ def sino_sort(sino, angles, weights=None):
     sorted_indices = np.argsort(angles)
     # Third, use these indices to sort sino, angles, and weights (if any)
     sino = np.array(sino)[sorted_indices]
+    sino = np.ascontiguousarray(sino) 
     angles = angles[sorted_indices]
+    angles = np.ascontiguousarray(angles) 
     if weights is not None:
         weights = np.array(weights)[sorted_indices]
+        weights = np.ascontiguousarray(weights) 
     return sino, angles, weights
 
 
