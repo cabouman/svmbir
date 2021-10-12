@@ -34,14 +34,16 @@ def sino_sort(sino, angles, weights=None):
     """ Sort sinogram views (and sinogram weights if provided) so that view angles are in monotonically increasing order on the interval :math:`[0,2\pi)` 
         The input arrays will remain unchanged. The sorted sino, angles, and weights arrays will be created in new memory addresses.
         This function can be used to preprocess the sinogram data so that svmbir reconstruction is faster.
+    
     Args:
         sino (ndarray): 3D numpy array of unsorted sinogram data with shape (num_views,num_slices,num_channels)
         angles (ndarray): 1D unsorted array of view angles in radians.
         weights (ndarray, optional): [Default=None] 3D unsorted array of weights with same shape as sino. 
     Returns:
-        sino (ndarray): 3D numpy array of sorted sinogram data with shape (num_views,num_slices,num_channels)
-        angles (ndarray): 1D sorted array of view angles that are in monotonically increasing order on the interval :math:`[0,2\pi).
-        weights (ndarray): 3D sorted array of weights with same shape as sino. Return None if input weights=None is provided. 
+        Sorted sinogram data specified below:
+        - **sino** (*ndarray*) -- 3D numpy array of sorted sinogram data with shape (num_views,num_slices,num_channels).
+        - **angles** (*ndarray*) -- 1D sorted array of view angles that are in monotonically increasing order on the interval :math:`[0,2\pi)`.
+        - **weights** (*ndarray*) -- 3D sorted array of weights with same shape as sino. Return None if input weights=None is provided. 
     """ 
     # First, make the range of angles from 0 to 360 degrees by performing modulo operation
     angles = np.mod(angles, 2*np.pi)

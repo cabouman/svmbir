@@ -14,7 +14,7 @@ The super-voxel code can be 100x to 1000x faster than conventional code because 
 
 *Cached System Matrix Problems:* Rare updates to the software package could include changes to the encoding of the system matrix and result in existing pre-computed matrix files being incompatible after the update. The last such update was on (2020-12-02). To remove the outdated files, delete the cache directory located at ``~/.cache/svmbir``. The package will regenerate the system matrices as needed at the time of reconstruction.
 
-*View Angle Ordering:* In order to achieve best reconstruction speed, we highly recommend views be sorted to be in monotonically increasing order on the inverval :math:`[0,2\pi]`. It is common for people ot collect tomography data using the "golden ratio" method. If this is done, than the view angles should first be wrapped modulo :math:`2\pi`, and then sorted to be in monotonically increasing order. Non-sequential ordering of views will distroy cache coherency and dramatically degrade ``svmbir`` performance.
+*View Angle Ordering:* In order to achieve best reconstruction speed, we highly recommend views be sorted to be in monotonically increasing order on the inverval :math:`[0,2\pi)`. This can be done using the function ``sino_sort``. It is common for people to collect tomography data using the "golden ratio" method. If this is done, than the view angles should first be wrapped modulo :math:`2\pi`, and then sorted to be in monotonically increasing order. Non-sequential ordering of views will distroy cache coherency and dramatically degrade ``svmbir`` performance.
 
 **Conversion from Arbitrary Length Units (ALU)**
 
