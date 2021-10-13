@@ -29,6 +29,38 @@ def _clear_cache(svmbir_lib_path = __svmbir_lib_path):
     """
     shutil.rmtree(svmbir_lib_path)
 
+def sino_sort(sino, angles, weights=None):
+    """ Sort sinogram views (and sinogram weights if provided) so that view angles are in monotonically increasing order on the interval :math:`[0,2\pi)`.
+        This function can be used to preprocess the sinogram data so that svmbir reconstruction is faster.
+        The function may create additional arrays that increase memory usage.
+    
+    Args:
+        sino (ndarray): 3D numpy array of unsorted sinogram data with shape (num_views, num_slices, num_channels)
+        angles (ndarray): 1D unsorted array of view angles in radians.
+        weights (ndarray, optional): [Default=None] 3D unsorted array of weights with same shape as sino. 
+    Returns:
+        A tuple (sino, angles) when weights=None
+        A tuple (sino, angles, weights) if weights is not None.
+        The arrays are sorted along the view axis so that they have monotone increasing view angles in the interval :math:`[0,2\pi)`.
+    """ 
+
+    # Wrap the view angles modulo 2pi and sort
+    angles = np.mod(angles, 2*np.pi)
+    sorted_indices = np.argsort(angles)
+
+    # Sort sino, angles, and weights (if any) to be in monotone increasing order
+    sino = np.array(sino)[sorted_indices]
+    sino = np.ascontiguousarray(sino) # ensure views are in sorted order in memory
+    angles = angles[sorted_indices]
+    angles = np.ascontiguousarray(angles)
+
+    if weights is None:
+        return sino, angles
+    else:
+        weights = np.array(weights)[sorted_indices]
+        weights = np.ascontiguousarray(weights)
+        return sino, angles, weights
+
 
 def calc_weights(sino, weight_type ):
     """Computes the weights used in MBIR reconstruction.

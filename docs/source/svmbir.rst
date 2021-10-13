@@ -8,7 +8,6 @@ svmbir
    .. rubric:: **Functions:**
 
    .. autosummary::
-
       auto_sigma_p
       auto_sigma_x
       auto_sigma_y
@@ -16,3 +15,4 @@ svmbir
       calc_weights
       project
       recon
+      sino_sort
