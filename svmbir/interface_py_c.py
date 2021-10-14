@@ -179,7 +179,7 @@ def multires_recon(sino, angles, weights, weight_type, init_image, prox_image, i
                    num_rows, num_cols, roi_radius, delta_channel, delta_pixel, center_offset,
                    sigma_y, snr_db, sigma_x, p, q, T, b_interslice,
                    sharpness, positivity, max_resolutions, stop_threshold, max_iterations,
-                   delete_temps, svmbir_lib_path, object_name, verbose):
+                   num_threads, delete_temps, svmbir_lib_path, object_name, verbose):
     """Multi-resolution SVMBIR reconstruction used by svmbir.recon().
 
     Args: See svmbir.recon() for argument structure
@@ -221,7 +221,7 @@ def multires_recon(sino, angles, weights, weight_type, init_image, prox_image, i
                         delta_channel=delta_channel, delta_pixel=lr_delta_pixel, center_offset=center_offset,
                         sigma_y=lr_sigma_y, snr_db=snr_db, sigma_x=sigma_x, p=p,q=q,T=T,b_interslice=b_interslice,
                         sharpness=sharpness, positivity=positivity, max_resolutions=new_max_resolutions,
-                        stop_threshold=stop_threshold, max_iterations=max_iterations,
+                        stop_threshold=stop_threshold, max_iterations=max_iterations, num_threads=num_threads,
                         delete_temps=delete_temps, svmbir_lib_path=svmbir_lib_path, object_name=object_name,
                         verbose=verbose)
 
