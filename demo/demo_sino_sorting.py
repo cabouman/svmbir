@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 """
 This is a test to compare performance of SVMBIR using Golden Section and sorted view angle ordering of sinogram data
 """
-print('This is a test to compare performance of SVMBIR using Golden Section and sorted view angle ordering of sinogram data.\n')
+print('\n\n**This is a test to compare performance of SVMBIR using Golden Section and sorted view angle ordering of sinogram data.\n')
 
 
 # Simulated image parameters
@@ -80,16 +80,28 @@ print('\n\n')
 # create output folder
 os.makedirs('output', exist_ok=True)
 
-# Plot angle orders for different approaches
-plt.title('Angle orders for different approaches')
+# Plot angle orders for original and sorted
+plt.title('Angle orders for original and sorted')
 plt.xlabel('Order')
 plt.ylabel('Angle (Rad)')
-plt.plot(angles_original, label='Original')
+plt.plot(angles_original, '.-', label='Original')
 plt.plot(angles_sorted, label='Sorted')
 plt.legend()
 plt.savefig('output/angle_orders.png')
+plt.show()
+
+# Plot angle orders for original mod 2pi and sorted
+plt.figure()
+plt.title('Angle orders for different approaches')
+plt.xlabel('Order')
+plt.ylabel('Angle (Rad)')
+plt.plot(np.mod(angles_original,2*np.pi), '.-', label='Original Mod 2pi')
+plt.plot(angles_sorted, label='Sorted')
+plt.legend()
+plt.savefig('output/angle_orders_mod2pi.png')
 print('close figure to proceed')
 plt.show()
+
 
 # display phantom
 title = f'Slice {display_slice:d} of 3D Shepp Logan Phantom.'
