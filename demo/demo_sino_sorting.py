@@ -87,9 +87,9 @@ plt.ylabel('Angle (Rad)')
 plt.plot(angles_original, label='Original')
 plt.plot(angles_sorted, label='Sorted')
 plt.legend()
+plt.savefig('output/angle_orders.png')
 print('close figure to proceed')
 plt.show()
-plt.savefig('output/angle_orders.png')
 
 # display phantom
 title = f'Slice {display_slice:d} of 3D Shepp Logan Phantom.'
