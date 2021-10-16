@@ -81,6 +81,7 @@ print('\n\n')
 os.makedirs('output', exist_ok=True)
 
 # Plot angle orders for original and sorted
+plt.figure()
 plt.title('Angle orders for original and sorted')
 plt.xlabel('Order')
 plt.ylabel('Angle (Rad)')
@@ -88,6 +89,7 @@ plt.plot(angles_original, '.-', label='Original')
 plt.plot(angles_sorted, label='Sorted')
 plt.legend()
 plt.savefig('output/angle_orders.png')
+print('close figure to proceed')
 plt.show()
 
 # Plot angle orders for original mod 2pi and sorted
