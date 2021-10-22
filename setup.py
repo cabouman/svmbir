@@ -1,6 +1,7 @@
 import os
 import re
 import sys
+from ast import parse
 import numpy as np
 import warnings
 from setuptools import setup, Extension
@@ -10,7 +11,9 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 name = 'svmbir'
-version = '0.2.4'
+#version number set in svmbir/__init__.py
+with open(os.path.join(name,"__init__.py")) as f:
+    version = parse(next(filter(lambda line: line.startswith("__version__"), f))).body[0].value.s
 description="Python code for fast parallel-beam MBIR (Model Based Iterative Reconstruction) "
 long_description_content_type="text/markdown"
 url="https://github.com/cabouman/svmbir"
