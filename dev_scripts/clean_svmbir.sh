@@ -1,5 +1,6 @@
 #!/bin/bash
 
+cd ..
 /bin/rm svmbir/interface_cy_c.c
 /bin/rm svmbir/*.so
 /bin/rm -r build
