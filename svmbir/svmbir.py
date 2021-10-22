@@ -2,7 +2,6 @@
 # Copyright (C) by
 # All rights reserved.
 
-import math
 from psutil import cpu_count
 import shutil
 import numpy as np
@@ -29,6 +28,40 @@ def _clear_cache(svmbir_lib_path = __svmbir_lib_path):
         svmbir_lib_path (string): Path to svmbir cache directory. Defaults to __svmbir_lib_path variable
     """
     shutil.rmtree(svmbir_lib_path)
+
+def sino_sort(sino, angles, weights=None):
+    """ Sort sinogram views (and sinogram weights if provided) so that view angles are in monotonically increasing order on the interval :math:`[0,2\pi)`.
+        This function can be used to preprocess the sinogram data so that svmbir reconstruction is faster.
+        The function may create additional arrays that increase memory usage.
+    
+    Args:
+        sino (ndarray): 3D numpy array of unsorted sinogram data with shape (num_views, num_slices, num_channels)
+        angles (ndarray): 1D unsorted array of view angles in radians.
+        weights (ndarray, optional): [Default=None] 3D unsorted array of weights with same shape as sino. 
+    
+    Returns:
+        - A tuple (sino, angles) when weights=None
+        - A tuple (sino, angles, weights) if weights is not None.
+        
+        The arrays are sorted along the view axis so that they have monotone increasing view angles in the interval :math:`[0,2\pi)`.
+    """ 
+
+    # Wrap the view angles modulo 2pi and sort
+    angles = np.mod(angles, 2*np.pi)
+    sorted_indices = np.argsort(angles)
+
+    # Sort sino, angles, and weights (if any) to be in monotone increasing order
+    sino = np.array(sino)[sorted_indices]
+    sino = np.ascontiguousarray(sino) # ensure views are in sorted order in memory
+    angles = angles[sorted_indices]
+    angles = np.ascontiguousarray(angles)
+
+    if weights is None:
+        return sino, angles
+    else:
+        weights = np.array(weights)[sorted_indices]
+        weights = np.ascontiguousarray(weights)
+        return sino, angles, weights
 
 
 def calc_weights(sino, weight_type ):
@@ -298,18 +331,17 @@ def recon(sino, angles,
     os.environ['OMP_DYNAMIC'] = 'true'
 
     # Test for valid sino and angles structure. If sino is 2D, make it 3D
-    sino = utils.test_params_line0(sino, angles)
+    angles = utils.test_args_angles(angles)
+    sino = utils.test_args_sino(sino,angles)
     (num_views, num_slices, num_channels) = sino.shape
 
     # Tests parameters for valid types and values; print warnings if necessary; and return default values.
-    center_offset, delta_channel, delta_pixel = utils.test_params_line1(center_offset, delta_channel, delta_pixel)
-    num_rows, num_cols, roi_radius = utils.test_params_line2(num_rows, num_cols, roi_radius)
-    sigma_y, snr_db, weights, weight_type = utils.test_params_line3(sigma_y, snr_db, weights, weight_type)
-    sharpness, positivity, sigma_x, sigma_p = utils.test_params_line4(sharpness, positivity, sigma_x, sigma_p)
-    p, q, T, b_interslice = utils.test_pqtb_values(p, q, T, b_interslice)
-    init_image, prox_image, init_proj = utils.test_params_line5(init_image, prox_image, init_proj)
-    max_resolutions, stop_threshold, max_iterations = utils.test_params_line6(max_resolutions, stop_threshold, max_iterations)
-    num_threads, delete_temps, verbose = utils.test_params_line7(num_threads, delete_temps, verbose)
+    num_rows, num_cols, delta_pixel, roi_radius, delta_channel, center_offset = utils.test_args_geom(num_rows, num_cols, delta_pixel, roi_radius, delta_channel, center_offset)
+    sharpness, positivity, max_resolutions, stop_threshold, max_iterations = utils.test_args_recon(sharpness, positivity, max_resolutions, stop_threshold, max_iterations)
+    init_image, prox_image, init_proj, weights, weight_type = utils.test_args_inits(init_image, prox_image, init_proj, weights, weight_type)
+    sigma_y, snr_db, sigma_x, sigma_p = utils.test_args_noise(sigma_y, snr_db, sigma_x, sigma_p)
+    p, q, T, b_interslice = utils.test_args_qggmrf(p, q, T, b_interslice)
+    num_threads, delete_temps, verbose = utils.test_args_sys(num_threads, delete_temps, verbose)
 
     # Set automatic values of num_rows, num_cols, and roi_radius
     if num_rows is None:
@@ -343,7 +375,7 @@ def recon(sino, angles,
                                        delta_channel=delta_channel, delta_pixel=delta_pixel, center_offset=center_offset,
                                        sigma_y=sigma_y, snr_db=snr_db, sigma_x=sigma_x, p=p, q=q, T=T, b_interslice=b_interslice,
                                        sharpness=sharpness, positivity=positivity, max_resolutions=max_resolutions,
-                                       stop_threshold=stop_threshold, max_iterations=max_iterations,
+                                       stop_threshold=stop_threshold, max_iterations=max_iterations, num_threads=num_threads,
                                        delete_temps=delete_temps, svmbir_lib_path=svmbir_lib_path, object_name=object_name,
                                        verbose=verbose)
 
@@ -392,14 +424,18 @@ def project(image, angles, num_channels,
         ndarray: 3D numpy array containing projection with shape (num_views, num_slices, num_channels).
     """
 
-    # Check for order of first 2 arguments. From v0.2.4, order is project(image,angles,...)
-    if len(image.shape) < len(angles.shape):
+    # Temporary check for argument order. From v0.2.4, order is project(image,angles,...)
+    if isinstance(image,np.ndarray) and isinstance(angles,np.ndarray) and (image.ndim < angles.ndim):
         print("WARNING: Check the argument order svmbir.project(image,angles,...)")
-        print("**This is the correct order as of svmbir v0.2.4")
+        print("**This is the order definition as of svmbir v0.2.4")
         print("**Swapping and proceeding...")
         temp_id = image
         image = angles
         angles = temp_id
+
+    # validate input arguments
+    image = utils.test_args_image(image)
+    angles = utils.test_args_angles(angles)
 
     if num_threads is None :
         num_threads = cpu_count(logical=False)
@@ -429,6 +465,7 @@ def project(image, angles, num_channels,
     settings['imgparams'] = imgparams
     settings['sinoparams'] = sinoparams
     settings['verbose'] = verbose
+    settings['num_threads'] = num_threads
     settings['delete_temps'] = delete_temps
 
     # Do the projection
@@ -479,6 +516,10 @@ def backproject(sino, angles, num_rows=None, num_cols=None,
         ndarray: 3D numpy array containing back projected image (num_slices,num_rows,num_cols).
     """
 
+    # validate input arguments
+    angles = utils.test_args_angles(angles)
+    sino = utils.test_args_sino(sino,angles)
+
     if num_threads is None :
         num_threads = cpu_count(logical=False)
 
@@ -513,6 +554,7 @@ def backproject(sino, angles, num_rows=None, num_cols=None,
     settings['imgparams'] = imgparams
     settings['sinoparams'] = sinoparams
     settings['verbose'] = verbose
+    settings['num_threads'] = num_threads
     settings['delete_temps'] = delete_temps
 
     return ci.backproject(sino, settings)

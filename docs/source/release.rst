@@ -13,7 +13,7 @@ NOTE Only a few dedicated maintainers should do this.
 	| ``git checkout prerelease``
 	| ``git submodule update``
 
-2. Verify the new version number in ``setup.py`` is accurate. If not, change and commit.
+2. Verify the new version number in ``svmbir/__init__.py`` is accurate. If not, change and commit.
 
 3. Run `unit tests <pytest.html>`_ for all supported compilers and platforms.
 

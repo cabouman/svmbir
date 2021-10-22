@@ -2,6 +2,7 @@ import numpy as np
 import ctypes           # Import python package required to use cython
 cimport cython          # Import cython package
 cimport numpy as cnp    # Import specialized cython support for numpy
+cimport openmp
 import os
 import random
 import svmbir._utils as utils
@@ -220,6 +221,9 @@ def project(image, settings):
     imgparams = settings['imgparams']
     sinoparams = settings['sinoparams']
     verbose = settings['verbose']
+    num_threads = settings['num_threads']
+
+    openmp.omp_set_num_threads(num_threads)
 
     # Get shapes of image and projection
     nslices = image.shape[0]
@@ -269,6 +273,9 @@ def backproject(sino, settings):
     imgparams = settings['imgparams']
     sinoparams = settings['sinoparams']
     verbose = settings['verbose']
+    num_threads = settings['num_threads']
+
+    openmp.omp_set_num_threads(num_threads)
 
     # Get shapes of sinogram and image
     nslices = sino.shape[1]
@@ -307,7 +314,7 @@ def multires_recon(sino, angles, weights, weight_type, init_image, prox_image, i
                    num_rows, num_cols, roi_radius, delta_channel, delta_pixel, center_offset,
                    sigma_y, snr_db, sigma_x, p, q, T, b_interslice,
                    sharpness, positivity, max_resolutions, stop_threshold, max_iterations,
-                   delete_temps, svmbir_lib_path, object_name, verbose):
+                   num_threads, delete_temps, svmbir_lib_path, object_name, verbose):
     """Multi-resolution SVMBIR reconstruction used by svmbir.recon().
 
     Args: See svmbir.recon() for argument structure
@@ -352,7 +359,7 @@ def multires_recon(sino, angles, weights, weight_type, init_image, prox_image, i
                         delta_channel=delta_channel, delta_pixel=lr_delta_pixel, center_offset=center_offset,
                         sigma_y=lr_sigma_y, snr_db=snr_db, sigma_x=sigma_x, p=p,q=q,T=T,b_interslice=b_interslice,
                         sharpness=sharpness, positivity=positivity, max_resolutions=new_max_resolutions,
-                        stop_threshold=stop_threshold, max_iterations=max_iterations,
+                        stop_threshold=stop_threshold, max_iterations=max_iterations, num_threads=num_threads,
                         delete_temps=delete_temps, svmbir_lib_path=svmbir_lib_path, object_name=object_name,
                         verbose=verbose)
 
@@ -437,7 +444,9 @@ def multires_recon(sino, angles, weights, weight_type, init_image, prox_image, i
 
     Amatrix_fname = string_to_char_array(paths['sysmatrix_name']+ '.2Dsvmatrix')
 
-    # Forward projection by calling C subroutine
+    openmp.omp_set_num_threads(num_threads)
+
+    # Reconstruct by calling C subroutine
     MBIRReconstruct(&py_image[0,0,0],
                     &cy_sino[0,0,0],
                     &cy_weight[0,0,0],
