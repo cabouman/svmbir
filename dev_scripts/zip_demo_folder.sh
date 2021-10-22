@@ -4,3 +4,4 @@
 cd ..
 zip -r demo.zip demo/*.py
 zip -r demo.zip demo/*.txt
+cd dev_scripts

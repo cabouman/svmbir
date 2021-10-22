@@ -1,4 +1,5 @@
 #!/bin/bash
+# This script purges SVMBIR
 
 cd ..
 /bin/rm svmbir/interface_cy_c.c
@@ -8,3 +9,4 @@ cd ..
 /bin/rm -r svmbir.egg-info
 
 pip uninstall svmbir
+cd dev_scripts
