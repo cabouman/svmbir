@@ -6,5 +6,5 @@ matplotlib~=3.3.4
 ruamel.yaml~=0.16.12
 sphinx-rtd-theme~=0.5.1
 psutil~=5.8.0
-Pillow~=8.2.0
+Pillow~=8.4.0
 Cython~=0.29.21
