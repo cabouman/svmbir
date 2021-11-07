@@ -92,7 +92,7 @@ def calc_weights(sino, weight_type ):
     elif weight_type == 'transmission_root' :
         weights = np.exp(-sino / 2)
     elif weight_type == 'emission' :
-        weights = 1 / (sino + 0.1)
+        weights = 1 / (np.absolute(sino)  + 0.1)
     else :
         raise Exception("calc_weights: undefined weight_type {}".format(weight_type))
 
