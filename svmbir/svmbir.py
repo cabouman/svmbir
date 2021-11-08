@@ -131,7 +131,11 @@ def auto_sigma_y(sino, weights, snr_db = 30.0, delta_pixel = 1.0, delta_channel 
     # compute sigma_y and scale by relative pixel and detector pitch
     sigma_y = rel_noise_std * signal_rms * (delta_pixel / delta_channel) ** (0.5)
 
-    return sigma_y
+    if sigma_y > 0:
+        return sigma_y
+    else:
+        return 1.0
+
 
 def auto_sigma_x(sino, delta_channel = 1.0, sharpness = 0.0 ):
     """Computes the automatic value of ``sigma_x`` for use in MBIR reconstruction.
