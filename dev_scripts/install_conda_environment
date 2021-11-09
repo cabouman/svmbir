@@ -1,5 +1,5 @@
 #!/bin/bash
-# This script destroys the conda environment named "svmbir" and it.
+# This script destroys the conda environment named "svmbir" and reinstall it.
 
 # Create and activate new conda environment
 cd ..
