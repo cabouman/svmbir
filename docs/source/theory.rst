@@ -23,8 +23,7 @@ The forward model term has the form,
 where :math:`y` is the sinogram data, 
 where :math:`x` is the unknown image to be reconstructed, 
 :math:`A` is the linear projection operator for the parallel-beam geometry, 
-:math:`\Lambda` is the diagonal matrix of sinogram weights, 
-and :math:`\sigma_y` is a parameter controling the assumed standard deviatio of the measurement noise.  
+:math:`\Lambda` is the diagonal matrix of sinogram weights, :math:`\Vert y \Vert_\Lambda^2 = y^T \Lambda y`, and :math:`\sigma_y` is a parameter controling the assumed standard deviation of the measurement noise.
 
 These quantities correspond to the following python variables:
 
