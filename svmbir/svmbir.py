@@ -239,7 +239,7 @@ def max_threads(num_threads, num_slices, num_rows, num_cols, positivity = True):
         int: Maximum recommended number of threads.
     """
     # Set the minimum average super-voxel distance used in simultaneous updates
-    avg_SV_dist = 4.0
+    avg_SV_dist = 7.0
     super_voxel_width = 16
 
     # compute number of possible super-voxels
@@ -249,7 +249,7 @@ def max_threads(num_threads, num_slices, num_rows, num_cols, positivity = True):
     max_threads = int( np.ceil( number_of_possible_SVs / ( (avg_SV_dist)**2 ) ) )
     if ( (num_threads > max_threads) and (positivity is False) ):
         num_threads = max_threads
-
+        print("Warning: Reducing the number of threads to ",num_threads)
     return num_threads
 
 
