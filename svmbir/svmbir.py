@@ -401,7 +401,7 @@ def recon(sino, angles,
     # If not specified, then set number of threads = to min( number of processors, max possible processors)
     if num_threads is None :
         num_threads = cpu_count(logical=False)
-    num_threads = max_threads(num_threads, num_slices, num_rows, num_cols, positivity=positivity)
+    #num_threads = max_threads(num_threads, num_slices, num_rows, num_cols, positivity=positivity)
     os.environ['OMP_NUM_THREADS'] = str(num_threads)
     os.environ['OMP_DYNAMIC'] = 'true'
 
