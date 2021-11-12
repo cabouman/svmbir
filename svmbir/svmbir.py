@@ -358,6 +358,10 @@ def recon(sino, angles,
         3D numpy array: 3D reconstruction with shape (num_slices,num_rows,num_cols) in units of :math:`ALU^{-1}`.
     """
 
+    # If not specified, then set number of threads = to number of processors
+    if num_threads is None :
+        num_threads = cpu_count(logical=False)
+
     # Test for valid sino and angles structure. If sino is 2D, make it 3D
     angles = utils.test_args_angles(angles)
     sino = utils.test_args_sino(sino,angles)
@@ -398,10 +402,10 @@ def recon(sino, angles,
             sigma_p = auto_sigma_p(sino, delta_channel, sharpness)
         sigma_x = sigma_p
 
-    # If not specified, then set number of threads = to min( number of processors, max possible processors)
-    if num_threads is None :
-        num_threads = cpu_count(logical=False)
-    #num_threads = max_threads(num_threads, num_slices, num_rows, num_cols, positivity=positivity)
+    # Reduce num_threads for positivity=False if problems size calls for it
+    #num_threads_max = max_threads(num_threads, num_slices, num_rows, num_cols, positivity=positivity)
+    #if num_threads_max < num_threads:
+    #    num_threads = num_threads_max
     os.environ['OMP_NUM_THREADS'] = str(num_threads)
     os.environ['OMP_DYNAMIC'] = 'true'
 
