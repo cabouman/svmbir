@@ -29,6 +29,7 @@ def _clear_cache(svmbir_lib_path = __svmbir_lib_path):
     """
     shutil.rmtree(svmbir_lib_path)
 
+
 def sino_sort(sino, angles, weights=None):
     """ Sort sinogram views (and sinogram weights if provided) so that view angles are in monotonically increasing order on the interval :math:`[0,2\pi)`.
         This function can be used to preprocess the sinogram data so that svmbir reconstruction is faster.
@@ -131,7 +132,11 @@ def auto_sigma_y(sino, weights, snr_db = 30.0, delta_pixel = 1.0, delta_channel 
     # compute sigma_y and scale by relative pixel and detector pitch
     sigma_y = rel_noise_std * signal_rms * (delta_pixel / delta_channel) ** (0.5)
 
-    return sigma_y
+    if sigma_y > 0:
+        return sigma_y
+    else:
+        return 1.0
+
 
 def auto_sigma_x(sino, delta_channel = 1.0, sharpness = 0.0 ):
     """Computes the automatic value of ``sigma_x`` for use in MBIR reconstruction.
@@ -167,6 +172,7 @@ def auto_sigma_p(sino, delta_channel = 1.0, sharpness = 0.0 ):
         float: Automatic value of regularization parameter.
     """
     return 1.0 * auto_sigma_prior(sino, delta_channel, sharpness)
+
 
 def auto_sigma_prior(sino, delta_channel = 1.0, sharpness = 0.0 ):
     """Computes the automatic value of prior model regularization term for use in MBIR reconstruction or proximal map estimation. This subroutine is called by ``auto_sigma_x`` in MBIR reconstruction, or ``auto_sigma_p`` in proximal map estimation.
@@ -217,6 +223,34 @@ def auto_roi_radius(delta_pixel, num_rows, num_cols):
     """
     roi_radius = float(delta_pixel * max(num_rows, num_cols))/2.0
     return roi_radius
+
+
+def max_threads(num_threads, num_slices, num_rows, num_cols, positivity = True):
+    """Computes the maximum recommended number of threads for stable convergence.
+
+    Args:
+        num_threads (int): Desired number of compute threads requested when executed.
+        num_slices (int): Number of slices in reconstruction.
+        num_rows (int): Integer number of rows in reconstructed image.
+        num_cols (int): Integer number of columns in reconstructed image.
+        positivity (bool, optional): [Default=True] Boolean value that determines if positivity constraint is enforced.
+
+    Returns:
+        int: Maximum recommended number of threads.
+    """
+    # Set the minimum average super-voxel distance used in simultaneous updates
+    avg_SV_dist = 7.0
+    super_voxel_width = 16
+
+    # compute number of possible super-voxels
+    number_of_possible_SVs = ( num_slices * num_rows*num_cols) / super_voxel_width**2
+
+    # Set the maximum number of allowed threads
+    max_threads = int( np.ceil( number_of_possible_SVs / ( (avg_SV_dist)**2 ) ) )
+    if ( (num_threads > max_threads) and (positivity is False) ):
+        num_threads = max_threads
+        print("Warning: Reducing the number of threads to ",num_threads)
+    return num_threads
 
 
 def recon(sino, angles,
@@ -327,8 +361,6 @@ def recon(sino, angles,
     # If not specified, then set number of threads = to number of processors
     if num_threads is None :
         num_threads = cpu_count(logical=False)
-    os.environ['OMP_NUM_THREADS'] = str(num_threads)
-    os.environ['OMP_DYNAMIC'] = 'true'
 
     # Test for valid sino and angles structure. If sino is 2D, make it 3D
     angles = utils.test_args_angles(angles)
@@ -369,6 +401,14 @@ def recon(sino, angles,
         if sigma_p is None:
             sigma_p = auto_sigma_p(sino, delta_channel, sharpness)
         sigma_x = sigma_p
+
+    # Reduce num_threads for positivity=False if problems size calls for it
+    #num_threads_max = max_threads(num_threads, num_slices, num_rows, num_cols, positivity=positivity)
+    #if num_threads_max < num_threads:
+    #    num_threads = num_threads_max
+    os.environ['OMP_NUM_THREADS'] = str(num_threads)
+    os.environ['OMP_DYNAMIC'] = 'true'
+
     reconstruction = ci.multires_recon(sino=sino, angles=angles, weights=weights, weight_type=weight_type,
                                        init_image=init_image, prox_image=prox_image, init_proj=init_proj,
                                        num_rows=num_rows, num_cols=num_cols, roi_radius=roi_radius,
