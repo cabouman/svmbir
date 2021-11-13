@@ -143,8 +143,12 @@ def test_args_inits(init_image, prox_image, init_proj, weights, weight_type):
         warnings.warn("Parameter init_proj is not a valid 3D ndarray; Setting init_proj = None.")
         init_proj = None
 
-    if not ((weights is None) or (isinstance(weights, np.ndarray) or (weights.ndim == 3))):
+    if not ((weights is None) or (isinstance(weights, np.ndarray) and (weights.ndim == 3))):
         warnings.warn("Parameter weights is not valid 3D np array; Setting weights = None.")
+        weights = None
+
+    if not ((weights is None) or (np.amin(weights) >= 0.0)):
+        warnings.warn("Parameter weights contains negative values; Setting weights = None.")
         weights = None
 
     list_of_weights = ['unweighted', 'transmission', 'transmission_root', 'emission']
