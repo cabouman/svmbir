@@ -70,7 +70,7 @@ def calc_weights(sino, weight_type ):
 
     Args:
         sino (ndarray): 3D numpy array of sinogram data with shape (num_views,num_slices,num_channels)
-        weight_type (string):[Default=0] Type of noise model used for data.
+        weight_type (string): Type of noise model used for data.
 
             If weight_type="unweighted"        => weights = numpy.ones_like(sino)
 
@@ -78,7 +78,7 @@ def calc_weights(sino, weight_type ):
 
             If weight_type="transmission_root" => weights = numpy.exp(-sino/2)
 
-            If weight_type="emission"         => weights = 1/(sino + 0.1)
+            If weight_type="emission"          => weights = 1/(numpy.abs(sino) + 0.1)
 
     Returns:
         ndarray: 3D numpy array of weights with same shape as sino.
@@ -87,7 +87,7 @@ def calc_weights(sino, weight_type ):
         Exception: Description
     """
     if weight_type == 'unweighted' :
-        weights = np.ones(sino.shape)
+        weights = np.ones(sino.shape).astype(sino.dtype)
     elif weight_type == 'transmission' :
         weights = np.exp(-sino)
     elif weight_type == 'transmission_root' :
