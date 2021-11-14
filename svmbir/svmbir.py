@@ -87,7 +87,7 @@ def calc_weights(sino, weight_type ):
         Exception: Description
     """
     if weight_type == 'unweighted' :
-        weights = np.ones(sino.shape)
+        weights = np.ones(sino.shape).astype(sino.dtype)
     elif weight_type == 'transmission' :
         weights = np.exp(-sino)
     elif weight_type == 'transmission_root' :
