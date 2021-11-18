@@ -610,5 +610,11 @@ def _sino_indicator(sino):
     Returns:
         int8: A binary value: =1 within sinogram support; =0 outside sinogram support.
     """
-    indicator = np.int8(sino > 0.05 * np.mean(np.fabs(sino)))  # for excluding empty space from average
+
+    # Calculate the mean of the absolute value of the valid sinogram entries
+    sinomean = np.mean(np.fabs(sino[np.isfinite(sino)]))
+
+    # Compute indicator mask of valid sinogram entries that are above %5 of mean
+    indicator = np.int8(np.isfinite(sino) & (np.fabs(sino) > 0.05 * sinomean))
+
     return indicator
