@@ -1,11 +1,6 @@
 import numpy as np
-import matplotlib.pyplot as plt
-import svmbir
-import os
-
 
 svmbir_lib_path = 'foo'
-
 
 
 
@@ -38,8 +33,8 @@ class Options():
     def get(self, key):
         return self._data.get(key)
 
-    def getall(self):
-        return self._data.copy()
+    def get_dict(self):
+        return self._data.copy() # prevents accidental writes
 
     def copy(self):
         return self.__class__(**self._data)
@@ -56,7 +51,7 @@ class Options():
 
 opt = Options(a=1, b='two')
 opt.get('a')
-opt.getall()
+opt.get_dict()
 o2 = opt.copy()
 opt.update(a=11)
 opt
@@ -112,7 +107,7 @@ projector_opt2 = projector_opt.copy()
 projector_opt2.update(num_slices=projector_opt.get('num_slices')*2) # proper way to update params
 assert projector_opt.get('num_slices') != projector_opt2.get('num_slices')
 
-d = projector_opt.getall() # read-only
+d = projector_opt.get_dict() # read-only
 d['num_slices'] *= 2 # does not change orininal
 assert projector_opt.get('num_slices') != d['num_slices']
 
@@ -149,7 +144,7 @@ class Projector():
         return np.ones(self.input_shape)
 
     def get_projector_options(self):
-        return self._projector_opt.getall()
+        return self._projector_opt.get_dict()
 
     def update_options(self, **kwargs):
         self._projector_opt.update(**kwargs)
@@ -282,7 +277,6 @@ f.update_projector(center_offset=1.0)
 # --- Reconstruction
 
 x = f.recon()
-# same as
 x = f.recon(init_image=np.ones_like(x))
 
 
@@ -291,9 +285,6 @@ v = np.random.randn(*A.input_shape)
 
 x = f.prox(v, λ)
 x = f.prox(v, λ, init_image=v)
-
-
-
 
 
 
