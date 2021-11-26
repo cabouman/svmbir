@@ -34,7 +34,7 @@ class Options():
         return self._data.get(key)
 
     def get_dict(self):
-        return self._data.copy() # prevents accidental writes
+        return self._data
 
     def copy(self):
         return self.__class__(**self._data)
@@ -49,14 +49,18 @@ class Options():
     def check_params(self):
         print('Checking whether Options make sense ...')
 
+    def save_options(self, file_name):
+        # could be useful
+        pass
+
 opt = Options(a=1, b='two')
 opt.get('a')
 opt.get_dict()
 o2 = opt.copy()
 opt.update(a=11)
-opt
+# opt.update(a=11, c=22, d=44)
 
-# opt.update(c=3)
+
 
 
 class ProjectorOptions(Options):
@@ -91,7 +95,7 @@ class ProjectorOptions(Options):
         self._data['center_offset'] = center_offset
         self._data['svmbir_lib_path'] = svmbir_lib_path
         self._data['object_name'] = object_name
-        self._data['delete_temps'] = delete_temps
+        self._data['delete_temps'] = delete_temps # this should be separate somewhere. 
         self._data['num_threads'] = num_threads
         self._data['verbose'] = verbose
 
@@ -104,12 +108,8 @@ class ProjectorOptions(Options):
 projector_opt = ProjectorOptions(angles, num_slices, num_channels, num_cols=num_cols, num_rows=num_rows)
 projector_opt2 = projector_opt.copy()
 
-projector_opt2.update(num_slices=projector_opt.get('num_slices')*2) # proper way to update params
+projector_opt2.update(num_slices=num_slices*100) # proper way to update params
 assert projector_opt.get('num_slices') != projector_opt2.get('num_slices')
-
-d = projector_opt.get_dict() # read-only
-d['num_slices'] *= 2 # does not change orininal
-assert projector_opt.get('num_slices') != d['num_slices']
 
 
 class Projector():
@@ -118,7 +118,7 @@ class Projector():
                     projector_opt,
                     ):
 
-        self._projector_opt = projector_opt.copy() # .copy() important so that read-only unless using setter routine
+        self._projector_opt = projector_opt
 
         self.input_shape = (self._projector_opt.get('num_slices'),
             self._projector_opt.get('num_rows'), 
@@ -143,7 +143,7 @@ class Projector():
         print(f'Backprojecting from {self.output_shape} to {self.input_shape} ...')
         return np.ones(self.input_shape)
 
-    def get_projector_options(self):
+    def get_projector_opt(self):
         return self._projector_opt.get_dict()
 
     def update_options(self, **kwargs):
@@ -153,12 +153,16 @@ class Projector():
 
 
 A = Projector(projector_opt)
-A.get_projector_options()
+A.get_projector_opt()
 
 y = A.project(x)
 ATy = A.backproject(y)
 
 A.update_options(center_offset=0.5)
+
+
+
+
 
 
 class LossOptions(Options):
@@ -201,13 +205,8 @@ class LossOptions(Options):
 
 
 
-def weight_aux(y, A, weight_type='unweighted', snr_db=30.0, sharpness=0.0):
-    return np.ones_like(y), 1, 1
 
-W, sigma_y, sigma_x = weight_aux(y, A, weight_type=None, snr_db=30.0, sharpness=0.0)
-
-
-loss_opt = LossOptions(sigma_y=sigma_y, sigma_x=sigma_x, p=1.1) # warn if sigmas not set
+loss_opt = LossOptions(sigma_y=2.0, sigma_x=2.0, p=1.1) # warn if sigmas not set
 
 
 
@@ -224,50 +223,85 @@ class Loss():
 
         # TODO: all kinds of checks
         
-        self._y = y
-        self._A = A
-        self._W = W
-        self._loss_opt = loss_opt.copy() # .copy() important so that read-only unless using setter routine
+        self.y = y
+        self.A = A
+        if W is None:
+            self.W = np.ones_like(y)
+        else:
+            self.W = W
+        self.loss_opt = loss_opt
+        self.check_params()
 
     def __repr__(self):
         with np.printoptions(precision=2):
             return f"{type(self)}\n"\
-                   f"y: {type(self._y)} size {self._y.shape}\n\n"\
-                   f"A: {type(self._A)} {self._A}\n"\
-                   f"W: {type(self._W)} size {self._W.shape}\n\n"\
-                   f"loss_opt: {type(self._loss_opt)} {self._loss_opt}\n"\
+                   f"y: {type(self.y)} size {self.y.shape}\n\n"\
+                   f"A: {type(self.A)} {self.A}\n"\
+                   f"W: {type(self.W)} size {self.W.shape}\n\n"\
+                   f"loss_opt: {type(self.loss_opt)} {self.loss_opt}\n"\
 
 
     def recon(self, init_image=None):
         print('Reconstructing ...')
         if init_image is None:
-            init_image = np.zeros(self._A.input_shape)
+            init_image = np.zeros(self.A.input_shape)
             print("Initializing with zero ...")
         print(f"init_image: {type(init_image)} size {init_image.shape}\n\n")
         return init_image
 
 
-    def prox(self, v, λ, init_image=None):
-        print(f'Proxxing with λ = {λ} = 1/{1/λ:.5f} = 1/sigma_p')
+    def prox(self, v, sigma_p=None, init_image=None):
+        if sigma_p is None:
+            sigma_p = self.sigma_p
+        print(f'Proxxing with sigma_p = {sigma_p}')
         if init_image is None:
-            init_image = np.zeros(self._A.input_shape)
+            init_image = np.zeros(self.A.input_shape)
             print("Initializing with zero ...")
         print(f"init_image: {type(init_image)} size {init_image.shape}\n\n")
         return init_image
 
-    def update_loss(self, **kwargs):
-        self._loss_opt.update(**kwargs)
+    def update_options(self, **kwargs):
+        self.loss_opt.update(**kwargs)
+        self.check_params()
 
     def update_projector(self, **kwargs):
-        self._A.update_options(**kwargs)
+        self.A.update_options(**kwargs)
+        self.check_params()
+
+    def auto_weighting(self, weight_type='unweighted', snr_db=30.0, sharpness=0.0):
+        # weight_type, snr_db, sharpness are not loss_options, they are rather meta options
+        # that determine the loss options W, sigma_y, sigma_x.
+        W = np.exp(-self.y) # or whatever
+        sigma_y = 3.141 # or whatever
+        sigma_x = 2.718 # or whatever
+
+        self.W = W
+        self.loss_opt.update(sigma_y=sigma_y, sigma_x=sigma_x)
+        return W, sigma_y, sigma_x
+
+    def check_params(self):
+        # used at init or when params updated
+        # Stuff like:
+        if self.A.output_shape != self.y.shape:
+            raise ValueError(f"Incompatible shapes {self.A.output_shape=}, {self.y.shape=} ")
+
+
+
+
+f = Loss(y, A, W=None, loss_opt=loss_opt)
+
+# # Check Params
+# y2 = y[::2]
+# f = Loss(y2, A, W=None, loss_opt=loss_opt)
+
 
 
 A.update_options(center_offset=0.0)
 loss_opt.update(p=1.1)
 
-f = Loss(y, A, W=W, loss_opt=loss_opt)
+f = Loss(y, A, W=None, loss_opt=loss_opt)
 
-f.update_loss(p=2)
+f.update_options(p=2)
 f.update_projector(center_offset=1.0)
 
 
@@ -280,16 +314,65 @@ x = f.recon()
 x = f.recon(init_image=np.ones_like(x))
 
 
-λ = 3.141592
+sigma_p = 3.141592
 v = np.random.randn(*A.input_shape)
 
-x = f.prox(v, λ)
-x = f.prox(v, λ, init_image=v)
+x = f.prox(v, sigma_p)
+x = f.prox(v, sigma_p, init_image=v)
+
+
+f.auto_weighting(weight_type=None, snr_db=30.0, sharpness=0.0)
+# or if desired
+W, sigma_y, sigma_x = f.auto_weighting(weight_type=None, snr_db=30.0, sharpness=0.0)
 
 
 
 
+# --- Functional interface: Wrapped around oo-interface ---
+# --- (This seems silly but if we insist on the functional interface ...) ---
 
+# --- CONCEPT ONLY ---
+def recon(args, kwargs):
+    def opt_parse_recon(args, **kwargs):
+        # convertes options from functional interface to oo-interface options
+        pass
+    projector_opt, loss_opt, y, W, init_image, prox_image = opt_parse_recon(args, kwargs)
+    A = Projector(projector_opt)
+    f = Loss(y, A, W=W, loss_opt=loss_opt)
+
+    if prox_image:
+        # uses sigma_p = f.loss_opt.get('sigma_p')
+        return f.prox(prox_image, init_image=init_image)
+    else:
+        return f.recon(init_image=init_image)
+
+# x = recon(y, angles, ...)
+
+
+
+# --- CONCEPT ONLY ---
+def project(args, kwargs):
+    def opt_parse_project(args, **kwargs):
+        # convertes options from functional interface to oo-interface options
+        pass
+    projector_opt, image = opt_parse_project(args, kwargs)
+    A = Projector(projector_opt)
+    return A.project(image)
+
+# y = project(x, angles, num_channels, ...)
+
+
+
+# --- CONCEPT ONLY ---
+def backproject(args, kwargs):
+    def opt_parse_backproject(args, **kwargs):
+        # convertes options from functional interface to oo-interface options
+        pass
+    projector_opt, sino = opt_parse_backproject(args, kwargs)
+    A = Projector(projector_opt)
+    return A.backproject(sino)
+
+# x = backproject(sino, angles, ...)
 
 
 
