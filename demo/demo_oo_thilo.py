@@ -17,7 +17,9 @@ angles = np.linspace(-np.pi/2, np.pi, num_views, endpoint=False)
 
 class Options():
 
-
+    """Generic Options Class
+    """
+    
     def __init__(self, **kwargs):
         self._data = dict(**kwargs)
         self.check_params()
@@ -53,6 +55,11 @@ class Options():
         # could be useful
         pass
 
+
+
+
+
+
 opt = Options(a=1, b='two')
 opt.get('a')
 opt.get_dict()
@@ -63,8 +70,14 @@ opt.update(a=11)
 
 
 
+
+
+
 class ProjectorOptions(Options):
 
+    """Options Class for Projector
+    """
+    
     def __init__(   self,
                     angles,
                     num_slices,
@@ -82,7 +95,6 @@ class ProjectorOptions(Options):
                     verbose=True,
                     ):
 
-        # TODO: check params ...
         self._data = {}
         self._data['angles'] = angles
         self._data['num_slices'] = num_slices
@@ -105,6 +117,10 @@ class ProjectorOptions(Options):
         print('Checking whether ProjectorOptions make sense ...')
 
 
+
+
+
+
 projector_opt = ProjectorOptions(angles, num_slices, num_channels, num_cols=num_cols, num_rows=num_rows)
 projector_opt2 = projector_opt.copy()
 
@@ -112,8 +128,19 @@ projector_opt2.update(num_slices=num_slices*100) # proper way to update params
 assert projector_opt.get('num_slices') != projector_opt2.get('num_slices')
 
 
+
+
+
+
 class Projector():
 
+    """This is the A-matrix
+    
+    Attributes:
+        input_shape (TYPE): Description
+        output_shape (TYPE): Description
+    """
+    
     def __init__(   self,
                     projector_opt,
                     ):
@@ -167,6 +194,14 @@ A.update_options(center_offset=0.5)
 
 class LossOptions(Options):
 
+    """Options Class for Loss
+
+        Defining parameters in 
+
+            1/(2 σ_y^2) || Ax - y ||_W^2 + (2 σ_p^2) (r_mrf(x) or ||x - x_||^2)
+
+    """
+    
     def __init__(   self,
                     sigma_y=None,
                     sigma_p=1.0,
@@ -182,7 +217,7 @@ class LossOptions(Options):
                     num_threads=None,
                     verbose=True,
                     ):
-        # TODO: check params ...
+
         self._data = {}
         self._data['sigma_y'] = sigma_y
         self._data['sigma_p'] = sigma_p
@@ -213,6 +248,21 @@ loss_opt = LossOptions(sigma_y=2.0, sigma_x=2.0, p=1.1) # warn if sigmas not set
 
 class Loss():
 
+    """Class for Loss
+
+        Defining everything in 
+
+            1/(2 σ_y^2) || Ax - y ||_W^2 + (2 σ_p^2) (r_mrf(x) or ||x - x_||^2)
+
+        and allowing optimization of that loss.
+    
+    Attributes:
+        A (TYPE): Description
+        loss_opt (TYPE): Description
+        W (TYPE): Description
+        y (TYPE): Description
+    """
+    
     def __init__(   self,
                     y,
                     A,
@@ -221,7 +271,6 @@ class Loss():
                     it_opt=None
                 ):
 
-        # TODO: all kinds of checks
         
         self.y = y
         self.A = A
@@ -324,6 +373,11 @@ x = f.prox(v, sigma_p, init_image=v)
 f.auto_weighting(weight_type=None, snr_db=30.0, sharpness=0.0)
 # or if desired
 W, sigma_y, sigma_x = f.auto_weighting(weight_type=None, snr_db=30.0, sharpness=0.0)
+
+
+
+
+
 
 
 
