@@ -6,6 +6,92 @@ import numpy as np
 import warnings
 import hashlib
 from PIL import Image
+import os
+import shutil
+
+__svmbir_lib_path = os.path.join(os.path.expanduser('~'), '.cache', 'svmbir')
+
+
+def _svmbir_lib_path() -> object:
+    """Returns the path to the cache directory used by svmbir
+    """
+    return __svmbir_lib_path
+
+
+def _clear_cache(svmbir_lib_path=__svmbir_lib_path):
+    """Clears the cache files used by svmbir
+
+    Args:
+        svmbir_lib_path (string): Path to svmbir cache directory. Defaults to __svmbir_lib_path variable
+    """
+    shutil.rmtree(svmbir_lib_path)
+
+
+# The order and content of these dictionaries must match the signatures of the corresponding tests below
+_geom_defaults_dict = {
+    'num_rows': None,
+    'num_cols': None,
+    'delta_pixel': 1.0,
+    'roi_radius': None,
+    'delta_channel': 1.0,
+    'center_offset': 0.0
+}
+
+_recon_defaults_dict = {
+    'sharpness': 0.0,
+    'positivity': True,
+    'max_resolutions': 0,
+    'stop_threshold': 0.02,
+    'max_iterations': 100
+}
+
+_inits_defaults_dict = {
+    'init_image': 0.0,
+    'prox_image': None,
+    'init_proj': None,
+    'weights': None,
+    'weight_type': 'unweighted'
+}
+
+_noise_defaults_dict = {
+    'sigma_y': None,
+    'snr_db': 30.0,
+    'sigma_x': None,
+    'sigma_p': None
+}
+
+_qggmrf_defaults_dict = {
+    'p': 1.2,
+    'q': 2.0,
+    'T': 1.0,
+    'b_interslice': 1.0
+}
+
+_sys_defaults_dict = {
+    'num_threads': None,
+    'delete_temps': True,
+    'verbose': 1
+}
+
+_misc_defaults_dict = {
+    'svmbir_lib_path': _svmbir_lib_path(),
+    'object_name': 'object'
+}
+
+headings = ['Geometry params', 'Recon params', 'Init params', 'Noise params', 'QGGMRF params', 'Sys params',
+            'Misc params']
+
+dicts = [_geom_defaults_dict,
+         _recon_defaults_dict,
+         _inits_defaults_dict,
+         _noise_defaults_dict,
+         _qggmrf_defaults_dict,
+         _sys_defaults_dict,
+         _misc_defaults_dict]
+
+recon_defaults_dict = dict()
+for d in dicts:
+    recon_defaults_dict = {**recon_defaults_dict, **d}
 
 
 ##############################
@@ -19,7 +105,8 @@ def int_to_float(arg):
     else:
         return arg
 
-def test_args_angles(angles):
+
+def test_args_angles(angles, output_as_dict=False):
     "Test validity of 'angles' argument"
 
     # allow scalar angle input, convert to ndarray
@@ -30,9 +117,14 @@ def test_args_angles(angles):
     if not isinstance(angles,np.ndarray) and (angles.ndim == 1):
         raise Exception("Error: 'angles' input not a 1D numpy array")
 
-    return angles
+    if not output_as_dict:
+        return angles
+    else:
+        d = {'angles': angles}
+        return d
 
-def test_args_sino(sino, angles):
+
+def test_args_sino(sino, angles, output_as_dict=False):
     "Test for valid sino structure. If 2D given, convert to 3D"
 
     angles = test_args_angles(angles)
@@ -54,9 +146,13 @@ def test_args_sino(sino, angles):
     if sino.shape[0] != angles.size :
         raise Exception("Error: Input 'sino' and 'angles' shapes don't agree")
 
-    return sino
+    if not output_as_dict:
+        return sino
+    else:
+        return {'sino': sino}
 
-def test_args_image(image):
+
+def test_args_image(image, output_as_dict=False):
     "Test for valid image structure. If 2D given, convert to 3D"
 
     if isinstance(image,np.ndarray) and ((image.ndim==2) or (image.ndim==3)):
@@ -66,10 +162,25 @@ def test_args_image(image):
     else:
         raise Exception("Error: image input is not a 3D numpy array")
 
-    return image
+    if not output_as_dict:
+        return image
+    else:
+        return {'image': image}
 
 
-def test_args_geom(num_rows, num_cols, delta_pixel, roi_radius, delta_channel, center_offset):
+def test_args_dict(default_dict, test_fcn, **kwargs):
+    # Collect the arguments
+    args = []
+    for key in default_dict.keys():
+        args.append(kwargs[key])
+    num_args = len(args)
+    # Create a string of the form test_fcn(args[0], args[1], args[2], args[3], args[4], args[5], output_as_dict=True)
+    # and then evaluate it
+    function_str = 'test_fcn(' + ''.join("args[%s], " % str(j) for j in range(num_args)) + 'output_as_dict=True)'
+    return eval(function_str)
+
+
+def test_args_geom(num_rows, num_cols, delta_pixel, roi_radius, delta_channel, center_offset, output_as_dict=False):
 
     if not num_rows is None:
         if not (isinstance(num_rows, int) and num_rows>0):
@@ -101,10 +212,20 @@ def test_args_geom(num_rows, num_cols, delta_pixel, roi_radius, delta_channel, c
         warnings.warn("Parameter center_offset is not valid float; Setting center_offset = 0.0.")
         center_offset = 0.0
 
-    return num_rows, num_cols, delta_pixel, roi_radius, delta_channel, center_offset
+    if not output_as_dict:
+        return num_rows, num_cols, delta_pixel, roi_radius, delta_channel, center_offset
+    else:
+        d = {'num_rows': num_rows, 
+             'num_cols': num_cols, 
+             'delta_pixel': delta_pixel, 
+             'roi_radius': roi_radius, 
+             'delta_channel': delta_channel, 
+             'center_offset': center_offset
+             }
+        return d
 
 
-def test_args_recon(sharpness, positivity, max_resolutions, stop_threshold, max_iterations):
+def test_args_recon(sharpness, positivity, max_resolutions, stop_threshold, max_iterations, output_as_dict=False):
 
     sharpness = int_to_float(sharpness)
     if not isinstance(sharpness, float):
@@ -129,10 +250,19 @@ def test_args_recon(sharpness, positivity, max_resolutions, stop_threshold, max_
         warnings.warn("Parameter max_iterations is not valid int; Setting max_iterations = 100.")
         max_iterations = 100
 
-    return sharpness, positivity, max_resolutions, stop_threshold, max_iterations
+    if not output_as_dict:
+        return sharpness, positivity, max_resolutions, stop_threshold, max_iterations
+    else:
+        d = {'sharpness': sharpness, 
+             'positivity': positivity, 
+             'max_resolutions': max_resolutions, 
+             'stop_threshold': stop_threshold, 
+             'max_iterations': max_iterations
+             }
+        return d
+    
 
-
-def test_args_inits(init_image, prox_image, init_proj, weights, weight_type):
+def test_args_inits(init_image, prox_image, init_proj, weights, weight_type, output_as_dict=False):
 
     init_image = int_to_float(init_image)
     if not (isinstance(init_image, float) or (isinstance(init_image, np.ndarray) and (init_image.ndim == 3))):
@@ -160,10 +290,19 @@ def test_args_inits(init_image, prox_image, init_proj, weights, weight_type):
         warnings.warn("Parameter weight_type is not valid string; Setting roi_radius = 'unweighted'")
         weight_type = 'unweighted'
 
-    return init_image, prox_image, init_proj, weights, weight_type
+    if not output_as_dict:
+        return init_image, prox_image, init_proj, weights, weight_type
+    else:
+        d = {'init_image': init_image, 
+             'prox_image': prox_image, 
+             'init_proj': init_proj, 
+             'weights': weights, 
+             'weight_type': weight_type
+             }
+        return d
 
 
-def test_args_noise(sigma_y, snr_db, sigma_x, sigma_p):
+def test_args_noise(sigma_y, snr_db, sigma_x, sigma_p, output_as_dict=False):
 
     sigma_y = int_to_float(sigma_y)
     if not ((sigma_y is None) or (isinstance(sigma_y, float) and (sigma_y > 0))):
@@ -185,10 +324,18 @@ def test_args_noise(sigma_y, snr_db, sigma_x, sigma_p):
         warnings.warn("Parameter sigma_p is not a valid float. Setting to default.")
         sigma_p = None
 
-    return sigma_y, snr_db, sigma_x, sigma_p
+    if not output_as_dict:
+        return sigma_y, snr_db, sigma_x, sigma_p
+    else:
+        d = {'sigma_y': sigma_y, 
+             'snr_db': snr_db, 
+             'sigma_x': sigma_x, 
+             'sigma_p': sigma_p
+             }
+        return d
 
 
-def test_args_qggmrf(p, q, T, b_interslice):
+def test_args_qggmrf(p, q, T, b_interslice, output_as_dict=False):
 
     # Check that q is valid
     q = int_to_float(q)
@@ -217,10 +364,18 @@ def test_args_qggmrf(p, q, T, b_interslice):
         b_interslice = 1.0
         warnings.warn("Parameter b_interslice is invalid; Setting b_interslice = 1.0")
 
-    return p, q, T, b_interslice
+    if not output_as_dict:
+        return p, q, T, b_interslice
+    else:
+        d = {'p': p, 
+             'q': q, 
+             'T': T, 
+             'b_interslice': b_interslice
+             }
+        return d
 
 
-def test_args_sys(num_threads, delete_temps, verbose):
+def test_args_sys(num_threads, delete_temps, verbose, output_as_dict=False):
 
     if not (isinstance(num_threads, int) and (num_threads > 0)):
         warnings.warn("Parameter num_threads is not a valid int. Setting to default.")
@@ -234,7 +389,32 @@ def test_args_sys(num_threads, delete_temps, verbose):
         warnings.warn("Parameter verbose is not valid. Setting verbose = 1.")
         verbose = 1
 
-    return num_threads, delete_temps, verbose
+    if not output_as_dict:
+        return num_threads, delete_temps, verbose
+    else:
+        d = {'num_threads': num_threads, 
+             'delete_temps': delete_temps, 
+             'verbose': verbose
+             }
+        return d
+
+
+def test_args_misc(svmbir_lib_path, object_name, output_as_dict=False):
+    if not output_as_dict:
+        return svmbir_lib_path, object_name
+    else:
+        return {'svmbir_lib_path': svmbir_lib_path,
+                'object_name': object_name}
+
+
+tests = [test_args_geom,
+         test_args_recon,
+         test_args_inits,
+         test_args_noise,
+         test_args_qggmrf,
+         test_args_sys,
+         test_args_misc
+         ]
 
 
 def hash_params(angles, **kwargs):

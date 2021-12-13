@@ -18,7 +18,10 @@ __svmbir_lib_path = os.path.join(os.path.expanduser('~'), '.cache', 'svmbir')
 def _svmbir_lib_path():
     """Returns the path to the cache directory used by svmbir
     """
-    return __svmbir_lib_path
+    return utils._svmbir_lib_path()
+
+
+__svmbir_lib_path = _svmbir_lib_path()
 
 
 def _clear_cache(svmbir_lib_path = __svmbir_lib_path):
@@ -27,7 +30,7 @@ def _clear_cache(svmbir_lib_path = __svmbir_lib_path):
     Args:
         svmbir_lib_path (string): Path to svmbir cache directory. Defaults to __svmbir_lib_path variable.
     """
-    shutil.rmtree(svmbir_lib_path)
+    utils._clear_cache(svmbir_lib_path)
 
 
 def sino_sort(sino, angles, weights=None):
