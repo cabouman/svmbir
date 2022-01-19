@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # Copyright (C) by
-# All rights reserved. 
+# All rights reserved.
 
 # These imports are needed only for read/write and command line interfaces
 import subprocess
@@ -10,7 +10,7 @@ import svmbir._utils as utils
 from ruamel.yaml import YAML
 
 """
-Overview: 
+Overview:
 """
 
 ##################################################################
@@ -313,12 +313,12 @@ def multires_recon(sino, angles, weights, weight_type, init_image, prox_image, i
 
 
 def project(image, settings):
-    """Forward projection function used by svmbir.project(). 
-    
+    """Forward projection function used by svmbir.project().
+
     Args:
         image (ndarray): 3D Image to be projected
         settings (dict): Dictionary containing projection settings
-    
+
     Returns:
         TYPE: Description
     """
