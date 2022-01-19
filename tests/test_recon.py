@@ -30,7 +30,7 @@ class Test_recon():
 
         angles = np.linspace(-np.pi/2.0, np.pi/2.0, num_views, endpoint=False)
 
-        try: 
+        try:
             sino = svmbir.project(angles,phantom,max(num_rows,num_cols))
         except Exception as e:
             print(e)
