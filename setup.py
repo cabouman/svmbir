@@ -38,7 +38,7 @@ else:
 if os.environ.get('CLIB') != 'CMD_LINE':
     # Cython interface install set up
 
-    install_requires=['numpy','Cython','psutil','Pillow']  # external package dependencies
+    install_requires=['numpy~=1.22.1','Cython','psutil','Pillow']  # external package dependencies
 
     # Check that compiler is set
     if os.environ.get('CC') not in ['gcc','icc','clang','msvc'] and re.findall('gcc',str(os.environ.get('CC')))==[]:
