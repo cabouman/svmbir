@@ -206,7 +206,7 @@ def _init_geometry( angles, num_channels, num_views, num_slices, num_rows, num_c
         Amatrix_fname_tmp = string_to_char_array(Amatrix_file_tmp)
         AmatrixComputeToFile(imgparams_c,sinoparams_c,&Amatrix_fname_tmp[0],verbose)
         os.rename(Amatrix_file_tmp,Amatrix_file)
-    
+
     return paths, sinoparams, imgparams
 
 

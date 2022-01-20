@@ -6,9 +6,9 @@ import numpy as np
 
 def gen_shepp_logan(num_rows,num_cols):
     """
-    Generate a Shepp Logan phantom
-    
-    Args: 
+    Generate a Shepp Logan phantom.
+
+    Args:
         num_rows: int, number of rows.
         num_cols: int, number of cols.
 
@@ -84,7 +84,7 @@ def gen_microscopy_sample(num_rows, num_cols):
 def gen_shepp_logan_3d(num_rows, num_cols, num_slices):
     """
     Generate a 3D Shepp Logan phantom based on below reference.
-    
+
     Kak AC, Slaney M. Principles of computerized tomographic imaging. Page.102. IEEE Press, New York, 1988. https://engineering.purdue.edu/~malcolm/pct/CTI_Ch03.pdf
 
     Args:
@@ -188,7 +188,7 @@ def nrmse(image, reference_image):
 
 def _gen_ellipse(x_grid, y_grid, x0, y0, a, b, gray_level, theta=0):
     """
-    Returns an image with a 2D ellipse in a 2D plane with a center of [x0,y0] and ...
+    Return an image with a 2D ellipse in a 2D plane with a center of [x0,y0] and ...
 
     Args:
         x_grid(float): 2D grid of X coordinate values
@@ -212,7 +212,7 @@ def _gen_ellipse(x_grid, y_grid, x0, y0, a, b, gray_level, theta=0):
 
 def _gen_ellipsoid(x_grid, y_grid, z_grid, x0, y0, z0, a, b, c, gray_level, alpha=0, beta=0, gamma=0):
     """
-    Returns an image with a 3D ellipsoid in a 3D plane with a center of [x0,y0,z0] and ...
+    Return an image with a 3D ellipsoid in a 3D plane with a center of [x0,y0,z0] and ...
 
     Args:
         x_grid(float): 3D grid of X coordinate values.
@@ -245,4 +245,3 @@ def _gen_ellipsoid(x_grid, y_grid, z_grid, x0, y0, z0, a, b, c, gray_level, alph
         np.dot(r[2], cor)) ** 2 / c ** 2 <= 1.0) * gray_level
 
     return image.reshape(x_grid.shape)
-
