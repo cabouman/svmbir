@@ -25,6 +25,9 @@ packages_dir = 'svmbir'
 packages = [packages_dir]
 src_dir = packages_dir + "/sv-mbirct/src/"
 
+# Dependencies for running svmbir. Dependencies for build/installation are in pyproject.toml
+install_requires=['numpy>=1.22','psutil>=5.8','Pillow']
+
 # Check for compiled executable
 if os.path.exists('svmbir/sv-mbirct/bin/mbir_ct'):
     exec_file = 'sv-mbirct/bin/mbir_ct'
@@ -33,12 +36,8 @@ elif os.path.exists('svmbir/sv-mbirct/bin/mbir_ct.exe'):
 else:
     exec_file = None
 
-
 # Set up install for Cython or Command line interface
 if os.environ.get('CLIB') != 'CMD_LINE':
-    # Cython interface install set up
-
-    install_requires=['numpy~=1.22.1','Cython','psutil','Pillow']  # external package dependencies
 
     # Check that compiler is set
     if os.environ.get('CC') not in ['gcc','icc','clang','msvc'] and re.findall('gcc',str(os.environ.get('CC')))==[]:
@@ -93,7 +92,7 @@ else:
     else:
         package_data={'svmbir': [exec_file]}
 
-    install_requires=['numpy','ruamel.yaml','psutil','Pillow']  # external package dependencies
+    install_requires.append('ruamel.yaml')
     cmdclass = {}
     ext_modules = None
 
@@ -112,5 +111,4 @@ setup(name=name,
       package_data=package_data,
       cmdclass=cmdclass,
       ext_modules=ext_modules)
-
 
