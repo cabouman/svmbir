@@ -39,13 +39,8 @@ else:
 # Set up install for Cython or Command line interface
 if os.environ.get('CLIB') != 'CMD_LINE':
 
-    # Check that compiler is set
-    if os.environ.get('CC') not in ['gcc','icc','clang','msvc'] and re.findall('gcc',str(os.environ.get('CC')))==[]:
-        warnings.warn('CC environment variable not set to valid value. Using default CC=gcc.')
-        os.environ["CC"] = 'gcc'
-
-    # OpenMP gcc compile: tested for MacOS and Linux
-    if os.environ.get('CC') =='gcc' or re.findall('gcc',str(os.environ.get('CC')))!=[]:
+    # Check for compiler env variable. If not set, assume it's a gcc build (linux & macOS only).
+    if os.environ.get('CC') not in ['icc','clang','msvc']:
         extra_compile_args=["-std=c11","-O3","-fopenmp","-Wno-unknown-pragmas"]
         extra_link_args=["-lm","-fopenmp"]
 
