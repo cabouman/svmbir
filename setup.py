@@ -91,6 +91,9 @@ else:
     cmdclass = {}
     ext_modules = None
 
+# set cython language level for all .pyx modules to Python 3
+for e in ext_modules:
+    e.cython_directives = {'language_level': "3"}
 
 setup(name=name,
       version=version,
