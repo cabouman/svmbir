@@ -9,12 +9,12 @@
 # IMPORTANT: If building macOS wheels, run script on macOS 10.14 so that binaries will be
 # compatibile with macOS>=10.14
 #
-# Wheels are delocated to fix a library incompatibility across macOS >= 10.14. 
+# Wheels are delocated to fix a library incompatibility across macOS >= 10.14.
 #
 
 # Set these accordingly:
 
-python_versions=("3.8" "3.9" "3.10")
+python_versions=("3.7" "3.8" "3.9" "3.10")
 CC=gcc
 
 # check for a valid compiler
@@ -33,20 +33,20 @@ echo "*************** sdist ******************"
 python setup.py sdist
 
 echo "*********************************************************"
-echo "**** Building wheels" 
+echo "**** Building wheels"
 echo "**** Python ${python_versions[@]}"
 echo "**** Compiler: ${CC}"
 echo "*********************************************************"
 
 for pyv in ${python_versions[@]}; do
-    echo "*********** Create environment ${pyv} *************" 
+    echo "*********** Create environment ${pyv} *************"
     conda create --name sv${pyv} python=$pyv --yes
     conda activate sv${pyv}
     pip install -r requirements.txt
     pip install setuptools delocate
 
     echo "****"
-    echo "**** Building wheel for python ${pyv}, CC=${CC} " 
+    echo "**** Building wheel for python ${pyv}, CC=${CC} "
     echo "****"
     CC=$CC python setup.py bdist_wheel
 
