@@ -26,7 +26,7 @@ packages = [packages_dir]
 src_dir = packages_dir + "/sv-mbirct/src/"
 
 # Dependencies for running svmbir. Dependencies for build/installation are in pyproject.toml
-install_requires=['numpy>=1.22','psutil>=5.8','Pillow']
+install_requires=['numpy==1.21.*','psutil>=5.8','Pillow']
 
 # Check for compiled executable
 if os.path.exists('svmbir/sv-mbirct/bin/mbir_ct'):
