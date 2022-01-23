@@ -22,30 +22,30 @@ def _svmbir_lib_path():
 
 
 def _clear_cache(svmbir_lib_path = __svmbir_lib_path):
-    """Clears the cache files used by svmbir
-    
+    """Clear the cache files used by svmbir.
+
     Args:
-        svmbir_lib_path (string): Path to svmbir cache directory. Defaults to __svmbir_lib_path variable
+        svmbir_lib_path (string): Path to svmbir cache directory. Defaults to __svmbir_lib_path variable.
     """
     shutil.rmtree(svmbir_lib_path)
 
 
 def sino_sort(sino, angles, weights=None):
-    """ Sort sinogram views (and sinogram weights if provided) so that view angles are in monotonically increasing order on the interval :math:`[0,2\pi)`.
+    r"""Sort sinogram views (and sinogram weights if provided) so that view angles are in monotonically increasing order on the interval :math:`[0,2\pi)`.
         This function can be used to preprocess the sinogram data so that svmbir reconstruction is faster.
         The function may create additional arrays that increase memory usage.
-    
+
     Args:
         sino (ndarray): 3D numpy array of unsorted sinogram data with shape (num_views, num_slices, num_channels)
         angles (ndarray): 1D unsorted array of view angles in radians.
-        weights (ndarray, optional): [Default=None] 3D unsorted array of weights with same shape as sino. 
-    
+        weights (ndarray, optional): [Default=None] 3D unsorted array of weights with same shape as sino.
+
     Returns:
         - A tuple (sino, angles) when weights=None
         - A tuple (sino, angles, weights) if weights is not None.
-        
+
         The arrays are sorted along the view axis so that they have monotone increasing view angles in the interval :math:`[0,2\pi)`.
-    """ 
+    """
 
     # Wrap the view angles modulo 2pi and sort
     angles = np.mod(angles, 2*np.pi)
@@ -66,10 +66,10 @@ def sino_sort(sino, angles, weights=None):
 
 
 def calc_weights(sino, weight_type ):
-    """Computes the weights used in MBIR reconstruction.
+    """Compute the weights used in MBIR reconstruction.
 
     Args:
-        sino (ndarray): 3D numpy array of sinogram data with shape (num_views,num_slices,num_channels)
+        sino (ndarray): 3D numpy array of sinogram data with shape (num_views,num_slices,num_channels).
         weight_type (string): Type of noise model used for data.
 
             If weight_type="unweighted"        => weights = numpy.ones_like(sino)
@@ -101,11 +101,11 @@ def calc_weights(sino, weight_type ):
 
 
 def auto_sigma_y(sino, weights, snr_db = 30.0, delta_pixel = 1.0, delta_channel = 1.0):
-    """Computes the automatic value of ``sigma_y`` for use in MBIR reconstruction.
+    """Compute the automatic value of ``sigma_y`` for use in MBIR reconstruction.
 
     Args:
         sino (ndarray):
-            3D numpy array of sinogram data with shape (num_views,num_slices,num_channels)
+            3D numpy array of sinogram data with shape (num_views,num_slices,num_channels).
         weights (ndarray):
             3D numpy array of weights with same shape as sino.
             The parameters weights should be the same values as used in svmbir reconstruction.
@@ -139,16 +139,16 @@ def auto_sigma_y(sino, weights, snr_db = 30.0, delta_pixel = 1.0, delta_channel 
 
 
 def auto_sigma_x(sino, delta_channel = 1.0, sharpness = 0.0 ):
-    """Computes the automatic value of ``sigma_x`` for use in MBIR reconstruction.
+    """Compute the automatic value of ``sigma_x`` for use in MBIR reconstruction.
 
     Args:
         sino (ndarray):
-            3D numpy array of sinogram data with shape (num_views,num_slices,num_channels)
+            3D numpy array of sinogram data with shape (num_views,num_slices,num_channels).
         delta_channel (float, optional):
             [Default=1.0] Scalar value of detector channel spacing in :math:`ALU`.
         sharpness (float, optional):
             [Default=0.0] Scalar value that controls level of sharpness.
-            ``sharpness=0.0`` is neutral; ``sharpness>0`` increases sharpness; ``sharpness<0`` reduces sharpness
+            ``sharpness=0.0`` is neutral; ``sharpness>0`` increases sharpness; ``sharpness<0`` reduces sharpness.
 
     Returns:
         float: Automatic value of regularization parameter.
@@ -157,16 +157,16 @@ def auto_sigma_x(sino, delta_channel = 1.0, sharpness = 0.0 ):
 
 
 def auto_sigma_p(sino, delta_channel = 1.0, sharpness = 0.0 ):
-    """Computes the automatic value of ``sigma_p`` for use in proximal map estimation.
+    """Compute the automatic value of ``sigma_p`` for use in proximal map estimation.
 
     Args:
         sino (ndarray):
-            3D numpy array of sinogram data with shape (num_views,num_slices,num_channels)
+            3D numpy array of sinogram data with shape (num_views,num_slices,num_channels).
         delta_channel (float, optional):
             [Default=1.0] Scalar value of detector channel spacing in :math:`ALU`.
         sharpness (float, optional):
             [Default=0.0] Scalar value that controls level of sharpness.
-            ``sharpness=0.0`` is neutral; ``sharpness>0`` increases sharpness; ``sharpness<0`` reduces sharpness
+            ``sharpness=0.0`` is neutral; ``sharpness>0`` increases sharpness; ``sharpness<0`` reduces sharpness.
 
     Returns:
         float: Automatic value of regularization parameter.
@@ -175,16 +175,16 @@ def auto_sigma_p(sino, delta_channel = 1.0, sharpness = 0.0 ):
 
 
 def auto_sigma_prior(sino, delta_channel = 1.0, sharpness = 0.0 ):
-    """Computes the automatic value of prior model regularization term for use in MBIR reconstruction or proximal map estimation. This subroutine is called by ``auto_sigma_x`` in MBIR reconstruction, or ``auto_sigma_p`` in proximal map estimation.
+    """Compute the automatic value of prior model regularization term for use in MBIR reconstruction or proximal map estimation. This subroutine is called by ``auto_sigma_x`` in MBIR reconstruction, or ``auto_sigma_p`` in proximal map estimation.
 
     Args:
         sino (ndarray):
-            3D numpy array of sinogram data with shape (num_views,num_slices,num_channels)
+            3D numpy array of sinogram data with shape (num_views,num_slices,num_channels).
         delta_channel (float, optional):
             [Default=1.0] Scalar value of detector channel spacing in :math:`ALU`.
         sharpness (float, optional):
             [Default=0.0] Scalar value that controls level of sharpness.
-            ``sharpness=0.0`` is neutral; ``sharpness>0`` increases sharpness; ``sharpness<0`` reduces sharpness
+            ``sharpness=0.0`` is neutral; ``sharpness>0`` increases sharpness; ``sharpness<0`` reduces sharpness.
 
     Returns:
         float: Automatic value of regularization parameter.
@@ -204,21 +204,21 @@ def auto_sigma_prior(sino, delta_channel = 1.0, sharpness = 0.0 ):
 
 
 def auto_num_rows(num_channels, delta_channel, delta_pixel):
-    """Computes the automatic value of ``num_rows``.
+    """Compute the automatic value of ``num_rows``.
     """
     num_rows = int(np.ceil(num_channels * delta_channel / delta_pixel))
     return num_rows
 
 
 def auto_num_cols(num_channels, delta_channel, delta_pixel):
-    """Computes the automatic value of ``num_cols``.
+    """Compute the automatic value of ``num_cols``.
     """
     num_cols = int(np.ceil(num_channels * delta_channel / delta_pixel))
     return num_cols
 
 
 def auto_roi_radius(delta_pixel, num_rows, num_cols):
-    """Computes the automatic value of ``roi_radius``.
+    """Compute the automatic value of ``roi_radius``.
        Chosen so that it inscribes the largest axis of the recon image.
     """
     roi_radius = float(delta_pixel * max(num_rows, num_cols))/2.0
@@ -226,7 +226,7 @@ def auto_roi_radius(delta_pixel, num_rows, num_cols):
 
 
 def max_threads(num_threads, num_slices, num_rows, num_cols, positivity = True):
-    """Computes the maximum recommended number of threads for stable convergence.
+    """Compute the maximum recommended number of threads for stable convergence.
 
     Args:
         num_threads (int): Desired number of compute threads requested when executed.
@@ -263,10 +263,10 @@ def recon(sino, angles,
           verbose = 1) :
     """recon(sino, angles, weights = None, weight_type = 'unweighted', init_image = 0.0, prox_image = None, init_proj = None, num_rows = None, num_cols = None, roi_radius = None, delta_channel = 1.0, delta_pixel = 1.0, center_offset = 0.0, sigma_y = None, snr_db = 30.0, sigma_x = None, p = 1.2, q = 2.0, T = 1.0, b_interslice = 1.0, sharpness = 1.0, positivity = True, max_resolutions = 0, stop_threshold = 0.02, max_iterations = 100, num_threads = None, delete_temps = True, svmbir_lib_path = '~/.cache/svmbir', object_name = 'object', verbose = 1)
 
-    Computes 3D parallel beam MBIR reconstruction using multi-resolution SVMBIR algorithm.
+    Compute 3D parallel beam MBIR reconstruction using multi-resolution SVMBIR algorithm.
 
     Args:
-        sino (ndarray): 3D sinogram array with shape (num_views, num_slices, num_channels)
+        sino (ndarray): 3D sinogram array with shape (num_views, num_slices, num_channels).
 
         angles (ndarray): 1D view angles array in radians.
 
@@ -312,7 +312,7 @@ def recon(sino, angles,
         sigma_x (float, optional): [Default=None] Scalar value :math:`>0` that specifies the qGGMRF scale parameter.
             Ignored if prox_image is not None.
             If None and prox_image is also None, automatically set with auto_sigma_x. Regularization should be controled with the ``sharpness`` parameter, but ``sigma_x`` can be set directly by expert users.
-        
+
         sigma_p (float, optional): [Default=None] Scalar value :math:`>0` that specifies the proximal map parameter.
             Ignored if prox_image is None.
             If None and proximal image is not None, automatically set with auto_sigma_p. Regularization should be controled with the ``sharpness`` parameter, but ``sigma_p`` can be set directly by expert users.
@@ -425,11 +425,11 @@ def recon(sino, angles,
 
 def project(image, angles, num_channels,
             delta_channel = 1.0, delta_pixel = 1.0, center_offset = 0.0, roi_radius = None,
-            num_threads = None, svmbir_lib_path = __svmbir_lib_path, delete_temps = True, 
+            num_threads = None, svmbir_lib_path = __svmbir_lib_path, delete_temps = True,
             object_name = 'object', verbose = 1):
     """project(image, angles, num_channels, delta_channel = 1.0, delta_pixel = 1.0, center_offset = 0.0, roi_radius = None, num_threads = None, svmbir_lib_path = '~/.cache/svmbir', delete_temps = True, object_name = 'object', verbose = 1)
 
-    Computes 3D parallel beam forward-projection.
+    Compute 3D parallel beam forward-projection.
 
     Args:
         image (ndarray):
@@ -517,11 +517,11 @@ def project(image, angles, num_channels,
 
 def backproject(sino, angles, num_rows=None, num_cols=None,
             delta_channel = 1.0, delta_pixel = 1.0, center_offset = 0.0, roi_radius = None,
-            num_threads = None, svmbir_lib_path = __svmbir_lib_path, delete_temps = True, 
+            num_threads = None, svmbir_lib_path = __svmbir_lib_path, delete_temps = True,
             object_name = 'object', verbose = 1):
     """backproject(sino, angles, num_rows = None, num_cols = None, delta_channel = 1.0, delta_pixel = 1.0, center_offset = 0.0, roi_radius = None, num_threads = None, svmbir_lib_path = '~/.cache/svmbir', delete_temps = True, object_name = 'object', verbose = 1)
 
-    Computes 3D parallel beam back-projection.
+    Compute 3D parallel beam back-projection.
 
     Args:
         sino (ndarray):
@@ -601,11 +601,11 @@ def backproject(sino, angles, num_rows=None, num_cols=None,
 
 
 def _sino_indicator(sino):
-    """Computes a binary function that indicates the region of sinogram support.
+    """Compute a binary function that indicates the region of sinogram support.
 
     Args:
         sino (ndarray):
-            3D numpy array of sinogram data with shape (num_views,num_slices,num_channels)
+            3D numpy array of sinogram data with shape (num_views,num_slices,num_channels).
 
     Returns:
         int8: A binary value: =1 within sinogram support; =0 outside sinogram support.
