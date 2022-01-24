@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+# Copyright (C) 2020-2022 by SVMBIR Developers
+# All rights reserved. BSD 3-clause License.
+
 import numpy as np
 import ctypes           # Import python package required to use cython
 cimport cython          # Import cython package

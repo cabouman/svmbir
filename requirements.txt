@@ -1,6 +1,6 @@
-numpy>=1.12
-Pillow~=8.4.0
-Cython~=0.29.21
-ruamel.yaml~=0.16.12
-pytest~=6.2.2
-psutil~=5.8.0
+numpy==1.21.*
+psutil>=5.8
+Pillow
+Cython
+ruamel.yaml
+pytest

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) by
-# All rights reserved.
+# Copyright (C) 2020-2022 by SVMBIR Developers
+# All rights reserved. BSD 3-clause License.
 
 # These imports are needed only for read/write and command line interfaces
 import subprocess

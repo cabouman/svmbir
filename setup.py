@@ -25,28 +25,15 @@ packages_dir = 'svmbir'
 packages = [packages_dir]
 src_dir = packages_dir + "/sv-mbirct/src/"
 
-# Check for compiled executable
-if os.path.exists('svmbir/sv-mbirct/bin/mbir_ct'):
-    exec_file = 'sv-mbirct/bin/mbir_ct'
-elif os.path.exists('svmbir/sv-mbirct/bin/mbir_ct.exe'):
-    exec_file = 'sv-mbirct/bin/mbir_ct.exe'
-else:
-    exec_file = None
+# Dependencies for running svmbir. Dependencies for build/installation are in pyproject.toml
+install_requires=['numpy==1.21.*','psutil>=5.8','Pillow']
 
 
 # Set up install for Cython or Command line interface
 if os.environ.get('CLIB') != 'CMD_LINE':
-    # Cython interface install set up
 
-    install_requires=['numpy','Cython','psutil','Pillow']  # external package dependencies
-
-    # Check that compiler is set
-    if os.environ.get('CC') not in ['gcc','icc','clang','msvc'] and re.findall('gcc',str(os.environ.get('CC')))==[]:
-        warnings.warn('CC environment variable not set to valid value. Using default CC=gcc.')
-        os.environ["CC"] = 'gcc'
-
-    # OpenMP gcc compile: tested for MacOS and Linux
-    if os.environ.get('CC') =='gcc' or re.findall('gcc',str(os.environ.get('CC')))!=[]:
+    # Check for compiler env variable. If not set, assume it's a gcc build (linux & macOS only).
+    if os.environ.get('CC') not in ['icc','clang','msvc']:
         extra_compile_args=["-std=c11","-O3","-fopenmp","-Wno-unknown-pragmas"]
         extra_link_args=["-lm","-fopenmp"]
 
@@ -75,25 +62,28 @@ if os.environ.get('CLIB') != 'CMD_LINE':
                             extra_compile_args=extra_compile_args,
                             extra_link_args=extra_link_args)
 
+    package_data={}
     cmdclass = {"build_ext": build_ext}
     ext_modules = [c_extension]
 
-    # If cmdline executable is present, include with installation
-    if exec_file is None:
-        package_data={}
-    else:
-        package_data={'svmbir': [exec_file]}
+    # set cython language level for all .pyx modules to Python 3
+    for e in ext_modules:
+        e.cython_directives = {'language_level': "3"}
 
 else:
-    # Command-line interface install set up
+    # Command-line interface install
 
     # Check for compiled executable
-    if exec_file is None:
-        assert False, 'Compiled executable not present in svmbir/sv-mbirct/bin/. Compile the binary executable first'
+    if os.path.exists('svmbir/sv-mbirct/bin/mbir_ct'):
+        exec_file = 'sv-mbirct/bin/mbir_ct'
+    elif os.path.exists('svmbir/sv-mbirct/bin/mbir_ct.exe'):
+        exec_file = 'sv-mbirct/bin/mbir_ct.exe'
     else:
-        package_data={'svmbir': [exec_file]}
+        exec_file = None
+        raise Exception("Compiled executable not present in 'svmbir/sv-mbirct/bin/' . Need to compile the binary executable first.")
 
-    install_requires=['numpy','ruamel.yaml','psutil','Pillow']  # external package dependencies
+    package_data={'svmbir': [exec_file]}
+    install_requires.append('ruamel.yaml')
     cmdclass = {}
     ext_modules = None
 
@@ -112,5 +102,4 @@ setup(name=name,
       package_data=package_data,
       cmdclass=cmdclass,
       ext_modules=ext_modules)
-
 
