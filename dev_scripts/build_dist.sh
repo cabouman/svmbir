@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Builds the sdist and wheels for python 3.8, 3.9, 3.10
+# Builds the sdist and wheels for python 3.7, 3.8, 3.9
 #
 # RUN AS: source build_dist.sh
 # NOT AS: ./build_dist.sh
@@ -14,7 +14,7 @@
 
 # Set these accordingly:
 
-python_versions=("3.7" "3.8" "3.9" "3.10")
+python_versions=("3.7" "3.8" "3.9")
 CC=gcc
 
 # check for a valid compiler
@@ -29,9 +29,6 @@ cd ..
 /bin/rm -fr dist build
 /bin/rm -r svmbir.egg-info
 
-echo "*************** sdist ******************"
-python setup.py sdist
-
 echo "*********************************************************"
 echo "**** Building wheels"
 echo "**** Python ${python_versions[@]}"
@@ -43,7 +40,7 @@ for pyv in ${python_versions[@]}; do
     conda create --name sv${pyv} python=$pyv --yes
     conda activate sv${pyv}
     pip install -r requirements.txt
-    pip install setuptools delocate
+    pip install setuptools
 
     echo "****"
     echo "**** Building wheel for python ${pyv}, CC=${CC} "
@@ -51,7 +48,18 @@ for pyv in ${python_versions[@]}; do
     CC=$CC python setup.py bdist_wheel
 
     conda deactivate
+    conda remove --name sv${pyv} --all --yes
 done
+
+
+pyv=3.8
+conda create --name sv${pyv} python=$pyv --yes
+conda activate sv${pyv}
+pip install -r requirements.txt
+pip install setuptools delocate
+
+echo "*************** sdist ******************"
+python setup.py sdist
 
 echo "*************** Delocating wheels ******************"
 cd dist
@@ -62,9 +70,9 @@ done
 rm -f -r fixed_wheels
 cd ..
 
-echo "*************** remove envs ******************"
-for pyv in ${python_versions[@]}; do
-    conda remove --name sv${pyv} --all --yes
-done
+conda deactivate
+conda remove --name sv${pyv} --all --yes
+
 
 cd dev_scripts
+
