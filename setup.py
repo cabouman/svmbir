@@ -28,13 +28,6 @@ src_dir = packages_dir + "/sv-mbirct/src/"
 # Dependencies for running svmbir. Dependencies for build/installation are in pyproject.toml
 install_requires=['numpy==1.21.*','psutil>=5.8','Pillow']
 
-# Check for compiled executable
-if os.path.exists('svmbir/sv-mbirct/bin/mbir_ct'):
-    exec_file = 'sv-mbirct/bin/mbir_ct'
-elif os.path.exists('svmbir/sv-mbirct/bin/mbir_ct.exe'):
-    exec_file = 'sv-mbirct/bin/mbir_ct.exe'
-else:
-    exec_file = None
 
 # Set up install for Cython or Command line interface
 if os.environ.get('CLIB') != 'CMD_LINE':
@@ -69,31 +62,31 @@ if os.environ.get('CLIB') != 'CMD_LINE':
                             extra_compile_args=extra_compile_args,
                             extra_link_args=extra_link_args)
 
+    package_data={}
     cmdclass = {"build_ext": build_ext}
     ext_modules = [c_extension]
 
-    # If cmdline executable is present, include with installation
-    if exec_file is None:
-        package_data={}
-    else:
-        package_data={'svmbir': [exec_file]}
+    # set cython language level for all .pyx modules to Python 3
+    for e in ext_modules:
+        e.cython_directives = {'language_level': "3"}
 
 else:
-    # Command-line interface install set up
+    # Command-line interface install
 
     # Check for compiled executable
-    if exec_file is None:
-        assert False, 'Compiled executable not present in svmbir/sv-mbirct/bin/. Compile the binary executable first'
+    if os.path.exists('svmbir/sv-mbirct/bin/mbir_ct'):
+        exec_file = 'sv-mbirct/bin/mbir_ct'
+    elif os.path.exists('svmbir/sv-mbirct/bin/mbir_ct.exe'):
+        exec_file = 'sv-mbirct/bin/mbir_ct.exe'
     else:
-        package_data={'svmbir': [exec_file]}
+        exec_file = None
+        raise Exception("Compiled executable not present in 'svmbir/sv-mbirct/bin/' . Need to compile the binary executable first.")
 
+    package_data={'svmbir': [exec_file]}
     install_requires.append('ruamel.yaml')
     cmdclass = {}
     ext_modules = None
 
-# set cython language level for all .pyx modules to Python 3
-for e in ext_modules:
-    e.cython_directives = {'language_level': "3"}
 
 setup(name=name,
       version=version,
