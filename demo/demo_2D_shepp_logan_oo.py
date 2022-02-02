@@ -8,25 +8,40 @@ import svmbir.oo_svmbir as oosvmbir
 This file demonstrates the object-oriented interface on the generation of a Shepp-Logan phantom followed by 
 sinogram projection and reconstruction using MBIR. 
 The phantom, sinogram, and reconstruction are then displayed. 
+
+The primary class is ParallelBeamCT, which has set_params, project, backproject, and recon.
 """
 
-pbct = oosvmbir.ParallelBeamCT()
-
-# Simulated image parameters
-num_rows_cols = 256  # assumes a square image
-pbct.set_params(num_rows=num_rows_cols, num_cols=num_rows_cols)
-
-# Reconstruction parameters
-pbct.set_params(T=0.1, p=1.1, sharpness=0.0, snr_db=40.0)
+# #################################################################
+# Set up the phantom parameters and generate the phantom
+# #################################################################
 
 # Generate the array of view angles
 num_views = 144
 tilt_angle = np.pi / 2  # Tilt range of +-90deg
 angles = np.linspace(-tilt_angle, tilt_angle, num_views, endpoint=False)
 
-# Generate phantom with a single slice
+# Simulated image parameters
+num_rows_cols = 256  # assumes a square image
+
+# Generate a 2D phantom
 phantom = svmbir.phantom.gen_shepp_logan(num_rows_cols, num_rows_cols)
 phantom = np.expand_dims(phantom, axis=0)
+
+# ##########################################################################################
+# Make an instance of the main class and set the geometry and reconstruction parameters
+# ##########################################################################################
+
+pbct = oosvmbir.ParallelBeamCT()
+
+pbct.set_params(num_rows=num_rows_cols, num_cols=num_rows_cols)
+
+# Reconstruction parameters
+pbct.set_params(T=0.1, p=1.1, sharpness=0.0, snr_db=40.0)
+
+# ##########################################################################################
+# Use the instance to project the phantom to a sinogram, then do the reconstruction
+# ##########################################################################################
 
 # Generate sinogram by projecting phantom
 num_channels = num_rows_cols
@@ -34,6 +49,10 @@ sino = pbct.project(phantom, angles, num_channels)
 
 # Perform MBIR reconstruction
 recon = pbct.recon(sino, angles)
+
+# ########################################
+# Calculate error and display results
+# ########################################
 
 # Compute Normalized Root Mean Squared Error
 nrmse = svmbir.phantom.nrmse(recon[0], phantom[0])
