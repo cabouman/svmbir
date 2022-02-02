@@ -215,11 +215,11 @@ def test_args_geom(num_rows, num_cols, delta_pixel, roi_radius, delta_channel, c
     if not output_as_dict:
         return num_rows, num_cols, delta_pixel, roi_radius, delta_channel, center_offset
     else:
-        d = {'num_rows': num_rows, 
-             'num_cols': num_cols, 
-             'delta_pixel': delta_pixel, 
-             'roi_radius': roi_radius, 
-             'delta_channel': delta_channel, 
+        d = {'num_rows': num_rows,
+             'num_cols': num_cols,
+             'delta_pixel': delta_pixel,
+             'roi_radius': roi_radius,
+             'delta_channel': delta_channel,
              'center_offset': center_offset
              }
         return d
@@ -253,14 +253,14 @@ def test_args_recon(sharpness, positivity, max_resolutions, stop_threshold, max_
     if not output_as_dict:
         return sharpness, positivity, max_resolutions, stop_threshold, max_iterations
     else:
-        d = {'sharpness': sharpness, 
-             'positivity': positivity, 
-             'max_resolutions': max_resolutions, 
-             'stop_threshold': stop_threshold, 
+        d = {'sharpness': sharpness,
+             'positivity': positivity,
+             'max_resolutions': max_resolutions,
+             'stop_threshold': stop_threshold,
              'max_iterations': max_iterations
              }
         return d
-    
+
 
 def test_args_inits(init_image, prox_image, init_proj, weights, weight_type, output_as_dict=False):
 
@@ -293,10 +293,10 @@ def test_args_inits(init_image, prox_image, init_proj, weights, weight_type, out
     if not output_as_dict:
         return init_image, prox_image, init_proj, weights, weight_type
     else:
-        d = {'init_image': init_image, 
-             'prox_image': prox_image, 
-             'init_proj': init_proj, 
-             'weights': weights, 
+        d = {'init_image': init_image,
+             'prox_image': prox_image,
+             'init_proj': init_proj,
+             'weights': weights,
              'weight_type': weight_type
              }
         return d
@@ -327,9 +327,9 @@ def test_args_noise(sigma_y, snr_db, sigma_x, sigma_p, output_as_dict=False):
     if not output_as_dict:
         return sigma_y, snr_db, sigma_x, sigma_p
     else:
-        d = {'sigma_y': sigma_y, 
-             'snr_db': snr_db, 
-             'sigma_x': sigma_x, 
+        d = {'sigma_y': sigma_y,
+             'snr_db': snr_db,
+             'sigma_x': sigma_x,
              'sigma_p': sigma_p
              }
         return d
@@ -367,9 +367,9 @@ def test_args_qggmrf(p, q, T, b_interslice, output_as_dict=False):
     if not output_as_dict:
         return p, q, T, b_interslice
     else:
-        d = {'p': p, 
-             'q': q, 
-             'T': T, 
+        d = {'p': p,
+             'q': q,
+             'T': T,
              'b_interslice': b_interslice
              }
         return d
@@ -392,8 +392,8 @@ def test_args_sys(num_threads, delete_temps, verbose, output_as_dict=False):
     if not output_as_dict:
         return num_threads, delete_temps, verbose
     else:
-        d = {'num_threads': num_threads, 
-             'delete_temps': delete_temps, 
+        d = {'num_threads': num_threads,
+             'delete_temps': delete_temps,
              'verbose': verbose
              }
         return d

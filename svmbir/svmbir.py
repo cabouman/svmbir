@@ -8,7 +8,7 @@ import numpy as np
 import os
 import svmbir._utils as utils
 
-if os.environ.get('CLIB') =='CMD_LINE':
+if os.environ.get('CLIB') == 'CMD_LINE':
     import svmbir.interface_py_c as ci
 else:
     import svmbir.interface_cy_c as ci
@@ -28,7 +28,7 @@ def _clear_cache(svmbir_lib_path = __svmbir_lib_path):
     """Clear the cache files used by svmbir.
 
     Args:
-        svmbir_lib_path (string): Path to svmbir cache directory. Defaults to __svmbir_lib_path variable.
+        svmbir_lib_path (string): Path to svmbir cache directory. Defaults to __svmbir_lib_path variable
     """
     utils._clear_cache(svmbir_lib_path)
 
@@ -81,7 +81,7 @@ def calc_weights(sino, weight_type ):
 
             If weight_type="transmission_root" => weights = numpy.exp(-sino/2)
 
-            If weight_type="emission"          => weights = 1/(numpy.abs(sino) + 0.1)
+            If weight_type="emission"         => weights = 1/(sino + 0.1)
 
     Returns:
         ndarray: 3D numpy array of weights with same shape as sino.
@@ -257,13 +257,13 @@ def max_threads(num_threads, num_slices, num_rows, num_cols, positivity = True):
 
 
 def recon(sino, angles,
-          weights = None, weight_type = 'unweighted', init_image = 0.0, prox_image = None, init_proj = None,
-          num_rows = None, num_cols = None, roi_radius = None,
-          delta_channel = 1.0, delta_pixel = 1.0, center_offset = 0.0,
-          sigma_y = None, snr_db = 30.0, sigma_x = None, sigma_p = None, p = 1.2, q = 2.0, T = 1.0, b_interslice = 1.0,
-          sharpness = 0.0, positivity = True, max_resolutions = 0, stop_threshold = 0.02, max_iterations = 100,
-          num_threads = None, delete_temps = True, svmbir_lib_path = __svmbir_lib_path, object_name = 'object',
-          verbose = 1) :
+          weights=None, weight_type='unweighted', init_image=0.0, prox_image=None, init_proj=None,
+          num_rows=None, num_cols=None, roi_radius=None,
+          delta_channel=1.0, delta_pixel=1.0, center_offset=0.0,
+          sigma_y=None, snr_db=30.0, sigma_x=None, sigma_p=None, p=1.2, q=2.0, T=1.0, b_interslice=1.0,
+          sharpness=0.0, positivity=True, max_resolutions=0, stop_threshold=0.02, max_iterations=100,
+          num_threads=None, delete_temps=True, svmbir_lib_path=__svmbir_lib_path, object_name='object',
+          verbose=1):
     """recon(sino, angles, weights = None, weight_type = 'unweighted', init_image = 0.0, prox_image = None, init_proj = None, num_rows = None, num_cols = None, roi_radius = None, delta_channel = 1.0, delta_pixel = 1.0, center_offset = 0.0, sigma_y = None, snr_db = 30.0, sigma_x = None, p = 1.2, q = 2.0, T = 1.0, b_interslice = 1.0, sharpness = 1.0, positivity = True, max_resolutions = 0, stop_threshold = 0.02, max_iterations = 100, num_threads = None, delete_temps = True, svmbir_lib_path = '~/.cache/svmbir', object_name = 'object', verbose = 1)
 
     Compute 3D parallel beam MBIR reconstruction using multi-resolution SVMBIR algorithm.
@@ -427,9 +427,9 @@ def recon(sino, angles,
 
 
 def project(image, angles, num_channels,
-            delta_channel = 1.0, delta_pixel = 1.0, center_offset = 0.0, roi_radius = None,
-            num_threads = None, svmbir_lib_path = __svmbir_lib_path, delete_temps = True,
-            object_name = 'object', verbose = 1):
+            delta_channel=1.0, delta_pixel=1.0, center_offset=0.0, roi_radius=None,
+            num_threads=None, svmbir_lib_path=__svmbir_lib_path, delete_temps=True,
+            object_name='object', verbose=1):
     """project(image, angles, num_channels, delta_channel = 1.0, delta_pixel = 1.0, center_offset = 0.0, roi_radius = None, num_threads = None, svmbir_lib_path = '~/.cache/svmbir', delete_temps = True, object_name = 'object', verbose = 1)
 
     Compute 3D parallel beam forward-projection.
@@ -519,9 +519,9 @@ def project(image, angles, num_channels,
 
 
 def backproject(sino, angles, num_rows=None, num_cols=None,
-            delta_channel = 1.0, delta_pixel = 1.0, center_offset = 0.0, roi_radius = None,
-            num_threads = None, svmbir_lib_path = __svmbir_lib_path, delete_temps = True,
-            object_name = 'object', verbose = 1):
+                delta_channel=1.0, delta_pixel=1.0, center_offset=0.0, roi_radius=None,
+                num_threads=None, svmbir_lib_path=__svmbir_lib_path, delete_temps=True,
+                object_name='object', verbose=1):
     """backproject(sino, angles, num_rows = None, num_cols = None, delta_channel = 1.0, delta_pixel = 1.0, center_offset = 0.0, roi_radius = None, num_threads = None, svmbir_lib_path = '~/.cache/svmbir', delete_temps = True, object_name = 'object', verbose = 1)
 
     Compute 3D parallel beam back-projection.
@@ -561,7 +561,7 @@ def backproject(sino, angles, num_rows=None, num_cols=None,
 
     # validate input arguments
     angles = utils.test_args_angles(angles)
-    sino = utils.test_args_sino(sino,angles)
+    sino = utils.test_args_sino(sino, angles)
 
     if num_threads is None :
         num_threads = cpu_count(logical=False)
