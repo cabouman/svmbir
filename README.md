@@ -7,22 +7,37 @@ Full documentation is available at: https://svmbir.readthedocs.io
 
 
 ## Installation through pypi
-- Create an empty environment.
+- Create an empty virtural environment
 ```
 conda create -n svmbir python=3.8
 conda activate svmbir
 ```
-- pip install from pypi. 
 
+- Install using pip (PyPI)
 
-If you have the standard gcc compiler (note that the compiler shipped with Mac OS is not the standard gcc - 
-see the [documentation for detailed installation instructions for Mac](https://svmbir.readthedocs.io/en/latest/install.html#installation-on-windows-and-macos]))
-then you can install using
 ```
 pip install svmbir
 ```
 
-For installation with other compilers, see the [installation instructions](https://svmbir.readthedocs.io/en/latest/install.html#).
+Note that installation requires a GNU gcc compiler.
+See [here](https://svmbir.readthedocs.io/en/latest/install.html#)
+for more details.
+
+- Install using conda
+
+The svmbir package is also available from the conda-forge channel.
+
+```
+conda config --add channels conda-forge
+conda config --set channel_priority strict
+conda install svmbir
+```
+
+Note that installation requires a GNU gcc compiler.
+See [here](https://svmbir.readthedocs.io/en/latest/install.html#)
+for more details.
+
+
 ## Running the demos
 1. Download demo.zip at https://github.com/cabouman/svmbir/blob/master/demo.zip.
 2. Uncompress the zip file and change into demo folder.
