@@ -6,11 +6,22 @@ This is a python wrapper around HPImaging's supervoxel C code, [sv-mbirct](https
 Full documentation is available at: https://svmbir.readthedocs.io
 
 
-## Installation through pypi
+## Installing svmbir
+
+The svmbir package is available from conda-forge and PyPI.
+
 - Create an empty virtural environment
 ```
 conda create -n svmbir python=3.8
 conda activate svmbir
+```
+
+- Install using conda
+
+```
+conda config --add channels conda-forge
+conda config --set channel_priority strict
+conda install svmbir
 ```
 
 - Install using pip (PyPI)
@@ -19,23 +30,10 @@ conda activate svmbir
 pip install svmbir
 ```
 
-Note that installation requires a GNU gcc compiler.
+Note that pip installation requires a GNU gcc compiler.
 See [here](https://svmbir.readthedocs.io/en/latest/install.html#)
 for more details.
 
-- Install using conda
-
-The svmbir package is also available from the conda-forge channel.
-
-```
-conda config --add channels conda-forge
-conda config --set channel_priority strict
-conda install svmbir
-```
-
-Note that installation requires a GNU gcc compiler.
-See [here](https://svmbir.readthedocs.io/en/latest/install.html#)
-for more details.
 
 
 ## Running the demos

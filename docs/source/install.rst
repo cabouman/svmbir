@@ -2,22 +2,43 @@
 Installation 
 ============
 
-The ``svmbir`` package is available from PyPI, Anaconda, or can be built from source.
-
-**Installation on most platforms requires a gcc compiler** on the client computer.
-Special considerations for gcc installation on a Mac are listed :ref:`below <Mac gcc>`.
+The ``svmbir`` package is available from conda-forge, PyPI, or can be built from source.
 
 
-Installing from PyPI
------------------------------------------
+
+Installing from Anaconda
+------------------------
 
 1. Create a Virtual Environment (optional, but recommended)
 
-  To install to an Anaconda virtual environment, run the following:
+  To install svmbir in an Anaconda virtual environment, run the following:
 
 	| ``conda create --name svmbir python=3.8``
 	| ``conda activate svmbir``
 
+
+2. Add the conda-forge channel with:
+
+    | ``conda config --add channels conda-forge``
+    | ``conda config --set channel_priority strict``
+
+3. Once the conda-forge channel has been enabled, svmbir can be installed with:
+
+    | ``conda install svmbir``
+
+  To list all of the versions of svmbir available on your platform:
+
+    | ``conda search svmbir --channel conda-forge``
+
+
+
+Installing from PyPI
+--------------------
+
+On most platforms, installing with pip requires a gcc compiler.
+Special considerations for gcc installation on a Mac are listed :ref:`below <Mac gcc>`.
+
+1. Create a Virtual Environment (optional, see above)
 
 2. To install from PyPI,
 
@@ -37,25 +58,6 @@ Installing from PyPI
   Installation on Windows requires the following modified command (more information below).
 
     ``CC=msvc pip install svmbir``
-
-
-Installing with conda
--------------------------------
-
-1. Create a Virtual Environment (optional, see above)
-
-2. Add the conda-forge channel with:
-
-    | ``conda config --add channels conda-forge``
-    | ``conda config --set channel_priority strict``
-
-3. Once the conda-forge channel has been enabled, svmbir can be installed with:
-
-    | ``conda install svmbir``
-
-  To list all of the versions of svmbir available on your platform:
-
-    | ``conda search svmbir --channel conda-forge``
 
 
 
