@@ -1,9 +1,7 @@
 import os
-import re
 import sys
 from ast import parse
 import numpy as np
-import warnings
 from setuptools import setup, Extension
 from Cython.Distutils import build_ext
 

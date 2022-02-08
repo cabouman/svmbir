@@ -12,6 +12,7 @@
 #
 import os
 import sys
+from ast import parse
 import sphinx_rtd_theme
 
 if os.environ.get('SVMBIR_BUILD_DOCS') =='true':
@@ -21,12 +22,15 @@ if os.environ.get('SVMBIR_BUILD_DOCS') =='true':
 # -- Project information -----------------------------------------------------
 
 project = 'svmbir'
-copyright = '2020, SVMBIR Development Team'
+copyright = '2020-2022, SVMBIR Development Team'
 author = 'SVMBIR Development Team'
 
 # The full version, including alpha/beta/rc tags
 #version = '0.2'
-release = '0.2'
+#release = '0.2'
+# Retrieve the version number from svmbir/__init__.py
+with open(os.path.join("../..",project,"__init__.py")) as f:
+    release = parse(next(filter(lambda line: line.startswith("__version__"), f))).body[0].value.s
 
 
 # -- General configuration ---------------------------------------------------
