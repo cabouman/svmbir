@@ -264,7 +264,7 @@ def recon(sino, angles,
           verbose = 1) :
     """recon(sino, angles, geometry = 'parallel', weights = None, weight_type = 'unweighted', init_image = 0.0, prox_image = None, init_proj = None, num_rows = None, num_cols = None, roi_radius = None, delta_channel = 1.0, delta_pixel = 1.0, center_offset = 0.0, dist_source_detector = None, magnification = None, sigma_y = None, snr_db = 30.0, sigma_x = None, p = 1.2, q = 2.0, T = 1.0, b_interslice = 1.0, sharpness = 1.0, positivity = True, max_resolutions = 0, stop_threshold = 0.02, max_iterations = 100, num_threads = None, verbose = 1, **kwargs)
 
-    Compute 3D parallel beam MBIR reconstruction using multi-resolution SVMBIR algorithm.
+    Compute 3D MBIR reconstruction using multi-resolution SVMBIR algorithm.
 
     Args:
         sino (ndarray): 3D sinogram array with shape (num_views, num_slices, num_channels).
@@ -444,7 +444,7 @@ def project(image, angles, num_channels, geometry = 'parallel',
             object_name = 'object', verbose = 1):
     """project(image, angles, num_channels, geometry = 'parallel', delta_channel = 1.0, delta_pixel = 1.0, center_offset = 0.0, roi_radius = None, dist_source_detector = None, magnification = None, num_threads = None, verbose = 1, **kwargs)
 
-    Compute 3D parallel beam forward-projection.
+    Compute 3D forward-projection.
 
     Args:
         image (ndarray):
@@ -555,7 +555,7 @@ def backproject(sino, angles, geometry = 'parallel', num_rows=None, num_cols=Non
             object_name = 'object', verbose = 1):
     """backproject(sino, angles, geometry = 'parallel', num_rows = None, num_cols = None, dist_source_detector = None, magnification = None, delta_channel = 1.0, delta_pixel = 1.0, center_offset = 0.0, roi_radius = None, num_threads = None, verbose = 1, **kwargs)
 
-    Compute 3D parallel beam back-projection.
+    Compute 3D back-projection.
 
     Args:
         sino (ndarray):

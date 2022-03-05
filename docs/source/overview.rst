@@ -10,11 +10,28 @@ The reconstruction engine for *svmbir* is written and optimized in C
 
 **How does it work?**
 
-The super-voxel code can be 100x to 1000x faster than conventional code because it reorganizes operations in a way that is much better matched to a computer's cache structure. To do this, it precomputes the ``system matrix`` that describes the geometry of the tomography system and stores it in a file in encoded form. Whenever you do a reconstruction with a new geometry, the ``svmbir`` package automatically detects the new geometry, precomputes a new system matrix, and stores it in a library for future use. By default, the system matrices are stored in a subdirectory of your personal ``.cache`` directory in your home directory. So if they are taking too much space on your disk, you can remove these files at any time, and they will just be recomputed when needed.
+The super-voxel code can be 100x to 1000x faster than conventional MBIR code because it reorganizes operations in a way that is much better matched to a computer's cache structure. 
+Part of this involves precomputing a *system matrix* that models the system geometry, and encoding it in a layout that facilitates parallelization and reduces the required fetches from memory during reconstruction. 
+When system matrices are computed, they are stored to disk and will be automatically loaded whenever the same geometry is subsequently encountered. 
 
-**Troubleshooting**
+**Geometry**
 
-*Cached System Matrix Problems:* Rare updates to the software package could include changes to the encoding of the system matrix and result in existing pre-computed matrix files being incompatible after the update. The last such update was on (2020-12-02). To remove the outdated files, delete the cache directory located at ``~/.cache/svmbir``. The package will regenerate the system matrices as needed at the time of reconstruction.
+**svmbir** currently supports *parallel-beam* and *fan-beam* (equiangular, see below) imaging geometries.
+
+.. figure:: geom-fan.jpg
+   :width: 50%
+   :alt: fan beam geometry
+   :align: center
+
+   Equiangular fan-beam geometry
+
+.. figure:: geom-parallel.jpg
+   :width: 50%
+   :alt: parallel beam geometry
+   :align: center
+
+   Parallel-beam geometry
+
 
 *View Angle Ordering:* It is common practice to collect view data using techniques such as the "golden ratio" method in which the view angles are not collected in monotonically increasing order on the interval :math:`[0,2\pi)`. While ``svmbir`` will produce the correct reconstruction regardless of view ordering, its reconstruction speed will be substantially degraded when the views are not in monotone order. In this case, we highly recommend that users reorder the sinogram views using the provided ``sino_sort`` function. The ``sino_sort``  function first wraps the view angles modulo :math:`2\pi`, and then sorts the views to be in monotonically increasing order by view angle.
 
@@ -39,3 +56,11 @@ Using this convention, the 3D array, ``image``, will be in units of photons/AU. 
 .. math::
 
     \mbox{image in photons/mm} = \frac{ \mbox{image in photons/ALU} }{ 5 \mbox{mm} / \mbox{ALU}}
+
+**Matrix caching**
+
+When system matrices are computed, they are stored to disk and will be automatically loaded whenever the same geometry is subsequently encountered. 
+By default, the system matrices are stored in the subfolder ``~/.cache/svmbir/sysmatrix`` of your home directory.
+The matrix files can be removed at any time, and should be periodically cleaned out to reduce disk use.
+Occasionally, updates to the software package include changes to the encoding of the system matrix, in which case the the cached matrix files should also be cleaned out to avoid incompatibility.
+
