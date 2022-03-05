@@ -2,9 +2,11 @@
 Overview
 ========
 
-**svmbir** is a Python implementation of the Super-Voxel Model Based Iterative Reconstruction (MBIR) algorithm :cite:`wang2016high` :cite:`wang2017massively` for fast reconstruction of parallel beam 3D data.
+**svmbir** is a Python implementation of the Super-Voxel Model Based Iterative Reconstruction (MBIR) algorithm :cite:`wang2016high` :cite:`wang2017massively` for fast reconstruction of parallel-beam and fan-beam tomography data (3D).
 The code performs Bayesian reconstruction of tomographic data, so it is particularly well-suited for sparse view reconstruction from noisy data.
 It also has hooks to support Plug-and-Play prior models that can dramatically improve image quality :cite:`venkatakrishnan2013plug` :cite:`sreehari2016plug`.
+The reconstruction engine for *svmbir* is written and optimized in C 
+`[HPImaging/sv-mbirct] <https://github.com/HPImaging/sv-mbirct>`_ .
 
 **How does it work?**
 
