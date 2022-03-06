@@ -254,6 +254,7 @@ def max_threads(num_threads, num_slices, num_rows, num_cols, positivity = True):
 
 
 def recon(sino, angles,
+          geometry = 'parallel', dist_source_detector = None, magnification = None,
           weights = None, weight_type = 'unweighted', init_image = 0.0, prox_image = None, init_proj = None,
           num_rows = None, num_cols = None, roi_radius = None,
           delta_channel = 1.0, delta_pixel = 1.0, center_offset = 0.0,
@@ -261,17 +262,17 @@ def recon(sino, angles,
           sharpness = 0.0, positivity = True, max_resolutions = 0, stop_threshold = 0.02, max_iterations = 100,
           num_threads = None, delete_temps = True, svmbir_lib_path = __svmbir_lib_path, object_name = 'object',
           verbose = 1) :
-    """recon(sino, angles, weights = None, weight_type = 'unweighted', init_image = 0.0, prox_image = None, init_proj = None, num_rows = None, num_cols = None, roi_radius = None, delta_channel = 1.0, delta_pixel = 1.0, center_offset = 0.0, sigma_y = None, snr_db = 30.0, sigma_x = None, p = 1.2, q = 2.0, T = 1.0, b_interslice = 1.0, sharpness = 1.0, positivity = True, max_resolutions = 0, stop_threshold = 0.02, max_iterations = 100, num_threads = None, delete_temps = True, svmbir_lib_path = '~/.cache/svmbir', object_name = 'object', verbose = 1)
+    """recon(sino, angles, geometry = 'parallel', weights = None, weight_type = 'unweighted', init_image = 0.0, prox_image = None, init_proj = None, num_rows = None, num_cols = None, roi_radius = None, delta_channel = 1.0, delta_pixel = 1.0, center_offset = 0.0, dist_source_detector = None, magnification = None, sigma_y = None, snr_db = 30.0, sigma_x = None, p = 1.2, q = 2.0, T = 1.0, b_interslice = 1.0, sharpness = 1.0, positivity = True, max_resolutions = 0, stop_threshold = 0.02, max_iterations = 100, num_threads = None, verbose = 1, **kwargs)
 
-    Compute 3D parallel beam MBIR reconstruction using multi-resolution SVMBIR algorithm.
+    Compute 3D MBIR reconstruction using multi-resolution SVMBIR algorithm.
 
     Args:
         sino (ndarray): 3D sinogram array with shape (num_views, num_slices, num_channels).
-
         angles (ndarray): 1D view angles array in radians.
-
+        geometry (string):
+            [Default='parallel'] Scanner geometry, either 'parallel' or 'fan'. Note for fan geometry
+            the ``dist_source_detector`` and ``magnification`` arguments must be specified.
         weights (ndarray, optional): [Default=None] 3D weights array with same shape as sino.
-
         weight_type (string, optional): [Default="unweighted"] Type of noise model used for data.
             If the ``weights`` array is not supplied, then the function ``svmbir.calc_weights`` is used to set weights using specified ``weight_type`` parameter.
             Option "unweighted" corresponds to unweighted reconstruction;
@@ -302,7 +303,10 @@ def recon(sino, angles,
         delta_pixel (float, optional): [Default=1.0] Scalar value of the spacing between image pixels in the 2D slice plane in :math:`ALU`.
 
         center_offset (float, optional): [Default=0.0] Scalar value of offset from center-of-rotation.
-
+        dist_source_detector (float):
+            ('fanbeam' only) Distance from X-ray focal spot to detectors, in :math:`ALU`.
+        magnification (float):
+            ('fanbeam' only) Magnification factor = dist_source_detector/dist_source_isocenter.
         sigma_y (float, optional): [Default=None] Scalar value of noise standard deviation parameter.
             If None, automatically set with auto_sigma_y.
 
@@ -402,6 +406,15 @@ def recon(sino, angles,
             sigma_p = auto_sigma_p(sino, delta_channel, sharpness)
         sigma_x = sigma_p
 
+    if geometry == 'parallel':
+        dist_source_detector = 0.0
+        magnification = 1.0
+    elif geometry == 'fan':
+        if dist_source_detector is None or magnification is None:
+            raise Exception('For fanbeam geometry, need to specify dist_source_detector and magnification')
+    else:
+        raise Exception('Unrecognized geometry {}'.format(geometry))
+
     # Reduce num_threads for positivity=False if problems size calls for it
     #num_threads_max = max_threads(num_threads, num_slices, num_rows, num_cols, positivity=positivity)
     #if num_threads_max < num_threads:
@@ -410,6 +423,7 @@ def recon(sino, angles,
     os.environ['OMP_DYNAMIC'] = 'true'
 
     reconstruction = ci.multires_recon(sino=sino, angles=angles, weights=weights, weight_type=weight_type,
+                                       geometry=geometry, dist_source_detector=dist_source_detector, magnification=magnification,
                                        init_image=init_image, prox_image=prox_image, init_proj=init_proj,
                                        num_rows=num_rows, num_cols=num_cols, roi_radius=roi_radius,
                                        delta_channel=delta_channel, delta_pixel=delta_pixel, center_offset=center_offset,
@@ -423,13 +437,14 @@ def recon(sino, angles,
 
 
 
-def project(image, angles, num_channels,
+def project(image, angles, num_channels, geometry = 'parallel',
             delta_channel = 1.0, delta_pixel = 1.0, center_offset = 0.0, roi_radius = None,
+            dist_source_detector = None, magnification = None,
             num_threads = None, svmbir_lib_path = __svmbir_lib_path, delete_temps = True,
             object_name = 'object', verbose = 1):
-    """project(image, angles, num_channels, delta_channel = 1.0, delta_pixel = 1.0, center_offset = 0.0, roi_radius = None, num_threads = None, svmbir_lib_path = '~/.cache/svmbir', delete_temps = True, object_name = 'object', verbose = 1)
+    """project(image, angles, num_channels, geometry = 'parallel', delta_channel = 1.0, delta_pixel = 1.0, center_offset = 0.0, roi_radius = None, dist_source_detector = None, magnification = None, num_threads = None, verbose = 1, **kwargs)
 
-    Compute 3D parallel beam forward-projection.
+    Compute 3D forward-projection.
 
     Args:
         image (ndarray):
@@ -441,6 +456,9 @@ def project(image, angles, num_channels,
             'angles[k]' is the angle in radians for view :math:`k`.
         num_channels (int):
             Number of sinogram channels.
+        geometry (string):
+            [Default='parallel'] Scanner geometry, either 'parallel' or 'fan'. Note for fan geometry
+            the ``dist_source_detector`` and ``magnification`` arguments must be specified.
         delta_channel (float, optional):
             [Default=1.0] Detector channel spacing in :math:`ALU`.
         delta_pixel (float, optional):
@@ -450,6 +468,10 @@ def project(image, angles, num_channels,
         roi_radius (float, optional): [Default=None] Radius of relevant image region in :math:`ALU`.
             Pixels outside the radius are disregarded in the forward projection.
             If not given, the value is set with auto_roi_radius().
+        dist_source_detector (float):
+            ('fanbeam' only) Distance from X-ray focal spot to detectors, in :math:`ALU`.
+        magnification (float):
+            ('fanbeam' only) Magnification factor = dist_source_detector/dist_source_isocenter.
         num_threads (int, optional): [Default=None] Number of compute threads requested when executed.
             If None, num_threads is set to the number of cores in the system.
         svmbir_lib_path (string, optional):
@@ -491,7 +513,18 @@ def project(image, angles, num_channels,
     if roi_radius is None :
         roi_radius = auto_roi_radius(delta_pixel, num_rows, num_cols)
 
+    if geometry == 'parallel':
+        dist_source_detector = 0.0
+        magnification = 1.0
+    elif geometry == 'fan':
+        if dist_source_detector is None or magnification is None:
+            raise Exception('For fanbeam geometry, need to specify dist_source_detector and magnification')
+    else:
+        raise Exception('Unrecognized geometry {}'.format(geometry))
+
     paths, sinoparams, imgparams = ci._init_geometry(angles, center_offset=center_offset,
+                                                     geometry=geometry, dist_source_detector=dist_source_detector,
+                                                     magnification=magnification,
                                                      num_channels=num_channels, num_views=num_views, num_slices=num_slices,
                                                      num_rows=num_rows, num_cols=num_cols,
                                                      delta_channel=delta_channel, delta_pixel=delta_pixel,
@@ -515,13 +548,14 @@ def project(image, angles, num_channels,
 
 
 
-def backproject(sino, angles, num_rows=None, num_cols=None,
+def backproject(sino, angles, geometry = 'parallel', num_rows=None, num_cols=None,
+            dist_source_detector = None, magnification = None,
             delta_channel = 1.0, delta_pixel = 1.0, center_offset = 0.0, roi_radius = None,
             num_threads = None, svmbir_lib_path = __svmbir_lib_path, delete_temps = True,
             object_name = 'object', verbose = 1):
-    """backproject(sino, angles, num_rows = None, num_cols = None, delta_channel = 1.0, delta_pixel = 1.0, center_offset = 0.0, roi_radius = None, num_threads = None, svmbir_lib_path = '~/.cache/svmbir', delete_temps = True, object_name = 'object', verbose = 1)
+    """backproject(sino, angles, geometry = 'parallel', num_rows = None, num_cols = None, dist_source_detector = None, magnification = None, delta_channel = 1.0, delta_pixel = 1.0, center_offset = 0.0, roi_radius = None, num_threads = None, verbose = 1, **kwargs)
 
-    Compute 3D parallel beam back-projection.
+    Compute 3D back-projection.
 
     Args:
         sino (ndarray):
@@ -529,10 +563,17 @@ def backproject(sino, angles, num_rows=None, num_cols=None,
         angles (ndarray):
             1D numpy array of view angles in radians.
             'angles[k]' is the angle in radians for view :math:`k`.
+        geometry (string):
+            [Default='parallel'] Scanner geometry, either 'parallel' or 'fan'. Note for fan geometry
+            the ``dist_source_detector`` and ``magnification`` arguments must be specified.
         num_rows (int, optional):
             [Default=num_channels] Integer number of output image rows.
         num_cols (int, optional):
             [Default=num_channels] Integer number of output image columns.
+        dist_source_detector (float):
+            ('fanbeam' only) Distance from X-ray focal spot to detectors, in :math:`ALU`.
+        magnification (float):
+            ('fanbeam' only) Magnification factor = dist_source_detector/dist_source_isocenter.
         delta_channel (float, optional):
             [Default=1.0] Detector channel spacing in :math:`ALU`.
         delta_pixel (float, optional):
@@ -580,7 +621,18 @@ def backproject(sino, angles, num_rows=None, num_cols=None,
     if roi_radius is None:
         roi_radius = auto_roi_radius(delta_pixel, num_rows, num_cols)
 
+    if geometry == 'parallel':
+        dist_source_detector = 0.0
+        magnification = 1.0
+    elif geometry == 'fan':
+        if dist_source_detector is None or magnification is None:
+            raise Exception('For fanbeam geometry, need to specify dist_source_detector and magnification')
+    else:
+        raise Exception('Unrecognized geometry {}'.format(geometry))
+
     paths, sinoparams, imgparams = ci._init_geometry(angles, center_offset=center_offset,
+                                                     geometry=geometry, dist_source_detector=dist_source_detector,
+                                                     magnification=magnification,
                                                      num_channels=num_channels, num_views=num_views, num_slices=num_slices,
                                                      num_rows=num_rows, num_cols=num_cols,
                                                      delta_channel=delta_channel, delta_pixel=delta_pixel,

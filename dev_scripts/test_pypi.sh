@@ -9,7 +9,7 @@
 # Set these accordingly:
 
 python_versions=("3.7" "3.8" "3.9")
-svmbir_version=0.2.7
+svmbir_version=0.2.8
 
 echo "*********************************************************"
 echo "**** Test install "
@@ -22,7 +22,7 @@ for pyv in ${python_versions[@]}; do
     conda activate sv${pyv}
 
     echo "*********** Installing svmbir ${svmbir_version} *************"
-    #pip install -i https://test.pypi.org/simple/ svmbir==$svmbir_version
+    #pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple svmbir==$svmbir_version
     pip install svmbir==$svmbir_version
     pip install -r ../demo/requirements_demo.txt
 

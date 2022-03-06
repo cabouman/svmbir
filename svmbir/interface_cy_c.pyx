@@ -19,11 +19,13 @@ __namelen_sysmatrix = 20
 cdef extern from "./sv-mbirct/src/MBIRModularDefs.h":
     # 3D Sinogram Parameters
     struct SinoParams3DParallel:
+        int Geometry;           # 0:parallel, 1:fanbeam
         int NChannels;          # Number of channels in detector
         float DeltaChannel;     # Detector spacing
-        float CenterOffset;     # Offset of center-of-rotation ...
-                                # Computed from center of detector in increasing direction (no. of channels)
-                                # This can be fractional though
+        float CenterOffset;     # Offset of center-of-rotation, computed from center of detector in
+                                #   increasing direction (fractional no. of channels)
+        float DistSourceDetector; # (fanbeam only) Distance from source to detectors
+        float Magnification;    # (fanbeam only) magnification = dist_source_detector / dist_source_isocenter
         int NViews;             # Number of view angles
         float *ViewAngles;      # Array of NTheta view angle entries in degrees
         int NSlices;            # Number of rows (slices) stored in Sino array
@@ -107,9 +109,17 @@ cdef convert_py2c_ImageParams3D(ImageParams3D* imgparams,
 cdef convert_py2c_SinoParams3D(SinoParams3DParallel* sinoparams,
                         py_sinoparams,
                         float[:] ViewAngles):
+    if py_sinoparams['geometry']=='parallel':
+        sinoparams.Geometry = 0
+    elif py_sinoparams['geometry']=='fan':
+        sinoparams.Geometry = 1
+    else:
+        sinoparams.Geometry = 0
     sinoparams.NChannels = py_sinoparams['num_channels']
     sinoparams.DeltaChannel = py_sinoparams['delta_channel']
     sinoparams.CenterOffset = py_sinoparams['center_offset']
+    sinoparams.DistSourceDetector = py_sinoparams['dist_source_detector']
+    sinoparams.Magnification = py_sinoparams['magnification']
     sinoparams.NViews = py_sinoparams['num_views']
     sinoparams.ViewAngles = &ViewAngles[0] # Assign pointer for float array in C data structure
     sinoparams.NSlices = py_sinoparams['num_slices']
@@ -171,10 +181,12 @@ def _gen_paths(svmbir_lib_path = __svmbir_lib_path, object_name = 'object', sysm
 ##################################################################
 
 def _init_geometry( angles, num_channels, num_views, num_slices, num_rows, num_cols,
+                    geometry, dist_source_detector, magnification,
                     delta_channel, delta_pixel, roi_radius, center_offset, verbose,
                     svmbir_lib_path = __svmbir_lib_path, object_name = 'object'):
 
     sinoparams, imgparams, settings = utils.get_params_dicts(angles, num_channels, num_views, num_slices, num_rows, num_cols,
+                geometry, dist_source_detector, magnification,
                 delta_channel, delta_pixel, roi_radius, center_offset, verbose,
                 svmbir_lib_path, object_name, interface='Cython')
 
@@ -315,6 +327,7 @@ def backproject(sino, settings):
 
 
 def multires_recon(sino, angles, weights, weight_type, init_image, prox_image, init_proj,
+                   geometry, dist_source_detector, magnification,
                    num_rows, num_cols, roi_radius, delta_channel, delta_pixel, center_offset,
                    sigma_y, snr_db, sigma_x, p, q, T, b_interslice,
                    sharpness, positivity, max_resolutions, stop_threshold, max_iterations,
@@ -358,6 +371,7 @@ def multires_recon(sino, angles, weights, weight_type, init_image, prox_image, i
             print(f'Calling multires_recon for axial size (rows,cols)=({lr_num_rows},{lr_num_cols}).')
 
         lr_recon = multires_recon(sino=sino, angles=angles, weights=weights, weight_type=weight_type,
+                        geometry=geometry, dist_source_detector=dist_source_detector, magnification=magnification,
                         init_image=lr_init_image, prox_image=lr_prox_image, init_proj=init_proj,
                         num_rows=lr_num_rows, num_cols=lr_num_cols, roi_radius=roi_radius,
                         delta_channel=delta_channel, delta_pixel=lr_delta_pixel, center_offset=center_offset,
@@ -389,6 +403,8 @@ def multires_recon(sino, angles, weights, weight_type, init_image, prox_image, i
                         stop_threshold, max_iterations, interface = 'Cython')
 
     paths, sinoparams, imgparams = _init_geometry(angles, center_offset=center_offset,
+                                                  geometry=geometry, dist_source_detector=dist_source_detector,
+                                                  magnification=magnification,
                                                   num_channels=num_channels, num_views=num_views, num_slices=num_slices,
                                                   num_rows=num_rows, num_cols=num_cols,
                                                   delta_channel=delta_channel, delta_pixel=delta_pixel,

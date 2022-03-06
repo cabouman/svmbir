@@ -1,14 +1,13 @@
-**svmbir** stands for Super-Voxel Model-Based Iterative Reconstruction.
-svmbir is an easy-to-use python package for fast parallel-beam reconstruction of tomography data using model-based priors.
+**svmbir** (super-voxel model-based iterative reconstruction) is an easy-to-use python package for fast iterative reconstruction of tomography data using model-based priors.
+The `svmbir <https://github.com/cabouman/svmbir>`_ package is a python interface to HPImaging's optimized 
+C implementation `[sv-mbirct] <https://github.com/HPImaging/sv-mbirct>`_
+of the super-voxel algorithm :cite:`wang2016high` :cite:`wang2017massively`.
 
 
 Features
 --------
-* Easy-to-use python code for fast parallel-beam MBIR (Model Based Iterative Reconstruction)
-
-* Interface to HPImaging's optimized C implementation `[sv-mbirct] <https://github.com/HPImaging/sv-mbirct>`_ of the super-voxel algorithm :cite:`wang2016high` :cite:`wang2017massively`
-
-* Supports MBIR reconstruction with Bayesian and Plug-and-Play prior models.
+* Supports MBIR reconstruction with Bayesian and Plug-and-Play prior models
+* Supports parallel-beam and fan-beam geometries
 
 
 System Requirements
@@ -23,11 +22,11 @@ Optional System Requirements
 Fastest reconstruction can be obtained with,
 
 * Intel-based CPU(s) supporting AVX2,AVX512
-* Intel ICC compiler (in "Parallel Studio XE", and now free "oneAPI")
+* Intel ICC compiler (included with Intel's free "oneAPI" toolkit)
 
 We also recommend:
 
-* Installation using conda environment
+* Installation to a conda virtual environment
 
 License
 -------

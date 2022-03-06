@@ -239,6 +239,7 @@ def test_args_sys(num_threads, delete_temps, verbose):
 
 def hash_params(angles, **kwargs):
     relevant_params = dict()
+    relevant_params['geometry'] = kwargs['geometry']
     relevant_params['Nx'] = kwargs['Nx']
     relevant_params['Ny'] = kwargs['Ny']
     relevant_params['delta_xy'] = kwargs['delta_xy']
@@ -247,6 +248,8 @@ def hash_params(angles, **kwargs):
     relevant_params['num_views'] = kwargs['num_views']
     relevant_params['delta_channel'] = kwargs['delta_channel']
     relevant_params['center_offset'] = kwargs['center_offset']
+    relevant_params['dist_source_detector'] = kwargs['dist_source_detector']
+    relevant_params['magnification'] = kwargs['magnification']
 
     hash_input = str(relevant_params) + str(np.around(angles, decimals=6))
 
@@ -256,19 +259,21 @@ def hash_params(angles, **kwargs):
 
 
 def get_params_dicts(angles, num_channels, num_views, num_slices, num_rows, num_cols,
+                    geometry, dist_source_detector, magnification,
                     delta_channel, delta_pixel, roi_radius, center_offset, verbose,
                     svmbir_lib_path, object_name, interface = 'Cython'):
     # Collect the information needed to pass to c
     # - ideally these should be put in a struct that could be used by c directly
     # First the sinogram parameters
     sinoparams = dict()
-    if interface == 'Command Line':
-        sinoparams['geometry'] = '3DPARALLEL'
+    sinoparams['geometry'] = geometry
     sinoparams['num_channels'] = num_channels
     sinoparams['num_views'] = num_views
     sinoparams['num_slices'] = num_slices
     sinoparams['delta_channel'] = delta_channel
     sinoparams['center_offset'] = center_offset
+    sinoparams['dist_source_detector'] = dist_source_detector
+    sinoparams['magnification'] = magnification
     sinoparams['delta_slice'] = 1
     if interface == 'Command Line':
         sinoparams['first_slice_number'] = 0
