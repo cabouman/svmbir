@@ -203,18 +203,19 @@ def auto_sigma_prior(sino, delta_channel = 1.0, sharpness = 0.0 ):
     return sigma_prior
 
 
-def auto_num_rows(num_channels, delta_channel, delta_pixel):
-    """Compute the automatic value of ``num_rows``.
-    """
-    num_rows = int(np.ceil(num_channels * delta_channel / delta_pixel))
-    return num_rows
+def auto_img_size(geometry, num_channels, delta_channel, delta_pixel):
+    "Compute the default image size"
 
+    if geometry == 'parallel':
+        num_rows = int(np.ceil(num_channels * delta_channel / delta_pixel))
+    elif geometry == 'fan':
+        num_rows = num_channels
+    else:
+        # default to parallel beam
+        num_rows = int(np.ceil(num_channels * delta_channel / delta_pixel))
 
-def auto_num_cols(num_channels, delta_channel, delta_pixel):
-    """Compute the automatic value of ``num_cols``.
-    """
-    num_cols = int(np.ceil(num_channels * delta_channel / delta_pixel))
-    return num_cols
+    num_cols = num_rows
+    return num_rows,num_cols
 
 
 def auto_roi_radius(delta_pixel, num_rows, num_cols):
@@ -257,12 +258,12 @@ def recon(sino, angles,
           geometry = 'parallel', dist_source_detector = None, magnification = None,
           weights = None, weight_type = 'unweighted', init_image = 0.0, prox_image = None, init_proj = None,
           num_rows = None, num_cols = None, roi_radius = None,
-          delta_channel = 1.0, delta_pixel = 1.0, center_offset = 0.0,
+          delta_channel = 1.0, delta_pixel = None, center_offset = 0.0,
           sigma_y = None, snr_db = 30.0, sigma_x = None, sigma_p = None, p = 1.2, q = 2.0, T = 1.0, b_interslice = 1.0,
           sharpness = 0.0, positivity = True, max_resolutions = 0, stop_threshold = 0.02, max_iterations = 100,
           num_threads = None, delete_temps = True, svmbir_lib_path = __svmbir_lib_path, object_name = 'object',
           verbose = 1) :
-    """recon(sino, angles, geometry = 'parallel', weights = None, weight_type = 'unweighted', init_image = 0.0, prox_image = None, init_proj = None, num_rows = None, num_cols = None, roi_radius = None, delta_channel = 1.0, delta_pixel = 1.0, center_offset = 0.0, dist_source_detector = None, magnification = None, sigma_y = None, snr_db = 30.0, sigma_x = None, p = 1.2, q = 2.0, T = 1.0, b_interslice = 1.0, sharpness = 1.0, positivity = True, max_resolutions = 0, stop_threshold = 0.02, max_iterations = 100, num_threads = None, verbose = 1, **kwargs)
+    """recon(sino, angles, geometry = 'parallel', weights = None, weight_type = 'unweighted', init_image = 0.0, prox_image = None, init_proj = None, num_rows = None, num_cols = None, roi_radius = None, delta_channel = 1.0, delta_pixel = None, center_offset = 0.0, dist_source_detector = None, magnification = None, sigma_y = None, snr_db = 30.0, sigma_x = None, p = 1.2, q = 2.0, T = 1.0, b_interslice = 1.0, sharpness = 1.0, positivity = True, max_resolutions = 0, stop_threshold = 0.02, max_iterations = 100, num_threads = None, verbose = 1, **kwargs)
 
     Compute 3D MBIR reconstruction using multi-resolution SVMBIR algorithm.
 
@@ -274,34 +275,29 @@ def recon(sino, angles,
             the ``dist_source_detector`` and ``magnification`` arguments must be specified.
         weights (ndarray, optional): [Default=None] 3D weights array with same shape as sino.
         weight_type (string, optional): [Default="unweighted"] Type of noise model used for data.
-            If the ``weights`` array is not supplied, then the function ``svmbir.calc_weights`` is used to set weights using specified ``weight_type`` parameter.
+            If the ``weights`` array is not supplied, then the function ``svmbir.calc_weights`` is 
+            used to set weights using specified ``weight_type`` parameter.
             Option "unweighted" corresponds to unweighted reconstruction;
             Option "transmission" is the correct weighting for transmission CT with constant dosage;
             Option "transmission_root" is commonly used with transmission CT data to improve image homogeneity;
             Option "emission" is appropriate for emission CT data.
-
-        init_image (float, optional): [Default=0.0] Initial value of reconstruction image, specified by either a scalar value or a 3D numpy array with shape (num_slices,num_rows,num_cols).
-
+        init_image (float, optional): [Default=0.0] Initial value of reconstruction image, specified 
+            by either a scalar value or a 3D numpy array with shape (num_slices,num_rows,num_cols).
         prox_image (ndarray, optional): [Default=None] 3D proximal map input image.
             If prox_image is supplied, then the proximal map prior model is used, and the qGGMRF parameters are ignored.
-
         init_proj (None, optional): [Default=None] Initial value of forward projection of the init_image.
             This can be used to reduce computation for the first iteration when using the proximal map option.
-
         num_rows (int, optional): [Default=None] Integer number of rows in reconstructed image.
             If None, automatically set.
-
         num_cols (int, optional): [Default=None] Integer number of columns in reconstructed image.
             If None, automatically set.
-
         roi_radius (float, optional): [Default=None] Scalar value of radius of reconstruction in :math:`ALU`.
             If None, automatically set with auto_roi_radius().
             Pixels outside the radius roi_radius in the :math:`(x,y)` plane are disregarded in the reconstruction.
-
         delta_channel (float, optional): [Default=1.0] Scalar value of detector channel spacing in :math:`ALU`.
-
-        delta_pixel (float, optional): [Default=1.0] Scalar value of the spacing between image pixels in the 2D slice plane in :math:`ALU`.
-
+        delta_pixel (float, optional): Scalar value of the spacing between image pixels in the 2D slice 
+            plane in :math:`ALU`. Defaults to ``delta_channel`` for ``parallel`` beam geometry, 
+            and ``delta_channel``/``magnification`` for ``fan`` geometry.
         center_offset (float, optional): [Default=0.0] Scalar value of offset from center-of-rotation.
         dist_source_detector (float):
             ('fanbeam' only) Distance from X-ray focal spot to detectors, in :math:`ALU`.
@@ -309,54 +305,46 @@ def recon(sino, angles,
             ('fanbeam' only) Magnification factor = dist_source_detector/dist_source_isocenter.
         sigma_y (float, optional): [Default=None] Scalar value of noise standard deviation parameter.
             If None, automatically set with auto_sigma_y.
-
-        snr_db (float, optional): [Default=30.0] Scalar value that controls assumed signal-to-noise ratio of the data in dB.
-            Ignored if sigma_y is not None.
-
+        snr_db (float, optional): [Default=30.0] Scalar value that controls assumed signal-to-noise 
+            ratio of the data in dB. Ignored if sigma_y is not None.
         sigma_x (float, optional): [Default=None] Scalar value :math:`>0` that specifies the qGGMRF scale parameter.
             Ignored if prox_image is not None.
-            If None and prox_image is also None, automatically set with auto_sigma_x. Regularization should be controled with the ``sharpness`` parameter, but ``sigma_x`` can be set directly by expert users.
-
+            If None and prox_image is also None, automatically set with auto_sigma_x. Regularization should 
+            be controled with the ``sharpness`` parameter, but ``sigma_x`` can be set directly by expert users.
         sigma_p (float, optional): [Default=None] Scalar value :math:`>0` that specifies the proximal map parameter.
-            Ignored if prox_image is None.
-            If None and proximal image is not None, automatically set with auto_sigma_p. Regularization should be controled with the ``sharpness`` parameter, but ``sigma_p`` can be set directly by expert users.
-
+            If None, automatically set with auto_sigma_p. Regularization should be controled with the 
+            ``sharpness`` parameter, but ``sigma_p`` can be set directly by expert users.
         p (float, optional): [Default=1.2] Scalar value in range :math:`[1,2]` that specifies the qGGMRF shape parameter.
-
         q (float, optional): [Default=2.0] Scalar value in range :math:`[p,1]` that specifies the qGGMRF shape parameter.
-
         T (float, optional): [Default=1.0] Scalar value :math:`>0` that specifies the qGGMRF threshold parameter.
-
         b_interslice (float, optional): [Default=1.0] Scalar value :math:`>0` that specifies the interslice regularization.
             The default value of 1.0 should be fine for most applications.
-            However, b_interslice can be increased to values :math:`>1` in order to increase regularization along the slice axis.
-
+            However, b_interslice can be increased to values :math:`>1` in order to increase 
+            regularization along the slice axis.
         sharpness (float, optional):
             [Default=0.0] Scalar value that controls level of sharpness.
             ``sharpness=0.0`` is neutral; ``sharpness>0`` increases sharpness; ``sharpness<0`` reduces sharpness.
             Ignored if ``sigma_x`` is not None in qGGMRF mode, or if ``sigma_p`` is not None in proximal map mode.
-
-        positivity (bool, optional): [Default=True] Boolean value that determines if positivity constraint is enforced. The positivity parameter defaults to True; however, it should be changed to False when used in applications that can generate negative image values.
-
-        max_resolutions (int, optional): [Default=0] Integer >=0 that specifies the maximum number of grid resolutions used to solve MBIR reconstruction problem.
-
+        positivity (bool, optional): [Default=True] Boolean value that determines if positivity constraint 
+            is enforced. The positivity parameter defaults to True; however, it should be changed to False 
+            when used in applications that can generate negative image values.
+        max_resolutions (int, optional): [Default=0] Integer >=0 that specifies the maximum number of grid 
+            resolutions used to solve MBIR reconstruction problem.
         stop_threshold (float, optional): [Default=0.02] Scalar valued stopping threshold in percent.
             If stop_threshold=0.0, then run max iterations.
-
-        max_iterations (int, optional): [Default=100] Integer valued specifying the maximum number of iterations. The value of ``max_iterations`` may need to be increased for reconstructions with limited tilt angles or high regularization.
-
+        max_iterations (int, optional): [Default=100] Integer valued specifying the maximum number of 
+            iterations. The value of ``max_iterations`` may need to be increased for reconstructions with 
+            limited tilt angles or high regularization.
         num_threads (int, optional): [Default=None] Number of compute threads requested when executed.
             If None, num_threads is set to the number of cores in the system
-
         delete_temps (bool, optional): [Default=True] Delete temporary files used in computation.
-
-        svmbir_lib_path (string, optional): [Default='~/.cache/svmbir'] Path to directory containing library of forward projection matrices.
-
+        svmbir_lib_path (string, optional): [Default='~/.cache/svmbir'] Path to directory containing 
+            library of forward projection matrices.
         object_name (string, optional): [Default='object'] Specifies filenames of cached files.
             Can be changed suitably for running multiple instances of reconstructions.
             Useful for building multi-process and multi-node functionality on top of svmbir.
-
-        verbose (int, optional): [Default=1] Possible values are {0,1,2}, where 0 is quiet, 1 prints minimal reconstruction progress information, and 2 prints the full information.
+        verbose (int, optional): [Default=1] Possible values are {0,1,2}, where 0 is quiet, 
+            1 prints minimal reconstruction progress information, and 2 prints the full information.
 
     Returns:
         3D numpy array: 3D reconstruction with shape (num_slices,num_rows,num_cols) in units of :math:`ALU^{-1}`.
@@ -379,11 +367,23 @@ def recon(sino, angles,
     p, q, T, b_interslice = utils.test_args_qggmrf(p, q, T, b_interslice)
     num_threads, delete_temps, verbose = utils.test_args_sys(num_threads, delete_temps, verbose)
 
+    # Geometry dependent settings
+    if geometry == 'parallel':
+        dist_source_detector = 0.0
+        magnification = 1.0
+    elif geometry == 'fan':
+        if dist_source_detector is None or magnification is None:
+            raise Exception('For fanbeam geometry, need to specify dist_source_detector and magnification')
+    else:
+        raise Exception('Unrecognized geometry {}'.format(geometry))
+
     # Set automatic values of num_rows, num_cols, and roi_radius
+    if delta_pixel is None:
+        delta_pixel = delta_channel/magnification
     if num_rows is None:
-        num_rows = auto_num_rows(num_channels, delta_channel, delta_pixel)
+        num_rows,_ = auto_img_size(geometry, num_channels, delta_channel, delta_pixel)
     if num_cols is None:
-        num_cols = auto_num_cols(num_channels, delta_channel, delta_pixel)
+        _,num_cols = auto_img_size(geometry, num_channels, delta_channel, delta_pixel)
     if roi_radius is None:
         roi_radius = auto_roi_radius(delta_pixel, num_rows, num_cols)
 
@@ -405,15 +405,6 @@ def recon(sino, angles,
         if sigma_p is None:
             sigma_p = auto_sigma_p(sino, delta_channel, sharpness)
         sigma_x = sigma_p
-
-    if geometry == 'parallel':
-        dist_source_detector = 0.0
-        magnification = 1.0
-    elif geometry == 'fan':
-        if dist_source_detector is None or magnification is None:
-            raise Exception('For fanbeam geometry, need to specify dist_source_detector and magnification')
-    else:
-        raise Exception('Unrecognized geometry {}'.format(geometry))
 
     # Reduce num_threads for positivity=False if problems size calls for it
     #num_threads_max = max_threads(num_threads, num_slices, num_rows, num_cols, positivity=positivity)
@@ -438,11 +429,11 @@ def recon(sino, angles,
 
 
 def project(image, angles, num_channels, geometry = 'parallel',
-            delta_channel = 1.0, delta_pixel = 1.0, center_offset = 0.0, roi_radius = None,
+            delta_channel = 1.0, delta_pixel = None, center_offset = 0.0, roi_radius = None,
             dist_source_detector = None, magnification = None,
             num_threads = None, svmbir_lib_path = __svmbir_lib_path, delete_temps = True,
             object_name = 'object', verbose = 1):
-    """project(image, angles, num_channels, geometry = 'parallel', delta_channel = 1.0, delta_pixel = 1.0, center_offset = 0.0, roi_radius = None, dist_source_detector = None, magnification = None, num_threads = None, verbose = 1, **kwargs)
+    """project(image, angles, num_channels, geometry = 'parallel', delta_channel = 1.0, delta_pixel = None, center_offset = 0.0, roi_radius = None, dist_source_detector = None, magnification = None, num_threads = None, verbose = 1, **kwargs)
 
     Compute 3D forward-projection.
 
@@ -459,10 +450,10 @@ def project(image, angles, num_channels, geometry = 'parallel',
         geometry (string):
             [Default='parallel'] Scanner geometry, either 'parallel' or 'fan'. Note for fan geometry
             the ``dist_source_detector`` and ``magnification`` arguments must be specified.
-        delta_channel (float, optional):
-            [Default=1.0] Detector channel spacing in :math:`ALU`.
-        delta_pixel (float, optional):
-            [Default=1.0] Size of image pixels in the 2D slice plane in :math:`ALU`.
+        delta_channel (float, optional): [Default=1.0] Scalar value of detector channel spacing in :math:`ALU`.
+        delta_pixel (float, optional): Scalar value of the spacing between image pixels in the 2D slice 
+            plane in :math:`ALU`. Defaults to ``delta_channel`` for ``parallel`` beam geometry, 
+            and ``delta_channel``/``magnification`` for ``fan`` geometry.
         center_offset (float, optional):
             [Default=0.0] Offset from center-of-rotation in 'fractional number of channels' units.
         roi_radius (float, optional): [Default=None] Radius of relevant image region in :math:`ALU`.
@@ -510,9 +501,7 @@ def project(image, angles, num_channels, geometry = 'parallel',
     num_cols = image.shape[2]
     num_views = len(angles)
 
-    if roi_radius is None :
-        roi_radius = auto_roi_radius(delta_pixel, num_rows, num_cols)
-
+    # Geometry dependent settings
     if geometry == 'parallel':
         dist_source_detector = 0.0
         magnification = 1.0
@@ -521,6 +510,11 @@ def project(image, angles, num_channels, geometry = 'parallel',
             raise Exception('For fanbeam geometry, need to specify dist_source_detector and magnification')
     else:
         raise Exception('Unrecognized geometry {}'.format(geometry))
+
+    if delta_pixel is None:
+        delta_pixel = delta_channel/magnification
+    if roi_radius is None :
+        roi_radius = auto_roi_radius(delta_pixel, num_rows, num_cols)
 
     paths, sinoparams, imgparams = ci._init_geometry(angles, center_offset=center_offset,
                                                      geometry=geometry, dist_source_detector=dist_source_detector,
@@ -550,10 +544,10 @@ def project(image, angles, num_channels, geometry = 'parallel',
 
 def backproject(sino, angles, geometry = 'parallel', num_rows=None, num_cols=None,
             dist_source_detector = None, magnification = None,
-            delta_channel = 1.0, delta_pixel = 1.0, center_offset = 0.0, roi_radius = None,
+            delta_channel = 1.0, delta_pixel = None, center_offset = 0.0, roi_radius = None,
             num_threads = None, svmbir_lib_path = __svmbir_lib_path, delete_temps = True,
             object_name = 'object', verbose = 1):
-    """backproject(sino, angles, geometry = 'parallel', num_rows = None, num_cols = None, dist_source_detector = None, magnification = None, delta_channel = 1.0, delta_pixel = 1.0, center_offset = 0.0, roi_radius = None, num_threads = None, verbose = 1, **kwargs)
+    """backproject(sino, angles, geometry = 'parallel', num_rows = None, num_cols = None, dist_source_detector = None, magnification = None, delta_channel = 1.0, delta_pixel = None, center_offset = 0.0, roi_radius = None, num_threads = None, verbose = 1, **kwargs)
 
     Compute 3D back-projection.
 
@@ -577,7 +571,9 @@ def backproject(sino, angles, geometry = 'parallel', num_rows=None, num_cols=Non
         delta_channel (float, optional):
             [Default=1.0] Detector channel spacing in :math:`ALU`.
         delta_pixel (float, optional):
-            [Default=1.0] Size of image pixels in the 2D slice plane in :math:`ALU`.
+            Size of image pixels in the 2D slice plane in :math:`ALU`.
+            Defaults to ``delta_channel`` for ``parallel`` beam geometry, 
+            and ``delta_channel``/``magnification`` for ``fan`` geometry.
         center_offset (float, optional):
             [Default=0.0] Offset from center-of-rotation in 'fractional number of channels' units.
         roi_radius (float, optional): [Default=None] Radius of relevant image region in :math:`ALU`.
@@ -614,13 +610,7 @@ def backproject(sino, angles, geometry = 'parallel', num_rows=None, num_cols=Non
     if num_views != len(angles):
         raise Exception('svmbir.backproject(): angles and sinogram arrays have conflicting sizes')
 
-    if num_rows is None:
-        num_rows = num_channels
-    if num_cols is None:
-        num_cols = num_channels
-    if roi_radius is None:
-        roi_radius = auto_roi_radius(delta_pixel, num_rows, num_cols)
-
+    # Geometry dependent settings
     if geometry == 'parallel':
         dist_source_detector = 0.0
         magnification = 1.0
@@ -629,6 +619,15 @@ def backproject(sino, angles, geometry = 'parallel', num_rows=None, num_cols=Non
             raise Exception('For fanbeam geometry, need to specify dist_source_detector and magnification')
     else:
         raise Exception('Unrecognized geometry {}'.format(geometry))
+
+    if delta_pixel is None:
+        delta_pixel = delta_channel/magnification
+    if num_rows is None:
+        num_rows,_ = auto_img_size(geometry, num_channels, delta_channel, delta_pixel)
+    if num_cols is None:
+        _,num_cols = auto_img_size(geometry, num_channels, delta_channel, delta_pixel)
+    if roi_radius is None:
+        roi_radius = auto_roi_radius(delta_pixel, num_rows, num_cols)
 
     paths, sinoparams, imgparams = ci._init_geometry(angles, center_offset=center_offset,
                                                      geometry=geometry, dist_source_detector=dist_source_detector,
