@@ -203,16 +203,15 @@ def auto_sigma_prior(sino, delta_channel = 1.0, sharpness = 0.0 ):
     return sigma_prior
 
 
-def auto_img_size(geometry, num_channels, delta_channel, delta_pixel):
+def auto_img_size(geometry, num_channels, delta_channel, delta_pixel, magnification=1.0):
     "Compute the default image size"
 
     if geometry == 'parallel':
         num_rows = int(np.ceil(num_channels * delta_channel / delta_pixel))
     elif geometry == 'fan':
-        num_rows = num_channels
+        num_rows = int(np.ceil(num_channels * delta_channel / (delta_pixel*magnification) ))
     else:
-        # default to parallel beam
-        num_rows = int(np.ceil(num_channels * delta_channel / delta_pixel))
+        raise Exception('Unrecognized geometry {}'.format(geometry))
 
     num_cols = num_rows
     return num_rows,num_cols
@@ -381,9 +380,9 @@ def recon(sino, angles,
     if delta_pixel is None:
         delta_pixel = delta_channel/magnification
     if num_rows is None:
-        num_rows,_ = auto_img_size(geometry, num_channels, delta_channel, delta_pixel)
+        num_rows,_ = auto_img_size(geometry, num_channels, delta_channel, delta_pixel, magnification)
     if num_cols is None:
-        _,num_cols = auto_img_size(geometry, num_channels, delta_channel, delta_pixel)
+        _,num_cols = auto_img_size(geometry, num_channels, delta_channel, delta_pixel, magnification)
     if roi_radius is None:
         roi_radius = auto_roi_radius(delta_pixel, num_rows, num_cols)
 
@@ -623,9 +622,9 @@ def backproject(sino, angles, geometry = 'parallel', num_rows=None, num_cols=Non
     if delta_pixel is None:
         delta_pixel = delta_channel/magnification
     if num_rows is None:
-        num_rows,_ = auto_img_size(geometry, num_channels, delta_channel, delta_pixel)
+        num_rows,_ = auto_img_size(geometry, num_channels, delta_channel, delta_pixel, magnification)
     if num_cols is None:
-        _,num_cols = auto_img_size(geometry, num_channels, delta_channel, delta_pixel)
+        _,num_cols = auto_img_size(geometry, num_channels, delta_channel, delta_pixel, magnification)
     if roi_radius is None:
         roi_radius = auto_roi_radius(delta_pixel, num_rows, num_cols)
 
