@@ -11,24 +11,23 @@ Installing from Anaconda
 
 1. Create a Virtual Environment (optional, but recommended)
 
-  To install svmbir in an Anaconda virtual environment, run the following:
+  To install svmbir in an Anaconda virtual environment, run the following::
 
-	| ``conda create --name svmbir python=3.8``
-	| ``conda activate svmbir``
+    $ conda create --name svmbir python=3.8
+    $ conda activate svmbir
 
+2. Add the conda-forge channel with::
 
-2. Add the conda-forge channel with:
+    $ conda config --add channels conda-forge
+    $ conda config --set channel_priority strict
 
-    | ``conda config --add channels conda-forge``
-    | ``conda config --set channel_priority strict``
+3. Once the conda-forge channel has been enabled, svmbir can be installed with::
 
-3. Once the conda-forge channel has been enabled, svmbir can be installed with:
+    $ conda install svmbir
 
-    | ``conda install svmbir``
+  To list all of the versions of svmbir available on your platform::
 
-  To list all of the versions of svmbir available on your platform:
-
-    | ``conda search svmbir --channel conda-forge``
+    $ conda search svmbir --channel conda-forge
 
 
 
@@ -40,34 +39,34 @@ Special considerations for gcc installation on a Mac are listed :ref:`below <Mac
 
 1. Create a Virtual Environment (optional, see above)
 
-2. To install from PyPI,
+2. To install from PyPI::
 
-	| ``pip install svmbir``
+    $ pip install svmbir
 
-  To upgrade an existing installation, use the command:
+  To upgrade an existing installation, use the command::
   
-	| ``pip install svmbir --upgrade``
+    $ pip install svmbir --upgrade
 
   **Note for macOS**:
   Some older macOS versions may attempt to install from the wheel and fail. If this happens you can
-  bypass the wheel and install from source with the command below.
+  bypass the wheel and install from source with the command below::
 
-    ``pip install --no-binary svmbir svmbir``
+    $ pip install --no-binary svmbir svmbir
 
   **Note for Windows**:
-  Installation on Windows requires the following modified command (more information below).
+  Installation on Windows requires the following modified command (more information below)::
 
-    ``CC=msvc pip install svmbir``
+    $ CC=msvc pip install svmbir
 
 
 
 Installing from Github source
 ---------------------------------------
 
-1. To download from Github, run the following commands from a shell.
+1. To download from Github, run the following commands from a shell::
 
-	| ``git clone --recursive https://github.com/cabouman/svmbir.git``
-	| ``cd svmbir``
+    $ git clone --recursive https://github.com/cabouman/svmbir.git
+    $ cd svmbir
 
   This will download the python source code along with the ``sv-mbirct`` C-code submodule.
   *Warning: Do not* use the github "Download" link to download the repository because the
@@ -76,14 +75,14 @@ Installing from Github source
 2. Create a Virtual Environment:
 
   It is recommended that you install to a virtual environment.
-  If you have Anaconda installed, you can run the following:
+  If you have Anaconda installed, you can run the following::
 
-	| ``conda create --name svmbir python=3.8``
-	| ``conda activate svmbir``
+    $ conda create --name svmbir python=3.8
+    $ conda activate svmbir
 
-  Install the dependencies using:
+  Install the dependencies using::
 
-	``pip install -r requirements.txt``
+    $ pip install -r requirements.txt
 
   Before using the package, this ``svmbir`` environment needs to be activated.
 
@@ -100,12 +99,12 @@ Installing from Github source
   MacOS and Windows users should refer to the instructions :ref:`below <Windows and Mac>` for more details on installation of the compilers, OMP libraries and associated utilities.
 
   To install svmbir, run one of the following shell commands, depending on the relevant compiler.
-  Run this from the root directory of the source code (where setup.py is located).
+  Run this from the root directory of the source code (where setup.py is located)::
 
-    | ``CC=gcc pip install .``
-    | ``CC=icc pip install .``
-    | ``CC=clang pip install .``
-    | ``CC=msvc pip install .``
+    $ CC=gcc pip install .
+    $ CC=icc pip install .
+    $ CC=clang pip install .
+    $ CC=msvc pip install .
 
   You can verify the installation by running ``pip show svmbir``, which will display a brief summary
   of the packages installed in the ``svmbir`` environment.
@@ -157,15 +156,15 @@ In order to install gcc, you should do the following:
 
 * Use Homebrew to install gcc using the command ``brew install gcc``. This will also install the OMP libraries.
 
-* Create a symbolic link in /usr/local/bin that maps “gcc” to “gcc-10”, or the most current compiler. To do this, do the following command:
+* Create a symbolic link in /usr/local/bin that maps “gcc” to “gcc-10”, or the most current compiler. To do this, do the following command::
 
-    ``ln -sf /usr/local/bin/gcc-10 /usr/local/bin/gcc``
+    $ ln -sf /usr/local/bin/gcc-10 /usr/local/bin/gcc
 
-    You can also check the contents of /usr/local/bin to make sure you link to the most current version of gcc that you installed.
+  You can also check the contents of /usr/local/bin to make sure you link to the most current version of gcc that you installed.
 
-* Finally, check that you are getting the correct compiler by using the command:
+* Finally, check that you are getting the correct compiler by using the command::
 
-    ``gcc --version``
+    $ gcc --version
 
 
 
@@ -184,25 +183,19 @@ and ``Command Line Tools for Xcode`` available `[here] <https://developer.apple.
 Importantly, the Xcode Developer tools **do not include** the required OpenMP libraries.
 The OMP libraries can be obtained from `[here] <https://mac.r-project.org/openmp/>`__.
 You will need to download a file of the form ``openmp-XXX.tar.gz``.
-The tar file will contain the following files:
+The tar file will contain the following files::
 
-    ```
     /usr/local/lib/libomp.dylib
-    ```
-    ```
     /usr/local/include/ompt.h
-    ```
-    ```
     /usr/local/include/omp.h
-    ```
-    ```
     /usr/local/include/omp-tools.h
-    ```
 
 These files should be moved to the specified directories.
 You may also need to open the file ``/usr/local/lib/libomp.dylib``.
 This will generate a splash screen that requests permision of OSx to execute the library.
 
-In addition, after OS updates, you may need to reinstall the Xcode toolkit using the command: ``xcode-select --install``
+In addition, after OS updates, you may need to reinstall the Xcode toolkit using the command::
+
+    $ xcode-select --install
 
 
