@@ -8,10 +8,10 @@ The following lists the procedure for creating a new release.
 
 NOTE Only a few dedicated maintainers should do this.
 
-1. Check out the ``prerelease`` branch and ensure the submodule is current.
+1. Check out the ``prerelease`` branch and ensure the submodule is current::
 
-	| ``git checkout prerelease``
-	| ``git submodule update``
+    $ git checkout prerelease
+    $ git submodule update
 
 2. Make sure that the demo.zip file is up-to-date. If not, then run the script ``dev_scripts/zip_demo_folder.sh`` and commit.
 
@@ -21,12 +21,12 @@ NOTE Only a few dedicated maintainers should do this.
 
 5. Merge the ``prerelease`` branch into ``master`` (via pull request).
 
-6. Create a new release tag for the new master commit.
+6. Create a new release tag for the new master commit::
 
-	| ``git checkout master``
-	| ``git pull origin master``
-	| ``git tag v<ver_no> -a -m "version <ver_no>"   # ex. git tag v0.2.10 -a -m "version 0.2.10"``
-	| ``git push origin <tagname>   # ex. git push origin v0.2.10``
+    $ git checkout master
+    $ git pull origin master
+    $ git tag v<ver_no> -a -m "version <ver_no>"   # ex. git tag v0.2.10 -a -m "version 0.2.10"
+    $ git push origin <tagname>   # ex. git push origin v0.2.10
 
 7. Review documentation `locally <docs.html>`_.
 

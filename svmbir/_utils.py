@@ -342,7 +342,7 @@ def recon_resize(recon, output_shape):
     recon_resized = np.empty((recon.shape[0],output_shape[0],output_shape[1]), dtype=recon.dtype)
     for i in range(recon.shape[0]):
         PIL_image = Image.fromarray(recon[i])
-        PIL_image_resized = PIL_image.resize((output_shape[1],output_shape[0]), resample=Image.BILINEAR)
+        PIL_image_resized = PIL_image.resize((output_shape[1],output_shape[0]), resample=Image.Resampling.BILINEAR)
         recon_resized[i] = np.array(PIL_image_resized)
 
     return recon_resized
