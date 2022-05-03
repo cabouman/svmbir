@@ -125,10 +125,12 @@ def _gen_sysmatrix_c(sinoparams, imgparams, angles, settings):
 
     # Calculate the system matrix (or use existing if one exists)
     # In this version the matrix is saved to disk
-    if os.path.exists(sysmatrix_name + '.2Dsvmatrix') :
-        os.utime(sysmatrix_name + '.2Dsvmatrix')  # update file modified time
+    Amatrix_file = paths['sysmatrix_name'] + '.2Dsvmatrix'
+    if os.path.exists(Amatrix_file) :
         if verbose > 0:
             print('Found system matrix: {}'.format(sysmatrix_name + '.2Dsvmatrix'))
+        if os.access(Amatrix_file, os.W_OK):
+            os.utime(Amatrix_file)  # update file modified time
     else :
         _cmd_exec(i=param_name, j=param_name, m=sysmatrix_name, v=str(verbose))
 
