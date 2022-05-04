@@ -18,7 +18,7 @@ angles = np.linspace(-np.pi, np.pi, num_views, endpoint=False)
 
 # Reconstruction parameters
 img_size = 256
-sharpness = 0.0
+sharpness = 1.0
 T = 1.0
 p = 1.2
 snr_db = 40.0
