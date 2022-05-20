@@ -4,15 +4,16 @@ svmbir
    :members: 
    :undoc-members:
    :show-inheritance:
+   :member-order: bysource
 
    .. rubric:: **Functions:**
 
    .. autosummary::
-      auto_sigma_p
+      recon
+      project
+      backproject
+      sino_sort
+      calc_weights
       auto_sigma_x
       auto_sigma_y
-      backproject
-      calc_weights
-      project
-      recon
-      sino_sort
+      auto_sigma_p
