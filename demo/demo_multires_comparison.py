@@ -61,10 +61,10 @@ plot_image(phantom[display_slice], title='Shepp Logan Phantom', filename='output
 
 # display fixed resolution reconstruction
 title = f'Slice {display_slice:d} of Fixed Res Recon with NRMSE={nrmse:.3f}.'
-plot_image(recon[display_slice], title=title, filename='output/mr_3D_microscopy_recon.png', vmin=vmin, vmax=vmax)
+plot_image(recon[display_slice], title=title, filename='output/fixed_res_3D_microscopy_recon.png', vmin=vmin, vmax=vmax)
 
 # display multi-resolution reconstruction
 title = f'Slice {display_slice:d} of Multi-Res Recon with NRMSE={mr_nrmse:.3f}.'
-plot_image(mr_recon[display_slice], title=title, filename='output/mr_3D_microscopy_recon.png', vmin=vmin, vmax=vmax)
+plot_image(mr_recon[display_slice], title=title, filename='output/multi_res_3D_microscopy_recon.png', vmin=vmin, vmax=vmax)
 
 input("press Enter")
