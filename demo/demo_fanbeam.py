@@ -18,10 +18,13 @@ angles = np.linspace(-np.pi, np.pi, num_views, endpoint=False)
 
 # Reconstruction parameters
 img_size = 256
-sharpness = 1.0
-T = 1.0
-p = 1.2
 snr_db = 40.0
+sharpness = 0.0
+T = 0.1
+p = 1.2
+
+# Multi-resolution works much better for limited and sparse view reconstruction
+max_resolutions=2 # Use 2 additional resolutions to do reconstruction
 
 # Generate phantom with a single slice
 phantom = svmbir.phantom.gen_shepp_logan(img_size,img_size)
@@ -29,7 +32,7 @@ phantom = np.expand_dims(phantom, axis=0)
 sino = svmbir.project(phantom, angles, num_channels, geometry=geometry, dist_source_detector=dist_source_detector, magnification=magnification, delta_channel=delta_channel)
 
 # Perform MBIR reconstruction
-recon = svmbir.recon(sino, angles, num_rows=img_size, num_cols=img_size, T=T, p=p, sharpness=sharpness, snr_db=snr_db, geometry=geometry, dist_source_detector=dist_source_detector, magnification=magnification, delta_channel=delta_channel)
+recon = svmbir.recon(sino, angles, num_rows=img_size, num_cols=img_size, T=T, p=p, sharpness=sharpness, snr_db=snr_db, geometry=geometry, dist_source_detector=dist_source_detector, magnification=magnification, delta_channel=delta_channel, max_resolutions = max_resolutions)
 
 # Compute Normalized Root Mean Squared Error
 nrmse = svmbir.phantom.nrmse(recon[0], phantom[0])
