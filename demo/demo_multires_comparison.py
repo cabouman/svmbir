@@ -19,9 +19,9 @@ num_views = 64
 tilt_angle = np.pi/3 # Tilt range of +-60deg
 
 # Reconstruction parameters
-sharpness = 2.0
+snr_db = 40.0
+sharpness = 0.0
 T = 0.25
-snr_db = 30.0
 p = 1.2
 
 # Multi-resolution works much better for limited and sparse view reconstruction
@@ -61,10 +61,10 @@ plot_image(phantom[display_slice], title='Shepp Logan Phantom', filename='output
 
 # display fixed resolution reconstruction
 title = f'Slice {display_slice:d} of Fixed Res Recon with NRMSE={nrmse:.3f}.'
-plot_image(recon[display_slice], title=title, filename='output/mr_3D_microscopy_recon.png', vmin=vmin, vmax=vmax)
+plot_image(recon[display_slice], title=title, filename='output/fixed_res_3D_microscopy_recon.png', vmin=vmin, vmax=vmax)
 
 # display multi-resolution reconstruction
 title = f'Slice {display_slice:d} of Multi-Res Recon with NRMSE={mr_nrmse:.3f}.'
-plot_image(recon[display_slice], title=title, filename='output/mr_3D_microscopy_recon.png', vmin=vmin, vmax=vmax)
+plot_image(mr_recon[display_slice], title=title, filename='output/multi_res_3D_microscopy_recon.png', vmin=vmin, vmax=vmax)
 
 input("press Enter")
