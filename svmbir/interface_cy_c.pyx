@@ -19,7 +19,7 @@ __namelen_sysmatrix = 20
 cdef extern from "./sv-mbirct/src/MBIRModularDefs.h":
     # 3D Sinogram Parameters
     struct SinoParams3DParallel:
-        int Geometry;           # 0:parallel, 1:fanbeam
+        int Geometry;           # 0:parallel, 1:fanbeam (curved), 2:fanbeam (flat)
         int NChannels;          # Number of channels in detector
         float DeltaChannel;     # Detector spacing
         float CenterOffset;     # Offset of center-of-rotation, computed from center of detector in
@@ -112,8 +112,11 @@ cdef convert_py2c_SinoParams3D(SinoParams3DParallel* sinoparams,
                         float[:] ViewAngles):
     if py_sinoparams['geometry']=='parallel':
         sinoparams.Geometry = 0
-    elif py_sinoparams['geometry']=='fan':
+    elif py_sinoparams['geometry']=='fan-curved':
         sinoparams.Geometry = 1
+    # NOTE we're making 'fan' default to a FLAT array for now
+    elif py_sinoparams['geometry']=='fan-flat' or py_sinoparams['geometry']=='fan':
+        sinoparams.Geometry = 2
     else:
         sinoparams.Geometry = 0
     sinoparams.NChannels = py_sinoparams['num_channels']
