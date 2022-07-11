@@ -100,7 +100,7 @@ def calc_weights(sino, weight_type ):
     return weights
 
 
-def auto_sigma_y(sino, geometry = 'parallel', magnification = None, weights, snr_db = 30.0, delta_pixel = None, delta_channel = 1.0):
+def auto_sigma_y(sino, weights, geometry = 'parallel', magnification = None, snr_db = 30.0, delta_pixel = None, delta_channel = 1.0):
     """Compute the automatic value of ``sigma_y`` for use in MBIR reconstruction.
 
     Args:
@@ -158,7 +158,6 @@ def auto_sigma_y(sino, geometry = 'parallel', magnification = None, weights, snr
     # compute sigma_y and scale by relative pixel and detector pitch
     # sigma_y = rel_noise_std * signal_rms * (delta_pixel / delta_channel) ** (0.5)<-------- Delete This
     sigma_y = rel_noise_std * signal_rms * pixel_pitch_relative_to_default ** (0.5)
-    print(f'the value of sigma_y is: {sigma_y:0.5}')
 
     if sigma_y > 0:
         return sigma_y
@@ -271,7 +270,6 @@ def auto_sigma_prior(sino, geometry = 'parallel', magnification = None, delta_ch
 
     # Compute sigma_p as the typical image value when sharpness==0
     sigma_prior = (2 ** sharpness) * typical_img_value
-
     return sigma_prior
 
 
@@ -438,7 +436,6 @@ def recon(sino, angles,
     sigma_y, snr_db, sigma_x, sigma_p = utils.test_args_noise(sigma_y, snr_db, sigma_x, sigma_p)
     p, q, T, b_interslice = utils.test_args_qggmrf(p, q, T, b_interslice)
     num_threads, delete_temps, verbose = utils.test_args_sys(num_threads, delete_temps, verbose)
-
     # Geometry dependent settings
     if geometry == 'parallel':
         dist_source_detector = 0.0
@@ -465,8 +462,7 @@ def recon(sino, angles,
 
     # Set automatic value of sigma_y
     if sigma_y is None:
-        sigma_y = auto_sigma_y(sino, geometry, magnification, weights, snr_db, delta_pixel=delta_pixel, delta_channel=delta_channel)
-
+        sigma_y = auto_sigma_y(sino, weights, geometry, magnification, snr_db, delta_pixel=delta_pixel, delta_channel=delta_channel)
     # Set automatic value of sigma_x
     # if qGGMRF mode, then set sigma_x either using the provided value by user, or with auto_sigma_x
     if prox_image is None:
