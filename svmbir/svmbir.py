@@ -100,19 +100,25 @@ def calc_weights(sino, weight_type ):
     return weights
 
 
-def auto_sigma_y(sino, weights, snr_db = 30.0, delta_pixel = 1.0, delta_channel = 1.0):
+def auto_sigma_y(sino, geometry = 'parallel', magnification = None, weights, snr_db = 30.0, delta_pixel = None, delta_channel = 1.0):
     """Compute the automatic value of ``sigma_y`` for use in MBIR reconstruction.
 
     Args:
         sino (ndarray):
             3D numpy array of sinogram data with shape (num_views,num_slices,num_channels).
+        geometry (string):
+            [Default='parallel'] Scanner geometry, either 'parallel' or 'fan'. Note for fan geometry
+            the ``magnification`` argument must be specified.
+        magnification (float):
+            (Required, 'fan' geometry only) Magnification factor = dist_source_detector/dist_source_isocenter.        
         weights (ndarray):
             3D numpy array of weights with same shape as sino.
             The parameters weights should be the same values as used in svmbir reconstruction.
         snr_db (float, optional):
             [Default=30.0] Scalar value that controls assumed signal-to-noise ratio of the data in dB.
-        delta_pixel (float, optional):
-            [Default=1.0] Scalar value of pixel spacing in :math:`ALU`.
+        delta_pixel (float, optional): Scalar value of the spacing between image pixels in the 2D slice 
+            plane in :math:`ALU`. Defaults to ``delta_channel`` for ``parallel`` beam geometry, 
+            and ``delta_channel``/``magnification`` for ``fan`` geometry.
         delta_channel (float, optional):
             [Default=1.0] Scalar value of detector channel spacing in :math:`ALU`.
 
@@ -120,6 +126,21 @@ def auto_sigma_y(sino, weights, snr_db = 30.0, delta_pixel = 1.0, delta_channel 
     Returns:
         ndarray: Automatic values of regularization parameter.
     """
+
+    # Geometry dependent settings
+    if geometry == 'parallel':
+        magnification = 1.0
+    elif geometry == 'fan':
+        if magnification is None:   
+            raise Exception('For fanbeam geometry, need to specify magnification')
+    else:
+        raise Exception('Unrecognized geometry {}'.format(geometry))
+
+
+    # Set automatic values of delta_pixel    
+    if delta_pixel is None:
+        delta_pixel = delta_channel/magnification    
+
     # Compute indicator function for sinogram support
     sino_indicator = _sino_indicator(sino)
 
@@ -128,9 +149,16 @@ def auto_sigma_y(sino, weights, snr_db = 30.0, delta_pixel = 1.0, delta_channel 
 
     # convert snr to relative noise standard deviation
     rel_noise_std = 10 ** (-snr_db / 20)
+    # compute the default_pixel_pitch = the detector pixel pitch in the image plane given the magnification
+    default_pixel_pitch = delta_channel / magnification
+
+    # compute the image pixel pitch relative to the default.
+    pixel_pitch_relative_to_default = delta_pixel / default_pixel_pitch
 
     # compute sigma_y and scale by relative pixel and detector pitch
-    sigma_y = rel_noise_std * signal_rms * (delta_pixel / delta_channel) ** (0.5)
+    # sigma_y = rel_noise_std * signal_rms * (delta_pixel / delta_channel) ** (0.5)<-------- Delete This
+    sigma_y = rel_noise_std * signal_rms * pixel_pitch_relative_to_default ** (0.5)
+    print(f'the value of sigma_y is: {sigma_y:0.5}')
 
     if sigma_y > 0:
         return sigma_y
@@ -138,12 +166,17 @@ def auto_sigma_y(sino, weights, snr_db = 30.0, delta_pixel = 1.0, delta_channel 
         return 1.0
 
 
-def auto_sigma_x(sino, delta_channel = 1.0, sharpness = 0.0 ):
+def auto_sigma_x(sino, geometry = 'parallel', magnification = None, delta_channel = 1.0, sharpness = 0.0 ):
     """Compute the automatic value of ``sigma_x`` for use in MBIR reconstruction.
 
     Args:
         sino (ndarray):
             3D numpy array of sinogram data with shape (num_views,num_slices,num_channels).
+        geometry (string):
+            [Default='parallel'] Scanner geometry, either 'parallel' or 'fan'. Note for fan geometry
+            the ``magnification`` argument must be specified.  
+        magnification (float):
+            (Required, 'fan' geometry only) Magnification factor = dist_source_detector/dist_source_isocenter.    
         delta_channel (float, optional):
             [Default=1.0] Scalar value of detector channel spacing in :math:`ALU`.
         sharpness (float, optional):
@@ -153,15 +186,29 @@ def auto_sigma_x(sino, delta_channel = 1.0, sharpness = 0.0 ):
     Returns:
         float: Automatic value of regularization parameter.
     """
-    return 0.2 * auto_sigma_prior(sino, delta_channel, sharpness)
+    # Geometry dependent settings
+    if geometry == 'parallel':
+        magnification = 1.0
+    elif geometry == 'fan':
+        if magnification is None:   
+            raise Exception('For fanbeam geometry, need to specify magnification')
+    else:
+        raise Exception('Unrecognized geometry {}'.format(geometry))
+
+    return 0.2 * auto_sigma_prior(sino, geometry, magnification, delta_channel, sharpness)
 
 
-def auto_sigma_p(sino, delta_channel = 1.0, sharpness = 0.0 ):
+def auto_sigma_p(sino, geometry = 'parallel', magnification = None, delta_channel = 1.0, sharpness = 0.0 ):
     """Compute the automatic value of ``sigma_p`` for use in proximal map estimation.
 
     Args:
         sino (ndarray):
             3D numpy array of sinogram data with shape (num_views,num_slices,num_channels).
+        geometry (string):
+            [Default='parallel'] Scanner geometry, either 'parallel' or 'fan'. Note for fan geometry
+            the ``magnification`` argument must be specified.  
+        magnification (float):
+            (Required, 'fan' geometry only) Magnification factor = dist_source_detector/dist_source_isocenter.    
         delta_channel (float, optional):
             [Default=1.0] Scalar value of detector channel spacing in :math:`ALU`.
         sharpness (float, optional):
@@ -171,15 +218,29 @@ def auto_sigma_p(sino, delta_channel = 1.0, sharpness = 0.0 ):
     Returns:
         float: Automatic value of regularization parameter.
     """
-    return 1.0 * auto_sigma_prior(sino, delta_channel, sharpness)
+    # Geometry dependent settings
+    if geometry == 'parallel':
+        magnification = 1.0
+    elif geometry == 'fan':
+        if magnification is None:   
+            raise Exception('For fanbeam geometry, need to specify magnification')
+    else:
+        raise Exception('Unrecognized geometry {}'.format(geometry))
+
+    return 1.0 * auto_sigma_prior(sino, geometry, magnification, delta_channel, sharpness)
 
 
-def auto_sigma_prior(sino, delta_channel = 1.0, sharpness = 0.0 ):
+def auto_sigma_prior(sino, geometry = 'parallel', magnification = None, delta_channel = 1.0, sharpness = 0.0 ):
     """Compute the automatic value of prior model regularization term for use in MBIR reconstruction or proximal map estimation. This subroutine is called by ``auto_sigma_x`` in MBIR reconstruction, or ``auto_sigma_p`` in proximal map estimation.
 
     Args:
         sino (ndarray):
             3D numpy array of sinogram data with shape (num_views,num_slices,num_channels).
+        geometry (string):
+            [Default='parallel'] Scanner geometry, either 'parallel' or 'fan'. Note for fan geometry
+            the ``magnification`` argument must be specified.  
+        magnification (float):
+            (Required, 'fan' geometry only) Magnification factor = dist_source_detector/dist_source_isocenter.      
         delta_channel (float, optional):
             [Default=1.0] Scalar value of detector channel spacing in :math:`ALU`.
         sharpness (float, optional):
@@ -189,13 +250,24 @@ def auto_sigma_prior(sino, delta_channel = 1.0, sharpness = 0.0 ):
     Returns:
         float: Automatic value of regularization parameter.
     """
+
+    # Geometry dependent settings
+    if geometry == 'parallel':
+        magnification = 1.0
+    elif geometry == 'fan':
+        if magnification is None:   
+            raise Exception('For fanbeam geometry, need to specify magnification')
+    else:
+        raise Exception('Unrecognized geometry {}'.format(geometry))
+
+
     (num_views, num_slices, num_channels) = sino.shape
 
     # Compute indicator function for sinogram support
     sino_indicator = _sino_indicator(sino)
 
     # Compute a typical image value by dividing average sinogram value by a typical projection path length
-    typical_img_value = np.average(sino, weights=sino_indicator) / (num_channels * delta_channel)
+    typical_img_value = np.average(sino, weights=sino_indicator) / (num_channels * delta_channel / magnification)
 
     # Compute sigma_p as the typical image value when sharpness==0
     sigma_prior = (2 ** sharpness) * typical_img_value
@@ -348,7 +420,6 @@ def recon(sino, angles,
     Returns:
         3D numpy array: 3D reconstruction with shape (num_slices,num_rows,num_cols) in units of :math:`ALU^{-1}`.
     """
-
     # If not specified, then set number of threads = to number of processors
     if num_threads is None :
         num_threads = cpu_count(logical=False)
@@ -392,17 +463,17 @@ def recon(sino, angles,
 
     # Set automatic value of sigma_y
     if sigma_y is None:
-        sigma_y = auto_sigma_y(sino, weights, snr_db, delta_pixel=delta_pixel, delta_channel=delta_channel)
+        sigma_y = auto_sigma_y(sino, geometry, magnification, weights, snr_db, delta_pixel=delta_pixel, delta_channel=delta_channel)
 
     # Set automatic value of sigma_x
     # if qGGMRF mode, then set sigma_x either using the provided value by user, or with auto_sigma_x
     if prox_image is None:
         if sigma_x is None:
-            sigma_x = auto_sigma_x(sino, delta_channel, sharpness)
+            sigma_x = auto_sigma_x(sino, geometry, magnification, delta_channel, sharpness)
     # if proximal map mode, then overwrite sigma_x with sigma_p
     else:
         if sigma_p is None:
-            sigma_p = auto_sigma_p(sino, delta_channel, sharpness)
+            sigma_p = auto_sigma_p(sino, geometry, magnification, delta_channel, sharpness)
         sigma_x = sigma_p
 
     # Reduce num_threads for positivity=False if problems size calls for it
