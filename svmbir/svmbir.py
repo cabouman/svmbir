@@ -331,7 +331,7 @@ def recon(sino, angles,
           num_rows = None, num_cols = None, roi_radius = None,
           delta_channel = 1.0, delta_pixel = None, center_offset = 0.0,
           sigma_y = None, snr_db = 30.0, sigma_x = None, sigma_p = None, p = 1.2, q = 2.0, T = 1.0, b_interslice = 1.0,
-          sharpness = 0.0, positivity = True, max_resolutions = 0, stop_threshold = 0.02, max_iterations = 100,
+          sharpness = 0.0, positivity = True, relax_factor=1.0, max_resolutions = 0, stop_threshold = 0.02, max_iterations = 100,
           num_threads = None, delete_temps = True, svmbir_lib_path = __svmbir_lib_path, object_name = 'object',
           verbose = 1) :
     """recon(sino, angles, geometry = 'parallel', **kwargs)
@@ -386,7 +386,7 @@ def recon(sino, angles,
             If None, automatically set with auto_sigma_p. Regularization should be controled with the 
             ``sharpness`` parameter, but ``sigma_p`` can be set directly by expert users.
         p (float, optional): [Default=1.2] Scalar value in range :math:`[1,2]` that specifies the qGGMRF shape parameter.
-        q (float, optional): [Default=2.0] Scalar value in range :math:`[p,1]` that specifies the qGGMRF shape parameter.
+        q (float, optional): [Default=2.0] Scalar value in range :math:`[p,2]` that specifies the qGGMRF shape parameter.
         T (float, optional): [Default=1.0] Scalar value :math:`>0` that specifies the qGGMRF threshold parameter.
         b_interslice (float, optional): [Default=1.0] Scalar value :math:`>0` that specifies the interslice regularization.
             The default value of 1.0 should be fine for most applications.
@@ -399,6 +399,8 @@ def recon(sino, angles,
         positivity (bool, optional): [Default=True] Boolean value that determines if positivity constraint 
             is enforced. The positivity parameter defaults to True; however, it should be changed to False 
             when used in applications that can generate negative image values.
+        relax_factor (float, optional): [Default=1.0] Relaxation factor for pixel update. Valid range (0,2.0].
+            Values in (0,1) produce under-relaxation (smaller step size); Values in (1,2] produce over-relaxation.
         max_resolutions (int, optional): [Default=0] Integer >=0 that specifies the maximum number of grid 
             resolutions used to solve MBIR reconstruction problem.
         stop_threshold (float, optional): [Default=0.02] Scalar valued stopping threshold in percent.
@@ -431,7 +433,7 @@ def recon(sino, angles,
 
     # Tests parameters for valid types and values; print warnings if necessary; and return default values.
     num_rows, num_cols, delta_pixel, roi_radius, delta_channel, center_offset = utils.test_args_geom(num_rows, num_cols, delta_pixel, roi_radius, delta_channel, center_offset)
-    sharpness, positivity, max_resolutions, stop_threshold, max_iterations = utils.test_args_recon(sharpness, positivity, max_resolutions, stop_threshold, max_iterations)
+    sharpness, positivity, relax_factor, max_resolutions, stop_threshold, max_iterations = utils.test_args_recon(sharpness, positivity, relax_factor, max_resolutions, stop_threshold, max_iterations)
     init_image, prox_image, init_proj, weights, weight_type = utils.test_args_inits(init_image, prox_image, init_proj, weights, weight_type)
     sigma_y, snr_db, sigma_x, sigma_p = utils.test_args_noise(sigma_y, snr_db, sigma_x, sigma_p)
     p, q, T, b_interslice = utils.test_args_qggmrf(p, q, T, b_interslice)
@@ -489,7 +491,7 @@ def recon(sino, angles,
                                        num_rows=num_rows, num_cols=num_cols, roi_radius=roi_radius,
                                        delta_channel=delta_channel, delta_pixel=delta_pixel, center_offset=center_offset,
                                        sigma_y=sigma_y, snr_db=snr_db, sigma_x=sigma_x, p=p, q=q, T=T, b_interslice=b_interslice,
-                                       sharpness=sharpness, positivity=positivity, max_resolutions=max_resolutions,
+                                       sharpness=sharpness, positivity=positivity, relax_factor=relax_factor, max_resolutions=max_resolutions,
                                        stop_threshold=stop_threshold, max_iterations=max_iterations, num_threads=num_threads,
                                        delete_temps=delete_temps, svmbir_lib_path=svmbir_lib_path, object_name=object_name,
                                        verbose=verbose)

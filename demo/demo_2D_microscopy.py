@@ -18,11 +18,13 @@ num_views = 64
 tilt_angle = np.pi/3 # Tilt range of +-60deg
 
 # Reconstruction parameters
-T = 1.0
-p = 1.2
+snr_db = 40.0
 sharpness = 0.0
-snr_db = 30.0
-max_resolutions=2
+T = 0.1
+p = 1.2
+
+# Multi-resolution works much better for limited and sparse view reconstruction
+max_resolutions=2 # Use 2 additional resolutions to do reconstruction
 
 # Display parameters
 vmin = 0.0

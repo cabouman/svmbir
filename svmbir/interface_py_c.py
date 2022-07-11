@@ -35,6 +35,7 @@ _map_pyconv2camelcase = {'prior_model' : 'PriorModel',
                          'stop_threshold' : 'StopThreshold',
                          'max_iterations' : 'MaxIterations',
                          'positivity' : 'Positivity',
+                         'relax_factor' : 'RelaxFactor',
                          'weight_type' : 'weightType',
                          'geometry' : 'Geometry',
                          'dist_source_detector' : 'DistSourceDetector',
@@ -125,10 +126,12 @@ def _gen_sysmatrix_c(sinoparams, imgparams, angles, settings):
 
     # Calculate the system matrix (or use existing if one exists)
     # In this version the matrix is saved to disk
-    if os.path.exists(sysmatrix_name + '.2Dsvmatrix') :
-        os.utime(sysmatrix_name + '.2Dsvmatrix')  # update file modified time
+    Amatrix_file = paths['sysmatrix_name'] + '.2Dsvmatrix'
+    if os.path.exists(Amatrix_file) :
         if verbose > 0:
             print('Found system matrix: {}'.format(sysmatrix_name + '.2Dsvmatrix'))
+        if os.access(Amatrix_file, os.W_OK):
+            os.utime(Amatrix_file)  # update file modified time
     else :
         _cmd_exec(i=param_name, j=param_name, m=sysmatrix_name, v=str(verbose))
 
@@ -183,7 +186,7 @@ def multires_recon(sino, angles, weights, weight_type, init_image, prox_image, i
                    geometry, dist_source_detector, magnification,
                    num_rows, num_cols, roi_radius, delta_channel, delta_pixel, center_offset,
                    sigma_y, snr_db, sigma_x, p, q, T, b_interslice,
-                   sharpness, positivity, max_resolutions, stop_threshold, max_iterations,
+                   sharpness, positivity, relax_factor, max_resolutions, stop_threshold, max_iterations,
                    num_threads, delete_temps, svmbir_lib_path, object_name, verbose):
     """Multi-resolution SVMBIR reconstruction used by svmbir.recon().
 
@@ -226,7 +229,7 @@ def multires_recon(sino, angles, weights, weight_type, init_image, prox_image, i
                         num_rows=lr_num_rows, num_cols=lr_num_cols, roi_radius=roi_radius,
                         delta_channel=delta_channel, delta_pixel=lr_delta_pixel, center_offset=center_offset,
                         sigma_y=lr_sigma_y, snr_db=snr_db, sigma_x=sigma_x, p=p,q=q,T=T,b_interslice=b_interslice,
-                        sharpness=sharpness, positivity=positivity, max_resolutions=new_max_resolutions,
+                        sharpness=sharpness, positivity=positivity, relax_factor=relax_factor, max_resolutions=new_max_resolutions,
                         stop_threshold=stop_threshold, max_iterations=max_iterations, num_threads=num_threads,
                         delete_temps=delete_temps, svmbir_lib_path=svmbir_lib_path, object_name=object_name,
                         verbose=verbose)
@@ -247,7 +250,7 @@ def multires_recon(sino, angles, weights, weight_type, init_image, prox_image, i
     else :
         init_image_value = 0
 
-    reconparams = utils.get_reconparams_dicts(sigma_y, positivity, sigma_x, p, q, T, b_interslice,
+    reconparams = utils.get_reconparams_dicts(sigma_y, positivity, relax_factor, sigma_x, p, q, T, b_interslice,
                             stop_threshold, max_iterations,init_image_value=init_image_value, interface = 'Command Line')
 
     paths, sinoparams, imgparams = _init_geometry(angles, center_offset=center_offset,

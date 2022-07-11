@@ -104,7 +104,7 @@ def test_args_geom(num_rows, num_cols, delta_pixel, roi_radius, delta_channel, c
     return num_rows, num_cols, delta_pixel, roi_radius, delta_channel, center_offset
 
 
-def test_args_recon(sharpness, positivity, max_resolutions, stop_threshold, max_iterations):
+def test_args_recon(sharpness, positivity, relax_factor, max_resolutions, stop_threshold, max_iterations):
 
     sharpness = int_to_float(sharpness)
     if not isinstance(sharpness, float):
@@ -114,6 +114,11 @@ def test_args_recon(sharpness, positivity, max_resolutions, stop_threshold, max_
     if not isinstance(positivity, bool):
         warnings.warn("Parameter positivity is not valid boolean; Setting positivity = True.")
         positivity = True
+
+    relax_factor = int_to_float(relax_factor)
+    if not isinstance(relax_factor, float):
+        warnings.warn("Parameter relax_factor is not valid float; Setting to 1.0.")
+        relax_factor = 1.0
 
     if not (isinstance(max_resolutions, int) and (max_resolutions >= 0)):
         warnings.warn("Parameter max_resolutions is not valid int; Setting max_resolutions = 0.")
@@ -129,7 +134,7 @@ def test_args_recon(sharpness, positivity, max_resolutions, stop_threshold, max_
         warnings.warn("Parameter max_iterations is not valid int; Setting max_iterations = 100.")
         max_iterations = 100
 
-    return sharpness, positivity, max_resolutions, stop_threshold, max_iterations
+    return sharpness, positivity, relax_factor, max_resolutions, stop_threshold, max_iterations
 
 
 def test_args_inits(init_image, prox_image, init_proj, weights, weight_type):
@@ -300,7 +305,7 @@ def get_params_dicts(angles, num_channels, num_views, num_slices, num_rows, num_
 
     return sinoparams, imgparams, settings
 
-def get_reconparams_dicts(sigma_y, positivity, sigma_x, p, q, T, b_interslice,
+def get_reconparams_dicts(sigma_y, positivity, relax_factor, sigma_x, p, q, T, b_interslice,
                             stop_threshold, max_iterations,init_image_value=0, interface = 'Cython'):
     reconparams = dict()
     if interface == 'Command Line':
@@ -319,6 +324,7 @@ def get_reconparams_dicts(sigma_y, positivity, sigma_x, p, q, T, b_interslice,
     reconparams['stop_threshold'] = stop_threshold
     reconparams['max_iterations'] = max_iterations
     reconparams['positivity'] = int(positivity)
+    reconparams['relax_factor'] = relax_factor
 
     if interface == 'Command Line':
         reconparams['weight_type'] = 'unweighted'  # constant weights
