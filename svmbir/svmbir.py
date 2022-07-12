@@ -8,20 +8,21 @@ import numpy as np
 import os
 import svmbir._utils as utils
 
-if os.environ.get('CLIB') =='CMD_LINE':
+if os.environ.get('CLIB') == 'CMD_LINE' :
     import svmbir.interface_py_c as ci
-else:
+else :
     import svmbir.interface_cy_c as ci
 
 __svmbir_lib_path = os.path.join(os.path.expanduser('~'), '.cache', 'svmbir')
 
-def _svmbir_lib_path():
+
+def _svmbir_lib_path() :
     """Returns the path to the cache directory used by svmbir
     """
     return __svmbir_lib_path
 
 
-def _clear_cache(svmbir_lib_path = __svmbir_lib_path):
+def _clear_cache( svmbir_lib_path = __svmbir_lib_path ) :
     """Clear the cache files used by svmbir.
 
     Args:
@@ -30,7 +31,7 @@ def _clear_cache(svmbir_lib_path = __svmbir_lib_path):
     shutil.rmtree(svmbir_lib_path)
 
 
-def sino_sort(sino, angles, weights=None):
+def sino_sort( sino, angles, weights = None ) :
     r"""Sort sinogram views (and sinogram weights if provided) so that view angles are in monotonically increasing order on the interval :math:`[0,2\pi)`.
         This function can be used to preprocess the sinogram data so that svmbir reconstruction is faster.
         The function may create additional arrays that increase memory usage.
@@ -48,24 +49,24 @@ def sino_sort(sino, angles, weights=None):
     """
 
     # Wrap the view angles modulo 2pi and sort
-    angles = np.mod(angles, 2*np.pi)
+    angles = np.mod(angles, 2 * np.pi)
     sorted_indices = np.argsort(angles)
 
     # Sort sino, angles, and weights (if any) to be in monotone increasing order
     sino = np.array(sino)[sorted_indices]
-    sino = np.ascontiguousarray(sino) # ensure views are in sorted order in memory
+    sino = np.ascontiguousarray(sino)  # ensure views are in sorted order in memory
     angles = angles[sorted_indices]
     angles = np.ascontiguousarray(angles)
 
-    if weights is None:
+    if weights is None :
         return sino, angles
-    else:
+    else :
         weights = np.array(weights)[sorted_indices]
         weights = np.ascontiguousarray(weights)
         return sino, angles, weights
 
 
-def calc_weights(sino, weight_type ):
+def calc_weights( sino, weight_type ) :
     """Compute the weights used in MBIR reconstruction.
 
     Args:
@@ -93,14 +94,36 @@ def calc_weights(sino, weight_type ):
     elif weight_type == 'transmission_root' :
         weights = np.exp(-sino / 2)
     elif weight_type == 'emission' :
-        weights = 1 / (np.absolute(sino)  + 0.1)
+        weights = 1 / (np.absolute(sino) + 0.1)
     else :
         raise Exception("calc_weights: undefined weight_type {}".format(weight_type))
 
     return weights
 
 
-def auto_sigma_y(sino, weights, snr_db = 40.0, delta_pixel = 1.0, delta_channel = 1.0):
+def auto_max_resolutions(init_image, prox_image ) :
+    """Compute the automatic value of ``max_resolutions`` for use in MBIR reconstruction.
+
+    Args:
+        init_image (float): Initial value of reconstruction image
+        prox_image (ndarray): 3D proximal map input image.
+    Returns:
+        ndarray: Automatic value of ``max_resolutions``.
+    """
+    # Default value of max_resolutions
+    max_resolutions = 2
+    if isinstance(init_image, np.ndarray) and (init_image.ndim == 3):
+        #print('Init image present. Setting max_resolutions = 0.')
+        max_resolutions = 0
+
+    if isinstance(prox_image, np.ndarray) and (prox_image.ndim == 3):
+        #print('Prox image present. Setting max_resolutions = 0.')
+        max_resolutions = 0
+
+    return max_resolutions
+
+
+def auto_sigma_y( sino, weights, snr_db = 40.0, delta_pixel = 1.0, delta_channel = 1.0 ) :
     """Compute the automatic value of ``sigma_y`` for use in MBIR reconstruction.
 
     Args:
@@ -115,7 +138,6 @@ def auto_sigma_y(sino, weights, snr_db = 40.0, delta_pixel = 1.0, delta_channel 
             [Default=1.0] Scalar value of pixel spacing in :math:`ALU`.
         delta_channel (float, optional):
             [Default=1.0] Scalar value of detector channel spacing in :math:`ALU`.
-
 
     Returns:
         ndarray: Automatic values of regularization parameter.
@@ -132,13 +154,13 @@ def auto_sigma_y(sino, weights, snr_db = 40.0, delta_pixel = 1.0, delta_channel 
     # compute sigma_y and scale by relative pixel and detector pitch
     sigma_y = rel_noise_std * signal_rms * (delta_pixel / delta_channel) ** (0.5)
 
-    if sigma_y > 0:
+    if sigma_y > 0 :
         return sigma_y
-    else:
+    else :
         return 1.0
 
 
-def auto_sigma_x(sino, delta_channel = 1.0, sharpness = 0.0 ):
+def auto_sigma_x( sino, delta_channel = 1.0, sharpness = 0.0 ) :
     """Compute the automatic value of ``sigma_x`` for use in MBIR reconstruction.
 
     Args:
@@ -156,7 +178,7 @@ def auto_sigma_x(sino, delta_channel = 1.0, sharpness = 0.0 ):
     return 0.2 * auto_sigma_prior(sino, delta_channel, sharpness)
 
 
-def auto_sigma_p(sino, delta_channel = 1.0, sharpness = 0.0 ):
+def auto_sigma_p( sino, delta_channel = 1.0, sharpness = 0.0 ) :
     """Compute the automatic value of ``sigma_p`` for use in proximal map estimation.
 
     Args:
@@ -174,7 +196,7 @@ def auto_sigma_p(sino, delta_channel = 1.0, sharpness = 0.0 ):
     return 1.0 * auto_sigma_prior(sino, delta_channel, sharpness)
 
 
-def auto_sigma_prior(sino, delta_channel = 1.0, sharpness = 0.0 ):
+def auto_sigma_prior( sino, delta_channel = 1.0, sharpness = 0.0 ) :
     """Compute the automatic value of prior model regularization term for use in MBIR reconstruction or proximal map estimation. This subroutine is called by ``auto_sigma_x`` in MBIR reconstruction, or ``auto_sigma_p`` in proximal map estimation.
 
     Args:
@@ -203,29 +225,29 @@ def auto_sigma_prior(sino, delta_channel = 1.0, sharpness = 0.0 ):
     return sigma_prior
 
 
-def auto_img_size(geometry, num_channels, delta_channel, delta_pixel, magnification=1.0):
+def auto_img_size( geometry, num_channels, delta_channel, delta_pixel, magnification = 1.0 ) :
     "Compute the default image size"
 
-    if geometry == 'parallel':
+    if geometry == 'parallel' :
         num_rows = int(np.ceil(num_channels * delta_channel / delta_pixel))
-    elif geometry == 'fan':
-        num_rows = int(np.ceil(num_channels * delta_channel / (delta_pixel*magnification) ))
-    else:
+    elif geometry == 'fan' :
+        num_rows = int(np.ceil(num_channels * delta_channel / (delta_pixel * magnification)))
+    else :
         raise Exception('Unrecognized geometry {}'.format(geometry))
 
     num_cols = num_rows
-    return num_rows,num_cols
+    return num_rows, num_cols
 
 
-def auto_roi_radius(delta_pixel, num_rows, num_cols):
+def auto_roi_radius( delta_pixel, num_rows, num_cols ) :
     """Compute the automatic value of ``roi_radius``.
        Chosen so that it inscribes the largest axis of the recon image.
     """
-    roi_radius = float(delta_pixel * max(num_rows, num_cols))/2.0
+    roi_radius = float(delta_pixel * max(num_rows, num_cols)) / 2.0
     return roi_radius
 
 
-def max_threads(num_threads, num_slices, num_rows, num_cols, positivity = True):
+def max_threads( num_threads, num_slices, num_rows, num_cols, positivity = True ) :
     """Compute the maximum recommended number of threads for stable convergence.
 
     Args:
@@ -243,25 +265,26 @@ def max_threads(num_threads, num_slices, num_rows, num_cols, positivity = True):
     super_voxel_width = 16
 
     # compute number of possible super-voxels
-    number_of_possible_SVs = ( num_slices * num_rows*num_cols) / super_voxel_width**2
+    number_of_possible_SVs = (num_slices * num_rows * num_cols) / super_voxel_width ** 2
 
     # Set the maximum number of allowed threads
-    max_threads = int( np.ceil( number_of_possible_SVs / ( (avg_SV_dist)**2 ) ) )
-    if ( (num_threads > max_threads) and (positivity is False) ):
+    max_threads = int(np.ceil(number_of_possible_SVs / ((avg_SV_dist) ** 2)))
+    if ((num_threads > max_threads) and (positivity is False)) :
         num_threads = max_threads
-        print("Warning: Reducing the number of threads to ",num_threads)
+        print("Warning: Reducing the number of threads to ", num_threads)
     return num_threads
 
 
-def recon(sino, angles,
-          geometry = 'parallel', dist_source_detector = None, magnification = 1.0,
-          weights = None, weight_type = 'unweighted', init_image = 0.0, prox_image = None, init_proj = None,
-          num_rows = None, num_cols = None, roi_radius = None,
-          delta_channel = 1.0, delta_pixel = None, center_offset = 0.0,
-          sigma_y = None, snr_db = 40.0, sigma_x = None, sigma_p = None, p = 1.2, q = 2.0, T = 1.0, b_interslice = 1.0,
-          sharpness = 0.0, positivity = True, relax_factor=1.0, max_resolutions = 2, stop_threshold = 0.02, max_iterations = 100,
-          num_threads = None, delete_temps = True, svmbir_lib_path = __svmbir_lib_path, object_name = 'object',
-          verbose = 1) :
+def recon( sino, angles,
+           geometry = 'parallel', dist_source_detector = None, magnification = 1.0,
+           weights = None, weight_type = 'unweighted', init_image = 0.0, prox_image = None, init_proj = None,
+           num_rows = None, num_cols = None, roi_radius = None,
+           delta_channel = 1.0, delta_pixel = None, center_offset = 0.0,
+           sigma_y = None, snr_db = 40.0, sigma_x = None, sigma_p = None, p = 1.2, q = 2.0, T = 1.0, b_interslice = 1.0,
+           sharpness = 0.0, positivity = True, relax_factor = 1.0, max_resolutions = None, stop_threshold = 0.02,
+           max_iterations = 100,
+           num_threads = None, delete_temps = True, svmbir_lib_path = __svmbir_lib_path, object_name = 'object',
+           verbose = 1 ) :
     """recon(sino, angles, geometry = 'parallel', **kwargs)
 
     Compute 3D MBIR reconstruction using multi-resolution SVMBIR algorithm.
@@ -329,8 +352,9 @@ def recon(sino, angles,
             when used in applications that can generate negative image values.
         relax_factor (float, optional): [Default=1.0] Relaxation factor for pixel update. Valid range (0,2.0].
             Values in (0,1) produce under-relaxation (smaller step size); Values in (1,2] produce over-relaxation.
-        max_resolutions (int, optional): [Default=2] Integer >=0 that specifies the maximum number of grid
+        max_resolutions (int, optional): [Default=None] Integer >=0 that specifies the maximum number of grid
             resolutions used to solve MBIR reconstruction problem.
+            If None, automatically set with auto_max_resolutions.
         stop_threshold (float, optional): [Default=0.02] Scalar valued stopping threshold in percent.
             If stop_threshold=0.0, then run max iterations.
         max_iterations (int, optional): [Default=100] Integer valued specifying the maximum number of 
@@ -357,83 +381,95 @@ def recon(sino, angles,
 
     # Test for valid sino and angles structure. If sino is 2D, make it 3D
     angles = utils.test_args_angles(angles)
-    sino = utils.test_args_sino(sino,angles)
+    sino = utils.test_args_sino(sino, angles)
     (num_views, num_slices, num_channels) = sino.shape
 
     # Tests parameters for valid types and values; print warnings if necessary; and return default values.
-    num_rows, num_cols, delta_pixel, roi_radius, delta_channel, center_offset = utils.test_args_geom(num_rows, num_cols, delta_pixel, roi_radius, delta_channel, center_offset)
-    sharpness, positivity, relax_factor, max_resolutions, stop_threshold, max_iterations = utils.test_args_recon(sharpness, positivity, relax_factor, max_resolutions, stop_threshold, max_iterations)
-    init_image, prox_image, init_proj, weights, weight_type = utils.test_args_inits(init_image, prox_image, init_proj, weights, weight_type)
+    num_rows, num_cols, delta_pixel, roi_radius, delta_channel, center_offset = utils.test_args_geom(
+        num_rows, num_cols, delta_pixel, roi_radius, delta_channel, center_offset)
+    sharpness, positivity, relax_factor, max_resolutions, stop_threshold, max_iterations = utils.test_args_recon(
+        sharpness, positivity, relax_factor, max_resolutions, stop_threshold, max_iterations)
+    init_image, prox_image, init_proj, weights, weight_type = utils.test_args_inits(
+        init_image, prox_image, init_proj, weights, weight_type)
     sigma_y, snr_db, sigma_x, sigma_p = utils.test_args_noise(sigma_y, snr_db, sigma_x, sigma_p)
     p, q, T, b_interslice = utils.test_args_qggmrf(p, q, T, b_interslice)
     num_threads, delete_temps, verbose = utils.test_args_sys(num_threads, delete_temps, verbose)
 
     # Geometry dependent settings
-    if geometry == 'parallel':
+    if geometry == 'parallel' :
         dist_source_detector = 0.0
         magnification = 1.0
-    elif geometry == 'fan':
-        if dist_source_detector is None:
+    elif geometry == 'fan' :
+        if dist_source_detector is None :
             raise Exception('For fanbeam geometry, need to specify dist_source_detector')
-    else:
+    else :
         raise Exception('Unrecognized geometry {}'.format(geometry))
 
+    # Set automatic value of max_resolutions
+    if max_resolutions is None :
+        max_resolutions = auto_max_resolutions(init_image, prox_image)
+
     # Set automatic values of num_rows, num_cols, and roi_radius
-    if delta_pixel is None:
-        delta_pixel = delta_channel/magnification
-    if num_rows is None:
-        num_rows,_ = auto_img_size(geometry, num_channels, delta_channel, delta_pixel, magnification)
-    if num_cols is None:
-        _,num_cols = auto_img_size(geometry, num_channels, delta_channel, delta_pixel, magnification)
-    if roi_radius is None:
+    if delta_pixel is None :
+        delta_pixel = delta_channel / magnification
+    if num_rows is None :
+        num_rows, _ = auto_img_size(geometry, num_channels, delta_channel, delta_pixel, magnification)
+    if num_cols is None :
+        _, num_cols = auto_img_size(geometry, num_channels, delta_channel, delta_pixel, magnification)
+    if roi_radius is None :
         roi_radius = auto_roi_radius(delta_pixel, num_rows, num_cols)
 
     # Set automatic values for weights
-    if weights is None:
+    if weights is None :
         weights = calc_weights(sino, weight_type)
 
     # Set automatic value of sigma_y
-    if sigma_y is None:
+    if sigma_y is None :
         sigma_y = auto_sigma_y(sino, weights, snr_db, delta_pixel=delta_pixel, delta_channel=delta_channel)
 
     # Set automatic value of sigma_x
     # if qGGMRF mode, then set sigma_x either using the provided value by user, or with auto_sigma_x
-    if prox_image is None:
-        if sigma_x is None:
+    if prox_image is None :
+        if sigma_x is None :
             sigma_x = auto_sigma_x(sino, delta_channel, sharpness)
     # if proximal map mode, then overwrite sigma_x with sigma_p
-    else:
-        if sigma_p is None:
+    else :
+        if sigma_p is None :
             sigma_p = auto_sigma_p(sino, delta_channel, sharpness)
         sigma_x = sigma_p
 
     # Reduce num_threads for positivity=False if problems size calls for it
-    #num_threads_max = max_threads(num_threads, num_slices, num_rows, num_cols, positivity=positivity)
-    #if num_threads_max < num_threads:
+    # num_threads_max = max_threads(num_threads, num_slices, num_rows, num_cols, positivity=positivity)
+    # if num_threads_max < num_threads:
     #    num_threads = num_threads_max
     os.environ['OMP_NUM_THREADS'] = str(num_threads)
     os.environ['OMP_DYNAMIC'] = 'true'
 
     reconstruction = ci.multires_recon(sino=sino, angles=angles, weights=weights, weight_type=weight_type,
-                                       geometry=geometry, dist_source_detector=dist_source_detector, magnification=magnification,
+                                       geometry=geometry, dist_source_detector=dist_source_detector,
+                                       magnification=magnification,
                                        init_image=init_image, prox_image=prox_image, init_proj=init_proj,
                                        num_rows=num_rows, num_cols=num_cols, roi_radius=roi_radius,
-                                       delta_channel=delta_channel, delta_pixel=delta_pixel, center_offset=center_offset,
-                                       sigma_y=sigma_y, snr_db=snr_db, sigma_x=sigma_x, p=p, q=q, T=T, b_interslice=b_interslice,
-                                       sharpness=sharpness, positivity=positivity, relax_factor=relax_factor, max_resolutions=max_resolutions,
-                                       stop_threshold=stop_threshold, max_iterations=max_iterations, num_threads=num_threads,
-                                       delete_temps=delete_temps, svmbir_lib_path=svmbir_lib_path, object_name=object_name,
+                                       delta_channel=delta_channel, delta_pixel=delta_pixel,
+                                       center_offset=center_offset,
+                                       sigma_y=sigma_y, snr_db=snr_db, sigma_x=sigma_x, p=p, q=q, T=T,
+                                       b_interslice=b_interslice,
+                                       sharpness=sharpness, positivity=positivity, relax_factor=relax_factor,
+                                       max_resolutions=max_resolutions,
+                                       stop_threshold=stop_threshold, max_iterations=max_iterations,
+                                       num_threads=num_threads,
+                                       delete_temps=delete_temps, svmbir_lib_path=svmbir_lib_path,
+                                       object_name=object_name,
                                        verbose=verbose)
 
     return reconstruction
 
 
-
-def project(image, angles, num_channels, geometry = 'parallel',
-            delta_channel = 1.0, delta_pixel = None, center_offset = 0.0, roi_radius = None,
-            dist_source_detector = None, magnification = 1.0,
-            num_threads = None, svmbir_lib_path = __svmbir_lib_path, delete_temps = True,
-            object_name = 'object', verbose = 1):
+def project( image, angles, num_channels, geometry = 'parallel',
+             delta_channel = 1.0, delta_pixel = None, center_offset = 0.0, roi_radius = None,
+             dist_source_detector = None, magnification = 1.0,
+             num_threads = None, svmbir_lib_path = __svmbir_lib_path, delete_temps = True,
+             object_name = 'object', verbose = 1 ) :
     """project(image, angles, num_channels, geometry = 'parallel', **kwargs)
 
     Compute 3D forward-projection.
@@ -480,7 +516,7 @@ def project(image, angles, num_channels, geometry = 'parallel',
     """
 
     # Temporary check for argument order. From v0.2.4, order is project(image,angles,...)
-    if isinstance(image,np.ndarray) and isinstance(angles,np.ndarray) and (image.ndim < angles.ndim):
+    if isinstance(image, np.ndarray) and isinstance(angles, np.ndarray) and (image.ndim < angles.ndim) :
         print("WARNING: Check the argument order svmbir.project(image,angles,...)")
         print("**This is the order definition as of svmbir v0.2.4")
         print("**Swapping and proceeding...")
@@ -504,24 +540,25 @@ def project(image, angles, num_channels, geometry = 'parallel',
     num_views = len(angles)
 
     # Geometry dependent settings
-    if geometry == 'parallel':
+    if geometry == 'parallel' :
         dist_source_detector = 0.0
         magnification = 1.0
-    elif geometry == 'fan':
-        if dist_source_detector is None:
+    elif geometry == 'fan' :
+        if dist_source_detector is None :
             raise Exception('For fanbeam geometry, need to specify dist_source_detector')
-    else:
+    else :
         raise Exception('Unrecognized geometry {}'.format(geometry))
 
-    if delta_pixel is None:
-        delta_pixel = delta_channel/magnification
+    if delta_pixel is None :
+        delta_pixel = delta_channel / magnification
     if roi_radius is None :
         roi_radius = auto_roi_radius(delta_pixel, num_rows, num_cols)
 
     paths, sinoparams, imgparams = ci._init_geometry(angles, center_offset=center_offset,
                                                      geometry=geometry, dist_source_detector=dist_source_detector,
                                                      magnification=magnification,
-                                                     num_channels=num_channels, num_views=num_views, num_slices=num_slices,
+                                                     num_channels=num_channels, num_views=num_views,
+                                                     num_slices=num_slices,
                                                      num_rows=num_rows, num_cols=num_cols,
                                                      delta_channel=delta_channel, delta_pixel=delta_pixel,
                                                      roi_radius=roi_radius,
@@ -543,12 +580,11 @@ def project(image, angles, num_channels, geometry = 'parallel',
     return proj
 
 
-
-def backproject(sino, angles, geometry = 'parallel', num_rows=None, num_cols=None,
-            dist_source_detector = None, magnification = 1.0,
-            delta_channel = 1.0, delta_pixel = None, center_offset = 0.0, roi_radius = None,
-            num_threads = None, svmbir_lib_path = __svmbir_lib_path, delete_temps = True,
-            object_name = 'object', verbose = 1):
+def backproject( sino, angles, geometry = 'parallel', num_rows = None, num_cols = None,
+                 dist_source_detector = None, magnification = 1.0,
+                 delta_channel = 1.0, delta_pixel = None, center_offset = 0.0, roi_radius = None,
+                 num_threads = None, svmbir_lib_path = __svmbir_lib_path, delete_temps = True,
+                 object_name = 'object', verbose = 1 ) :
     """backproject(sino, angles, geometry = 'parallel', **kwargs)
 
     Compute 3D back-projection.
@@ -597,7 +633,7 @@ def backproject(sino, angles, geometry = 'parallel', num_rows=None, num_cols=Non
 
     # validate input arguments
     angles = utils.test_args_angles(angles)
-    sino = utils.test_args_sino(sino,angles)
+    sino = utils.test_args_sino(sino, angles)
 
     if num_threads is None :
         num_threads = cpu_count(logical=False)
@@ -609,32 +645,33 @@ def backproject(sino, angles, geometry = 'parallel', num_rows=None, num_cols=Non
     num_slices = sino.shape[1]
     num_channels = sino.shape[2]
 
-    if num_views != len(angles):
+    if num_views != len(angles) :
         raise Exception('svmbir.backproject(): angles and sinogram arrays have conflicting sizes')
 
     # Geometry dependent settings
-    if geometry == 'parallel':
+    if geometry == 'parallel' :
         dist_source_detector = 0.0
         magnification = 1.0
-    elif geometry == 'fan':
-        if dist_source_detector is None:
+    elif geometry == 'fan' :
+        if dist_source_detector is None :
             raise Exception('For fanbeam geometry, need to specify dist_source_detector')
-    else:
+    else :
         raise Exception('Unrecognized geometry {}'.format(geometry))
 
-    if delta_pixel is None:
-        delta_pixel = delta_channel/magnification
-    if num_rows is None:
-        num_rows,_ = auto_img_size(geometry, num_channels, delta_channel, delta_pixel, magnification)
-    if num_cols is None:
-        _,num_cols = auto_img_size(geometry, num_channels, delta_channel, delta_pixel, magnification)
-    if roi_radius is None:
+    if delta_pixel is None :
+        delta_pixel = delta_channel / magnification
+    if num_rows is None :
+        num_rows, _ = auto_img_size(geometry, num_channels, delta_channel, delta_pixel, magnification)
+    if num_cols is None :
+        _, num_cols = auto_img_size(geometry, num_channels, delta_channel, delta_pixel, magnification)
+    if roi_radius is None :
         roi_radius = auto_roi_radius(delta_pixel, num_rows, num_cols)
 
     paths, sinoparams, imgparams = ci._init_geometry(angles, center_offset=center_offset,
                                                      geometry=geometry, dist_source_detector=dist_source_detector,
                                                      magnification=magnification,
-                                                     num_channels=num_channels, num_views=num_views, num_slices=num_slices,
+                                                     num_channels=num_channels, num_views=num_views,
+                                                     num_slices=num_slices,
                                                      num_rows=num_rows, num_cols=num_cols,
                                                      delta_channel=delta_channel, delta_pixel=delta_pixel,
                                                      roi_radius=roi_radius,
@@ -653,7 +690,7 @@ def backproject(sino, angles, geometry = 'parallel', num_rows=None, num_cols=Non
     return ci.backproject(sino, settings)
 
 
-def _sino_indicator(sino):
+def _sino_indicator( sino ) :
     """Compute a binary function that indicates the region of sinogram support.
 
     Args:
