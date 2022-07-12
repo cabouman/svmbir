@@ -100,7 +100,7 @@ def calc_weights(sino, weight_type ):
     return weights
 
 
-def auto_sigma_y(sino, weights, snr_db = 30.0, delta_pixel = 1.0, delta_channel = 1.0):
+def auto_sigma_y(sino, weights, snr_db = 40.0, delta_pixel = 1.0, delta_channel = 1.0):
     """Compute the automatic value of ``sigma_y`` for use in MBIR reconstruction.
 
     Args:
@@ -110,7 +110,7 @@ def auto_sigma_y(sino, weights, snr_db = 30.0, delta_pixel = 1.0, delta_channel 
             3D numpy array of weights with same shape as sino.
             The parameters weights should be the same values as used in svmbir reconstruction.
         snr_db (float, optional):
-            [Default=30.0] Scalar value that controls assumed signal-to-noise ratio of the data in dB.
+            [Default=40.0] Scalar value that controls assumed signal-to-noise ratio of the data in dB.
         delta_pixel (float, optional):
             [Default=1.0] Scalar value of pixel spacing in :math:`ALU`.
         delta_channel (float, optional):
@@ -254,11 +254,11 @@ def max_threads(num_threads, num_slices, num_rows, num_cols, positivity = True):
 
 
 def recon(sino, angles,
-          geometry = 'parallel', dist_source_detector = None, magnification = None,
+          geometry = 'parallel', dist_source_detector = None, magnification = 1.0,
           weights = None, weight_type = 'unweighted', init_image = 0.0, prox_image = None, init_proj = None,
           num_rows = None, num_cols = None, roi_radius = None,
           delta_channel = 1.0, delta_pixel = None, center_offset = 0.0,
-          sigma_y = None, snr_db = 30.0, sigma_x = None, sigma_p = None, p = 1.2, q = 2.0, T = 1.0, b_interslice = 1.0,
+          sigma_y = None, snr_db = 40.0, sigma_x = None, sigma_p = None, p = 1.2, q = 2.0, T = 1.0, b_interslice = 1.0,
           sharpness = 0.0, positivity = True, relax_factor=1.0, max_resolutions = 0, stop_threshold = 0.02, max_iterations = 100,
           num_threads = None, delete_temps = True, svmbir_lib_path = __svmbir_lib_path, object_name = 'object',
           verbose = 1) :
@@ -272,6 +272,10 @@ def recon(sino, angles,
         geometry (string):
             [Default='parallel'] Scanner geometry, either 'parallel' or 'fan'. Note for fan geometry
             the ``dist_source_detector`` and ``magnification`` arguments must be specified.
+        dist_source_detector (float):
+            (Required, 'fan' geometry only) Distance from X-ray focal spot to detectors, in :math:`ALU`.
+        magnification (float): [Default=1.0]
+            Magnification factor = 1.0 for parallel beam, or dist_source_detector/dist_source_isocenter for fan beam.
         weights (ndarray, optional): [Default=None] 3D weights array with same shape as sino.
         weight_type (string, optional): [Default="unweighted"] Type of noise model used for data.
             If the ``weights`` array is not supplied, then the function ``svmbir.calc_weights`` is 
@@ -298,13 +302,9 @@ def recon(sino, angles,
             plane in :math:`ALU`. Defaults to ``delta_channel`` for ``parallel`` beam geometry, 
             and ``delta_channel``/``magnification`` for ``fan`` geometry.
         center_offset (float, optional): [Default=0.0] Scalar value of offset from center-of-rotation.
-        dist_source_detector (float):
-            (Required, 'fan' geometry only) Distance from X-ray focal spot to detectors, in :math:`ALU`.
-        magnification (float):
-            (Required, 'fan' geometry only) Magnification factor = dist_source_detector/dist_source_isocenter.
         sigma_y (float, optional): [Default=None] Scalar value of noise standard deviation parameter.
             If None, automatically set with auto_sigma_y.
-        snr_db (float, optional): [Default=30.0] Scalar value that controls assumed signal-to-noise 
+        snr_db (float, optional): [Default=40.0] Scalar value that controls assumed signal-to-noise 
             ratio of the data in dB. Ignored if sigma_y is not None.
         sigma_x (float, optional): [Default=None] Scalar value :math:`>0` that specifies the qGGMRF scale parameter.
             Ignored if prox_image is not None.
@@ -373,8 +373,8 @@ def recon(sino, angles,
         dist_source_detector = 0.0
         magnification = 1.0
     elif geometry == 'fan':
-        if dist_source_detector is None or magnification is None:
-            raise Exception('For fanbeam geometry, need to specify dist_source_detector and magnification')
+        if dist_source_detector is None:
+            raise Exception('For fanbeam geometry, need to specify dist_source_detector')
     else:
         raise Exception('Unrecognized geometry {}'.format(geometry))
 
@@ -431,7 +431,7 @@ def recon(sino, angles,
 
 def project(image, angles, num_channels, geometry = 'parallel',
             delta_channel = 1.0, delta_pixel = None, center_offset = 0.0, roi_radius = None,
-            dist_source_detector = None, magnification = None,
+            dist_source_detector = None, magnification = 1.0,
             num_threads = None, svmbir_lib_path = __svmbir_lib_path, delete_temps = True,
             object_name = 'object', verbose = 1):
     """project(image, angles, num_channels, geometry = 'parallel', **kwargs)
@@ -462,8 +462,9 @@ def project(image, angles, num_channels, geometry = 'parallel',
             If not given, the value is set with auto_roi_radius().
         dist_source_detector (float):
             (Required, 'fan' geometry only) Distance from X-ray focal spot to detectors, in :math:`ALU`.
-        magnification (float):
-            (Required, 'fan' geometry only) Magnification factor = dist_source_detector/dist_source_isocenter.
+        magnification (float): [Default=1.0]
+            Magnification factor = 1.0 for parallel beam, or dist_source_detector/dist_source_isocenter for fan beam.
+
         num_threads (int, optional): [Default=None] Number of compute threads requested when executed.
             If None, num_threads is set to the number of cores in the system.
         svmbir_lib_path (string, optional):
@@ -507,8 +508,8 @@ def project(image, angles, num_channels, geometry = 'parallel',
         dist_source_detector = 0.0
         magnification = 1.0
     elif geometry == 'fan':
-        if dist_source_detector is None or magnification is None:
-            raise Exception('For fanbeam geometry, need to specify dist_source_detector and magnification')
+        if dist_source_detector is None:
+            raise Exception('For fanbeam geometry, need to specify dist_source_detector')
     else:
         raise Exception('Unrecognized geometry {}'.format(geometry))
 
@@ -544,7 +545,7 @@ def project(image, angles, num_channels, geometry = 'parallel',
 
 
 def backproject(sino, angles, geometry = 'parallel', num_rows=None, num_cols=None,
-            dist_source_detector = None, magnification = None,
+            dist_source_detector = None, magnification = 1.0,
             delta_channel = 1.0, delta_pixel = None, center_offset = 0.0, roi_radius = None,
             num_threads = None, svmbir_lib_path = __svmbir_lib_path, delete_temps = True,
             object_name = 'object', verbose = 1):
@@ -567,8 +568,8 @@ def backproject(sino, angles, geometry = 'parallel', num_rows=None, num_cols=Non
             [Default=num_channels] Integer number of output image columns.
         dist_source_detector (float):
             (Required, 'fan' geometry only) Distance from X-ray focal spot to detectors, in :math:`ALU`.
-        magnification (float):
-            (Required, 'fan' geometry only) Magnification factor = dist_source_detector/dist_source_isocenter.
+        magnification (float): [Default=1.0]
+            Magnification factor = 1.0 for parallel beam, or dist_source_detector/dist_source_isocenter for fan beam.
         delta_channel (float, optional):
             [Default=1.0] Detector channel spacing in :math:`ALU`.
         delta_pixel (float, optional):
@@ -616,8 +617,8 @@ def backproject(sino, angles, geometry = 'parallel', num_rows=None, num_cols=Non
         dist_source_detector = 0.0
         magnification = 1.0
     elif geometry == 'fan':
-        if dist_source_detector is None or magnification is None:
-            raise Exception('For fanbeam geometry, need to specify dist_source_detector and magnification')
+        if dist_source_detector is None:
+            raise Exception('For fanbeam geometry, need to specify dist_source_detector')
     else:
         raise Exception('Unrecognized geometry {}'.format(geometry))
 
