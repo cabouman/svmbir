@@ -259,7 +259,7 @@ def recon(sino, angles,
           num_rows = None, num_cols = None, roi_radius = None,
           delta_channel = 1.0, delta_pixel = None, center_offset = 0.0,
           sigma_y = None, snr_db = 40.0, sigma_x = None, sigma_p = None, p = 1.2, q = 2.0, T = 1.0, b_interslice = 1.0,
-          sharpness = 0.0, positivity = True, relax_factor=1.0, max_resolutions = 0, stop_threshold = 0.02, max_iterations = 100,
+          sharpness = 0.0, positivity = True, relax_factor=1.0, max_resolutions = 2, stop_threshold = 0.02, max_iterations = 100,
           num_threads = None, delete_temps = True, svmbir_lib_path = __svmbir_lib_path, object_name = 'object',
           verbose = 1) :
     """recon(sino, angles, geometry = 'parallel', **kwargs)
@@ -329,7 +329,7 @@ def recon(sino, angles,
             when used in applications that can generate negative image values.
         relax_factor (float, optional): [Default=1.0] Relaxation factor for pixel update. Valid range (0,2.0].
             Values in (0,1) produce under-relaxation (smaller step size); Values in (1,2] produce over-relaxation.
-        max_resolutions (int, optional): [Default=0] Integer >=0 that specifies the maximum number of grid 
+        max_resolutions (int, optional): [Default=2] Integer >=0 that specifies the maximum number of grid
             resolutions used to solve MBIR reconstruction problem.
         stop_threshold (float, optional): [Default=0.02] Scalar valued stopping threshold in percent.
             If stop_threshold=0.0, then run max iterations.
