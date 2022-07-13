@@ -101,12 +101,11 @@ def calc_weights(sino, weight_type ):
     return weights
 
 
-def auto_max_resolutions(init_image, prox_image ) :
+def auto_max_resolutions(init_image) :
     """Compute the automatic value of ``max_resolutions`` for use in MBIR reconstruction.
 
     Args:
         init_image (float): Initial value of reconstruction image
-        prox_image (ndarray): 3D proximal map input image.
     Returns:
         ndarray: Automatic value of ``max_resolutions``.
     """
@@ -114,10 +113,6 @@ def auto_max_resolutions(init_image, prox_image ) :
     max_resolutions = 2
     if isinstance(init_image, np.ndarray) and (init_image.ndim == 3):
         #print('Init image present. Setting max_resolutions = 0.')
-        max_resolutions = 0
-
-    if isinstance(prox_image, np.ndarray) and (prox_image.ndim == 3):
-        #print('Prox image present. Setting max_resolutions = 0.')
         max_resolutions = 0
 
     return max_resolutions
@@ -402,7 +397,7 @@ def recon(sino, angles,
 
     # Set automatic value of max_resolutions
     if max_resolutions is None :
-        max_resolutions = auto_max_resolutions(init_image, prox_image)
+        max_resolutions = auto_max_resolutions(init_image)
 
     # Set automatic values of num_rows, num_cols, and roi_radius
     if delta_pixel is None:
