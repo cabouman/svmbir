@@ -6,6 +6,7 @@ from psutil import cpu_count
 import shutil
 import numpy as np
 import os
+import warnings
 import svmbir._utils as utils
 
 if os.environ.get('CLIB') =='CMD_LINE':
@@ -383,6 +384,11 @@ def recon(sino, angles,
     p, q, T, b_interslice = utils.test_args_qggmrf(p, q, T, b_interslice)
     num_threads, delete_temps, verbose = utils.test_args_sys(num_threads, delete_temps, verbose)
 
+    # Issue warning that 'fan' geometry will be removed in the future (last valid version is v0.2.9)
+    if geometry=='fan':
+        geometry = 'fan-curved'
+        warnings.warn("'fan' geometry will be removed in a future release. Fan beam geometry is now specified as either 'fan-curved' or 'fan-flat'. Defaulting to 'fan-curved'.",FutureWarning)
+
     # Geometry dependent settings
     if geometry == 'parallel':
         dist_source_detector = 0.0
@@ -390,8 +396,6 @@ def recon(sino, angles,
     elif geometry=='fan-curved' or geometry=='fan-flat':
         if dist_source_detector is None or magnification is None:
             raise Exception('For fan beam geometries, need to specify dist_source_detector and magnification')
-    elif geometry=='fan':
-        raise Exception("Ambiguous geometry 'fan': Please specify 'fan-curved' or 'fan-flat'")
     else:
         raise Exception('Unrecognized geometry {}'.format(geometry))
 
@@ -523,6 +527,11 @@ def project(image, angles, num_channels,
     num_cols = image.shape[2]
     num_views = len(angles)
 
+    # Issue warning that 'fan' geometry will be removed in the future (last valid version is v0.2.9)
+    if geometry=='fan':
+        geometry = 'fan-curved'
+        warnings.warn("'fan' geometry will be removed in a future release. Fan beam geometry is now specified as either 'fan-curved' or 'fan-flat'. Defaulting to 'fan-curved'.",FutureWarning)
+
     # Geometry dependent settings
     if geometry == 'parallel':
         dist_source_detector = 0.0
@@ -530,8 +539,6 @@ def project(image, angles, num_channels,
     elif geometry=='fan-curved' or geometry=='fan-flat':
         if dist_source_detector is None or magnification is None:
             raise Exception('For fan beam geometries, need to specify dist_source_detector and magnification')
-    elif geometry=='fan':
-        raise Exception("Ambiguous geometry 'fan': Please specify 'fan-curved' or 'fan-flat'")
     else:
         raise Exception('Unrecognized geometry {}'.format(geometry))
 
@@ -632,6 +639,11 @@ def backproject(sino, angles, num_rows=None, num_cols=None,
     if num_views != len(angles):
         raise Exception('svmbir.backproject(): angles and sinogram arrays have conflicting sizes')
 
+    # Issue warning that 'fan' geometry will be removed in the future (last valid version is v0.2.9)
+    if geometry=='fan':
+        geometry = 'fan-curved'
+        warnings.warn("'fan' geometry will be removed in a future release. Fan beam geometry is now specified as either 'fan-curved' or 'fan-flat'. Defaulting to 'fan-curved'.",FutureWarning)
+
     # Geometry dependent settings
     if geometry == 'parallel':
         dist_source_detector = 0.0
@@ -639,8 +651,6 @@ def backproject(sino, angles, num_rows=None, num_cols=None,
     elif geometry=='fan-curved' or geometry=='fan-flat':
         if dist_source_detector is None or magnification is None:
             raise Exception('For fan beam geometries, need to specify dist_source_detector and magnification')
-    elif geometry=='fan':
-        raise Exception("Ambiguous geometry 'fan': Please specify 'fan-curved' or 'fan-flat'")
     else:
         raise Exception('Unrecognized geometry {}'.format(geometry))
 
