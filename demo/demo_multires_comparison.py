@@ -44,7 +44,7 @@ sino = svmbir.project(phantom, angles, max(num_rows, num_cols))
 (num_views, num_slices, num_channels) = sino.shape
 
 # Perform fixed resolution MBIR reconstruction
-recon = svmbir.recon(sino, angles, num_rows=num_rows, num_cols=num_cols, T=T, p=p, sharpness=sharpness, snr_db=snr_db )
+recon = svmbir.recon(sino, angles, num_rows=num_rows, num_cols=num_cols, T=T, p=p, max_resolutions=0, sharpness=sharpness, snr_db=snr_db )
 
 # Perform multi-resolution MBIR reconstruction
 mr_recon = svmbir.recon(sino, angles, num_rows=num_rows, num_cols=num_cols, T=T, p=p, max_resolutions=max_resolutions, sharpness=sharpness, snr_db=snr_db )

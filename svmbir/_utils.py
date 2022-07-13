@@ -120,9 +120,9 @@ def test_args_recon(sharpness, positivity, relax_factor, max_resolutions, stop_t
         warnings.warn("Parameter relax_factor is not valid float; Setting to 1.0.")
         relax_factor = 1.0
 
-    if not (isinstance(max_resolutions, int) and (max_resolutions >= 0)):
-        warnings.warn("Parameter max_resolutions is not valid int; Setting max_resolutions = 0.")
-        max_resolutions = 0
+    if not ((isinstance(max_resolutions, int) and (max_resolutions >= 0)) or (max_resolutions is None)):
+        warnings.warn("Parameter max_resolutions is not valid int; Setting max_resolutions = None.")
+        max_resolutions = None
 
     if isinstance(stop_threshold,int):
         stop_threshold = float(stop_threshold)

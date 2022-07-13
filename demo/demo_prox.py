@@ -22,9 +22,6 @@ tilt_angle = np.pi/2 # Tilt range of +-90deg
 snr_db = 40.0
 sigma_p = 0.2
 
-# Multi-resolution works much better for limited and sparse view reconstruction
-max_resolutions=1 # Use 1 additional resolution to do reconstruction
-
 # Display parameters
 vmin = 1.0
 vmax = 1.2
@@ -45,7 +42,7 @@ sino = svmbir.project(phantom, angles, num_rows_cols )
 phantom_rot = np.swapaxes(phantom, 1, 2)
 
 # Perform fixed resolution MBIR reconstruction using proximal map input
-recon = svmbir.recon(sino, angles, max_resolutions=max_resolutions, init_image=phantom_rot, prox_image=phantom_rot, positivity=False, sigma_p=sigma_p, snr_db=snr_db)
+recon = svmbir.recon(sino, angles, init_image=phantom_rot, prox_image=phantom_rot, positivity=False, sigma_p=sigma_p, snr_db=snr_db)
 
 # create output folder
 os.makedirs('output', exist_ok=True)
