@@ -8,7 +8,7 @@ Fan beam demo
 """
 
 # Simulated sinogram parameters
-geometry = 'fan'
+geometry = 'fan-curved'
 dist_source_detector = 1000.0
 delta_channel = 1.0
 magnification = 2.0
