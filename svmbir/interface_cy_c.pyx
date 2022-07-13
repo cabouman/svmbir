@@ -114,8 +114,7 @@ cdef convert_py2c_SinoParams3D(SinoParams3DParallel* sinoparams,
         sinoparams.Geometry = 0
     elif py_sinoparams['geometry']=='fan-curved':
         sinoparams.Geometry = 1
-    # NOTE we're making 'fan' default to a FLAT array for now
-    elif py_sinoparams['geometry']=='fan-flat' or py_sinoparams['geometry']=='fan':
+    elif py_sinoparams['geometry']=='fan-flat':
         sinoparams.Geometry = 2
     else:
         sinoparams.Geometry = 0

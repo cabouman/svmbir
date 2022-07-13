@@ -203,16 +203,9 @@ def auto_sigma_prior(sino, delta_channel = 1.0, sharpness = 0.0 ):
     return sigma_prior
 
 
-def auto_img_size(geometry, num_channels, delta_channel, delta_pixel, magnification=1.0):
+def auto_img_size(num_channels, delta_channel, delta_pixel, magnification=1.0):
     "Compute the default image size"
-
-    if geometry == 'parallel':
-        num_rows = int(np.ceil(num_channels * delta_channel / delta_pixel))
-    elif geometry=='fan' or geometry=='fan-curved' or geometry=='fan-flat':
-        num_rows = int(np.ceil(num_channels * delta_channel / (delta_pixel*magnification) ))
-    else:
-        raise Exception('Unrecognized geometry {}'.format(geometry))
-
+    num_rows = int(np.ceil(num_channels * delta_channel / (delta_pixel*magnification) ))
     num_cols = num_rows
     return num_rows,num_cols
 
@@ -296,12 +289,12 @@ def recon(sino, angles,
         delta_channel (float, optional): [Default=1.0] Scalar value of detector channel spacing in :math:`ALU`.
         delta_pixel (float, optional): Scalar value of the spacing between image pixels in the 2D slice 
             plane in :math:`ALU`. Defaults to ``delta_channel`` for ``parallel`` beam geometry, 
-            and ``delta_channel``/``magnification`` for ``fan`` geometries.
+            and ``delta_channel``/``magnification`` for fanbeam geometries.
         center_offset (float, optional): [Default=0.0] Scalar value of offset from center-of-rotation.
         dist_source_detector (float):
-            (Required, 'fan' geometries only) Distance from X-ray focal spot to detectors, in :math:`ALU`.
+            (Required, fanbeam geometries only) Distance from X-ray focal spot to detectors, in :math:`ALU`.
         magnification (float):
-            (Required, 'fan' geometries only) Magnification factor = dist_source_detector/dist_source_isocenter.
+            (Required, fanbeam geometries only) Magnification factor = dist_source_detector/dist_source_isocenter.
         sigma_y (float, optional): [Default=None] Scalar value of noise standard deviation parameter.
             If None, automatically set with auto_sigma_y.
         snr_db (float, optional): [Default=30.0] Scalar value that controls assumed signal-to-noise 
@@ -372,9 +365,11 @@ def recon(sino, angles,
     if geometry == 'parallel':
         dist_source_detector = 0.0
         magnification = 1.0
-    elif geometry=='fan' or geometry=='fan-curved' or geometry=='fan-flat':
+    elif geometry=='fan-curved' or geometry=='fan-flat':
         if dist_source_detector is None or magnification is None:
             raise Exception('For fanbeam geometries, need to specify dist_source_detector and magnification')
+    elif geometry=='fan':
+        raise Exception("Ambiguous geometry 'fan': Please specify 'fan-curved' or 'fan-flat'")
     else:
         raise Exception('Unrecognized geometry {}'.format(geometry))
 
@@ -382,9 +377,9 @@ def recon(sino, angles,
     if delta_pixel is None:
         delta_pixel = delta_channel/magnification
     if num_rows is None:
-        num_rows,_ = auto_img_size(geometry, num_channels, delta_channel, delta_pixel, magnification)
+        num_rows,_ = auto_img_size(num_channels, delta_channel, delta_pixel, magnification)
     if num_cols is None:
-        _,num_cols = auto_img_size(geometry, num_channels, delta_channel, delta_pixel, magnification)
+        _,num_cols = auto_img_size(num_channels, delta_channel, delta_pixel, magnification)
     if roi_radius is None:
         roi_radius = auto_roi_radius(delta_pixel, num_rows, num_cols)
 
@@ -454,16 +449,16 @@ def project(image, angles, num_channels, geometry = 'parallel',
         delta_channel (float, optional): [Default=1.0] Scalar value of detector channel spacing in :math:`ALU`.
         delta_pixel (float, optional): Scalar value of the spacing between image pixels in the 2D slice 
             plane in :math:`ALU`. Defaults to ``delta_channel`` for ``parallel`` beam geometry, 
-            and ``delta_channel``/``magnification`` for ``fan`` geometries.
+            and ``delta_channel``/``magnification`` for fanbeam geometries.
         center_offset (float, optional):
             [Default=0.0] Offset from center-of-rotation in 'fractional number of channels' units.
         roi_radius (float, optional): [Default=None] Radius of relevant image region in :math:`ALU`.
             Pixels outside the radius are disregarded in the forward projection.
             If not given, the value is set with auto_roi_radius().
         dist_source_detector (float):
-            (Required, 'fan' geometries only) Distance from X-ray focal spot to detectors, in :math:`ALU`.
+            (Required, fanbeam geometries only) Distance from X-ray focal spot to detectors, in :math:`ALU`.
         magnification (float):
-            (Required, 'fan' geometries only) Magnification factor = dist_source_detector/dist_source_isocenter.
+            (Required, fanbeam geometries only) Magnification factor = dist_source_detector/dist_source_isocenter.
         num_threads (int, optional): [Default=None] Number of compute threads requested when executed.
             If None, num_threads is set to the number of cores in the system.
         svmbir_lib_path (string, optional):
@@ -506,9 +501,11 @@ def project(image, angles, num_channels, geometry = 'parallel',
     if geometry == 'parallel':
         dist_source_detector = 0.0
         magnification = 1.0
-    elif geometry=='fan' or geometry=='fan-curved' or geometry=='fan-flat':
+    elif geometry=='fan-curved' or geometry=='fan-flat':
         if dist_source_detector is None or magnification is None:
             raise Exception('For fanbeam geometries, need to specify dist_source_detector and magnification')
+    elif geometry=='fan':
+        raise Exception("Ambiguous geometry 'fan': Please specify 'fan-curved' or 'fan-flat'")
     else:
         raise Exception('Unrecognized geometry {}'.format(geometry))
 
@@ -566,15 +563,15 @@ def backproject(sino, angles, geometry = 'parallel', num_rows=None, num_cols=Non
         num_cols (int, optional):
             [Default=num_channels] Integer number of output image columns.
         dist_source_detector (float):
-            (Required, 'fan' geometries only) Distance from X-ray focal spot to detectors, in :math:`ALU`.
+            (Required, fanbeam geometries only) Distance from X-ray focal spot to detectors, in :math:`ALU`.
         magnification (float):
-            (Required, 'fan' geometries only) Magnification factor = dist_source_detector/dist_source_isocenter.
+            (Required, fanbeam geometries only) Magnification factor = dist_source_detector/dist_source_isocenter.
         delta_channel (float, optional):
             [Default=1.0] Detector channel spacing in :math:`ALU`.
         delta_pixel (float, optional):
             Size of image pixels in the 2D slice plane in :math:`ALU`.
             Defaults to ``delta_channel`` for ``parallel`` beam geometry, 
-            and ``delta_channel``/``magnification`` for ``fan`` geometries.
+            and ``delta_channel``/``magnification`` for fanbeam geometries.
         center_offset (float, optional):
             [Default=0.0] Offset from center-of-rotation in 'fractional number of channels' units.
         roi_radius (float, optional): [Default=None] Radius of relevant image region in :math:`ALU`.
@@ -615,18 +612,20 @@ def backproject(sino, angles, geometry = 'parallel', num_rows=None, num_cols=Non
     if geometry == 'parallel':
         dist_source_detector = 0.0
         magnification = 1.0
-    elif geometry=='fan' or geometry=='fan-curved' or geometry=='fan-flat':
+    elif geometry=='fan-curved' or geometry=='fan-flat':
         if dist_source_detector is None or magnification is None:
             raise Exception('For fanbeam geometries, need to specify dist_source_detector and magnification')
+    elif geometry=='fan':
+        raise Exception("Ambiguous geometry 'fan': Please specify 'fan-curved' or 'fan-flat'")
     else:
         raise Exception('Unrecognized geometry {}'.format(geometry))
 
     if delta_pixel is None:
         delta_pixel = delta_channel/magnification
     if num_rows is None:
-        num_rows,_ = auto_img_size(geometry, num_channels, delta_channel, delta_pixel, magnification)
+        num_rows,_ = auto_img_size(num_channels, delta_channel, delta_pixel, magnification)
     if num_cols is None:
-        _,num_cols = auto_img_size(geometry, num_channels, delta_channel, delta_pixel, magnification)
+        _,num_cols = auto_img_size(num_channels, delta_channel, delta_pixel, magnification)
     if roi_radius is None:
         roi_radius = auto_roi_radius(delta_pixel, num_rows, num_cols)
 
