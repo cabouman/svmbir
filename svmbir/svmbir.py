@@ -129,13 +129,13 @@ def auto_sigma_y(sino, weights, magnification = 1.0, delta_channel = 1.0, delta_
             3D numpy array of weights with same shape as sino.
             The parameters weights should be the same values as used in svmbir reconstruction.
         magnification (float):
-            (Required, 'fan' geometry only) Magnification factor = dist_source_detector/dist_source_isocenter.
+            (fan beam geometries only) Magnification factor = dist_source_detector/dist_source_isocenter.
         delta_channel (float, optional):
             [Default=1.0] Scalar value of detector channel spacing in :math:`ALU`.
         delta_pixel (float, optional):
-            [Default=1.0] Scalar value of pixel spacing in :math:`ALU`.    
+            [Default=1.0] Scalar value of pixel spacing in :math:`ALU`.
         snr_db (float, optional):
-            [Default=40.0] Scalar value that controls assumed signal-to-noise ratio of the data in dB.    
+            [Default=40.0] Scalar value that controls assumed signal-to-noise ratio of the data in dB.
 
 
     Returns:
@@ -172,7 +172,7 @@ def auto_sigma_x(sino, magnification = 1.0, delta_channel = 1.0, sharpness = 0.0
         sino (ndarray):
             3D numpy array of sinogram data with shape (num_views,num_slices,num_channels).
         magnification (float):
-            (Required, 'fan' geometry only) Magnification factor = dist_source_detector/dist_source_isocenter.    
+            (fan beam geometries only) Magnification factor = dist_source_detector/dist_source_isocenter.
         delta_channel (float, optional):
             [Default=1.0] Scalar value of detector channel spacing in :math:`ALU`.
         sharpness (float, optional):
@@ -192,7 +192,7 @@ def auto_sigma_p(sino, magnification = 1.0, delta_channel = 1.0, sharpness = 0.0
         sino (ndarray):
             3D numpy array of sinogram data with shape (num_views,num_slices,num_channels).
         magnification (float):
-            (Required, 'fan' geometry only) Magnification factor = dist_source_detector/dist_source_isocenter.    
+            (fan beam geometries only) Magnification factor = dist_source_detector/dist_source_isocenter.
         delta_channel (float, optional):
             [Default=1.0] Scalar value of detector channel spacing in :math:`ALU`.
         sharpness (float, optional):
@@ -212,7 +212,7 @@ def auto_sigma_prior(sino, magnification = 1.0, delta_channel = 1.0, sharpness =
         sino (ndarray):
             3D numpy array of sinogram data with shape (num_views,num_slices,num_channels).
         magnification (float):
-            (Required, 'fan' geometry only) Magnification factor = dist_source_detector/dist_source_isocenter.    
+            (fan beam geometries only) Magnification factor = dist_source_detector/dist_source_isocenter.
         delta_channel (float, optional):
             [Default=1.0] Scalar value of detector channel spacing in :math:`ALU`.
         sharpness (float, optional):
