@@ -119,7 +119,7 @@ def auto_max_resolutions(init_image) :
     return max_resolutions
 
 
-def auto_sigma_y( sino, weights, snr_db = 40.0, delta_pixel = 1.0, delta_channel = 1.0 ) :
+def auto_sigma_y(sino, weights, magnification = 1.0, delta_channel = 1.0, delta_pixel = 1.0, snr_db = 40.0 ) :
     """Compute the automatic value of ``sigma_y`` for use in MBIR reconstruction.
 
     Args:
@@ -128,12 +128,14 @@ def auto_sigma_y( sino, weights, snr_db = 40.0, delta_pixel = 1.0, delta_channel
         weights (ndarray):
             3D numpy array of weights with same shape as sino.
             The parameters weights should be the same values as used in svmbir reconstruction.
-        snr_db (float, optional):
-            [Default=40.0] Scalar value that controls assumed signal-to-noise ratio of the data in dB.
-        delta_pixel (float, optional):
-            [Default=1.0] Scalar value of pixel spacing in :math:`ALU`.
+        magnification (float):
+            (fan beam geometries only) Magnification factor = dist_source_detector/dist_source_isocenter.
         delta_channel (float, optional):
             [Default=1.0] Scalar value of detector channel spacing in :math:`ALU`.
+        delta_pixel (float, optional):
+            [Default=1.0] Scalar value of pixel spacing in :math:`ALU`.
+        snr_db (float, optional):
+            [Default=40.0] Scalar value that controls assumed signal-to-noise ratio of the data in dB.
 
 
     Returns:
@@ -148,8 +150,14 @@ def auto_sigma_y( sino, weights, snr_db = 40.0, delta_pixel = 1.0, delta_channel
     # convert snr to relative noise standard deviation
     rel_noise_std = 10 ** (-snr_db / 20)
 
+    # compute the default_pixel_pitch = the detector pixel pitch in the image plane given the magnification
+    default_pixel_pitch = delta_channel / magnification
+
+    # compute the image pixel pitch relative to the default.
+    pixel_pitch_relative_to_default = delta_pixel / default_pixel_pitch
+
     # compute sigma_y and scale by relative pixel and detector pitch
-    sigma_y = rel_noise_std * signal_rms * (delta_pixel / delta_channel) ** (0.5)
+    sigma_y = rel_noise_std * signal_rms * pixel_pitch_relative_to_default ** (0.5)
 
     if sigma_y > 0:
         return sigma_y
@@ -157,12 +165,14 @@ def auto_sigma_y( sino, weights, snr_db = 40.0, delta_pixel = 1.0, delta_channel
         return 1.0
 
 
-def auto_sigma_x(sino, delta_channel = 1.0, sharpness = 0.0 ):
+def auto_sigma_x(sino, magnification = 1.0, delta_channel = 1.0, sharpness = 0.0 ):
     """Compute the automatic value of ``sigma_x`` for use in MBIR reconstruction.
 
     Args:
         sino (ndarray):
             3D numpy array of sinogram data with shape (num_views,num_slices,num_channels).
+        magnification (float):
+            (fan beam geometries only) Magnification factor = dist_source_detector/dist_source_isocenter.
         delta_channel (float, optional):
             [Default=1.0] Scalar value of detector channel spacing in :math:`ALU`.
         sharpness (float, optional):
@@ -172,15 +182,17 @@ def auto_sigma_x(sino, delta_channel = 1.0, sharpness = 0.0 ):
     Returns:
         float: Automatic value of regularization parameter.
     """
-    return 0.2 * auto_sigma_prior(sino, delta_channel, sharpness)
+    return 0.2 * auto_sigma_prior(sino, magnification, delta_channel, sharpness)
 
 
-def auto_sigma_p(sino, delta_channel = 1.0, sharpness = 0.0 ):
+def auto_sigma_p(sino, magnification = 1.0, delta_channel = 1.0, sharpness = 0.0 ):
     """Compute the automatic value of ``sigma_p`` for use in proximal map estimation.
 
     Args:
         sino (ndarray):
             3D numpy array of sinogram data with shape (num_views,num_slices,num_channels).
+        magnification (float):
+            (fan beam geometries only) Magnification factor = dist_source_detector/dist_source_isocenter.
         delta_channel (float, optional):
             [Default=1.0] Scalar value of detector channel spacing in :math:`ALU`.
         sharpness (float, optional):
@@ -190,15 +202,17 @@ def auto_sigma_p(sino, delta_channel = 1.0, sharpness = 0.0 ):
     Returns:
         float: Automatic value of regularization parameter.
     """
-    return 1.0 * auto_sigma_prior(sino, delta_channel, sharpness)
+    return 1.0 * auto_sigma_prior(sino, magnification, delta_channel, sharpness)
 
 
-def auto_sigma_prior(sino, delta_channel = 1.0, sharpness = 0.0 ):
+def auto_sigma_prior(sino, magnification = 1.0, delta_channel = 1.0, sharpness = 0.0 ):
     """Compute the automatic value of prior model regularization term for use in MBIR reconstruction or proximal map estimation. This subroutine is called by ``auto_sigma_x`` in MBIR reconstruction, or ``auto_sigma_p`` in proximal map estimation.
 
     Args:
         sino (ndarray):
             3D numpy array of sinogram data with shape (num_views,num_slices,num_channels).
+        magnification (float):
+            (fan beam geometries only) Magnification factor = dist_source_detector/dist_source_isocenter.
         delta_channel (float, optional):
             [Default=1.0] Scalar value of detector channel spacing in :math:`ALU`.
         sharpness (float, optional):
@@ -214,7 +228,7 @@ def auto_sigma_prior(sino, delta_channel = 1.0, sharpness = 0.0 ):
     sino_indicator = _sino_indicator(sino)
 
     # Compute a typical image value by dividing average sinogram value by a typical projection path length
-    typical_img_value = np.average(sino, weights=sino_indicator) / (num_channels * delta_channel)
+    typical_img_value = np.average(sino, weights=sino_indicator) / (num_channels * delta_channel / magnification)
 
     # Compute sigma_p as the typical image value when sharpness==0
     sigma_prior = (2 ** sharpness) * typical_img_value
@@ -419,17 +433,17 @@ def recon(sino, angles,
 
     # Set automatic value of sigma_y
     if sigma_y is None:
-        sigma_y = auto_sigma_y(sino, weights, snr_db, delta_pixel=delta_pixel, delta_channel=delta_channel)
+        sigma_y = auto_sigma_y(sino, weights, magnification, delta_channel=delta_channel, delta_pixel=delta_pixel, snr_db=snr_db)
 
     # Set automatic value of sigma_x
     # if qGGMRF mode, then set sigma_x either using the provided value by user, or with auto_sigma_x
     if prox_image is None:
         if sigma_x is None:
-            sigma_x = auto_sigma_x(sino, delta_channel, sharpness)
+            sigma_x = auto_sigma_x(sino, magnification, delta_channel, sharpness)
     # if proximal map mode, then overwrite sigma_x with sigma_p
     else:
         if sigma_p is None:
-            sigma_p = auto_sigma_p(sino, delta_channel, sharpness)
+            sigma_p = auto_sigma_p(sino, magnification, delta_channel, sharpness)
         sigma_x = sigma_p
 
     # Reduce num_threads for positivity=False if problems size calls for it
