@@ -23,7 +23,7 @@ for pyv in ${python_versions[@]}; do
 
     echo "*********** Installing svmbir ${svmbir_version} *************"
     #pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple svmbir==$svmbir_version
-    pip install svmbir==$svmbir_version
+    pip --no-cache-dir install svmbir==$svmbir_version
     pip install -r ../demo/requirements_demo.txt
 
     echo "**** Spinning "
