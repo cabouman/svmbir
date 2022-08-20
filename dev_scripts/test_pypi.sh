@@ -26,12 +26,14 @@ for pyv in ${python_versions[@]}; do
     echo "*********** Installing svmbir ${svmbir_version} *************"
     pip install --no-cache-dir -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple svmbir==$svmbir_version
     #pip install --no-cache-dir svmbir==$svmbir_version
-    pip install -r demo/requirements_demo.txt
 
+    cd demo
     echo "**** Spinning "
     python -c "import svmbir"
     echo "**** Running demo "
-    python demo/demo_2D_microscopy.py
+    pip install -r requirements_demo.txt
+    python demo_2D_microscopy.py
+    cd ..
 
     echo "**** Install inplace and run pytest"
     /bin/rm -v -r build dist 2> /dev/null
