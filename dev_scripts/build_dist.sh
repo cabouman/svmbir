@@ -29,8 +29,8 @@ else
 fi
 
 cd ..
-/bin/rm -fr dist build
-/bin/rm -r svmbir.egg-info
+/bin/rm -v -r dist build 2> /dev/null
+/bin/rm -v -r svmbir.egg-info 2> /dev/null
 
 echo "*********************************************************"
 echo "**** Building wheels"
@@ -39,7 +39,13 @@ echo "**** Compiler: ${CC}"
 echo "*********************************************************"
 
 for pyv in ${python_versions[@]}; do
-    echo "*********** Create environment ${pyv} *************"
+
+    echo "**** Cleaning ****"
+    /bin/rm -v -r svmbir.egg-info 2> /dev/null
+    /bin/rm -v svmbir/interface_cy_c.c 2> /dev/null
+    /bin/rm -v svmbir/*.so 2> /dev/null
+
+    echo "**** Create environment ${pyv} *****"
     conda create --name sv${pyv} python=$pyv --yes
     conda activate sv${pyv}
     pip install -r requirements.txt
@@ -55,6 +61,9 @@ for pyv in ${python_versions[@]}; do
 done
 
 echo "*************** sdist ******************"
+/bin/rm -v -r svmbir.egg-info 2> /dev/null
+/bin/rm -v svmbir/interface_cy_c.c 2> /dev/null
+/bin/rm -v svmbir/*.so 2> /dev/null
 pyv=3.8
 conda create --name sv${pyv} python=$pyv --yes
 conda activate sv${pyv}
