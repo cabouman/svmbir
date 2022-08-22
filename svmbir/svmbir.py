@@ -398,6 +398,10 @@ def recon(sino, angles,
     p, q, T, b_interslice = utils.test_args_qggmrf(p, q, T, b_interslice)
     num_threads, delete_temps, verbose = utils.test_args_sys(num_threads, delete_temps, verbose)
 
+    # Issue notice of change of 'sharpness' effect for 1 or 2 release cycles
+    #warnings.warn("Default image regularization and effect of 'sharpness' parameter changed in v0.3.0.",UserWarning)
+    print("NOTE: Default image regularization and effect of 'sharpness' parameter changed in v0.3.0.")
+
     # Issue warning that 'fan' geometry will be removed in the future (last valid version is v0.2.9)
     if geometry=='fan':
         geometry = 'fan-curved'
