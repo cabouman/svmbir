@@ -177,8 +177,8 @@ def test_args_noise(sigma_y, snr_db, sigma_x, sigma_p):
 
     snr_db = int_to_float(snr_db)
     if not isinstance(snr_db, float):
-        warnings.warn("Parameter snr_db is not a valid float. Setting snr_db = 30.")
-        snr_db = 30
+        warnings.warn("Parameter snr_db is not a valid float. Setting snr_db = 40.")
+        snr_db = 40
 
     sigma_x = int_to_float(sigma_x)
     if not ((sigma_x is None) or (isinstance(sigma_x, float) and (sigma_x > 0))):

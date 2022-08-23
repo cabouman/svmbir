@@ -6,6 +6,7 @@ from psutil import cpu_count
 import shutil
 import numpy as np
 import os
+import sys
 import warnings
 import svmbir._utils as utils
 
@@ -284,10 +285,10 @@ def recon(sino, angles,
           weights = None, weight_type = 'unweighted', init_image = 0.0, prox_image = None, init_proj = None,
           num_rows = None, num_cols = None, roi_radius = None,
           delta_channel = 1.0, delta_pixel = None, center_offset = 0.0,
-          sigma_y = None, snr_db = 40.0, sigma_x = None, sigma_p = None, p = 1.2, q = 2.0, T = 1.0, b_interslice = 1.0,
+          sigma_y = None, snr_db = None, sigma_x = None, sigma_p = None, p = 1.2, q = 2.0, T = 1.0, b_interslice = 1.0,
           sharpness = 0.0, positivity = True, relax_factor=1.0, max_resolutions = None, stop_threshold = 0.02, max_iterations = 100,
           num_threads = None, delete_temps = True, svmbir_lib_path = __svmbir_lib_path, object_name = 'object',
-          verbose = 1) :
+          verbose = 1, new_reg_defaults=False) :
     """recon(sino, angles, geometry = 'parallel', **kwargs)
 
     Compute 3D MBIR reconstruction using multi-resolution SVMBIR algorithm.
@@ -330,7 +331,7 @@ def recon(sino, angles,
         center_offset (float, optional): [Default=0.0] Scalar value of offset from center-of-rotation.
         sigma_y (float, optional): [Default=None] Scalar value of noise standard deviation parameter.
             If None, automatically set with auto_sigma_y.
-        snr_db (float, optional): [Default=40.0] Scalar value that controls assumed signal-to-noise
+        snr_db (float, optional): [Default=None] Scalar value that controls assumed signal-to-noise
             ratio of the data in dB. Ignored if sigma_y is not None.
         sigma_x (float, optional): [Default=None] Scalar value :math:`>0` that specifies the qGGMRF scale parameter.
             Ignored if prox_image is not None.
@@ -378,6 +379,22 @@ def recon(sino, angles,
         3D numpy array: 3D reconstruction with shape (num_slices,num_rows,num_cols) in units of :math:`ALU^{-1}`.
     """
 
+    # Issue notice of change of 'sharpness' effect for 1 or 2 release cycles
+    if snr_db is None:
+        if new_reg_defaults is True:
+            snr_db = 40.0
+        else:
+            snr_db = 30.0
+            sys.stderr.write("SVMBIR v0.3.0 NOTICE of pending change in regularization:\n")
+            sys.stderr.write("** Default image regularization and effect of 'sharpness' will change in the\n")
+            sys.stderr.write("** next release. To apply the changes immediately supply the following argument:\n")
+            sys.stderr.write("** svmbir.recon(new_reg_defaults=True,...)\n")
+
+    # Issue warning that 'fan' geometry will be removed in the future (last valid version is v0.2.9)
+    if geometry=='fan':
+        geometry = 'fan-curved'
+        warnings.warn("'fan' geometry will be removed in a future release. Fan beam geometry is now specified as either 'fan-curved' or 'fan-flat'. Defaulting to 'fan-curved'.",FutureWarning)
+
     # If not specified, then set number of threads = to number of processors
     if num_threads is None :
         num_threads = cpu_count(logical=False)
@@ -397,15 +414,6 @@ def recon(sino, angles,
     sigma_y, snr_db, sigma_x, sigma_p = utils.test_args_noise(sigma_y, snr_db, sigma_x, sigma_p)
     p, q, T, b_interslice = utils.test_args_qggmrf(p, q, T, b_interslice)
     num_threads, delete_temps, verbose = utils.test_args_sys(num_threads, delete_temps, verbose)
-
-    # Issue notice of change of 'sharpness' effect for 1 or 2 release cycles
-    #warnings.warn("Default image regularization and effect of 'sharpness' parameter changed in v0.3.0.",UserWarning)
-    print("NOTE: Default image regularization and effect of 'sharpness' parameter changed in v0.3.0.")
-
-    # Issue warning that 'fan' geometry will be removed in the future (last valid version is v0.2.9)
-    if geometry=='fan':
-        geometry = 'fan-curved'
-        warnings.warn("'fan' geometry will be removed in a future release. Fan beam geometry is now specified as either 'fan-curved' or 'fan-flat'. Defaulting to 'fan-curved'.",FutureWarning)
 
     # Geometry dependent settings
     if geometry == 'parallel':
