@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Builds the sdist and wheels for python 3.7, 3.8, 3.9
+# Builds the sdist and wheels for python 3.8, 3.9, 3.10
 #
 # RUN AS: source build_dist.sh
 # NOT AS: ./build_dist.sh
@@ -9,7 +9,7 @@
 # NOTES:
 #   * Principally for macOS wheels. For linux, build using 'manylinux' from docker image
 #
-#   * in v0.2.10, numpy dependency is pinned to 1.21.*, which supports Python 3.7-3.9
+#   * starting in v0.3.0, numpy dependency is pinned to 1.22.*, which supports Python 3.8-3.10
 #
 #   * macOS/x86_64: Run build on macOS 10.14 for binaries to be compatibile with macOS>=10.14.
 #     Wheels are delocated to fix a library incompatibility across macOS>=10.14.
@@ -17,8 +17,7 @@
 #   * macOS/arm64 (M1,M2): Limited to python >= 3.8. 'delocation' section will be skipped.
 #
 
-python_versions=("3.7" "3.8" "3.9")
-#python_versions=("3.8" "3.9")      # use this for macOS/arm64
+python_versions=("3.8" "3.9" "3.10")
 CC=gcc
 
 # check for a valid compiler

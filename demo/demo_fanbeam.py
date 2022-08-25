@@ -8,7 +8,7 @@ Fan beam demo
 """
 
 # Simulated sinogram parameters
-geometry = 'fan'
+geometry = 'fan-curved'
 dist_source_detector = 1000.0
 delta_channel = 1.0
 magnification = 2.0
@@ -18,10 +18,10 @@ angles = np.linspace(-np.pi, np.pi, num_views, endpoint=False)
 
 # Reconstruction parameters
 img_size = 256
+snr_db = 30.0
 sharpness = 0.0
-T = 1.0
+T = 0.1
 p = 1.2
-snr_db = 40.0
 
 # Generate phantom with a single slice
 phantom = svmbir.phantom.gen_shepp_logan(img_size,img_size)
@@ -39,12 +39,15 @@ vmin = 1.0
 vmax = 1.2
 plt.figure(); plt.imshow(phantom[0],vmin=vmin,vmax=vmax,cmap='gray'); plt.colorbar()
 plt.title('Shepp Logan Phantom')
+plt.savefig('output/shepp_logan_phantom.png')
 
 plt.figure(); plt.imshow(np.squeeze(sino).T,cmap='gray'); plt.colorbar()
 plt.title('Sinogram')
+plt.savefig('output/shepp_logan_sinogram.png')
 
 plt.figure(); plt.imshow(recon[0],vmin=vmin,vmax=vmax,cmap='gray'); plt.colorbar()
 plt.title(f'Reconstruction, nmrse={nrmse:.3f}')
+plt.savefig('output/shepp_logan_recon_fanbeam.png')
 
 print("Close figures to continue")
 plt.show()

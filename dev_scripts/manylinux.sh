@@ -30,7 +30,7 @@ function repair_wheel {
 
 # Compile wheels
 #for PYBIN in /opt/python/*/bin; do
-for PYBIN in /opt/python/{cp37,cp38,cp39,pp37,pp38,pp39}*/bin; do
+for PYBIN in /opt/python/{cp38,cp39,cp310,pp38,pp39}*/bin; do
     echo "***"
     echo "*** building for $PYBIN"
     #"${PYBIN}/pip" install -r /io/dev_scripts/dev-requirements.txt

@@ -23,7 +23,7 @@ num_views = 144
 T = 0.1
 p = 1.1
 sharpness = 0.0
-snr_db = 40.0
+snr_db = 30.0
 
 # Display parameters
 vmin = 1.0

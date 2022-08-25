@@ -19,7 +19,7 @@ __namelen_sysmatrix = 20
 cdef extern from "./sv-mbirct/src/MBIRModularDefs.h":
     # 3D Sinogram Parameters
     struct SinoParams3DParallel:
-        int Geometry;           # 0:parallel, 1:fanbeam
+        int Geometry;           # 0:parallel, 1:fanbeam (curved), 2:fanbeam (flat)
         int NChannels;          # Number of channels in detector
         float DeltaChannel;     # Detector spacing
         float CenterOffset;     # Offset of center-of-rotation, computed from center of detector in
@@ -50,6 +50,7 @@ cdef extern from "./sv-mbirct/src/MBIRModularDefs.h":
         float StopThreshold;    # Stopping threshold in percent
         int MaxIterations;      # Maximum number of iterations
         char Positivity;        # Positivity constraint: 1=yes, 0=no
+        float RelaxFactor;      # over/under-relaxation factor, range (0,2.0) [default=1.0]
         # sinogram weighting
         float SigmaY;           # Scaling constant for sinogram weights (e.g. W=exp(-y)/SigmaY^2 )
         int weightType;         # How to compute weights if internal, 1: uniform, 2: exp(-y); 3: exp(-y/2), 4: 1/(y+0.1)
@@ -111,8 +112,10 @@ cdef convert_py2c_SinoParams3D(SinoParams3DParallel* sinoparams,
                         float[:] ViewAngles):
     if py_sinoparams['geometry']=='parallel':
         sinoparams.Geometry = 0
-    elif py_sinoparams['geometry']=='fan':
+    elif py_sinoparams['geometry']=='fan-curved':
         sinoparams.Geometry = 1
+    elif py_sinoparams['geometry']=='fan-flat':
+        sinoparams.Geometry = 2
     else:
         sinoparams.Geometry = 0
     sinoparams.NChannels = py_sinoparams['num_channels']
@@ -135,6 +138,7 @@ cdef convert_py2c_ReconParams3D(ReconParams* reconparams,
     reconparams.StopThreshold = py_reconparams['stop_threshold']     # Stopping threshold in percent
     reconparams.MaxIterations = py_reconparams['max_iterations']     # Maximum number of iterations
     reconparams.Positivity = py_reconparams['positivity']           # Positivity constraint: 1=yes, 0=no
+    reconparams.RelaxFactor = py_reconparams['relax_factor']
     # sinogram weighting
     reconparams.SigmaY = py_reconparams['sigma_y']                   # Scaling constant for sinogram weights (e.g. W=exp(-y)/SigmaY^2 )
     reconparams.weightType = py_reconparams['weight_type']           # How to compute weights if internal, 1: uniform, 2: exp(-y); 3: exp(-y/2), 4: 1/(y+0.1)
@@ -331,7 +335,7 @@ def multires_recon(sino, angles, weights, weight_type, init_image, prox_image, i
                    geometry, dist_source_detector, magnification,
                    num_rows, num_cols, roi_radius, delta_channel, delta_pixel, center_offset,
                    sigma_y, snr_db, sigma_x, p, q, T, b_interslice,
-                   sharpness, positivity, max_resolutions, stop_threshold, max_iterations,
+                   sharpness, positivity, relax_factor, max_resolutions, stop_threshold, max_iterations,
                    num_threads, delete_temps, svmbir_lib_path, object_name, verbose):
     """Multi-resolution SVMBIR reconstruction used by svmbir.recon().
 
@@ -377,7 +381,7 @@ def multires_recon(sino, angles, weights, weight_type, init_image, prox_image, i
                         num_rows=lr_num_rows, num_cols=lr_num_cols, roi_radius=roi_radius,
                         delta_channel=delta_channel, delta_pixel=lr_delta_pixel, center_offset=center_offset,
                         sigma_y=lr_sigma_y, snr_db=snr_db, sigma_x=sigma_x, p=p,q=q,T=T,b_interslice=b_interslice,
-                        sharpness=sharpness, positivity=positivity, max_resolutions=new_max_resolutions,
+                        sharpness=sharpness, positivity=positivity, relax_factor=relax_factor, max_resolutions=new_max_resolutions,
                         stop_threshold=stop_threshold, max_iterations=max_iterations, num_threads=num_threads,
                         delete_temps=delete_temps, svmbir_lib_path=svmbir_lib_path, object_name=object_name,
                         verbose=verbose)
@@ -400,7 +404,7 @@ def multires_recon(sino, angles, weights, weight_type, init_image, prox_image, i
     # Collect parameters to pass to C
     (num_views, num_slices, num_channels) = sino.shape
 
-    reconparams = utils.get_reconparams_dicts(sigma_y, positivity, sigma_x, p, q, T, b_interslice,
+    reconparams = utils.get_reconparams_dicts(sigma_y, positivity, relax_factor, sigma_x, p, q, T, b_interslice,
                         stop_threshold, max_iterations, interface = 'Cython')
 
     paths, sinoparams, imgparams = _init_geometry(angles, center_offset=center_offset,

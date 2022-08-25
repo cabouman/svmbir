@@ -12,9 +12,12 @@ Features
 
 System Requirements
 -------------------
-1. GCC compiler version 4.8.5 or above
-2. OpenMP Libraries
-3. Python>=3.6
+* Python 3.8-3.10
+
+Local builds also require,
+
+* GCC compiler version 4.8.5 or above
+* OpenMP Libraries
 
 
 Optional System Requirements
@@ -24,9 +27,8 @@ Fastest reconstruction can be obtained with,
 * Intel-based CPU(s) supporting AVX2,AVX512
 * Intel ICC compiler (included with Intel's free "oneAPI" toolkit)
 
-We also recommend:
+We also recommend installation to a conda virtual environment.
 
-* Installation to a conda virtual environment
 
 License
 -------
