@@ -1,4 +1,4 @@
-numpy==1.22.*
+numpy
 psutil>=5.8
 Pillow
 Cython
