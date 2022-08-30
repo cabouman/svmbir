@@ -5,6 +5,7 @@
 # Required
 version: 2
 submodules:
+  include: all
   recursive: true
 python:
   version: "3.8"
