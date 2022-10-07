@@ -2,93 +2,59 @@
 Upload package to PyPI
 ======================
 
-Summary
--------
+This is only relevant for registered maintainers.
 
-The general procedure for releasing a new version to PyPI is,
-
- 1. Complete all the preliminary steps for `preparing the release <release.html>`_
-
- 2. Set up a conda environment with the required tools
-
- 3. Build the binary and source distribution
-
- 4. Upload the release to TestPyPI, and test installation from TestPyPI
-
- 5. Upload the release to PyPI, and test installation from PyPI
-
-There are two files included with the repository that are specific to PyPI:
-MANIFEST.in and pyproject.toml.
+Prior to this stage, make sure to complete all the 
+steps for `preparing the release <release.html>`_ .
 
 
-Set up environment
-------------------
+Set up environment and build distribution files
+-----------------------------------------------
 
-In addition to the standard svmbir requirements, three additional packages are needed
-for the build and upload.
+Run::
 
-    | ``conda create --name svmbir_pypi python=3.8``
-    | ``conda activate svmbir_pypi``
-    | ``pip install -r requirements.txt``
-    | ``pip install setuptools twine delocate``
+    $ conda create --name svmbir_pypi python=3.8
+    $ conda activate svmbir_pypi
+    $ pip install -r requirements.txt
+    $ CC=gcc python setup.py sdist bdist_wheel
 
-``setuptools`` packages Python projects, ``twine`` uploads package to PyPI, and ``delocate`` finds and copys needed dynamic libraries to a directory within a package.
-
-Build distribution files
-------------------------
-
-    ``CC=gcc python setup.py sdist bdist_wheel``
-
-    Use gcc here for the binary distribution. For now other supported compilers
-    will require the user to install the package from source.
-
-    For MacOS developers, you should use the oldest MacOS system you have to build
-    the package. (Currently, we use MacOS 10.14 to build the package).
+Use gcc here for the binary distribution. For now other supported compilers
+will require the user to install the package from source.
 
 
-Delocate wheel files
---------------------
+Delocate wheel files (macOS/x86_64 builds only)
+-----------------------------------------------
 
-``delocate-wheel`` will generate a fixed wheel with dylib files from an existing wheel.
-The commands below generate a fixed wheel, move it to the original wheel location, and clean temporary files.
+This only applies to building wheels for pre-M1 macs.
+``delocate-wheel`` will generate a fixed wheel by including more widely compatible dylib files with the package.
+Run the following command on an older mac version like 10.14 for the widest compatibility::
 
-    | ``cd dist``
-    | ``delocate-wheel -w fixed_wheels -v svmbir-0.2.3-cp38-cp38-macosx_10_9_x86_64.whl`` (change version no.)
-    | ``mv fixed_wheels/svmbir-0.2.3-cp38-cp38-macosx_10_9_x86_64.whl ./`` (change version no.)
-    | ``rm -r fixed_wheels``
-    | ``cd ..``
+    $ pip install delocate
+    $ cd dist
+    $ delocate-wheel -w fixed_wheels -v <svmbir-xxxxx>.whl    # update wheel file name
+
 
 Upload to TestPyPI and test installation
 ----------------------------------------
 
- Before this you'll need to be registered in testpypi, and be granted access as a
- maintainer of the project.
- For authentication, you'll also need to add API tokens from Account Settings.
+This is only available for registered maintainers.
+If granted, you need to be registered in testpypi,
+and for authentication you'll need to add API tokens from Account Settings.
 
- 1. Upload the package to testpypi. NOTE you cannot upload same version more than once.
+ 1. Upload to testpypi. NOTE you cannot upload same version more than once::
 
-	``python -m twine upload --repository testpypi dist/*``
+    $ pip install twine
+    $ python -m twine upload --repository testpypi dist/*
 
-    View the package upload here:
-    `https://test.pypi.org/project/svmbir/0.2.3/ <https://test.pypi.org/project/svmbir/>`__ (add version no.)
+ View the package upload here:
+ `https://test.pypi.org/project/svmbir <https://test.pypi.org/project/svmbir>`__
 
- 2. Create a clean environment and install the package
+ 2. Test the uploaded package::
 
-  | ``conda create --name svmbir_temp python=3.8``
-  | ``conda activate svmbir_temp``
-  | ``pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple svmbir==0.2.3`` (change version no.)
+    $ pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple svmbir==0.2.10  # change version no.
+    $ python -c "import svmbir"     # spin the wheel
 
- 3. Check the installation
-
-	| ``conda list | grep svmbir``
-	| ``python -c "import svmbir"``
-
- 4. Run one of the `demo scripts <examples.html>`_
-
- 5. Remove temporary environment
-
-	| ``conda deactivate``
-	| ``conda remove --name svmbir_temp --all``
+ 3. Run one of the `demo scripts <examples.html>`_
 
  NOTE: If the install fails and you need to re-test, TEMPORARILY set the version
  number in setup.py from X.X.X to X.X.X.1 (then 2,3,etc.), for further testing.
@@ -99,39 +65,24 @@ Upload to TestPyPI and test installation
 Upload to PyPI and test installation
 ----------------------------------------
 
- Before this you'll need to be registered in pypi, and be granted access as a
- maintainer of the project.
- For authentication, you'll also need to add API tokens from Account Settings.
+This is only available for registered maintainers.
+If granted, you need to be registered in pypi,
+and for authentication you'll need to add API tokens from Account Settings.
 
+ 1. Upload to pypi. NOTE you cannot upload same version more than once::
 
- 1. Activate pypi environment.
+    $ pip install twine
+    $ python -m twine upload dist/*
 
-	``conda activate svmbir_pypi``
+ View the package upload here:
+ `https://pypi.org/project/svmbir <https://pypi.org/project/svmbir>`__
 
- 2. Upload package to pypi. NOTE you cannot upload same version more than once.
+ 2. Test the uploaded package::
 
-	``python -m twine upload dist/*``
+    $ pip install svmbir    # OR, "svmbir==0.2.10" e.g. for a specific version number
+    $ python -c "import svmbir"     # spin the wheel
 
-    View the package upload here: `<https://pypi.org/project/svmbir/>`_
-
- 3. Create a clean environment and install the package
-
-	| ``conda create --name svmbir_temp python=3.8``
-	| ``conda activate svmbir_temp``
-	| ``pip install svmbir``
-	| OR ``pip install svmbir==0.2.3`` for a specific version number
-
- 4. Check the installation
-
-	| ``conda list | grep svmbir``
-	| ``python -c "import svmbir"``
-
- 5. Run one of the `demo scripts <examples.html>`_
-
- 6. Remove temporary environment
-
-	| ``conda deactivate``
-	| ``conda remove --name svmbir_temp --all``
+ 3. Run one of the `demo scripts <examples.html>`_
 
 
 Reference

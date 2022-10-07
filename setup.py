@@ -1,9 +1,7 @@
 import os
-import re
 import sys
 from ast import parse
 import numpy as np
-import warnings
 from setuptools import setup, Extension
 from Cython.Distutils import build_ext
 
@@ -26,7 +24,7 @@ packages = [packages_dir]
 src_dir = packages_dir + "/sv-mbirct/src/"
 
 # Dependencies for running svmbir. Dependencies for build/installation are in pyproject.toml
-install_requires=['numpy==1.21.*','psutil>=5.8','Pillow']
+install_requires=['numpy==1.22.*','psutil>=5.8','Pillow']
 
 
 # Set up install for Cython or Command line interface

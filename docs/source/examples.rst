@@ -19,9 +19,9 @@ These scripts can be used as templates for new users.
 
 2. Uncompress the zip file and cd into demo folder.
 
-3. In your terminal window, install required dependencies for the demos.
+3. In your terminal window, install required dependencies for the demos::
 
-    ``pip install -r requirements_demo.txt``
+    $ pip install -r requirements_demo.txt
 
 4. In your terminal window, use python to run each demo.
 

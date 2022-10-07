@@ -19,11 +19,13 @@ __namelen_sysmatrix = 20
 cdef extern from "./sv-mbirct/src/MBIRModularDefs.h":
     # 3D Sinogram Parameters
     struct SinoParams3DParallel:
+        int Geometry;           # 0:parallel, 1:fanbeam (curved), 2:fanbeam (flat)
         int NChannels;          # Number of channels in detector
         float DeltaChannel;     # Detector spacing
-        float CenterOffset;     # Offset of center-of-rotation ...
-                                # Computed from center of detector in increasing direction (no. of channels)
-                                # This can be fractional though
+        float CenterOffset;     # Offset of center-of-rotation, computed from center of detector in
+                                #   increasing direction (fractional no. of channels)
+        float DistSourceDetector; # (fanbeam only) Distance from source to detectors
+        float Magnification;    # (fanbeam only) magnification = dist_source_detector / dist_source_isocenter
         int NViews;             # Number of view angles
         float *ViewAngles;      # Array of NTheta view angle entries in degrees
         int NSlices;            # Number of rows (slices) stored in Sino array
@@ -48,6 +50,7 @@ cdef extern from "./sv-mbirct/src/MBIRModularDefs.h":
         float StopThreshold;    # Stopping threshold in percent
         int MaxIterations;      # Maximum number of iterations
         char Positivity;        # Positivity constraint: 1=yes, 0=no
+        float RelaxFactor;      # over/under-relaxation factor, range (0,2.0) [default=1.0]
         # sinogram weighting
         float SigmaY;           # Scaling constant for sinogram weights (e.g. W=exp(-y)/SigmaY^2 )
         int weightType;         # How to compute weights if internal, 1: uniform, 2: exp(-y); 3: exp(-y/2), 4: 1/(y+0.1)
@@ -107,9 +110,19 @@ cdef convert_py2c_ImageParams3D(ImageParams3D* imgparams,
 cdef convert_py2c_SinoParams3D(SinoParams3DParallel* sinoparams,
                         py_sinoparams,
                         float[:] ViewAngles):
+    if py_sinoparams['geometry']=='parallel':
+        sinoparams.Geometry = 0
+    elif py_sinoparams['geometry']=='fan-curved':
+        sinoparams.Geometry = 1
+    elif py_sinoparams['geometry']=='fan-flat':
+        sinoparams.Geometry = 2
+    else:
+        sinoparams.Geometry = 0
     sinoparams.NChannels = py_sinoparams['num_channels']
     sinoparams.DeltaChannel = py_sinoparams['delta_channel']
     sinoparams.CenterOffset = py_sinoparams['center_offset']
+    sinoparams.DistSourceDetector = py_sinoparams['dist_source_detector']
+    sinoparams.Magnification = py_sinoparams['magnification']
     sinoparams.NViews = py_sinoparams['num_views']
     sinoparams.ViewAngles = &ViewAngles[0] # Assign pointer for float array in C data structure
     sinoparams.NSlices = py_sinoparams['num_slices']
@@ -125,6 +138,7 @@ cdef convert_py2c_ReconParams3D(ReconParams* reconparams,
     reconparams.StopThreshold = py_reconparams['stop_threshold']     # Stopping threshold in percent
     reconparams.MaxIterations = py_reconparams['max_iterations']     # Maximum number of iterations
     reconparams.Positivity = py_reconparams['positivity']           # Positivity constraint: 1=yes, 0=no
+    reconparams.RelaxFactor = py_reconparams['relax_factor']
     # sinogram weighting
     reconparams.SigmaY = py_reconparams['sigma_y']                   # Scaling constant for sinogram weights (e.g. W=exp(-y)/SigmaY^2 )
     reconparams.weightType = py_reconparams['weight_type']           # How to compute weights if internal, 1: uniform, 2: exp(-y); 3: exp(-y/2), 4: 1/(y+0.1)
@@ -171,10 +185,12 @@ def _gen_paths(svmbir_lib_path = __svmbir_lib_path, object_name = 'object', sysm
 ##################################################################
 
 def _init_geometry( angles, num_channels, num_views, num_slices, num_rows, num_cols,
+                    geometry, dist_source_detector, magnification,
                     delta_channel, delta_pixel, roi_radius, center_offset, verbose,
                     svmbir_lib_path = __svmbir_lib_path, object_name = 'object'):
 
     sinoparams, imgparams, settings = utils.get_params_dicts(angles, num_channels, num_views, num_slices, num_rows, num_cols,
+                geometry, dist_source_detector, magnification,
                 delta_channel, delta_pixel, roi_radius, center_offset, verbose,
                 svmbir_lib_path, object_name, interface='Cython')
 
@@ -197,9 +213,10 @@ def _init_geometry( angles, num_channels, num_views, num_slices, num_rows, num_c
     # and/or to pass path information to a file containing the matrix
     Amatrix_file = paths['sysmatrix_name'] + '.2Dsvmatrix'
     if os.path.exists(Amatrix_file) :
-        os.utime(Amatrix_file)  # update file modified time
         if verbose > 0:
             print('Found system matrix: {}'.format(Amatrix_file))
+        if os.access(Amatrix_file, os.W_OK):
+            os.utime(Amatrix_file)  # update file modified time
     # if matrix file does not exist, then write to tmp file and rename
     else :
         Amatrix_file_tmp = paths['sysmatrix_name'] + '_pid' + str(os.getpid()) + '_rndnum' + str(random.randint(0,1000)) + '.2Dsvmatrix'
@@ -315,9 +332,10 @@ def backproject(sino, settings):
 
 
 def multires_recon(sino, angles, weights, weight_type, init_image, prox_image, init_proj,
+                   geometry, dist_source_detector, magnification,
                    num_rows, num_cols, roi_radius, delta_channel, delta_pixel, center_offset,
                    sigma_y, snr_db, sigma_x, p, q, T, b_interslice,
-                   sharpness, positivity, max_resolutions, stop_threshold, max_iterations,
+                   sharpness, positivity, relax_factor, max_resolutions, stop_threshold, max_iterations,
                    num_threads, delete_temps, svmbir_lib_path, object_name, verbose):
     """Multi-resolution SVMBIR reconstruction used by svmbir.recon().
 
@@ -358,11 +376,12 @@ def multires_recon(sino, angles, weights, weight_type, init_image, prox_image, i
             print(f'Calling multires_recon for axial size (rows,cols)=({lr_num_rows},{lr_num_cols}).')
 
         lr_recon = multires_recon(sino=sino, angles=angles, weights=weights, weight_type=weight_type,
+                        geometry=geometry, dist_source_detector=dist_source_detector, magnification=magnification,
                         init_image=lr_init_image, prox_image=lr_prox_image, init_proj=init_proj,
                         num_rows=lr_num_rows, num_cols=lr_num_cols, roi_radius=roi_radius,
                         delta_channel=delta_channel, delta_pixel=lr_delta_pixel, center_offset=center_offset,
                         sigma_y=lr_sigma_y, snr_db=snr_db, sigma_x=sigma_x, p=p,q=q,T=T,b_interslice=b_interslice,
-                        sharpness=sharpness, positivity=positivity, max_resolutions=new_max_resolutions,
+                        sharpness=sharpness, positivity=positivity, relax_factor=relax_factor, max_resolutions=new_max_resolutions,
                         stop_threshold=stop_threshold, max_iterations=max_iterations, num_threads=num_threads,
                         delete_temps=delete_temps, svmbir_lib_path=svmbir_lib_path, object_name=object_name,
                         verbose=verbose)
@@ -385,10 +404,12 @@ def multires_recon(sino, angles, weights, weight_type, init_image, prox_image, i
     # Collect parameters to pass to C
     (num_views, num_slices, num_channels) = sino.shape
 
-    reconparams = utils.get_reconparams_dicts(sigma_y, positivity, sigma_x, p, q, T, b_interslice,
+    reconparams = utils.get_reconparams_dicts(sigma_y, positivity, relax_factor, sigma_x, p, q, T, b_interslice,
                         stop_threshold, max_iterations, interface = 'Cython')
 
     paths, sinoparams, imgparams = _init_geometry(angles, center_offset=center_offset,
+                                                  geometry=geometry, dist_source_detector=dist_source_detector,
+                                                  magnification=magnification,
                                                   num_channels=num_channels, num_views=num_views, num_slices=num_slices,
                                                   num_rows=num_rows, num_cols=num_cols,
                                                   delta_channel=delta_channel, delta_pixel=delta_pixel,

@@ -18,10 +18,10 @@ num_views = 144
 tilt_angle = np.pi/2 # Tilt range of +-90deg
 
 # Reconstruction parameters
-T = 0.1
-p = 1.1
+snr_db = 30.0
 sharpness = 0.0
-snr_db = 40.0
+T = 0.1
+p = 1.2
 
 # Display parameters
 vmin = 1.0

@@ -1,20 +1,23 @@
 #!/bin/bash
 
-# Builds the sdist and wheels for python 3.7, 3.8, 3.9
+# Builds the sdist and wheels for python 3.8, 3.9, 3.10
 #
 # RUN AS: source build_dist.sh
 # NOT AS: ./build_dist.sh
 # (otherwise it may not activate conda environments)
 #
-# IMPORTANT: If building macOS wheels, run script on macOS 10.14 so that binaries will be
-# compatibile with macOS>=10.14
+# NOTES:
+#   * Principally for macOS wheels. For linux, build using 'manylinux' from docker image
 #
-# Wheels are delocated to fix a library incompatibility across macOS >= 10.14.
+#   * starting in v0.3.0, numpy dependency is pinned to 1.22.*, which supports Python 3.8-3.10
+#
+#   * macOS/x86_64: Run build on macOS 10.14 for binaries to be compatibile with macOS>=10.14.
+#     Wheels are delocated to fix a library incompatibility across macOS>=10.14.
+#
+#   * macOS/arm64 (M1,M2): Limited to python >= 3.8. 'delocation' section will be skipped.
 #
 
-# Set these accordingly:
-
-python_versions=("3.7" "3.8" "3.9")
+python_versions=("3.8" "3.9" "3.10")
 CC=gcc
 
 # check for a valid compiler
@@ -26,8 +29,8 @@ else
 fi
 
 cd ..
-/bin/rm -fr dist build
-/bin/rm -r svmbir.egg-info
+/bin/rm -v -r dist build 2> /dev/null
+/bin/rm -v -r svmbir.egg-info 2> /dev/null
 
 echo "*********************************************************"
 echo "**** Building wheels"
@@ -36,7 +39,13 @@ echo "**** Compiler: ${CC}"
 echo "*********************************************************"
 
 for pyv in ${python_versions[@]}; do
-    echo "*********** Create environment ${pyv} *************"
+
+    echo "**** Cleaning ****"
+    /bin/rm -v -r svmbir.egg-info 2> /dev/null
+    /bin/rm -v svmbir/interface_cy_c.c 2> /dev/null
+    /bin/rm -v svmbir/*.so 2> /dev/null
+
+    echo "**** Create environment ${pyv} *****"
     conda create --name sv${pyv} python=$pyv --yes
     conda activate sv${pyv}
     pip install -r requirements.txt
@@ -51,28 +60,32 @@ for pyv in ${python_versions[@]}; do
     conda remove --name sv${pyv} --all --yes
 done
 
-
+echo "*************** sdist ******************"
+/bin/rm -v -r svmbir.egg-info 2> /dev/null
+/bin/rm -v svmbir/interface_cy_c.c 2> /dev/null
+/bin/rm -v svmbir/*.so 2> /dev/null
 pyv=3.8
 conda create --name sv${pyv} python=$pyv --yes
 conda activate sv${pyv}
 pip install -r requirements.txt
-pip install setuptools delocate
-
-echo "*************** sdist ******************"
+pip install setuptools
 python setup.py sdist
 
-echo "*************** Delocating wheels ******************"
-cd dist
-for f in *.whl; do
-    delocate-wheel -w fixed_wheels -v $f
-    mv fixed_wheels/$f .
-done
-rm -f -r fixed_wheels
-cd ..
+# section for pre-M1 macs only
+if [ $(uname -s) = "Darwin" ] && [ $(uname -m) = "x86_64" ]; then
+    pip install delocate
+    echo "******* Delocating wheels *******"
+    cd dist
+    for f in *.whl; do
+        delocate-wheel -w fixed_wheels -v $f
+        mv fixed_wheels/$f .
+    done
+    rm -f -r fixed_wheels
+    cd ..
+fi
 
 conda deactivate
 conda remove --name sv${pyv} --all --yes
-
 
 cd dev_scripts
 

@@ -225,7 +225,7 @@ def test_args_geom(num_rows, num_cols, delta_pixel, roi_radius, delta_channel, c
         return d
 
 
-def test_args_recon(sharpness, positivity, max_resolutions, stop_threshold, max_iterations, output_as_dict=False):
+def test_args_recon(sharpness, positivity, relax_factor, max_resolutions, stop_threshold, max_iterations, output_as_dict=False):
 
     sharpness = int_to_float(sharpness)
     if not isinstance(sharpness, float):
@@ -236,9 +236,14 @@ def test_args_recon(sharpness, positivity, max_resolutions, stop_threshold, max_
         warnings.warn("Parameter positivity is not valid boolean; Setting positivity = True.")
         positivity = True
 
-    if not (isinstance(max_resolutions, int) and (max_resolutions >= 0)):
-        warnings.warn("Parameter max_resolutions is not valid int; Setting max_resolutions = 0.")
-        max_resolutions = 0
+    relax_factor = int_to_float(relax_factor)
+    if not isinstance(relax_factor, float):
+        warnings.warn("Parameter relax_factor is not valid float; Setting to 1.0.")
+        relax_factor = 1.0
+
+    if not ((isinstance(max_resolutions, int) and (max_resolutions >= 0)) or (max_resolutions is None)):
+        warnings.warn("Parameter max_resolutions is not valid int; Setting max_resolutions = None.")
+        max_resolutions = None
 
     if isinstance(stop_threshold,int):
         stop_threshold = float(stop_threshold)
@@ -251,7 +256,7 @@ def test_args_recon(sharpness, positivity, max_resolutions, stop_threshold, max_
         max_iterations = 100
 
     if not output_as_dict:
-        return sharpness, positivity, max_resolutions, stop_threshold, max_iterations
+        return sharpness, positivity, relax_factor, max_resolutions, stop_threshold, max_iterations
     else:
         d = {'sharpness': sharpness,
              'positivity': positivity,
@@ -419,6 +424,7 @@ tests = [test_args_geom,
 
 def hash_params(angles, **kwargs):
     relevant_params = dict()
+    relevant_params['geometry'] = kwargs['geometry']
     relevant_params['Nx'] = kwargs['Nx']
     relevant_params['Ny'] = kwargs['Ny']
     relevant_params['delta_xy'] = kwargs['delta_xy']
@@ -427,6 +433,8 @@ def hash_params(angles, **kwargs):
     relevant_params['num_views'] = kwargs['num_views']
     relevant_params['delta_channel'] = kwargs['delta_channel']
     relevant_params['center_offset'] = kwargs['center_offset']
+    relevant_params['dist_source_detector'] = kwargs['dist_source_detector']
+    relevant_params['magnification'] = kwargs['magnification']
 
     hash_input = str(relevant_params) + str(np.around(angles, decimals=6))
 
@@ -436,19 +444,21 @@ def hash_params(angles, **kwargs):
 
 
 def get_params_dicts(angles, num_channels, num_views, num_slices, num_rows, num_cols,
+                    geometry, dist_source_detector, magnification,
                     delta_channel, delta_pixel, roi_radius, center_offset, verbose,
                     svmbir_lib_path, object_name, interface = 'Cython'):
     # Collect the information needed to pass to c
     # - ideally these should be put in a struct that could be used by c directly
     # First the sinogram parameters
     sinoparams = dict()
-    if interface == 'Command Line':
-        sinoparams['geometry'] = '3DPARALLEL'
+    sinoparams['geometry'] = geometry
     sinoparams['num_channels'] = num_channels
     sinoparams['num_views'] = num_views
     sinoparams['num_slices'] = num_slices
     sinoparams['delta_channel'] = delta_channel
     sinoparams['center_offset'] = center_offset
+    sinoparams['dist_source_detector'] = dist_source_detector
+    sinoparams['magnification'] = magnification
     sinoparams['delta_slice'] = 1
     if interface == 'Command Line':
         sinoparams['first_slice_number'] = 0
@@ -475,7 +485,7 @@ def get_params_dicts(angles, num_channels, num_views, num_slices, num_rows, num_
 
     return sinoparams, imgparams, settings
 
-def get_reconparams_dicts(sigma_y, positivity, sigma_x, p, q, T, b_interslice,
+def get_reconparams_dicts(sigma_y, positivity, relax_factor, sigma_x, p, q, T, b_interslice,
                             stop_threshold, max_iterations,init_image_value=0, interface = 'Cython'):
     reconparams = dict()
     if interface == 'Command Line':
@@ -494,6 +504,7 @@ def get_reconparams_dicts(sigma_y, positivity, sigma_x, p, q, T, b_interslice,
     reconparams['stop_threshold'] = stop_threshold
     reconparams['max_iterations'] = max_iterations
     reconparams['positivity'] = int(positivity)
+    reconparams['relax_factor'] = relax_factor
 
     if interface == 'Command Line':
         reconparams['weight_type'] = 'unweighted'  # constant weights
@@ -517,7 +528,7 @@ def recon_resize(recon, output_shape):
     recon_resized = np.empty((recon.shape[0],output_shape[0],output_shape[1]), dtype=recon.dtype)
     for i in range(recon.shape[0]):
         PIL_image = Image.fromarray(recon[i])
-        PIL_image_resized = PIL_image.resize((output_shape[1],output_shape[0]), resample=Image.BILINEAR)
+        PIL_image_resized = PIL_image.resize((output_shape[1],output_shape[0]), resample=Image.Resampling.BILINEAR)
         recon_resized[i] = np.array(PIL_image_resized)
 
     return recon_resized

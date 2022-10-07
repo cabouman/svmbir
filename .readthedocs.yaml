@@ -1,0 +1,16 @@
+# .readthedocs.yaml
+# Read the Docs configuration file
+# See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
+
+# Required
+version: 2
+submodules:
+  include: all
+  recursive: true
+python:
+  version: "3.8"
+  install:
+    - requirements: requirements.txt
+    - requirements: docs/requirements.txt
+    - method: setuptools
+      path: .

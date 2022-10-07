@@ -2,64 +2,71 @@
 Installation 
 ============
 
-The ``svmbir`` package is available from PyPI, or can be built from source.
-Currently, the PyPI installation will only build using a gcc compiler.
-If other high performance compilers are desired, the package needs to
-be built from source.
-
-Install through PyPI
------------------------------------------
-In order to install from PyPI, you **must first install the gcc compiler**.
-
-Instructions on how to install gcc on a Mac are listed :ref:`below <Mac gcc>`.
-Remember, the default macOS compiler, clang, will appear as gcc even though it is not gcc.
-So in order to double check that you are getting the correct compiler, you should first run the command ``gcc --version``.
-
-In order to install using PyPI, run the following commands:
+The ``svmbir`` package is available from conda-forge, PyPI, or can be built from source.
 
 
-1. Create a Virtual Environment (optional)
 
-  It is recommended that you install to a virtual environment.
-  If you have Anaconda installed, you can run the following:
+Installing from Anaconda
+------------------------
 
-	| ``conda create --name svmbir python=3.8``
-	| ``conda activate svmbir``
+1. Create a Virtual Environment (optional, but recommended)
+
+  To install to a conda virtual environment, first run the following::
+
+    $ conda create --name svmbir python=3.8
+    $ conda activate svmbir
+
+2. If needed, add the conda-forge channel with::
+
+    $ conda config --add channels conda-forge
+    $ conda config --set channel_priority strict
+
+3. Once the conda-forge channel has been enabled, svmbir can be installed with::
+
+    $ conda install svmbir
+
+  To list all of the versions of svmbir available on your platform::
+
+    $ conda search svmbir --channel conda-forge
 
 
-2. Install from PyPI
 
-	| ``pip install svmbir``
+Installing from PyPI
+--------------------
 
-  If you have previously installed svmbir, and you would like to upgrade, you can use the command:
+On some platforms, installing with pip will require a gcc compiler.
+Special considerations for gcc installation on a Mac are listed :ref:`below <Mac gcc>`.
+
+1. Create a Virtual Environment (optional, see above)
+
+2. To install from PyPI::
+
+    $ pip install svmbir
+
+  To upgrade an existing installation, use the command::
   
-	| ``pip install svmbir --upgrade``
-
-  If a wheel is available for your platform, this will install the binaries to your system.
-  If not available, this will build from source files in which case a standard gcc compiler
-  needs to be available on your system.
+    $ pip install svmbir --upgrade
 
   **Note for macOS**:
-  Some older macOS versions may attempt to install from the wheel and fail. If this happens you can
-  bypass the wheel and install from source with the command below. This will require gcc to be 
-  installed on your system (:ref:`see here <Mac gcc>`).
+  Some older mac OS versions may attempt to install from the wheel and fail. If this happens you can
+  bypass the wheel and install from source with the command below::
 
-    ``pip install --no-binary svmbir svmbir``
+    $ pip install --no-binary svmbir svmbir
 
   **Note for Windows**:
-  Installation on Windows requires the command below and a gcc compiler (see further down). 
+  Installation on Windows requires the following modified command (more information below)::
 
-    ``CC=msvc pip install svmbir``
+    $ CC=msvc pip install svmbir
 
-Downloading and installing from source
------------------------------------------
 
-1. Download the source code:
 
-  In order to download the C and python code, move to a directory of your choice and run the following two commands.
+Installing from Github source
+---------------------------------------
 
-	| ``git clone --recursive https://github.com/cabouman/svmbir.git``
-	| ``cd svmbir``
+1. To download from Github, run the following commands from a shell::
+
+    $ git clone --recursive https://github.com/cabouman/svmbir.git
+    $ cd svmbir
 
   This will download the python source code along with the ``sv-mbirct`` C-code submodule.
   *Warning: Do not* use the github "Download" link to download the repository because the
@@ -68,52 +75,47 @@ Downloading and installing from source
 2. Create a Virtual Environment:
 
   It is recommended that you install to a virtual environment.
-  If you have Anaconda installed, you can run the following:
+  If you have Anaconda installed, you can run the following::
 
-	| ``conda create --name svmbir python=3.8``
-	| ``conda activate svmbir``
+    $ conda create --name svmbir python=3.8
+    $ conda activate svmbir
 
-  Install the dependencies using:
+  Install the dependencies using::
 
-	``pip install -r requirements.txt``
+    $ pip install -r requirements.txt
 
   Before using the package, this ``svmbir`` environment needs to be activated.
 
 
 3. Install:
 
-The ``svmbir`` package requires a C compiler together with OpenMP libraries for parallel multicore processing.
-The four supported compilers are the open source ``gcc`` compiler, Microsoft Visual C ``msvc``, Intel's ``icc`` compiler, or the Apple's ``clang`` compiler.
-The Intel compiler currently offers the best performance on x86 processors through the support of the AVX instruction set;
-however, the ``gcc`` and ``clang`` compilers are often more readily available.
+  The ``svmbir`` installation requires a C compiler with OpenMP libraries for parallel processing.
+  The four compilers with reasonable support are GNU ``gcc``, Microsoft Visual C ``msvc``,
+  Intel's ``icc``, and the Apple's ``clang`` compiler.
+  The Intel compiler currently produces the best performance on x86_64 processors,
+  however ``gcc`` and ``clang`` are often easier to install.
 
-**Important:** You must first install one of these compilers together with the associated OpenMP libraries on your computer.
-MacOS and Windows users should refer to the instructions :ref:`below <Windows and Mac>` for more details on installation of the compilers, OMP libraries and associated utilities.
+  **Important:** You must first install one of these compilers together with the associated OpenMP libraries on your computer.
+  MacOS and Windows users should refer to the instructions :ref:`below <Windows and Mac>` for more details on installation of the compilers, OMP libraries and associated utilities.
 
-Once the compiler and OMP libraries are installed, the following commands can be used to compile the ``svmbir`` code.
+  To install svmbir, run **one of** the following shell commands, depending on the relevant compiler.
+  Run this from the root directory of the source code (where setup.py is located)::
 
-For installation using the four possible compiler options, run one of the following in a bash shell:
+    $ CC=gcc pip install .
+    $ CC=icc pip install .
+    $ CC=clang pip install .
+    $ CC=msvc pip install .
 
-``CC=gcc pip install .``
+  You can verify the installation by running ``pip show svmbir``, which will display a brief summary
+  of the packages installed in the ``svmbir`` environment.
 
-``CC=icc pip install .``
-
-``CC=clang pip install .``
-
-``CC=msvc pip install .``
-
-In each case, the commands should be run from the root directory of the repository.
-Also, see the sections below for trouble shooting tips for installing under the different operating systems.
-
-You can verify the installation by running ``pip show svmbir``, which should display a brief summary of the packages installed in the ``svmbir`` environment.
-Now you will be able to use the ``svmbir`` python commands from any directory by running the python command ``import svmbir``.
-
+  See the sections below for trouble shooting tips for installing under the different operating systems.
 
 
 .. _Windows and Mac:
 
-Installation on Windows and MacOS
----------------------------------
+Notes for installing on MacOS and Windows from source
+-----------------------------------------------------
 
 Below are some tips for compiling and running the package under the Windows and MacOSx operating systems.
 Linux is more straight forward.
@@ -121,27 +123,26 @@ Linux is more straight forward.
 1. **Intel icc Compiler:**
 The Intel compiler and OMP libraries when coupled with the appropriate Intel x86 processor
 can substantially increase ``svmbir`` performance by enabling the AVX2 instructor set.
-The ``icc/OpenMP`` compiler and libraries exists for Linux, Windows, and MacOS, but may need to be purchased.
-The icc compiler is available `[here] <https://software.intel.com/content/www/us/en/develop/tools/parallel-studio-xe.html>`__.
-
+The ``icc/OpenMP`` compiler and libraries for Linux, Windows, and MacOS are available
+`[from Intel] <https://software.intel.com/content/www/us/en/develop/tools/parallel-studio-xe.html>`__.
 
 2. **Windows Installation:**
-The package will run under Windows, but there tend to be more things that can go wrong due to the wide variety of possible configurations. The following list of recommended configurations have been tested to work, but others are possible:
+The svmbir package can run under Windows OS, but we don't currently have the resources or demand to widely support Windows.
+The following configuration has been known to work:
 
-* *64-bit gcc or Intel icc compiler:* For the command line version, make sure to install a 64bit compiler such as the ``MinGW_64`` available from `[here] <http://winlibs.com>`__ or the Intel ``icc`` compiler as described above. Commonly used gcc compilers are only 32bit and will create ``calloc`` errors when addressing array sizes greater than 2Gb.
+* *64-bit gcc or Intel icc compiler:* Make sure to install a 64-bit compiler such as the ``MinGW_64`` available from `[here] <http://winlibs.com>`__ or the Intel ``icc`` compiler as described above. Commonly used Windows gcc compilers are only 32bit and will create ``calloc`` errors when addressing array sizes greater than 2Gb.
 
-* *MinGW + MSYS environment:* For the command line version, we recommend installing ``MinGW`` including the ``msys`` utilities. These utilities support a minimalist set of traditional UNIX tools.
+* *MinGW + MSYS environment:* We recommend installing ``MinGW`` including the ``msys`` utilities. These utilities support a minimalist set of traditional UNIX tools.
 
 * *Git Bash:* We recommend installing `[Git Bash] <https://gitforwindows.org>`__ to support bash scripting.
-
-One known issue is that in some Windows bash environments the C executable ``mbir_ct.exe`` may not be properly moved to the ``bin`` directory.
-If this occurs, then the problem can be resolved by manually moving the file.
 
 
 .. _Mac gcc:
 
 3. **Installation of gcc on MacOS:**
-If you are installing from PyPI, then we recommend you use the gcc compiler.
+Note the default C compiler on macOS, clang, appears as gcc even though it is not gcc.
+To check that you have the correct compiler, run the command ``gcc --version``.
+
 In order to install gcc, you should do the following:
 
 * Install the ``Command Line Tools for Xcode`` available `[here] <https://developer.apple.com/download/more/>`__.
@@ -150,26 +151,26 @@ In order to install gcc, you should do the following:
 
 * Use Homebrew to install gcc using the command ``brew install gcc``. This will also install the OMP libraries.
 
-* Create a symbolic link in /usr/local/bin that maps “gcc” to “gcc-10”, or the most current compiler. To do this, do the following command:
+* Create a symbolic link in /usr/local/bin that maps “gcc” to the desired gcc compiler. To do this, execute one of the following depending on the mac version::
 
-    ``ln -sf /usr/local/bin/gcc-10 /usr/local/bin/gcc``
+    $ ln -sf /usr/local/bin/gcc-10 /usr/local/bin/gcc       # older macs with x86_64 processors
+    $ ln -sf /opt/homebrew/bin/gcc-11 /usr/local/bin/gcc    # newer macs with M1/M2 arm64 processors
 
-    You can also check the contents of /usr/local/bin to make sure you link to the most current version of gcc that you installed.
+  Check the contents of /usr/local/bin to make sure you link to the most current version of gcc that you installed.
 
-* Finally, check that you are getting the correct compiler by using the command:
+* Finally, check that you are getting the correct compiler using the command::
 
-    ``gcc --version``
+    $ gcc --version
 
 
 
 .. _Mac clang:
 
 4. **Installation of clang on MacOS:**
-Some MacOS users use the ``clang`` compiler provided as part of the Xcode Developer Tools.
-However, this is not recommended for PyPI installation.
-In this case, the ``gcc`` command in the MacOS environment is **not** actually ``gcc``.
-Instead it is an alias to the ``clang`` compiler.
-Therefore, the C code should be compiled using the ``clang`` option.
+It is possible, although not recommended, to build the package using ``clang`` compiler provided with the Xcode Developer Tools.
+In fact Apple appears to include ``gcc`` with Xcode, but closer inspection reveals that ``gcc`` is actually linking
+to ``clang``, which can be verified by running "gcc --version".
+The required compilation flags are different between gcc and clang, so this detail is important.
 
 In order to obtain ``clang`` you will need to install the most up-to-date version of both Xcode
 and ``Command Line Tools for Xcode`` available `[here] <https://developer.apple.com/download/more/>`__.
@@ -177,54 +178,19 @@ and ``Command Line Tools for Xcode`` available `[here] <https://developer.apple.
 Importantly, the Xcode Developer tools **do not include** the required OpenMP libraries.
 The OMP libraries can be obtained from `[here] <https://mac.r-project.org/openmp/>`__.
 You will need to download a file of the form ``openmp-XXX.tar.gz``.
-The tar file will contain the following files:
+The tar file will contain the following files::
 
-    ```
     /usr/local/lib/libomp.dylib
-    ```
-    ```
     /usr/local/include/ompt.h
-    ```
-    ```
     /usr/local/include/omp.h
-    ```
-    ```
     /usr/local/include/omp-tools.h
-    ```
 
 These files should be moved to the specified directories.
 You may also need to open the file ``/usr/local/lib/libomp.dylib``.
-This will generate a splash screen that requests permision of OSx to execute the library.
+This will generate a splash screen that requests permission of to execute the library.
 
-In addition, after OS updates, you may need to reinstall the Xcode toolkit using the command: ``xcode-select --install``
+In addition, after OS updates, you may need to reinstall the Xcode toolkit using the command::
+
+    $ xcode-select --install
 
 
-5. **Compile C-Code (Legacy Instructions):**
-
-This section includes information on how to compile the code for the CMD_LINE interface. This is an older legacy version of the code.
-So it is not needed for most users.
-
-The ``svmbir`` package requires a C compiler together with the OpenMP libraries for parallel multicore processing.
-The three supported compilers are the open source ``gcc`` compiler, Intel's ``icc`` compiler, or the Apple's ``clang`` compiler.
-The Intel compiler currently offers the best performance on x86 processors through the support of the AVX instruction set;
-however, the ``gcc`` and ``clang`` compilers are often more readily available.
-
-**Important:** You must first install one of these three compilers together with the associated OpenMP libraries on your computer.
-MacOS and Windows users should refer to the instructions :ref:`below <Windows and Mac>` for more details on installation of the compilers, OMP libraries and associated utilities.
-
-Once the compiler and OMP libraries are installed, the following commands can be used to compile the ``svmbir`` code.
-
-For ``gcc`` compilation, run:
-
-``make -C svmbir/sv-mbirct/src/ CC=gcc``
-
-For ``icc`` compilation, run:
-
-``make -C svmbir/sv-mbirct/src/ CC=icc``
-
-For ``clang`` compilation, run:
-
-``make -C svmbir/sv-mbirct/src/ CC=clang``
-
-In each case, the commands should be run from the root directory of the repository.
-Also, see the sections below for trouble shooting tips for installing under the different operating systems.
