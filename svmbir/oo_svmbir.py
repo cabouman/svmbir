@@ -119,22 +119,22 @@ class ParallelBeamCT:
         """
         Update parameter dictionary with kwargs input.
         Raises an exception if kwargs key is not defined in dictionary.
-        Also performs parameter checking.
+        # Also performs parameter checking.
         """
         for key, val in kwargs.items():
             if key in params.keys():
                 params[key] = val
             else:
                 raise NameError('"{}" not a recognized argument'.format(key))
-        # Check validity of new parameters
-        # Loop through keywords in each of the dicts and call the appropriate test
-        for d, test_fcn in zip(utils.dicts, utils.tests):
-            cur_dict = d.copy()
-            for key in cur_dict.keys():
-                cur_dict[key] = params[key]
-
-            # Call the test, which gives a new dictionary, then copy the values
-            new_dict = utils.test_args_dict(d, test_fcn, **cur_dict)
-            for key in d.keys():
-                params[key] = new_dict[key]
+        # # Check validity of new parameters
+        # # Loop through keywords in each of the dicts and call the appropriate test
+        # for d, test_fcn in zip(utils.dicts, utils.tests):
+        #     cur_dict = d.copy()
+        #     for key in cur_dict.keys():
+        #         cur_dict[key] = params[key]
+        #
+        #     # Call the test, which gives a new dictionary, then copy the values
+        #     new_dict = utils.test_args_dict(d, test_fcn, **cur_dict)
+        #     for key in d.keys():
+        #         params[key] = new_dict[key]
 

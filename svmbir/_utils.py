@@ -40,6 +40,7 @@ _geom_defaults_dict = {
 _recon_defaults_dict = {
     'sharpness': 0.0,
     'positivity': True,
+    'relax_factor': 1.0,
     'max_resolutions': 0,
     'stop_threshold': 0.02,
     'max_iterations': 100
@@ -75,7 +76,8 @@ _sys_defaults_dict = {
 
 _misc_defaults_dict = {
     'svmbir_lib_path': _svmbir_lib_path(),
-    'object_name': 'object'
+    'object_name': 'object',
+    'output_params_dict': None
 }
 
 headings = ['Geometry params', 'Recon params', 'Init params', 'Noise params', 'QGGMRF params', 'Sys params',
@@ -260,6 +262,7 @@ def test_args_recon(sharpness, positivity, relax_factor, max_resolutions, stop_t
     else:
         d = {'sharpness': sharpness,
              'positivity': positivity,
+             'relax_factor': relax_factor,
              'max_resolutions': max_resolutions,
              'stop_threshold': stop_threshold,
              'max_iterations': max_iterations
