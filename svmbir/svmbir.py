@@ -9,6 +9,9 @@ import os
 import sys
 import warnings
 import svmbir._utils as utils
+# FOR DEBUGGING/VERIFICATION:  # Install with pip install deepdiff6
+import deepdiff as dd
+from pprint import pprint
 
 if os.environ.get('CLIB') =='CMD_LINE':
     import svmbir.interface_py_c as ci
@@ -288,7 +291,7 @@ def recon(sino, angles,
           sigma_y = None, snr_db = 30.0, sigma_x = None, sigma_p = None, p = 1.2, q = 2.0, T = 1.0, b_interslice = 1.0,
           sharpness = 0.0, positivity = True, relax_factor=1.0, max_resolutions = None, stop_threshold = 0.02, max_iterations = 100,
           num_threads = None, delete_temps = True, svmbir_lib_path = __svmbir_lib_path, object_name = 'object',
-          verbose = 1) :
+          verbose = 1, output_params_dict=None) :
     """recon(sino, angles, geometry = 'parallel', **kwargs)
 
     Compute 3D MBIR reconstruction using multi-resolution SVMBIR algorithm.
@@ -374,6 +377,9 @@ def recon(sino, angles,
             Useful for building multi-process and multi-node functionality on top of svmbir.
         verbose (int, optional): [Default=1] Possible values are {0,1,2}, where 0 is quiet, 
             1 prints minimal reconstruction progress information, and 2 prints the full information.
+        output_params_dict (dict, optional): [Default=None] If a dict is passed in, then the parameter values used when
+            performing the recon (including any calculated values, plus the sino and angles) are used to populate the
+            dict.
 
     Returns:
         3D numpy array: 3D reconstruction with shape (num_slices,num_rows,num_cols) in units of :math:`ALU^{-1}`.
@@ -405,6 +411,17 @@ def recon(sino, angles,
     (num_views, num_slices, num_channels) = sino.shape
 
     # Tests parameters for valid types and values; print warnings if necessary; and return default values.
+    geom_dict = utils.test_args_geom(num_rows, num_cols, delta_pixel, roi_radius, delta_channel, center_offset,
+                                     output_as_dict=True)
+    recon_dict = utils.test_args_recon(sharpness, positivity, relax_factor, max_resolutions, stop_threshold,
+                                       max_iterations, output_as_dict=True)
+    inits_dict = utils.test_args_inits(init_image, prox_image, init_proj, weights, weight_type,
+                                       output_as_dict=True)
+    noise_dict = utils.test_args_noise(sigma_y, snr_db, sigma_x, sigma_p, output_as_dict=True)
+    qggmrf_dict = utils.test_args_qggmrf(p, q, T, b_interslice, output_as_dict=True)
+    sys_dict = utils.test_args_sys(num_threads, delete_temps, verbose, output_as_dict=True)
+
+    #  -------- OLD CODE FOR VERIFICATION OF NEW IMPLEMENTATION
     num_rows, num_cols, delta_pixel, roi_radius, delta_channel, center_offset = utils.test_args_geom(
         num_rows, num_cols, delta_pixel, roi_radius, delta_channel, center_offset)
     sharpness, positivity, relax_factor, max_resolutions, stop_threshold, max_iterations = utils.test_args_recon(
@@ -414,6 +431,7 @@ def recon(sino, angles,
     sigma_y, snr_db, sigma_x, sigma_p = utils.test_args_noise(sigma_y, snr_db, sigma_x, sigma_p)
     p, q, T, b_interslice = utils.test_args_qggmrf(p, q, T, b_interslice)
     num_threads, delete_temps, verbose = utils.test_args_sys(num_threads, delete_temps, verbose)
+    #  --------
 
     # Geometry dependent settings
     if geometry == 'parallel':
@@ -425,27 +443,39 @@ def recon(sino, angles,
     else:
         raise Exception('Unrecognized geometry {}'.format(geometry))
 
+    geom_dict['geometry'] = geometry
+    geom_dict['dist_source_detector'] = dist_source_detector
+    geom_dict['magnification'] = magnification
+
     # Set automatic value of max_resolutions
     if max_resolutions is None :
         max_resolutions = auto_max_resolutions(init_image)
+        recon_dict['max_resolutions'] = max_resolutions
 
     # Set automatic values of num_rows, num_cols, and roi_radius
     if delta_pixel is None:
         delta_pixel = delta_channel/magnification
+        geom_dict['delta_pixel'] = delta_pixel
     if num_rows is None:
         num_rows,_ = auto_img_size(num_channels, delta_channel, delta_pixel, magnification)
+        geom_dict['num_rows'] = num_rows
     if num_cols is None:
         _,num_cols = auto_img_size(num_channels, delta_channel, delta_pixel, magnification)
+        geom_dict['num_cols'] = num_cols
     if roi_radius is None:
         roi_radius = auto_roi_radius(delta_pixel, num_rows, num_cols)
+        geom_dict['roi_radius'] = roi_radius
 
     # Set automatic values for weights
     if weights is None:
         weights = calc_weights(sino, weight_type)
+        inits_dict['weights'] = weights
 
     # Set automatic value of sigma_y
     if sigma_y is None:
-        sigma_y = auto_sigma_y(sino, weights, magnification, delta_channel=delta_channel, delta_pixel=delta_pixel, snr_db=snr_db)
+        sigma_y = auto_sigma_y(sino, weights, magnification, delta_channel=delta_channel,
+                                             delta_pixel=delta_pixel, snr_db=snr_db)
+        noise_dict['sigma_y'] = sigma_y
 
     # Set automatic value of sigma_x
     # if qGGMRF mode, then set sigma_x either using the provided value by user, or with auto_sigma_x
@@ -457,6 +487,8 @@ def recon(sino, angles,
         if sigma_p is None:
             sigma_p = auto_sigma_p(sino, magnification, delta_channel, sharpness)
         sigma_x = sigma_p
+    noise_dict['sigma_x'] = sigma_x
+    noise_dict.pop('sigma_p')
 
     # Reduce num_threads for positivity=False if problems size calls for it
     # num_threads_max = max_threads(num_threads, num_slices, num_rows, num_cols, positivity=positivity)
@@ -465,7 +497,23 @@ def recon(sino, angles,
     os.environ['OMP_NUM_THREADS'] = str(num_threads)
     os.environ['OMP_DYNAMIC'] = 'true'
 
-    reconstruction = ci.multires_recon(sino=sino, angles=angles, weights=weights, weight_type=weight_type,
+    # Collect the individual dicts for multires_recon and to return output parameters
+    if output_params_dict is None:
+        output_params_dict = dict()
+
+    all_dicts = [geom_dict, recon_dict, inits_dict, noise_dict, qggmrf_dict, sys_dict]
+    for d in all_dicts:
+        output_params_dict.update(d)
+    output_params_dict['sino'] = sino
+    output_params_dict['angles'] = angles
+    output_params_dict['svmbir_lib_path'] = svmbir_lib_path
+    output_params_dict['object_name'] = object_name
+
+    #  -------- CODE FOR VERIFICATION OF NEW IMPLEMENTATION
+    def getargs_dict(**kwargs):
+        return kwargs
+
+    recon_params_dict = getargs_dict(sino=sino, angles=angles, weights=weights, weight_type=weight_type,
                                        geometry=geometry, dist_source_detector=dist_source_detector, magnification=magnification,
                                        init_image=init_image, prox_image=prox_image, init_proj=init_proj,
                                        num_rows=num_rows, num_cols=num_cols, roi_radius=roi_radius,
@@ -475,6 +523,14 @@ def recon(sino, angles,
                                        stop_threshold=stop_threshold, max_iterations=max_iterations, num_threads=num_threads,
                                        delete_temps=delete_temps, svmbir_lib_path=svmbir_lib_path, object_name=object_name,
                                        verbose=verbose)
+    diffs = dd.DeepDiff(output_params_dict, recon_params_dict)
+    if diffs == {}:
+        print('New and old arguments to multires_recon are identical')
+    else:
+        warnings.warn('*** Differences found in new and old arguments to multires_recon')
+        pprint(diffs, indent=2)
+    #  --------
+    reconstruction = ci.multires_recon(**output_params_dict)
 
     return reconstruction
 
