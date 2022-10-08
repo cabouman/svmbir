@@ -3,6 +3,7 @@ import numpy as np
 from demo_utils import plot_image
 import svmbir
 import svmbir.oo_svmbir as oosvmbir
+import matplotlib.pyplot as plt
 
 """
 This file demonstrates the object-oriented interface on the generation of a Shepp-Logan phantom followed by 
@@ -48,7 +49,8 @@ num_channels = num_rows_cols
 sino = pbct.project(phantom, angles, num_channels)
 
 # Perform MBIR reconstruction
-recon = pbct.recon(sino, angles)
+output_params_dict = dict()
+recon = pbct.recon(sino, angles, output_params_dict=output_params_dict)
 
 # ########################################
 # Calculate error and display results
