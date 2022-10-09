@@ -9,9 +9,6 @@ import os
 import sys
 import warnings
 import svmbir._utils as utils
-# FOR DEBUGGING/VERIFICATION:  # Install with pip install deepdiff6
-import deepdiff as dd
-from pprint import pprint
 
 if os.environ.get('CLIB') =='CMD_LINE':
     import svmbir.interface_py_c as ci
@@ -421,18 +418,6 @@ def recon(sino, angles,
     qggmrf_dict = utils.test_args_qggmrf(p, q, T, b_interslice, output_as_dict=True)
     sys_dict = utils.test_args_sys(num_threads, delete_temps, verbose, output_as_dict=True)
 
-    #  -------- OLD CODE FOR VERIFICATION OF NEW IMPLEMENTATION
-    num_rows, num_cols, delta_pixel, roi_radius, delta_channel, center_offset = utils.test_args_geom(
-        num_rows, num_cols, delta_pixel, roi_radius, delta_channel, center_offset)
-    sharpness, positivity, relax_factor, max_resolutions, stop_threshold, max_iterations = utils.test_args_recon(
-        sharpness, positivity, relax_factor, max_resolutions, stop_threshold, max_iterations)
-    init_image, prox_image, init_proj, weights, weight_type = utils.test_args_inits(
-        init_image, prox_image, init_proj, weights, weight_type)
-    sigma_y, snr_db, sigma_x, sigma_p = utils.test_args_noise(sigma_y, snr_db, sigma_x, sigma_p)
-    p, q, T, b_interslice = utils.test_args_qggmrf(p, q, T, b_interslice)
-    num_threads, delete_temps, verbose = utils.test_args_sys(num_threads, delete_temps, verbose)
-    #  --------
-
     # Geometry dependent settings
     if geometry == 'parallel':
         dist_source_detector = 0.0
@@ -515,31 +500,10 @@ def recon(sino, angles,
     output_params_dict['svmbir_lib_path'] = svmbir_lib_path
     output_params_dict['object_name'] = object_name
 
-    #  -------- CODE FOR VERIFICATION OF NEW IMPLEMENTATION
-    def getargs_dict(**kwargs):
-        return kwargs
-
-    recon_params_dict = getargs_dict(sino=sino, angles=angles, weights=weights, weight_type=weight_type,
-                                       geometry=geometry, dist_source_detector=dist_source_detector, magnification=magnification,
-                                       init_image=init_image, prox_image=prox_image, init_proj=init_proj,
-                                       num_rows=num_rows, num_cols=num_cols, roi_radius=roi_radius,
-                                       delta_channel=delta_channel, delta_pixel=delta_pixel, center_offset=center_offset,
-                                       sigma_y=sigma_y, snr_db=snr_db, sigma_x=sigma_x, p=p, q=q, T=T, b_interslice=b_interslice,
-                                       sharpness=sharpness, positivity=positivity, relax_factor=relax_factor, max_resolutions=max_resolutions,
-                                       stop_threshold=stop_threshold, max_iterations=max_iterations, num_threads=num_threads,
-                                       delete_temps=delete_temps, svmbir_lib_path=svmbir_lib_path, object_name=object_name,
-                                       verbose=verbose)
-    diffs = dd.DeepDiff(output_params_dict, recon_params_dict)
-    if diffs == {}:
-        print('New and old arguments to multires_recon are identical')
-    else:
-        warnings.warn('*** Differences found in new and old arguments to multires_recon')
-        pprint(diffs, indent=2)
-    #  --------
+    # Now all the parameters are set in output_params_dict, so we use it for the reconstruction.
     reconstruction = ci.multires_recon(**output_params_dict)
 
     return reconstruction
-
 
 
 def project(image, angles, num_channels,
