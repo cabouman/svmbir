@@ -6,6 +6,7 @@ import svmbir
 """
 This file demonstrates the generation of a Shepp-Logan phantom followed by sinogram projection and reconstruction using MBIR. 
 The phantom, sinogram, and reconstruction are then displayed. 
+This version allows shows the use of the 'sharpness' parameter and the ability to use the parameters returned from recon.
 """
 
 # Simulated image parameters
@@ -17,12 +18,12 @@ tilt_angle = np.pi/2 # Tilt range of +-90deg
 
 # Reconstruction parameters
 snr_db = 30.0
-sharpness = 0.0
+sharpness_values = [-1.0, 0.0, 1.0, 2.0]
 T = 0.1
 p = 1.2
 
 # Multi-resolution works much better for limited and sparse view reconstruction
-max_resolutions=2 # Use 2 additional resolutions to do reconstruction
+max_resolutions = 2  # Use 2 additional resolutions to do reconstruction
 
 # Display parameters
 vmin = 1.0
@@ -41,11 +42,15 @@ sino = svmbir.project(phantom, angles, num_rows_cols )
 # Determine resulting number of views, slices, and channels
 (num_views, num_slices, num_channels) = sino.shape
 
-# Perform MBIR reconstruction
-recon = svmbir.recon(sino, angles, T=T, p=p, sharpness=sharpness, snr_db=snr_db, max_resolutions = max_resolutions)
+# Perform MBIR reconstruction and get the resulting parameters
+# After the call to recon, params_dict will contain all of the parameters used for recon, including any defaults
+# and calculated values.
+params_dict = dict()
+recon = svmbir.recon(sino, angles, T=T, p=p, sharpness=sharpness_values[0], snr_db=snr_db, max_resolutions=max_resolutions,
+                     output_params_dict=params_dict)
 
-# Compute Normalized Root Mean Squared Error
-nrmse = svmbir.phantom.nrmse(recon[0], phantom[0])
+recon_list = [recon]
+nrmse_list = [svmbir.phantom.nrmse(recon[0], phantom[0])]
 
 # create output folder
 os.makedirs('output', exist_ok=True)
@@ -56,8 +61,20 @@ plot_image(phantom[0], title='Shepp Logan Phantom', filename='output/shepp_logan
 # display sinogram
 plot_image(np.squeeze(sino), title='Sinogram', filename='output/shepp_logan_sinogram.png')
 
-# display reconstruction
-title = f'Reconstruction with NRMSE={nrmse:.3f}.'
-plot_image(recon[0], title=title, filename='output/shepp_logan_recon.png', vmin=vmin, vmax=vmax)
+# Loop over other sharpness values
+params_dict.pop('sigma_x')  # In order for sharpness to be used, sigma_x must be None
+for j, cur_sharpness in enumerate(sharpness_values[1:]):
+    params_dict['sharpness'] = cur_sharpness
+    # Note that params_dict is not updated by the following call to recon since it is not passed in as
+    # output_params_dict.  For instance, sigma_x gets set within recon based on sharpness, but sigma_x remains
+    # unset in params_dict after the following call to recon.  To set the parameters from this call using this same
+    # dict would require svmbir.recon(**params_dict, output_params_dict=params_dict)
+    recon_list += [svmbir.recon(**params_dict)]
+    nrmse_list += [svmbir.phantom.nrmse(recon_list[j+1][0], phantom[0])]
+
+# display reconstructions
+for j, sharpness in enumerate(sharpness_values):
+    title = f'Reconstruction with sharpness={sharpness_values[j]:.1f}: NRMSE={nrmse_list[j]:.3f}.'
+    plot_image(recon_list[j][0], title=title, filename='output/shepp_logan_recon.png', vmin=vmin, vmax=vmax)
 
 input("press Enter")
