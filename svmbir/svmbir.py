@@ -482,10 +482,16 @@ def recon(sino, angles,
     if prox_image is None:
         if sigma_x is None:
             sigma_x = auto_sigma_x(sino, magnification, delta_channel, sharpness)
+        elif sharpness is not None:
+            warnings.warn('Parameter sharpness is ignored in QGGMRF mode when sigma_x is not None.')
     # if proximal map mode, then overwrite sigma_x with sigma_p
     else:
         if sigma_p is None:
             sigma_p = auto_sigma_p(sino, magnification, delta_channel, sharpness)
+        elif sharpness is not None:
+            warnings.warn('Parameter sharpness is ignored in prox mode when sigma_p is not None.')
+        if sigma_x is not None:
+            warnings.warn('Parameter sigma_x is ignored in prox mode when prox_image is not None.')
         sigma_x = sigma_p
     noise_dict['sigma_x'] = sigma_x
     noise_dict.pop('sigma_p')
