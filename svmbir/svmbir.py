@@ -9,6 +9,7 @@ import os
 import sys
 import warnings
 import svmbir._utils as utils
+import copy
 
 if os.environ.get('CLIB') =='CMD_LINE':
     import svmbir.interface_py_c as ci
@@ -479,7 +480,6 @@ def recon(sino, angles,
             warnings.warn('Parameter sigma_x is ignored in prox mode when prox_image is not None.')
         sigma_x = sigma_p
     noise_dict['sigma_x'] = sigma_x
-    noise_dict.pop('sigma_p')
 
     # Reduce num_threads for positivity=False if problems size calls for it
     # num_threads_max = max_threads(num_threads, num_slices, num_rows, num_cols, positivity=positivity)
@@ -500,8 +500,11 @@ def recon(sino, angles,
     output_params_dict['svmbir_lib_path'] = svmbir_lib_path
     output_params_dict['object_name'] = object_name
 
-    # Now all the parameters are set in output_params_dict, so we use it for the reconstruction.
-    reconstruction = ci.multires_recon(**output_params_dict)
+    # Now all the parameters are set in output_params_dict, so we use it for the reconstruction, minus any
+    # parameters that are not used in multires_recon.
+    recon_dict = copy.deepcopy(output_params_dict)
+    recon_dict.pop('sigma_p')
+    reconstruction = ci.multires_recon(**recon_dict)
 
     return reconstruction
 
