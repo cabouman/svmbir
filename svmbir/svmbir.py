@@ -306,13 +306,13 @@ def recon(sino, angles,
             (Required for fan beam geometries only) Magnification factor = dist_source_detector/dist_source_isocenter.
         weights (ndarray, optional): [Default=None] 3D weights array with same shape as sino.
         weight_type (string, optional): [Default="unweighted"] Type of noise model used for data.
-            If the ``weights`` array is not supplied, then the function ``svmbir.calc_weights`` is 
+            If the ``weights`` array is not supplied, then the function ``svmbir.calc_weights`` is
             used to set weights using specified ``weight_type`` parameter.
             Option "unweighted" corresponds to unweighted reconstruction;
             Option "transmission" is the correct weighting for transmission CT with constant dosage;
             Option "transmission_root" is commonly used with transmission CT data to improve image homogeneity;
             Option "emission" is appropriate for emission CT data.
-        init_image (float, optional): [Default=0.0] Initial value of reconstruction image, specified 
+        init_image (float, optional): [Default=0.0] Initial value of reconstruction image, specified
             by either a scalar value or a 3D numpy array with shape (num_slices,num_rows,num_cols).
         prox_image (ndarray, optional): [Default=None] 3D proximal map input image.
             If prox_image is supplied, then the proximal map prior model is used, and the qGGMRF parameters are ignored.
@@ -336,24 +336,24 @@ def recon(sino, angles,
             ratio of the data in dB. Ignored if sigma_y is not None.
         sigma_x (float, optional): [Default=None] Scalar value :math:`>0` that specifies the qGGMRF scale parameter.
             Ignored if prox_image is not None.
-            If None and prox_image is also None, automatically set with auto_sigma_x. Regularization should 
+            If None and prox_image is also None, automatically set with auto_sigma_x. Regularization should
             be controled with the ``sharpness`` parameter, but ``sigma_x`` can be set directly by expert users.
         sigma_p (float, optional): [Default=None] Scalar value :math:`>0` that specifies the proximal map parameter.
-            If None, automatically set with auto_sigma_p. Regularization should be controled with the 
+            If None, automatically set with auto_sigma_p. Regularization should be controled with the
             ``sharpness`` parameter, but ``sigma_p`` can be set directly by expert users.
         p (float, optional): [Default=1.2] Scalar value in range :math:`[1,2]` that specifies the qGGMRF shape parameter.
         q (float, optional): [Default=2.0] Scalar value in range :math:`[p,2]` that specifies the qGGMRF shape parameter.
         T (float, optional): [Default=1.0] Scalar value :math:`>0` that specifies the qGGMRF threshold parameter.
         b_interslice (float, optional): [Default=1.0] Scalar value :math:`>0` that specifies the interslice regularization.
             The default value of 1.0 should be fine for most applications.
-            However, b_interslice can be increased to values :math:`>1` in order to increase 
+            However, b_interslice can be increased to values :math:`>1` in order to increase
             regularization along the slice axis.
         sharpness (float, optional):
             [Default=0.0] Scalar value that controls level of sharpness.
             ``sharpness=0.0`` is neutral; ``sharpness>0`` increases sharpness; ``sharpness<0`` reduces sharpness.
             Ignored if ``sigma_x`` is not None in qGGMRF mode, or if ``sigma_p`` is not None in proximal map mode.
-        positivity (bool, optional): [Default=True] Boolean value that determines if positivity constraint 
-            is enforced. The positivity parameter defaults to True; however, it should be changed to False 
+        positivity (bool, optional): [Default=True] Boolean value that determines if positivity constraint
+            is enforced. The positivity parameter defaults to True; however, it should be changed to False
             when used in applications that can generate negative image values.
         relax_factor (float, optional): [Default=1.0] Relaxation factor for pixel update. Valid range (0,2.0].
             Values in (0,1) produce under-relaxation (smaller step size); Values in (1,2] produce over-relaxation.
@@ -362,22 +362,23 @@ def recon(sino, angles,
             If None, automatically set with auto_max_resolutions to 0 if inital image is provided and 2 otherwise.
         stop_threshold (float, optional): [Default=0.02] Scalar valued stopping threshold in percent.
             If stop_threshold=0.0, then run max iterations.
-        max_iterations (int, optional): [Default=100] Integer valued specifying the maximum number of 
-            iterations. The value of ``max_iterations`` may need to be increased for reconstructions with 
+        max_iterations (int, optional): [Default=100] Integer valued specifying the maximum number of
+            iterations. The value of ``max_iterations`` may need to be increased for reconstructions with
             limited tilt angles or high regularization.
         num_threads (int, optional): [Default=None] Number of compute threads requested when executed.
             If None, num_threads is set to the number of cores in the system.
         delete_temps (bool, optional): [Default=True] Delete temporary files used in computation.
-        svmbir_lib_path (string, optional): [Default='~/.cache/svmbir'] Path to directory containing 
+        svmbir_lib_path (string, optional): [Default='~/.cache/svmbir'] Path to directory containing
             library of forward projection matrices.
         object_name (string, optional): [Default='object'] Specifies filenames of cached files.
             Can be changed suitably for running multiple instances of reconstructions.
             Useful for building multi-process and multi-node functionality on top of svmbir.
-        verbose (int, optional): [Default=1] Possible values are {0,1,2}, where 0 is quiet, 
+        verbose (int, optional): [Default=1] Possible values are {0,1,2}, where 0 is quiet,
             1 prints minimal reconstruction progress information, and 2 prints the full information.
-        output_params_dict (dict, optional): [Default=None] If a dict is passed in, then the parameter values used when
-            performing the recon (including any calculated values, plus the sino and angles) are used to populate the
-            dict.
+        output_params_dict (dict, optional): [Default=None] If a dict is passed in, then almost all of the parameter
+            values used when performing the recon (including any calculated values, plus the sino and angles)
+            are used to populate the dict.  The exceptions are weights, prox_image, init_proj, and init_image
+            arrays to avoid the memory use associated with the calculated weight matrix.
 
     Returns:
         3D numpy array: 3D reconstruction with shape (num_slices,num_rows,num_cols) in units of :math:`ALU^{-1}`.
@@ -419,6 +420,11 @@ def recon(sino, angles,
     qggmrf_dict = utils.test_args_qggmrf(p, q, T, b_interslice, output_as_dict=True)
     sys_dict = utils.test_args_sys(num_threads, delete_temps, verbose, output_as_dict=True)
 
+    return_init_image = init_image if type(init_image) == float else 0.0
+    if output_params_dict is not None:
+        if prox_image is not None or init_proj is not None or weights is not None or type(init_image) is not float:
+            warnings.warn('weights, init_proj, prox_image, and init_image arrays are not returned via output_params_dict')
+
     # Geometry dependent settings
     if geometry == 'parallel':
         dist_source_detector = 0.0
@@ -434,31 +440,31 @@ def recon(sino, angles,
     geom_dict['magnification'] = magnification
 
     # Set automatic value of max_resolutions
-    if max_resolutions is None :
+    if recon_dict['max_resolutions'] is None:
         max_resolutions = auto_max_resolutions(init_image)
         recon_dict['max_resolutions'] = max_resolutions
 
     # Set automatic values of num_rows, num_cols, and roi_radius
-    if delta_pixel is None:
+    if geom_dict['delta_pixel'] is None:
         delta_pixel = delta_channel/magnification
         geom_dict['delta_pixel'] = delta_pixel
-    if num_rows is None:
+    if geom_dict['num_rows'] is None:
         num_rows,_ = auto_img_size(num_channels, delta_channel, delta_pixel, magnification)
         geom_dict['num_rows'] = num_rows
-    if num_cols is None:
+    if geom_dict['num_cols'] is None:
         _,num_cols = auto_img_size(num_channels, delta_channel, delta_pixel, magnification)
         geom_dict['num_cols'] = num_cols
-    if roi_radius is None:
+    if geom_dict['roi_radius'] is None:
         roi_radius = auto_roi_radius(delta_pixel, num_rows, num_cols)
         geom_dict['roi_radius'] = roi_radius
 
     # Set automatic values for weights
-    if weights is None:
+    if inits_dict['weights'] is None:
         weights = calc_weights(sino, weight_type)
         inits_dict['weights'] = weights
 
     # Set automatic value of sigma_y
-    if sigma_y is None:
+    if noise_dict['sigma_y'] is None:
         sigma_y = auto_sigma_y(sino, weights, magnification, delta_channel=delta_channel,
                                              delta_pixel=delta_pixel, snr_db=snr_db)
         noise_dict['sigma_y'] = sigma_y
@@ -502,9 +508,14 @@ def recon(sino, angles,
 
     # Now all the parameters are set in output_params_dict, so we use it for the reconstruction, minus any
     # parameters that are not used in multires_recon.
-    recon_dict = copy.deepcopy(output_params_dict)
+    recon_dict = copy.copy(output_params_dict)
     recon_dict.pop('sigma_p')
     reconstruction = ci.multires_recon(**recon_dict)
+
+    # Reset the output parameters associated with arrays
+    for key in ['weights', 'init_proj', 'prox_image']:
+        output_params_dict[key] = None
+    output_params_dict['init_image'] = return_init_image
 
     return reconstruction
 
@@ -536,8 +547,8 @@ def project(image, angles, num_channels,
         magnification (float):
             (Required for fan beam geometries only) Magnification factor = dist_source_detector/dist_source_isocenter.
         delta_channel (float, optional): [Default=1.0] Scalar value of detector channel spacing in :math:`ALU`.
-        delta_pixel (float, optional): Scalar value of the spacing between image pixels in the 2D slice 
-            plane in :math:`ALU`. Defaults to ``delta_channel`` for ``parallel`` beam geometry, 
+        delta_pixel (float, optional): Scalar value of the spacing between image pixels in the 2D slice
+            plane in :math:`ALU`. Defaults to ``delta_channel`` for ``parallel`` beam geometry,
             and ``delta_channel``/``magnification`` for fan beam geometries.
         center_offset (float, optional):
             [Default=0.0] Offset from center-of-rotation in 'fractional number of channels' units.
@@ -655,8 +666,8 @@ def backproject(sino, angles, num_rows=None, num_cols=None,
             (Required for fan beam geometries only) Magnification factor = dist_source_detector/dist_source_isocenter.
         delta_channel (float, optional):
             [Default=1.0] Detector channel spacing in :math:`ALU`.
-        delta_pixel (float, optional): Scalar value of the spacing between image pixels in the 2D slice 
-            plane in :math:`ALU`. Defaults to ``delta_channel`` for ``parallel`` beam geometry, 
+        delta_pixel (float, optional): Scalar value of the spacing between image pixels in the 2D slice
+            plane in :math:`ALU`. Defaults to ``delta_channel`` for ``parallel`` beam geometry,
             and ``delta_channel``/``magnification`` for fan beam geometries.
         center_offset (float, optional):
             [Default=0.0] Offset from center-of-rotation in 'fractional number of channels' units.
