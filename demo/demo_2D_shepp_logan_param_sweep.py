@@ -39,9 +39,6 @@ angles = np.linspace(-tilt_angle, tilt_angle, num_views, endpoint=False)
 # Generate sinogram by projecting phantom
 sino = svmbir.project(phantom, angles, num_rows_cols )
 
-np.save('output/shepp_logan_2D_sino.npy', sino)
-np.save('output/shepp_logan_2D_angles.npy', angles)
-
 # Determine resulting number of views, slices, and channels
 (num_views, num_slices, num_channels) = sino.shape
 

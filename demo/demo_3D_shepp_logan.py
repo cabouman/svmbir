@@ -34,7 +34,7 @@ phantom = svmbir.phantom.gen_shepp_logan_3d(num_rows_cols,num_rows_cols,num_slic
 angles = np.linspace(-tilt_angle, tilt_angle, num_views, endpoint=False)
 
 # Generate sinogram by projecting phantom
-sino = svmbir.project(phantom, angles, num_rows_cols )
+sino = svmbir.project(phantom, angles, num_rows_cols)
 
 # Determine resulting number of views, slices, and channels
 (num_views, num_slices, num_channels) = sino.shape
@@ -55,5 +55,9 @@ plot_image(phantom[display_slice], title=title, filename='output/3d_shepp_logan_
 # display fix resolution reconstruction
 title = f'Slice {display_slice:d} of 3D Recon with NRMSE={nrmse:.3f}.'
 plot_image(recon[display_slice], title=title, filename='output/3d_shepp_logan_recon.png', vmin=vmin, vmax=vmax)
+
+# save sino and angles for use with gui
+np.save('output/shepp_logan_3D_sino.npy', sino)
+np.save('output/shepp_logan_3D_angles.npy', angles)
 
 input("press Enter")
