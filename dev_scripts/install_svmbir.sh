@@ -5,7 +5,12 @@
 
 cd ..
 pip install -r requirements.txt
-pip install .
+
+if [ -z $1 ]; then
+  pip install .
+else
+  pip install $1 .
+fi
 pip install -r demo/requirements_demo.txt
 pip install -r docs/requirements.txt 
 cd dev_scripts
