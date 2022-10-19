@@ -99,6 +99,7 @@ class SvmbirGui:
 
     display_sino_key, display_recon_key = ["-DISPLAY_SINO-", "-DISPLAY_RECON-"]
     do_recon_key, save_recon_key, load_recon_key = ["-DO_RECON-", "-SAVE_RECON-", "-LOAD_RECON-"]
+    save_params_key, load_params_key = ["-SAVE_PARAMS-", "-LOAD_PARAMS-"]
     status_key, reset_key, exit_key = ["-STATUS-", "-RESET-", "-EXIT-"]
 
     float64_params = ['sigma_x', 'sigma_y']  # These parameters are returned as float64 and are converted to floats
@@ -188,16 +189,17 @@ class SvmbirGui:
             additional_cols += [sg.Col(cur_col, p=0, vertical_alignment='top')]
 
         image_viewer_column = [
-            [sg.Button("Display sinogram", enable_events=True, key=self.display_sino_key, font=self.font2,
-                       tooltip='Open a viewer to display the sinogram')],
             [sg.Button("Perform recon", enable_events=True, key=self.do_recon_key, font=self.font2,
                        tooltip='Load sino and angle data, do recon, and return any computed parameters'),
-             sg.Button("Display recon", enable_events=True, key=self.display_recon_key, font=self.font2,
-                       tooltip='Open a viewer to display the reconstruction'),
-             sg.Button('Save recon', enable_events=True, key=self.save_recon_key, font=self.font2,
-                       tooltip='Save the reconstruction and associated parameters')],
-            [sg.Button('Load recon', enable_events=True, key=self.load_recon_key, font=self.font2,
+             sg.Button("Display recon", enable_events=True, key=self.display_recon_key, font=self.font2),
+             sg.Button("Display sinogram", enable_events=True, key=self.display_sino_key, font=self.font2,
+                       tooltip='Open a viewer to display the sinogram')],
+            [sg.Button('Load recon+params', enable_events=True, key=self.load_recon_key, font=self.font2,
                        tooltip='Load a reconstruction and associated parameters'),
+             sg.Button('Save recon+params', enable_events=True, key=self.save_recon_key, font=self.font2,
+                       tooltip='Save the reconstruction and associated parameters')],
+            [sg.Button("Load params", enable_events=True, key=self.load_params_key, font=self.font2),
+             sg.Button("Save params", enable_events=True, key=self.save_params_key, font=self.font2),
              sg.Button("Reset", enable_events=True, key=self.reset_key, font=self.font2),
              sg.Button("Exit", enable_events=True, key=self.exit_key, font=self.font2)],
             [sg.Text('Status:', size=(6, 1), font=self.font1, justification='r', pad=(0, 0)),
@@ -332,22 +334,53 @@ class SvmbirGui:
         # Load the parameters
         try:
             params_filename = self.recon_filename.split('.npy')[0] + '.yaml'
-            self.load_params(filename=params_filename, check_erase=False)
+            self.load_params(filename=params_filename, standalone=False)
         except (FileExistsError, KeyError, AttributeError):
             return
         self.window[self.status_key].update('Recon and parameters loaded', text_color='green')
 
-    def load_params(self, filename=None, check_erase=True):
+    def save_params(self, filename=None, standalone=True):
+        """
+        Display a dialog box if needed and try to save to the chosen parameters file.
+        The filename chosen should be a .yaml file containing parameters.
+        Args:
+            filename (str): Name of the file to save (should end in .yaml).  If None, then open a file browser.
+            standalone (boolean): If True, then display a dialog to process any exceptions, and update the status bar.
+                If False, then load_params is called from save_recon, which manages these tasks.
+        Returns:
+            Nothing, but modifies several instance variables.
+        """
+        if filename is None:
+            filename = sg.popup_get_file("Enter a file name (*.yaml) for the parameters or press 'Browse' to choose",
+                                         title='Save parameters', size=(80, 1), font=self.font2,
+                                         initial_folder=os.getcwd(), default_extension=".yaml")
+        if filename is None or filename == '':
+            return
+        self.output_params['sino_filename'] = self.sino_filename
+        self.output_params['angles_filename'] = self.angles_filename
+        self.output_params['recon_filename'] = self.recon_filename
+        try:
+            with open(filename, 'w') as f:
+                yaml.safe_dump(self.output_params, f)
+            if standalone:
+                self.window[self.status_key].update('Parameters saved', text_color='green')
+        except Exception as e:
+            print(e, file=sys.stderr)
+            self.window[self.status_key].update('Failed to save parameters file', text_color='red')
+
+    def load_params(self, filename=None, standalone=True):
         """
         Display a dialog box if needed and try to load the chosen parameters file.
         The filename chosen should be a .yaml file containing parameters.
         Args:
             filename (str): Name of the file to load (should end in .yaml).  If None, then open a file browser.
-            check_erase (boolean): If True, then will display a dialog to confirm before overwriting existing params.
+            standalone (boolean): If True, then display a dialog to confirm before overwriting existing params, process
+                any exceptions, and update the status bar. If False, then load_params is called from load_recon, which
+                manages these tasks.
         Returns:
             Nothing, but modifies several instance variables.
         """
-        if check_erase and not self.ok_to_erase('Load new without saving recon?'):
+        if standalone and not self.ok_to_erase('Load new without saving recon?'):
             return
         if filename is None:
             filename = sg.popup_get_file("Enter a file name (*.yaml) for the parameters or press 'Browse' to choose",
@@ -365,18 +398,25 @@ class SvmbirGui:
                     self.window[key].update(str(self.output_params[key]))
             for key in ['sino_filename', 'angles_filename']:
                 self.window[key].update(str(self.output_params[key]))
+            self.load_sino(filename=self.output_params['sino_filename'])
+            self.load_angles(filename=self.output_params['angles_filename'])
+            if standalone:
+                self.window[self.status_key].update('Parameters loaded', text_color='green')
         except FileNotFoundError as e:
             print(e, file=sys.stderr)
             self.window[self.status_key].update('Recon parameters file not found', text_color='red')
-            raise e
+            if not standalone:
+                raise e
         except KeyError as e:
             print(e, file=sys.stderr)
-            self.window[self.status_key].update('Unknown entry in parameters file' + str(e), text_color='red')
-            raise e
-        except AttributeError as e:
+            self.window[self.status_key].update('Unknown entry in parameters file', text_color='red')
+            if not standalone:
+                raise e
+        except Exception as e:
             print(e, file=sys.stderr)
-            self.window[self.status_key].update('Unable to load params file' + str(e), text_color='red')
-            raise e
+            self.window[self.status_key].update('Unable to load params file', text_color='red')
+            if not standalone:
+                raise e
 
     def save_recon(self):
         """
@@ -400,35 +440,42 @@ class SvmbirGui:
             return
         if len(filename) > 8 and filename[-8:] == '.npy.npy':
             filename = filename[-4:]
-        # Save the file and then the parameters
-        self.recon_filename = os.path.abspath(filename)
-        np.save(self.recon_filename, self.recon)
-
-        self.output_params['sino_filename'] = self.sino_filename
-        self.output_params['angles_filename'] = self.angles_filename
-        self.output_params['recon_filename'] = self.recon_filename
-        params_filename = self.recon_filename.split('.npy')[0] + '.yaml'
-        with open(params_filename, 'w') as f:
-            yaml.safe_dump(self.output_params, f)
+        # Save the file
+        try:
+            self.recon_filename = os.path.abspath(filename)
+            np.save(self.recon_filename, self.recon)
+        except Exception as e:
+            print(e, file=sys.stderr)
+            self.window[self.status_key].update('Failed to save recon file', text_color='red')
+            return
+        # Save the parameters
+        try:
+            params_filename = self.recon_filename.split('.npy')[0] + '.yaml'
+            self.save_params(filename=params_filename, standalone=False)
+        except (FileExistsError, KeyError, AttributeError):
+            self.window[self.status_key].update('Failed to save parameters file', text_color='red')
+            return
         self.recon_saved = True
         self.window[self.status_key].update('Recon and parameters saved', text_color='green')
 
-    def load_file(self, type_name):
+    def load_file(self, type_name, filename=None):
         """
         Display a dialog box, and try to load either a sinogram file or an angles file (both in .npy format).
         Args:
             type_name (str): Either 'sino' or 'angles'
+            filename (str): Name of file to open.  If None, then a dialog is displayed to choose a file.
 
         Returns:
             filename (str): The chosen filename.
             data (ndarray or None): The associated data or None if the filename was invalid or the load was cancelled.
         """
-        filename = sg.popup_get_file('Choose ' + type_name + ' file (*.npy)', size=(80, 1),
-                                     initial_folder=os.getcwd(), font=self.font2)
+        if filename is None:
+            filename = sg.popup_get_file('Choose ' + type_name + ' file (*.npy)', size=(80, 1),
+                                         initial_folder=os.getcwd(), font=self.font2)
         try:
             data = np.load(filename)
             self.window[self.status_key].update('Loaded ' + type_name + ' file', text_color='green')
-        except (FileNotFoundError, IsADirectoryError):
+        except (FileNotFoundError, IsADirectoryError) as e:
             print(e, file=sys.stderr)
             self.window[self.status_key].update(type_name + ' file not found', text_color='red')
             data = None
@@ -436,6 +483,20 @@ class SvmbirGui:
             self.window[self.status_key].update(type_name + ' load cancelled', text_color='red')
             data = None
         return filename, data
+
+    def load_angles(self, filename=None):
+        filename, data = self.load_file('angles', filename=filename)
+        if data is not None:
+            self.angles_filename = filename
+            self.angles_data = data
+            self.window['angles_filename'].update(self.angles_filename)
+
+    def load_sino(self, filename=None):
+        filename, data = self.load_file('sinogram', filename=filename)
+        if data is not None:
+            self.sino_filename = filename
+            self.sino_data = data
+            self.window['sino_filename'].update(self.sino_filename)
 
     def run(self):
         """
@@ -454,19 +515,11 @@ class SvmbirGui:
 
             # Choose sino
             if event == 'sino_button':
-                filename, data = self.load_file('sinogram')
-                if data is not None:
-                    self.sino_filename = filename
-                    self.sino_data = data
-                    self.window['sino_filename'].update(self.sino_filename)
+                self.load_sino()
 
             # Choose angles
             if event == 'angles_button':
-                filename, data = self.load_file('angles')
-                if data is not None:
-                    self.angles_filename = filename
-                    self.angles_data = data
-                    self.window['angles_filename'].update(self.angles_filename)
+                self.load_angles()
 
             # Display sino
             elif event == self.display_sino_key:
@@ -487,6 +540,14 @@ class SvmbirGui:
             # Save recon
             elif event == self.save_recon_key:
                 self.save_recon()
+
+            # Load parameters
+            elif event == self.load_params_key:
+                self.load_params()
+
+            # Save parameters
+            elif event == self.save_params_key:
+                self.save_params()
 
             # Reset
             elif event == self.reset_key:
