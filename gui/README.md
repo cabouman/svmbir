@@ -1,6 +1,6 @@
-# svmbir.gui
+# svmbir.gui: Python/QT GUI for svmbir 
 
-*Python/QT GUI for svmbir 
+This code provides a graphical user interface for the basic functionality of svmbir.  
 
 ## Installing svmbir.gui from source
 
@@ -12,7 +12,12 @@ Then
 
 `source install_gui.sh`
 
+
 ## Running svmbir.gui on sample data
+
+Before running demos or the gui, make sure the svmbir environment is active using
+
+`conda activate svmbir`
 
 First change to the demo directory and invoke 
 
