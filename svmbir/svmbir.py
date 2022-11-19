@@ -343,7 +343,7 @@ def recon(sino, angles,
         p (float, optional): [Default=1.2] Scalar value in range :math:`[1,2]` that specifies the qGGMRF shape parameter.
         q (float, optional): [Default=2.0] Scalar value in range :math:`[p,2]` that specifies the qGGMRF shape parameter.
         T (float, optional): [Default=1.0] Scalar value :math:`>0` that specifies the qGGMRF threshold parameter.
-        b_interslice (float, optional): [Default=1.0] Scalar value :math:`>0` that specifies the interslice regularization.
+        b_interslice (float, optional): [Default=1.0] Non-negative scalar value that specifies the interslice regularization.
             The default value of 1.0 should be fine for most applications.
             However, b_interslice can be increased to values :math:`>1` in order to increase 
             regularization along the slice axis.

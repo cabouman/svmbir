@@ -218,7 +218,7 @@ def test_args_qggmrf(p, q, T, b_interslice):
         warnings.warn("Parameter T is invalid; Setting T = 1.0")
 
     b_interslice = int_to_float(b_interslice)
-    if not (isinstance(b_interslice, float) and b_interslice>0):
+    if not (isinstance(b_interslice, float) and b_interslice>=0):
         b_interslice = 1.0
         warnings.warn("Parameter b_interslice is invalid; Setting b_interslice = 1.0")
 
