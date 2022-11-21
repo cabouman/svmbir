@@ -34,6 +34,7 @@ for PYBIN in /opt/python/{cp38,cp39,cp310,pp38,pp39}*/bin; do
     echo "***"
     echo "*** building for $PYBIN"
     #"${PYBIN}/pip" install -r /io/dev_scripts/dev-requirements.txt
+    # NOTE: CHECK INSTALL OF numpy=1.21.6, and adding cp37 build
     CC=gcc "${PYBIN}/pip" wheel /io/ --no-deps -w wheelhouse/
     #CC=gcc "${PYBIN}/python" setup.py bdist_wheel
 done
