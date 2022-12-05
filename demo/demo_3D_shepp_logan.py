@@ -18,10 +18,9 @@ num_views = 144
 tilt_angle = np.pi/2 # Tilt range of +-90deg
 
 # Reconstruction parameters
-snr_db = 30.0
-sharpness = 0.0
+snr_db = 40.0
+sharpness = 1.0
 T = 0.1
-p = 1.2
 
 # Display parameters
 vmin = 1.0
@@ -40,7 +39,7 @@ sino = svmbir.project(phantom, angles, num_rows_cols )
 (num_views, num_slices, num_channels) = sino.shape
 
 # Perform fixed resolution MBIR reconstruction
-recon = svmbir.recon(sino, angles, T=T, p=p, sharpness=sharpness, snr_db=snr_db)
+recon = svmbir.recon(sino, angles, sharpness=sharpness, snr_db=snr_db, T=T)
 
 # Compute Normalized Root Mean Squared Error
 nrmse = svmbir.phantom.nrmse(recon, phantom)
