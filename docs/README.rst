@@ -12,7 +12,7 @@ Features
 
 System Requirements
 -------------------
-* Python 3.8-3.10
+* Python 3.7-3.10
 
 Local builds also require,
 

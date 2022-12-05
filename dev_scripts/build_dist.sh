@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Builds the sdist and wheels for python 3.8, 3.9, 3.10
+# Builds the sdist and wheels for python 3.7-3.10
 #
 # RUN AS: source build_dist.sh
 # NOT AS: ./build_dist.sh
@@ -9,15 +9,17 @@
 # NOTES:
 #   * Principally for macOS wheels. For linux, build using 'manylinux' from docker image
 #
-#   * starting in v0.3.0, numpy dependency is pinned to 1.22.*, which supports Python 3.8-3.10
+#   * Building with numpy==1.21.6, wheels appear compatible with numpy 1.21-1.23.5 at least
+#     The install requirement numpy>=1.21 then allows support of python 3.7-3.10
 #
 #   * macOS/x86_64: Run build on macOS 10.14 for binaries to be compatibile with macOS>=10.14.
 #     Wheels are delocated to fix a library incompatibility across macOS>=10.14.
 #
-#   * macOS/arm64 (M1,M2): Limited to python >= 3.8. 'delocation' section will be skipped.
+#   * macOS/arm64 (M1,M2): Limited to python >= 3.8.
+#     Wheels are delocated to include any linked libraries (OpenMP).
 #
 
-python_versions=("3.8" "3.9" "3.10")
+python_versions=("3.7" "3.8" "3.9" "3.10")
 CC=gcc
 
 # check for a valid compiler
@@ -48,6 +50,8 @@ for pyv in ${python_versions[@]}; do
     echo "**** Create environment ${pyv} *****"
     conda create --name sv${pyv} python=$pyv --yes
     conda activate sv${pyv}
+    # see note above about numpy version
+    pip install numpy==1.21.6
     pip install -r requirements.txt
     pip install setuptools
 
@@ -72,7 +76,7 @@ pip install setuptools
 python setup.py sdist
 
 # section for pre-M1 macs only
-if [ $(uname -s) = "Darwin" ] && [ $(uname -m) = "x86_64" ]; then
+if [ $(uname -s) = "Darwin" ]; then
     pip install delocate
     echo "******* Delocating wheels *******"
     cd dist
