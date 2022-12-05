@@ -15,7 +15,8 @@
 #   * macOS/x86_64: Run build on macOS 10.14 for binaries to be compatibile with macOS>=10.14.
 #     Wheels are delocated to fix a library incompatibility across macOS>=10.14.
 #
-#   * macOS/arm64 (M1,M2): CHECK THIS: Limited to python >= 3.8. 'delocation' section will be skipped.
+#   * macOS/arm64 (M1,M2): Limited to python >= 3.8.
+#     Wheels are delocated to include any linked libraries (OpenMP).
 #
 
 python_versions=("3.7" "3.8" "3.9" "3.10")
@@ -75,7 +76,7 @@ pip install setuptools
 python setup.py sdist
 
 # section for pre-M1 macs only
-if [ $(uname -s) = "Darwin" ] && [ $(uname -m) = "x86_64" ]; then
+if [ $(uname -s) = "Darwin" ]; then
     pip install delocate
     echo "******* Delocating wheels *******"
     cd dist
