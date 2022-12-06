@@ -75,7 +75,7 @@ pip install -r requirements.txt
 pip install setuptools
 python setup.py sdist
 
-# section for pre-M1 macs only
+# Delocate to add libgomp.dylib to wheel (macOS only)
 if [ $(uname -s) = "Darwin" ]; then
     pip install delocate
     echo "******* Delocating wheels *******"
