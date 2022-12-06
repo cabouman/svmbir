@@ -16,24 +16,38 @@ When system matrices are computed, they are stored to disk and will be automatic
 
 **Geometry**
 
-**svmbir** currently supports *parallel-beam* and *fan-beam* (equiangular, see below) imaging geometries.
+**svmbir** supports *parallel-beam* and *fan-beam* imaging geometries.
+See the diagrams below for the different fan specifications.
 
-.. figure:: geom-fan.jpg
-   :width: 50%
-   :alt: fan beam geometry
-   :align: center
+.. list-table::
 
-   Equiangular fan-beam geometry
+    * - .. figure:: figs/geom-parallel.png
+           :align: center
 
-.. figure:: geom-parallel.jpg
-   :width: 50%
-   :alt: parallel beam geometry
-   :align: center
+           Parallel-beam geometry
 
-   Parallel-beam geometry
+      - .. figure:: figs/geom-fan.png
+           :align: center
+
+           Fan-beam geometry
+
+    * - .. figure:: figs/geom-fan-curved.png
+           :width: 60%
+           :align: center
+
+           Equiangular (geometry='fan-curved')
+
+      - .. figure:: figs/geom-fan-flat.png
+           :width: 60%
+           :align: center
+
+           Equal spaced (geometry='fan-flat')
 
 
-*View Angle Ordering:* It is common practice to collect view data using techniques such as the "golden ratio" method in which the view angles are not collected in monotonically increasing order on the interval :math:`[0,2\pi)`. While ``svmbir`` will produce the correct reconstruction regardless of view ordering, its reconstruction speed will be substantially degraded when the views are not in monotone order. In this case, we highly recommend that users reorder the sinogram views using the provided ``sino_sort`` function. The ``sino_sort``  function first wraps the view angles modulo :math:`2\pi`, and then sorts the views to be in monotonically increasing order by view angle.
+**Note on view angle ordering**
+
+In certain imaging systems with slow acquisition, it is common practice to collect view data using techniques such as the "golden ratio" method in which the view angles are not collected in monotonically increasing order on the interval :math:`[0,2\pi)`. While ``svmbir`` will produce the correct reconstruction regardless of view ordering, its reconstruction speed will be substantially degraded when the views are not in monotone order. In this case, we highly recommend that users reorder the sinogram views using the provided ``sino_sort`` function. The ``sino_sort``  function first wraps the view angles modulo :math:`2\pi`, and then sorts the views to be in monotonically increasing order by view angle.
+
 
 **Conversion from Arbitrary Length Units (ALU)**
 

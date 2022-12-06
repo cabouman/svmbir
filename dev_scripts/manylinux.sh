@@ -30,10 +30,11 @@ function repair_wheel {
 
 # Compile wheels
 #for PYBIN in /opt/python/*/bin; do
-for PYBIN in /opt/python/{cp38,cp39,cp310,pp38,pp39}*/bin; do
+for PYBIN in /opt/python/{cp37,cp38,cp39,cp310,pp37,pp38,pp39}*/bin; do
     echo "***"
     echo "*** building for $PYBIN"
     #"${PYBIN}/pip" install -r /io/dev_scripts/dev-requirements.txt
+    "${PYBIN}/pip" install numpy==1.21.6    # build with 1.21.6 seems compatible w/ numpy 1.21-1.23
     CC=gcc "${PYBIN}/pip" wheel /io/ --no-deps -w wheelhouse/
     #CC=gcc "${PYBIN}/python" setup.py bdist_wheel
 done

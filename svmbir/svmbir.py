@@ -343,7 +343,7 @@ def recon(sino, angles,
         p (float, optional): [Default=1.2] Scalar value in range :math:`[1,2]` that specifies the qGGMRF shape parameter.
         q (float, optional): [Default=2.0] Scalar value in range :math:`[p,2]` that specifies the qGGMRF shape parameter.
         T (float, optional): [Default=1.0] Scalar value :math:`>0` that specifies the qGGMRF threshold parameter.
-        b_interslice (float, optional): [Default=1.0] Scalar value :math:`>0` that specifies the interslice regularization.
+        b_interslice (float, optional): [Default=1.0] Non-negative scalar value that specifies the interslice regularization.
             The default value of 1.0 should be fine for most applications.
             However, b_interslice can be increased to values :math:`>1` in order to increase 
             regularization along the slice axis.
@@ -470,8 +470,8 @@ def recon(sino, angles,
                                        init_image=init_image, prox_image=prox_image, init_proj=init_proj,
                                        num_rows=num_rows, num_cols=num_cols, roi_radius=roi_radius,
                                        delta_channel=delta_channel, delta_pixel=delta_pixel, center_offset=center_offset,
-                                       sigma_y=sigma_y, snr_db=snr_db, sigma_x=sigma_x, p=p, q=q, T=T, b_interslice=b_interslice,
-                                       sharpness=sharpness, positivity=positivity, relax_factor=relax_factor, max_resolutions=max_resolutions,
+                                       sigma_y=sigma_y, sigma_x=sigma_x, p=p, q=q, T=T, b_interslice=b_interslice,
+                                       positivity=positivity, relax_factor=relax_factor, max_resolutions=max_resolutions,
                                        stop_threshold=stop_threshold, max_iterations=max_iterations, num_threads=num_threads,
                                        delete_temps=delete_temps, svmbir_lib_path=svmbir_lib_path, object_name=object_name,
                                        verbose=verbose)
