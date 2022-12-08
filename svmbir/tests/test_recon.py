@@ -31,7 +31,7 @@ class Test_recon():
         angles = np.linspace(-np.pi/2.0, np.pi/2.0, num_views, endpoint=False)
 
         try:
-            sino = svmbir.project(phantom,angles,max(num_rows,num_cols))
+            sino = svmbir.project(phantom, angles, max(num_rows,num_cols), verbose=0)
         except Exception as e:
             print(e)
             assert 0
@@ -80,7 +80,7 @@ class Test_recon():
         angles = np.linspace(-tilt_angle, tilt_angle, num_views)
 
         # Generate sinogram by projecting phantom
-        sino = svmbir.project(phantom, angles, max(num_rows, num_cols))
+        sino = svmbir.project(phantom, angles, max(num_rows, num_cols), verbose=0)
 
         # Determine resulting number of views, slices, and channels
         (num_views, num_slices, num_channels) = sino.shape
