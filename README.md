@@ -8,29 +8,36 @@ Full documentation is available at: https://svmbir.readthedocs.io
 
 ## Installing svmbir
 
-The svmbir package is available from conda-forge and PyPI.
+Currently supporting Python 3.7-3.10, on MacOS and Linux (Windows possible but not actively maintained).
 
-- Create an empty virtural environment
+**svmbir** packages are available from conda-forge and PyPI, or can be built and installed from source.
+
+- (recommended) Create a clean virtural environment, such as
+
 ```
 conda create -n svmbir python=3.8
 conda activate svmbir
 ```
 
-- Install using conda
+- To install from conda-forge,
 
 ```
-conda config --add channels conda-forge
-conda config --set channel_priority strict
-conda install svmbir
+conda install -c conda-forge svmbir
 ```
 
-- Install using pip (PyPI)
+- To install from PyPI,
 
 ```
 pip install svmbir
 ```
 
-Note that pip installation requires a GNU gcc compiler.
+- Installing from source (requires GNU/gcc compiler, OMP libraries),
+
+```
+# In top repository folder,
+CC=gcc pip install .        # also supports Intel "icc"
+```
+
 See [here](https://svmbir.readthedocs.io/en/latest/install.html#)
 for more details.
 
