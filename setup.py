@@ -32,6 +32,7 @@ if os.environ.get('CLIB') != 'CMD_LINE':
 
     # Check for compiler env variable. If not set, assume it's a gcc build (linux & macOS only).
     if os.environ.get('CC') not in ['icc','clang','msvc']:
+        os.environ['CC']='gcc'
         extra_compile_args=["-std=c11","-O3","-fopenmp","-Wno-unknown-pragmas"]
         extra_link_args=["-lm","-fopenmp"]
 
