@@ -9,7 +9,7 @@
 # Set these accordingly:
 
 python_versions=("3.7" "3.8" "3.9" "3.10")
-svmbir_version=0.3.2
+svmbir_version=0.3.3
 
 echo "*********************************************************"
 echo "**** Test install "
