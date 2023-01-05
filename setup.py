@@ -31,8 +31,10 @@ install_requires=['numpy>=1.21.4','psutil>=5.8','Pillow>=9.1,<=9.3']
 if os.environ.get('CLIB') != 'CMD_LINE':
 
     # Check for compiler env variable. If not set, assume it's a gcc build (linux & macOS only).
-    if os.environ.get('CC') not in ['icc','clang','msvc']:
+    if os.environ.get('CC') is None:
         os.environ['CC']='gcc'
+
+    if os.environ.get('CC') not in ['icc','clang','msvc']:
         extra_compile_args=["-std=c11","-O3","-fopenmp","-Wno-unknown-pragmas"]
         extra_link_args=["-lm","-fopenmp"]
 
