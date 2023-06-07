@@ -103,18 +103,24 @@ def calc_weights(sino, weight_type ):
     return weights
 
 
-def auto_max_resolutions(init_image) :
+def auto_max_resolutions(init_image, prox_image) :
     """Compute the automatic value of ``max_resolutions`` for use in MBIR reconstruction.
 
     Args:
         init_image (ndarray): Initial image for reconstruction.
+        prox_image (ndarray): Proximal map input image
     Returns:
         int: Automatic value of ``max_resolutions``.
     """
     # Default value of max_resolutions
     max_resolutions = 2
-    if isinstance(init_image, np.ndarray) and (init_image.ndim == 3):
-        #print('Init image present. Setting max_resolutions = 0.')
+
+    # if init_image given, turn off multi-resolution by default
+    if init_image is not None:
+        max_resolutions = 0
+
+    # if prox_image given, turn off multi-resolution by default
+    if prox_image is not None:
         max_resolutions = 0
 
     return max_resolutions
@@ -313,7 +319,7 @@ def recon(sino, angles,
             Option "emission" is appropriate for emission CT data.
         init_image (float, optional): [Default=0.0] Initial value of reconstruction image, specified 
             by either a scalar value or a 3D numpy array with shape (num_slices,num_rows,num_cols).
-        prox_image (ndarray, optional): [Default=None] 3D proximal map input image.
+        prox_image (ndarray, optional): [Default=None] 3D proximal map input image with shape (num_slices,num_rows,num_cols).
             If prox_image is supplied, then the proximal map prior model is used, and the qGGMRF parameters are ignored.
         init_proj (None, optional): [Default=None] Initial value of forward projection of the init_image.
             This can be used to reduce computation for the first iteration when using the proximal map option.
@@ -427,7 +433,7 @@ def recon(sino, angles,
 
     # Set automatic value of max_resolutions
     if max_resolutions is None :
-        max_resolutions = auto_max_resolutions(init_image)
+        max_resolutions = auto_max_resolutions(init_image, prox_image)
 
     # Set automatic values of num_rows, num_cols, and roi_radius
     if delta_pixel is None:
