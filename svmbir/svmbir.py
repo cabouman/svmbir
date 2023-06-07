@@ -445,6 +445,11 @@ def recon(sino, angles,
     if roi_radius is None:
         roi_radius = auto_roi_radius(delta_pixel, num_rows, num_cols)
 
+    # Check for valid shape
+    if prox_image is not None:
+        if prox_image.shape != (num_slices,num_rows,num_cols):
+            raise Exception("Parameter prox_image should have shape (num_slices,num_rows,num_cols).")
+
     # Set automatic values for weights
     if weights is None:
         weights = calc_weights(sino, weight_type)
