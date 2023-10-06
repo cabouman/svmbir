@@ -50,6 +50,8 @@ extensions = [
     'sphinx.ext.viewcode'
 ]
 
+bibtex_bibfiles = ["bibtex/ref.bib"]
+
 exclude_patterns = ['_build', '**.ipynb_checkpoints']
 
 # Add any paths that contain templates here, relative to this directory.
