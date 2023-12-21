@@ -1,10 +1,10 @@
+sphinx
+sphinx-rtd-theme
+sphinxcontrib-bibtex
 numpy
 psutil>=5.8
 Pillow
 Cython
 ruamel.yaml
 pytest
-sphinx>=2.2
-sphinxcontrib-bibtex==1.0
-sphinx-rtd-theme~=0.5.1
 ipython>=6.3.1
