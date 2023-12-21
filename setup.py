@@ -24,7 +24,7 @@ packages = [packages_dir]
 src_dir = packages_dir + "/sv-mbirct/src/"
 
 # Dependencies for running svmbir. Dependencies for build/installation are in pyproject.toml
-install_requires=['numpy>=1.21.4','psutil>=5.8','Pillow>=9.1,<=9.3']
+install_requires=['numpy>=1.21.4','psutil>=5.8','Pillow']
 
 
 # Set up install for Cython or Command line interface
