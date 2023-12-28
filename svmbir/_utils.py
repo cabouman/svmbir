@@ -145,8 +145,7 @@ def test_args_inits(init_image, prox_image, init_proj, weights, weight_type):
         init_image = 0.0
 
     if not ((prox_image is None) or (isinstance(prox_image, np.ndarray) and (prox_image.ndim == 3))):
-        warnings.warn("Parameter prox_image is not a valid 3D ndarray. Setting prox_image = None.")
-        prox_image = None
+        raise Exception("Parameter prox_image is not a valid 3D ndarray.")
 
     if not ((init_proj is None) or (isinstance(init_proj, np.ndarray) and (init_proj.ndim == 3))):
         warnings.warn("Parameter init_proj is not a valid 3D ndarray; Setting init_proj = None.")
