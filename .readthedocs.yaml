@@ -11,3 +11,10 @@ build:
 submodules:
   include: all
   recursive: true
+python:
+  install:
+    - requirements: requirements.txt
+    - requirements: docs/requirements.txt
+    - method: setuptools
+      path: .
+
