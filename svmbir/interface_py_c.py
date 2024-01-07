@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2020-2022 by SVMBIR Developers
+# Copyright (C) 2020-2024 by SVMBIR Developers
 # All rights reserved. BSD 3-clause License.
 
 # These imports are needed only for read/write and command line interfaces

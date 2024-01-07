@@ -22,6 +22,7 @@ for pyv in ${python_versions[@]}; do
     echo "*********** Create environment ${pyv} *************"
     conda create --name sv${pyv} python=$pyv --yes
     conda activate sv${pyv}
+    #conda install gcc --yes
 
     echo "*********** Installing svmbir ${svmbir_version} *************"
     pip install --no-cache-dir --prefer-binary -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple svmbir==$svmbir_version

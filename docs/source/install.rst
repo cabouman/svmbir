@@ -12,7 +12,7 @@ Installing from conda-forge
 
 1. Create and activate a clean virtual environment (optional, but recommended)::
 
-    conda create --name svmbir python=3.8
+    conda create --name svmbir python=3.10
     conda activate svmbir
 
 2. Install from the conda-forge channel::
