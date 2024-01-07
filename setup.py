@@ -24,7 +24,8 @@ packages = [packages_dir]
 src_dir = packages_dir + "/sv-mbirct/src/"
 
 # Dependencies for running svmbir. Dependencies for build/installation are in pyproject.toml
-install_requires=['numpy>=1.26.0','psutil>=5.8','Pillow']
+# 1/7/23: Pillow 10.2.0 (latest on this date) is missing a library libXau, that chokes on import PIL.Image
+install_requires=['numpy>=1.26.0','psutil>=5.8','Pillow<=10.1.0']
 
 
 # Set up install for Cython or Command line interface
