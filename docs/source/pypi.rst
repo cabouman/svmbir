@@ -13,7 +13,7 @@ Set up environment and build distribution files
 
 Run::
 
-    $ conda create --name svmbir_pypi python=3.8
+    $ conda create --name svmbir_pypi python=3.10
     $ conda activate svmbir_pypi
     $ pip install -r requirements.txt
     $ CC=gcc python setup.py sdist bdist_wheel

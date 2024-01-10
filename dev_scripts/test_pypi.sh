@@ -8,8 +8,8 @@
 #
 # Set these accordingly:
 
-python_versions=("3.7" "3.8" "3.9" "3.10")
-svmbir_version=0.3.4
+python_versions=("3.9" "3.10" "3.11" "3.12")
+svmbir_version=0.4.0
 
 echo "*********************************************************"
 echo "**** Test install "
@@ -22,6 +22,7 @@ for pyv in ${python_versions[@]}; do
     echo "*********** Create environment ${pyv} *************"
     conda create --name sv${pyv} python=$pyv --yes
     conda activate sv${pyv}
+    #conda install gcc --yes
 
     echo "*********** Installing svmbir ${svmbir_version} *************"
     pip install --no-cache-dir --prefer-binary -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple svmbir==$svmbir_version

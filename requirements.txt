@@ -1,6 +1,6 @@
-numpy>=1.21.4
+numpy>=1.26.0
 psutil>=5.8
-Pillow
+Pillow<=10.1.0
 Cython
 ruamel.yaml
 pytest

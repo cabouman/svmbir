@@ -5,7 +5,7 @@
 cd ..
 conda deactivate
 conda remove env --name svmbir --all
-conda create --name svmbir python=3.8
+conda create --name svmbir python=3.10
 conda activate svmbir
 cd dev_scripts
 
