@@ -34,6 +34,35 @@ Updating the release workflow over time:
 - **OS runners**: the release workflow uses the same `[macos-13, macos-14]` matrix as `ci.yml`. Apply the same runner retirement process described above.
 - **cibuildwheel version**: `pypa/cibuildwheel@v2.22.0` in `release.yml` is pinned for reproducibility. When a new Python version requires a newer cibuildwheel release, bump the pin.
 
+Testing the workflows before merging to master:
+The workflow files only take effect once they exist in the repository — but you can test them from a feature branch before merging. Follow these steps in order.
+
+Step 1 — Test the CI workflow via a pull request:
+GitHub Actions fires the `pull_request` trigger using the workflow file from the PR branch, not master. This is the normal way to validate CI changes before they land.
+
+1. Push your branch to GitHub if you haven't already:
+   `git push -u origin <branch-name>`
+2. Open a pull request from your branch to `master` on the GitHub website (or with `gh pr create --base master`).
+3. GitHub automatically starts the CI workflow. Go to the PR page and click the "Checks" tab, or go to the repo's "Actions" tab, to watch the 9 jobs (3 Python versions × 3 OS runners) run.
+4. If any job fails, click into it to read the log, fix the issue, push another commit to the branch, and the workflow re-runs automatically.
+
+Step 2 — Test the release workflow via a test tag:
+The release workflow triggers on a version tag, which is repo-wide. GitHub uses the `release.yml` from the commit the tag points to — so tagging a commit on your branch exercises the release workflow as it exists there, before any merge.
+
+1. Make sure your branch is pushed and your working tree is clean (`git status`).
+2. Push a test tag pointing to your current commit:
+   `git tag v0.4.0-test && git push --tags`
+3. Go to the repo's "Actions" tab on GitHub and watch the release workflow run. It builds wheels on all three OS runners, then creates a GitHub Release.
+4. Go to the repo's "Releases" page to confirm the release was created and the wheel files (`.whl`) and source distribution (`.tar.gz`) are attached. You can test-install a wheel directly:
+   `pip install <URL copied from the release page>`
+5. Clean up when done — delete the test tag and release:
+   - Delete the release: go to the Releases page, click the test release, click "Delete" (trash icon).
+   - Delete the remote tag: `git push --delete origin v0.4.0-test`
+   - Delete the local tag: `git tag -d v0.4.0-test`
+
+Step 3 — Merge the PR:
+Once both workflows pass, merge the pull request into master. From this point on, every push to master runs CI automatically and every version tag triggers a real release build.
+
 Adding PyPI distribution later:
 When ready to publish to PyPI, add a final job to `release.yml` after `create-release`:
 1. Set up PyPI Trusted Publishing in your PyPI project settings (links the GitHub repo without needing a stored API token).
