@@ -28,3 +28,13 @@ Homepage = "https://github.com/cabouman/svmbir"
 [tool.setuptools.packages.find]
 where     = ["."]
 include   = ["svmbir*"]
+
+[tool.cibuildwheel]
+# Build CPython 3.10–3.12 only; skip musl Linux (Alpine) and PyPy.
+build = "cp310-* cp311-* cp312-*"
+skip  = "*-musllinux_*"
+
+[tool.cibuildwheel.macos]
+# Install libomp before each build so setup.py's brew fallback finds it.
+# delocate (run automatically by cibuildwheel) then bundles it into the wheel.
+before-build = "brew install libomp"

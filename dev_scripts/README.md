@@ -19,6 +19,26 @@ Updating OS runners (do this when GitHub retires a runner):
 - The current matrix is `[ubuntu-latest, macos-13, macos-14]`. `macos-13` is Intel (x86_64); `macos-14` is Apple Silicon (arm64). GitHub publishes deprecation notices before retiring runners — when `macos-13` is retired, remove it from the list.
 - `ubuntu-latest` and `macos-latest` track GitHub's current default. Pinning to a numbered runner (e.g., `macos-14`) is more explicit and avoids surprise breakage when GitHub moves the `latest` pointer.
 
+5. The release workflow (.github/workflows/release.yml)
+This builds binary wheels for all supported platforms and Python versions, then attaches them as downloadable files to a GitHub Release. It is triggered automatically by pushing a version tag.
+
+How to cut a release:
+1. Update the version in `pyproject.toml` (the single source of truth — `__init__.py` reads it at runtime via `importlib.metadata`).
+2. Commit and push: `git commit -m "Release v0.X.Y" && git push`
+3. Tag and push the tag: `git tag v0.X.Y && git push --tags`
+4. GitHub Actions picks up the tag, builds wheels on Ubuntu x86_64, macOS Intel (macos-13), and macOS arm64 (macos-14) for Python 3.10–3.12, and creates a GitHub Release with all wheels and the source distribution attached.
+5. Verify the release on the repo's Releases page. Users can install directly with `pip install` using the wheel URL, or download manually.
+
+Updating the release workflow over time:
+- **Python versions**: keep the `build` setting in `[tool.cibuildwheel]` in `pyproject.toml` in sync with the CI matrix in `ci.yml` and `requires-python`. All three should agree.
+- **OS runners**: the release workflow uses the same `[macos-13, macos-14]` matrix as `ci.yml`. Apply the same runner retirement process described above.
+- **cibuildwheel version**: `pypa/cibuildwheel@v2.22.0` in `release.yml` is pinned for reproducibility. When a new Python version requires a newer cibuildwheel release, bump the pin.
+
+Adding PyPI distribution later:
+When ready to publish to PyPI, add a final job to `release.yml` after `create-release`:
+1. Set up PyPI Trusted Publishing in your PyPI project settings (links the GitHub repo without needing a stored API token).
+2. Add a `publish-to-pypi` job that downloads the `dist/` artifacts and runs `pypa/gh-action-pypi-publish`.
+
 Keeping current over time — the practical options:
 
 1. Dependabot (built into GitHub): opens automated PRs when dependencies release new versions. Very low friction — it just creates a PR, and your CI tells you if it breaks anything. This is the right tool for routine package bumps.
