@@ -431,7 +431,7 @@ def multires_recon(sino, angles, weights, weight_type, init_image, prox_image, i
     #cdef cnp.ndarray[float, ndim=3, mode="c"] py_image
     cdef cnp.ndarray[char, ndim=1, mode="c"] Amatrix_fname
 
-    if 'py_image' not in locals():
+    if not go_to_lower_resolution:
         if np.isscalar(init_image):
             py_image = np.zeros((num_slices, nrows, ncols), dtype=ctypes.c_float) + init_image
         else:
