@@ -23,14 +23,24 @@ Updating OS runners:
 Linux wheels and the source distribution are built automatically by GitHub Actions. macOS arm64 wheels are built locally using `dev_scripts/build_mac_wheels.sh` and uploaded to the same draft release. Intel Mac (x86_64) is no longer supported.
 
 How to cut a release:
-1. Update the version in `pyproject.toml` to the new version (e.g. `0.4.X`). This is the single source of truth — `__init__.py` reads it at runtime via `importlib.metadata`.
+All steps up to and including tagging are done on the `prerelease` branch. The release stays as a non-public draft until you explicitly publish it, so you can verify everything before it goes live.
+
+The normal path is a single command:
+   `cd dev_scripts && ./cut_release.sh`
+
+The script runs all preflight checks, prompts for the new version (showing the current pyproject.toml version and the latest published release for reference), asks for confirmation, then automates steps 1–5 below. If the script fails partway through, the manual steps below can be used to complete the release.
+
+Prerequisites (one-time setup): `pip install cibuildwheel` and `gh auth login`.
+
+Manual steps (for reference or recovery):
+1. On the `prerelease` branch, update the version in `pyproject.toml` to the new version (e.g. `0.4.X`). This is the single source of truth — `__init__.py` reads it at runtime via `importlib.metadata`.
 2. Commit and push the version bump: `git commit -m "Release v0.4.X" && git push`
-3. Tag and push the tag: `git tag v0.4.X && git push --tags`
-4. GitHub Actions immediately creates a draft release, then builds Linux wheels and the source distribution and uploads them to the draft. This takes a few minutes.
-5. While that runs (or after), build and upload the macOS arm64 wheels from your Mac:
-   `cd dev_scripts && ./build_mac_wheels.sh v0.4.X`
-   Prerequisites (one-time setup): `pip install cibuildwheel` and `gh auth login`.
-6. Go to the repo's Releases page on GitHub, confirm both Linux and macOS wheels are attached, then click "Publish release". Users can then `pip install svmbir` or download wheels directly.
+3. Tag the commit and push the tag: `git tag v0.4.X && git push --tags`
+   GitHub Actions immediately creates a draft release, then builds Linux wheels and the source distribution and uploads them.
+4. Build and upload the macOS arm64 wheels: `cd dev_scripts && ./build_mac_wheels.sh v0.4.X`
+5. Go to the repo's Releases page on GitHub and confirm both Linux and macOS wheels are attached.
+6. Merge `prerelease` → `master` via a pull request: `gh pr create --base master --title "Release v0.4.X"`
+7. After the PR merges, publish the draft release on GitHub.
 
 Updating the release workflow over time:
 - **Python versions**: keep the `build` setting in `[tool.cibuildwheel]` in `pyproject.toml` in sync with the CI matrix in `ci.yml` and `requires-python`. All three should agree.
