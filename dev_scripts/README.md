@@ -15,24 +15,26 @@ Updating Python versions (do this ~once a year):
 - **Add a new version**: Each October, Python ships a new release. Add it to the `python-version` list in `ci.yml` and also update `requires-python` in `pyproject.toml` if you are dropping the oldest supported version.
 - **Drop an EOL version**: Python versions reach end-of-life roughly 3 years after release (schedule at python.org/downloads). Remove the version from the `python-version` list and raise `requires-python` in `pyproject.toml` to match.
 
-Updating OS runners (do this when GitHub retires a runner):
-- The current matrix is `[ubuntu-latest, macos-13, macos-14]`. `macos-13` is Intel (x86_64); `macos-14` is Apple Silicon (arm64). GitHub publishes deprecation notices before retiring runners — when `macos-13` is retired, remove it from the list.
-- `ubuntu-latest` and `macos-latest` track GitHub's current default. Pinning to a numbered runner (e.g., `macos-14`) is more explicit and avoids surprise breakage when GitHub moves the `latest` pointer.
+Updating OS runners:
+- CI runs Linux only (`ubuntu-latest`). macOS is no longer in the CI matrix — macOS compatibility is verified when building and test-installing the release wheels locally (see section 5 below).
+- If a future Linux runner name change is needed, `ubuntu-latest` tracks GitHub's current default and rarely requires manual updates.
 
-5. The release workflow (.github/workflows/release.yml)
-This builds binary wheels for all supported platforms and Python versions, then attaches them as downloadable files to a GitHub Release. It is triggered automatically by pushing a version tag.
+5. The release workflow (.github/workflows/release.yml) and local macOS build
+Linux wheels and the source distribution are built automatically by GitHub Actions. macOS arm64 wheels are built locally using `dev_scripts/build_mac_wheels.sh` and uploaded to the same draft release. Intel Mac (x86_64) is no longer supported.
 
 How to cut a release:
-1. Update the version in `pyproject.toml` (the single source of truth — `__init__.py` reads it at runtime via `importlib.metadata`).
-2. Commit and push: `git commit -m "Release v0.X.Y" && git push`
-3. Tag and push the tag: `git tag v0.X.Y && git push --tags`
-4. GitHub Actions picks up the tag, builds wheels on Ubuntu x86_64, macOS Intel (macos-13), and macOS arm64 (macos-14) for Python 3.10–3.12, and creates a GitHub Release with all wheels and the source distribution attached.
-5. Verify the release on the repo's Releases page. Users can install directly with `pip install` using the wheel URL, or download manually.
+1. Update the version in `pyproject.toml` to the new version (e.g. `0.4.X`). This is the single source of truth — `__init__.py` reads it at runtime via `importlib.metadata`.
+2. Commit and push the version bump: `git commit -m "Release v0.4.X" && git push`
+3. Tag and push the tag: `git tag v0.4.X && git push --tags`
+4. GitHub Actions immediately creates a draft release, then builds Linux wheels and the source distribution and uploads them to the draft. This takes a few minutes.
+5. While that runs (or after), build and upload the macOS arm64 wheels from your Mac:
+   `cd dev_scripts && ./build_mac_wheels.sh v0.4.X`
+   Prerequisites (one-time setup): `pip install cibuildwheel` and `gh auth login`.
+6. Go to the repo's Releases page on GitHub, confirm both Linux and macOS wheels are attached, then click "Publish release". Users can then `pip install svmbir` or download wheels directly.
 
 Updating the release workflow over time:
 - **Python versions**: keep the `build` setting in `[tool.cibuildwheel]` in `pyproject.toml` in sync with the CI matrix in `ci.yml` and `requires-python`. All three should agree.
-- **OS runners**: the release workflow uses the same `[macos-13, macos-14]` matrix as `ci.yml`. Apply the same runner retirement process described above.
-- **cibuildwheel version**: `pypa/cibuildwheel@v2.22.0` in `release.yml` is pinned for reproducibility. When a new Python version requires a newer cibuildwheel release, bump the pin.
+- **cibuildwheel version**: `pypa/cibuildwheel@v2.22.0` in `release.yml` is pinned for reproducibility. When a new Python version requires a newer cibuildwheel release, bump the pin. The same version of cibuildwheel should be used locally — install it with `pip install cibuildwheel==2.22.0`.
 
 Testing the workflows — prerelease → master flow:
 The standard workflow for this repo is: feature branch → PR to `prerelease` (for integration testing) → PR from `prerelease` to `master` (for release). The CI workflow is configured to fire on PRs targeting either `prerelease` or `master`, so it runs at both gates automatically.
@@ -48,19 +50,23 @@ GitHub Actions fires the `pull_request` trigger using the workflow file from the
 4. If any job fails, click into it to read the log, fix the issue, push another commit to the branch, and the workflow re-runs automatically.
 5. Once CI passes, merge the PR into `prerelease`.
 
-Step 2 — Test the release workflow via a test tag:
-The release workflow triggers on a version tag, which is repo-wide. GitHub uses the `release.yml` from the commit the tag points to — so tagging a commit on `prerelease` (or any branch) exercises the workflow as it exists there, before the final merge to `master`.
+Step 2 — Bump the version, then test the release workflow via a test tag:
+The release workflow triggers on a version tag, which is repo-wide. GitHub uses the `release.yml` from the commit the tag points to — so tagging a commit on `prerelease` exercises the workflow as it exists there, before the final merge to `master`. This is also the right point to update the version number, since the tag and the version in the package should always match.
 
-1. Make sure your branch is pushed and your working tree is clean (`git status`).
-2. Push a test tag pointing to your current commit:
-   `git tag v0.4.0-test && git push --tags`
-3. Go to the repo's "Actions" tab on GitHub and watch the release workflow run. It builds wheels on all three OS runners, then creates a GitHub Release.
-4. Go to the repo's "Releases" page to confirm the release was created and the wheel files (`.whl`) and source distribution (`.tar.gz`) are attached. You can test-install a wheel directly:
+1. Update the version in `pyproject.toml` to the intended release version (e.g. `0.4.X`). This is the single source of truth — `__init__.py` reads it at runtime via `importlib.metadata`.
+2. Commit and push the version bump:
+   `git commit -m "Release v0.4.X" && git push`
+3. Push a test tag pointing to that commit:
+   `git tag v0.4.X-test && git push --tags`
+4. Go to the repo's "Actions" tab on GitHub and watch the release workflow run. It creates a draft release, then builds Linux wheels and the source distribution and uploads them.
+5. While that runs (or after), test the local macOS build:
+   `cd dev_scripts && ./build_mac_wheels.sh v0.4.X-test`
+6. Go to the repo's "Releases" page to confirm the draft release was created and all wheel files (`.whl`) and the source distribution (`.tar.gz`) are attached. You can test-install a wheel directly:
    `pip install <URL copied from the release page>`
-5. Clean up when done — delete the test tag and release:
+7. Clean up when done — delete the test tag and release (do NOT publish the draft):
    - Delete the release: go to the Releases page, click the test release, click "Delete" (trash icon).
-   - Delete the remote tag: `git push --delete origin v0.4.0-test`
-   - Delete the local tag: `git tag -d v0.4.0-test`
+   - Delete the remote tag: `git push --delete origin v0.4.X-test`
+   - Delete the local tag: `git tag -d v0.4.X-test`
 
 Step 3 — PR from prerelease to master:
 Once everything looks good on `prerelease`, open a PR from `prerelease` to `master`. CI runs again on this PR. When it passes, merge — from this point on, every push to `master` or `prerelease` runs CI automatically, and every version tag triggers a real release build.

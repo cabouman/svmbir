@@ -35,6 +35,8 @@ build = "cp310-* cp311-* cp312-*"
 skip  = "*-musllinux_*"
 
 [tool.cibuildwheel.macos]
+# arm64 only — Intel Mac support has been dropped.
 # Install libomp before each build so setup.py's brew fallback finds it.
 # delocate (run automatically by cibuildwheel) then bundles it into the wheel.
+archs = ["arm64"]
 before-build = "brew install libomp"
