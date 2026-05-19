@@ -33,7 +33,7 @@ Prerequisites:
 
 - **`cibuildwheel` and `gh`** (the GitHub CLI) are installed automatically by `install_conda_environment.sh`. `gh` is GitHub's official command-line tool — it talks to the GitHub API to create releases and upload wheel files on your behalf, separate from your normal `git` push access. Both scripts detect whether `gh` is authenticated and run `gh auth login` for you if needed (opens a browser to log in to your GitHub account).
 
-- **Official Python.org framework builds** — cibuildwheel builds portable wheels using the official Python installers from python.org, which must be installed system-wide in `/Library/Frameworks/Python.framework/Versions/`. These are entirely separate from conda. Run this one-time setup script (requires sudo):
+- **Official Python.org framework builds** — cibuildwheel builds portable wheels using the official Python installers from python.org, which must be installed system-wide in `/Library/Frameworks/Python.framework/Versions/`. These are entirely separate from conda. Run this one-time setup script (which may ask for sudo password):
 
   ```
   ./install_python_frameworks.sh  
