@@ -29,6 +29,22 @@ Linux wheels and the source distribution are built automatically by GitHub Actio
 New releases:
 -------------
 
+Prerequisites:
+
+- **`cibuildwheel` and `gh`** (the GitHub CLI) are installed automatically by `install_conda_environment.sh`. `gh` is GitHub's official command-line tool — it talks to the GitHub API to create releases and upload wheel files on your behalf, separate from your normal `git` push access. Both scripts detect whether `gh` is authenticated and run `gh auth login` for you if needed (opens a browser to log in to your GitHub account).
+
+- **Official Python.org framework builds** — cibuildwheel builds portable wheels using the official Python installers from python.org, which must be installed system-wide in `/Library/Frameworks/Python.framework/Versions/`. These are entirely separate from conda. Run this one-time setup script (requires sudo):
+
+  ```
+  ./install_python_frameworks.sh  
+  # Update this script and re-run each time a new python 
+  # version is added to ci.yml.
+  ```
+
+  The script finds and installs the latest patch release of each supported Python version automatically, skipping any that are already present. Keep this list in sync with the CI matrix in `ci.yml` — the script's `MINOR_VERSIONS` array at the top is the place to update.
+
+Test and release:
+
 Each release is staged on the `prerelease` branch and stays as a non-public draft until you explicitly publish it, so you can verify everything before it goes live. The process has two steps: test first, then release.
 
 Both scripts are run from the `prerelease` branch. The typical sequence after your feature branch PR has been merged into `prerelease`:
@@ -59,8 +75,6 @@ Once the test in Step A passes, `./cut_release.sh` does the real release. It:
 - Triggers GitHub Actions to create a draft release and build Linux wheels
 - Builds the macOS arm64 wheels locally and uploads them
 - Prints the remaining manual steps: verify the draft release, open the prerelease→master PR, and publish
-
-Prerequisites: `cibuildwheel` and `gh` (the GitHub CLI) are installed automatically by `install_conda_environment.sh`. `gh` is GitHub's official command-line tool — it talks to the GitHub API to create releases and upload wheel files on your behalf, separate from your normal `git` push access. Both scripts detect whether `gh` is authenticated and run `gh auth login` for you if needed (opens a browser to log in to your GitHub account).
 
 Manual steps (for reference or recovery if a script fails partway through):
 1. On the `prerelease` branch, update the version in `pyproject.toml` to the new version (e.g. `0.4.X`). This is the single source of truth — `__init__.py` reads it at runtime via `importlib.metadata`.

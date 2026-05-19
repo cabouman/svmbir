@@ -35,3 +35,15 @@ pip install cibuildwheel==2.22.0
 
 cd dev_scripts
 
+# Remind the developer about the one-time system-level Python framework install
+# required for building macOS wheels with cibuildwheel.
+if [[ "$(uname)" == "Darwin" ]]; then
+    echo ""
+    echo "NOTE: To build macOS release wheels, cibuildwheel requires the official"
+    echo "Python.org framework builds (separate from conda). If not already done,"
+    echo "run the following once (requires sudo):"
+    echo ""
+    echo "    cd dev_scripts && ./install_python_frameworks.sh"
+    echo ""
+fi
+
