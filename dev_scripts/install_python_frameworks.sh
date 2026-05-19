@@ -37,7 +37,7 @@ for MINOR in "${MINOR_VERSIONS[@]}"; do
     # Get all patch versions for this minor from the FTP index, newest first.
     ALL_PATCHES=$(curl -s "https://www.python.org/ftp/python/" \
                   | grep -oE "${MINOR//\./\\.}\.[0-9]+" \
-                  | sort -V | tac)
+                  | sort -V | tail -r)
 
     PKG_NAME=""
     PATCH=""
