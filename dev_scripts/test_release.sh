@@ -133,7 +133,7 @@ echo "  git tag -d '"$TEST_TAG"'"
 
 echo "--- 1/3  Creating and pushing test tag $TEST_TAG ---"
 git tag "$TEST_TAG"
-git push --tags
+git push origin "$TEST_TAG"
 echo ""
 echo "     GitHub Actions is now creating the draft release and building"
 echo "     Linux wheels. Watch progress at:"

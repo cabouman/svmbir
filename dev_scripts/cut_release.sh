@@ -201,7 +201,7 @@ git push
 echo ""
 echo "--- 4/5  Tagging and pushing $TAG ---"
 git tag "$TAG"
-git push --tags
+git push origin "$TAG"
 echo "     GitHub Actions is creating the draft release and building Linux wheels."
 
 # ---------------------------------------------------------------------------
