@@ -85,4 +85,4 @@ done
 echo "Done. Installed versions:"
 ls /Library/Frameworks/Python.framework/Versions/ 2>/dev/null | grep -E '^3\.' | sort -V || true
 echo ""
-echo "You can now run ./test_release.sh or ./build_mac_wheels.sh."
+echo "You can now run ./test_release.sh or ./cut_release.sh."
