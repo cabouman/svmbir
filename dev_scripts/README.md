@@ -26,6 +26,16 @@ Updating OS runners:
 5. The release workflow (.github/workflows/release.yml) and local macOS build
 Linux wheels and the source distribution are built automatically by GitHub Actions. macOS arm64 wheels are built locally using `dev_scripts/build_mac_wheels.sh` and uploaded to the same draft release. Intel Mac (x86_64) is no longer supported.
 
+6. PyPI publishing (.github/workflows/publish.yml)
+When the draft GitHub release is published (the manual "Publish release" click), `publish.yml` fires automatically: it downloads all the attached wheels and the sdist from the release and uploads them to PyPI using Trusted Publishing (OIDC — no stored API token).
+
+One-time setup (per machine/project, not per release):
+- Go to pypi.org → svmbir project → Publishing → Add a new publisher
+- Set: Owner = `cabouman`, Repo = `svmbir`, Workflow = `publish.yml`
+- No environment constraint needed
+
+Once configured, publishing to PyPI requires no extra steps — it happens automatically when you publish the draft release.
+
 New releases:
 -------------
 
@@ -74,26 +84,31 @@ Once the test in Step A passes, `./cut_release.sh` does the real release. It:
 - Updates `pyproject.toml`, commits, pushes, and creates the version tag
 - Triggers GitHub Actions to create a draft release and build Linux wheels
 - Builds the macOS arm64 wheels locally and uploads them
-- Prints the remaining manual steps: verify the draft release, open the prerelease→master PR, and publish
+- Prints the remaining manual steps (see below)
+
+After `cut_release.sh` completes, the remaining steps are:
+1. Confirm all wheels are attached to the draft release (1 macOS arm64 + 2 Linux wheels per Python version, plus 1 sdist).
+2. Optional but recommended — test-install from the actual release artifacts: `./test_pypi.sh v0.4.X`
+3. Open a PR from `prerelease` to `master`: `gh pr create --base master --title "Release v0.4.X"`
+4. After CI passes and the PR merges, publish the draft release on GitHub (go to the release page, scroll to bottom, click "Publish release"). This automatically triggers `publish.yml`, which uploads all wheels and the sdist to PyPI.
 
 Manual steps (for reference or recovery if a script fails partway through):
 1. On the `prerelease` branch, update the version in `pyproject.toml` to the new version (e.g. `0.4.X`). This is the single source of truth — `__init__.py` reads it at runtime via `importlib.metadata`.
 2. Commit and push the version bump: `git commit -m "Release v0.4.X" && git push`
-3. Tag the commit and push the tag: `git tag v0.4.X && git push --tags`
+3. Tag the commit and push the tag: `git tag v0.4.X && git push origin v0.4.X`
    GitHub Actions immediately creates a draft release, then builds Linux wheels and the source distribution and uploads them.
 4. Build and upload the macOS arm64 wheels: `cd dev_scripts && ./build_mac_wheels.sh v0.4.X`
-5. Go to the repo's Releases page on GitHub and confirm both Linux and macOS wheels are attached.
+5. Confirm all wheels are attached; optionally test-install: `./test_pypi.sh v0.4.X`
 6. Merge `prerelease` → `master` via a pull request: `gh pr create --base master --title "Release v0.4.X"`
-7. After the PR merges, publish the draft release on GitHub.
+7. After the PR merges, publish the draft release on GitHub — this triggers PyPI upload automatically.
 
 Updating the release workflow over time:
 - **Python versions**: keep the `build` setting in `[tool.cibuildwheel]` in `pyproject.toml` in sync with the CI matrix in `ci.yml` and `requires-python`. All three should agree.
 - **cibuildwheel version**: `pypa/cibuildwheel@v2.22.0` in `release.yml` is pinned for reproducibility. When a new Python version requires a newer cibuildwheel release, bump the pin here and also update the version in `install_conda_environment.sh` so local builds stay in sync.
 
-Adding PyPI distribution later:
-When ready to publish to PyPI, add a final job to `release.yml` after `create-draft-release`:
-1. Set up PyPI Trusted Publishing in your PyPI project settings (links the GitHub repo without needing a stored API token).
-2. Add a `publish-to-pypi` job that downloads the `dist/` artifacts and runs `pypa/gh-action-pypi-publish`.
+Updating the publish workflow over time:
+- **pypa/gh-action-pypi-publish version**: pinned in `publish.yml` as `@release/v1` (a floating tag that tracks the latest stable v1). No manual updates needed unless a major version bump is required.
+- **PyPI project name**: if the project is ever renamed, update the Trusted Publisher configuration on pypi.org to match.
 
 
 Development workflow: prerelease → master
@@ -108,8 +123,9 @@ When working on a feature branch:
 4. If a job fails, click into it to read the log, fix the issue, push another commit to the branch, and CI re-runs automatically.
 5. Once CI passes, merge the PR into `prerelease`.
 6. When ready to release, run `./test_release.sh` then `./cut_release.sh` from dev_scripts/ on the `prerelease` branch.
-7. Open a PR from `prerelease` to `master` and merge after CI passes.
-8. Publish the draft release on GitHub.
+7. Optionally test-install from the release assets: `./test_pypi.sh v<version>`
+8. Open a PR from `prerelease` to `master` and merge after CI passes.
+9. Publish the draft release on GitHub — this automatically uploads to PyPI.
 
 
 Keeping current over time — the practical options:

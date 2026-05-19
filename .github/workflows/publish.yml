@@ -1,0 +1,43 @@
+name: Publish to PyPI
+
+# Fires automatically when a draft GitHub Release is published.
+# All wheels and the sdist must already be attached to the release
+# (by release.yml for Linux and by build_mac_wheels.sh for macOS)
+# before publishing.
+#
+# PyPI upload uses Trusted Publishing (OIDC) — no API token is stored.
+# One-time setup on the PyPI side:
+#   pypi.org → svmbir project → Publishing → Add a new publisher:
+#     Owner:    cabouman
+#     Repo:     svmbir
+#     Workflow: publish.yml
+#   (No environment constraint required.)
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  publish-to-pypi:
+    name: Upload release assets to PyPI
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write  # required for PyPI Trusted Publishing (OIDC)
+      contents: read
+
+    steps:
+      - name: Download release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir dist
+          gh release download "${{ github.event.release.tag_name }}" \
+            --repo "${{ github.repository }}" \
+            --pattern "*.whl" \
+            --pattern "*.tar.gz" \
+            --dir dist
+          echo "Assets to publish:"
+          ls -lh dist/
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
