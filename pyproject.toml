@@ -1,3 +1,42 @@
 [build-system]
 requires = ["setuptools", "wheel", "numpy>=1.26.0", "Cython"]
 build-backend = "setuptools.build_meta"
+
+[project]
+# Keep version in sync with svmbir/__init__.py
+name = "svmbir"
+version = "0.4.0"
+description = "Python code for fast parallel-beam MBIR (Model Based Iterative Reconstruction)"
+readme = "README.md"
+license = "BSD-3-Clause"
+requires-python = ">=3.10"
+maintainers = [{name = "Charles A. Bouman", email = "charles.bouman@gmail.edu"}]
+dependencies = [
+    "numpy>=1.26.0",
+    "psutil>=5.8",
+    "Pillow>=9.0",
+]
+
+[project.optional-dependencies]
+dev  = ["pytest", "ruamel.yaml", "Cython"]
+docs = ["sphinx", "sphinx-rtd-theme", "sphinxcontrib-bibtex", "ipython>=6.3.1"]
+demo = ["matplotlib"]
+
+[project.urls]
+Homepage = "https://github.com/cabouman/svmbir"
+
+[tool.setuptools.packages.find]
+where     = ["."]
+include   = ["svmbir*"]
+
+[tool.cibuildwheel]
+# Build CPython 3.10–3.12 only; skip musl Linux (Alpine) and PyPy.
+build = "cp310-* cp311-* cp312-* cp313-* cp314-*"
+skip  = "*-musllinux_*"
+
+[tool.cibuildwheel.macos]
+# arm64 only — Intel Mac support has been dropped.
+# Install libomp before each build so setup.py's brew fallback finds it.
+# delocate (run automatically by cibuildwheel) then bundles it into the wheel.
+archs = ["arm64"]
+before-build = "brew install libomp"

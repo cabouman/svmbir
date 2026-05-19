@@ -23,3 +23,5 @@ sftp-config.json
 
 # Pycharm idea folder
 .idea/
+# cibuildwheel output
+wheelhouse/
