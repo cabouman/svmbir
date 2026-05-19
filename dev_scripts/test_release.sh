@@ -119,13 +119,16 @@ read -rp "Proceed? [yes/N]: " CONFIRM
 echo ""
 
 # Print cleanup instructions if anything fails from here on.
-trap '
-echo ""
-echo "Script failed. The test tag may still exist — clean up with:"
-echo "  gh release delete '"$TEST_TAG"' --yes"
-echo "  git push --delete origin '"$TEST_TAG"'"
-echo "  git tag -d '"$TEST_TAG"'"
-' ERR
+# Use a function rather than an inline trap body to avoid quoting issues
+# with bash 3.2 (the macOS system /bin/bash).
+_test_release_err() {
+    echo ""
+    echo "Script failed. The test tag may still exist — clean up with:"
+    echo "  gh release delete $TEST_TAG --yes"
+    echo "  git push --delete origin $TEST_TAG"
+    echo "  git tag -d $TEST_TAG"
+}
+trap _test_release_err ERR
 
 # ---------------------------------------------------------------------------
 # Step 1/3 — Create and push test tag
@@ -157,10 +160,11 @@ echo ""
 echo "Once the GitHub Actions Linux build finishes, confirm that all wheels"
 echo "(Linux + macOS arm64, all Python versions) and the source distribution"
 echo "are attached at:"
-echo "  https://github.com/$REPO/releases/tag/$TEST_TAG"
+echo "  https://github.com/$REPO/releases/"
 echo ""
 echo "Optional: test-install a wheel to confirm it works:"
-echo "  pip install <URL copied from the release page>"
+echo "Click the appropriate wheel among the assets in this release to download it.  Then"
+echo "  pip install <path to the downloaded .whl file>"
 echo ""
 read -rp "Did everything look correct? [yes/N]: " VERIFIED
 
