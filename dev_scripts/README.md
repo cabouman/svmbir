@@ -1,4 +1,6 @@
 Considerations for package maintenance:
+---------------------------------------
+
 1. Package metadata (requires-python, dependencies in pyproject.toml)
 This declares the minimum you need, not the maximum. The strong community consensus is: never put upper bounds on requires-python or on dependencies in published package metadata. Upper bounds are actively harmful — they prevent users from installing your package alongside other packages that have already moved forward. If numpy>=2.0 breaks something, the right fix is to fix the code, not to block numpy>=2.0. The only exception is when you have a known, tested incompatibility with a specific version.
 
@@ -23,30 +25,35 @@ Updating OS runners:
 Linux wheels and the source distribution are built automatically by GitHub Actions. macOS arm64 wheels are built locally using `dev_scripts/build_mac_wheels.sh` and uploaded to the same draft release. Intel Mac (x86_64) is no longer supported.
 
 How to cut a release:
+---------------------
+
 All steps up to and including tagging are done on the `prerelease` branch. The release stays as a non-public draft until you explicitly publish it, so you can verify everything before it goes live.
 
-The normal path is a single command:
-   `cd dev_scripts && ./cut_release.sh`
+**The normal release is done with a single command in dev_scripts/ (and using this form, *not* `source cut_release.sh`):**
+
+   `./cut_release.sh`
 
 The script runs all preflight checks, prompts for the new version (showing the current pyproject.toml version and the latest published release for reference), asks for confirmation, then automates steps 1–5 below. If the script fails partway through, the manual steps below can be used to complete the release.
 
-Prerequisites (one-time setup): `pip install cibuildwheel` and `gh auth login`.
+Prerequisites: `cibuildwheel` and `gh` (the GitHub CLI) are both installed automatically by `install_conda_environment.sh`. `gh` is GitHub's official command-line tool — it talks to the GitHub API to create releases and upload wheel files on your behalf, separate from your normal `git` push access. One extra one-time step after running the environment script: `gh auth login` (opens a browser to authenticate with your GitHub account).
 
 Manual steps (for reference or recovery):
 1. On the `prerelease` branch, update the version in `pyproject.toml` to the new version (e.g. `0.4.X`). This is the single source of truth — `__init__.py` reads it at runtime via `importlib.metadata`.
 2. Commit and push the version bump: `git commit -m "Release v0.4.X" && git push`
 3. Tag the commit and push the tag: `git tag v0.4.X && git push --tags`
    GitHub Actions immediately creates a draft release, then builds Linux wheels and the source distribution and uploads them.
-4. Build and upload the macOS arm64 wheels: `cd dev_scripts && ./build_mac_wheels.sh v0.4.X`
+4. Build and upload the macOS arm64 wheels (requires `gh auth login` done once): `cd dev_scripts && ./build_mac_wheels.sh v0.4.X`
 5. Go to the repo's Releases page on GitHub and confirm both Linux and macOS wheels are attached.
 6. Merge `prerelease` → `master` via a pull request: `gh pr create --base master --title "Release v0.4.X"`
 7. After the PR merges, publish the draft release on GitHub.
 
 Updating the release workflow over time:
 - **Python versions**: keep the `build` setting in `[tool.cibuildwheel]` in `pyproject.toml` in sync with the CI matrix in `ci.yml` and `requires-python`. All three should agree.
-- **cibuildwheel version**: `pypa/cibuildwheel@v2.22.0` in `release.yml` is pinned for reproducibility. When a new Python version requires a newer cibuildwheel release, bump the pin. The same version of cibuildwheel should be used locally — install it with `pip install cibuildwheel==2.22.0`.
+- **cibuildwheel version**: `pypa/cibuildwheel@v2.22.0` in `release.yml` is pinned for reproducibility. When a new Python version requires a newer cibuildwheel release, bump the pin here and also update the version in `install_conda_environment.sh` so local builds stay in sync.
 
 Testing the workflows — prerelease → master flow:
+-------------------------------------------------
+
 The standard workflow for this repo is: feature branch → PR to `prerelease` (for integration testing) → PR from `prerelease` to `master` (for release). The CI workflow is configured to fire on PRs targeting either `prerelease` or `master`, so it runs at both gates automatically.
 
 Step 1 — Test the CI workflow via a PR to prerelease:
@@ -56,7 +63,7 @@ GitHub Actions fires the `pull_request` trigger using the workflow file from the
    `git push -u origin <branch-name>`
 2. Open a pull request from your branch to `prerelease` (not master) on the GitHub website, or with:
    `gh pr create --base prerelease`
-3. GitHub automatically starts the CI workflow. Go to the PR page and click the "Checks" tab, or go to the repo's "Actions" tab, to watch the 9 jobs (3 Python versions × 3 OS runners) run.
+3. GitHub automatically starts the CI workflow. Go to the PR page and click the "Checks" tab, or go to the repo's "Actions" tab, to watch the 3 jobs (3 Python versions × 1 OS runner: Linux) run.
 4. If any job fails, click into it to read the log, fix the issue, push another commit to the branch, and the workflow re-runs automatically.
 5. Once CI passes, merge the PR into `prerelease`.
 
@@ -87,6 +94,7 @@ When ready to publish to PyPI, add a final job to `release.yml` after `create-re
 2. Add a `publish-to-pypi` job that downloads the `dist/` artifacts and runs `pypa/gh-action-pypi-publish`.
 
 Keeping current over time — the practical options:
+--------------------------------------------------
 
 1. Dependabot (built into GitHub): opens automated PRs when dependencies release new versions. Very low friction — it just creates a PR, and your CI tells you if it breaks anything. This is the right tool for routine package bumps.
 

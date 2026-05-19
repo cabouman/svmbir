@@ -20,8 +20,18 @@ conda deactivate
 conda remove -y --name svmbir --all
 conda create -y --name svmbir python=3.12
 conda activate svmbir
+
+# macOS: llvm-openmp is required for OpenMP support with Apple Clang.
 if [[ "$(uname)" == "Darwin" ]]; then
     conda install -n svmbir -y -c conda-forge llvm-openmp
 fi
+
+# gh (GitHub CLI) — used by cut_release.sh and build_mac_wheels.sh to create
+# and upload to GitHub Releases. 'gh auth login' must be run once after install.
+conda install -n svmbir -y -c conda-forge gh
+
+# cibuildwheel — used by build_mac_wheels.sh to build macOS wheels locally.
+pip install cibuildwheel==2.22.0
+
 cd dev_scripts
 
