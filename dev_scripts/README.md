@@ -31,6 +31,16 @@ New releases:
 
 Each release is staged on the `prerelease` branch and stays as a non-public draft until you explicitly publish it, so you can verify everything before it goes live. The process has two steps: test first, then release.
 
+Both scripts are run from the `prerelease` branch. The typical sequence after your feature branch PR has been merged into `prerelease`:
+
+   ```
+   git checkout prerelease && git pull
+   ./test_release.sh      # dry run — verify the pipeline works
+   ./cut_release.sh       # real release
+   ```
+
+`test_release.sh` warns (but does not exit) if you are not on `prerelease`, so it can also be used from a feature branch to debug a workflow problem.
+
 Note that the scripts need to be run as `./<script>.sh` rather than `source <script>.sh`. 
 
 Step A — Test the release workflow (run before every release):
@@ -41,9 +51,6 @@ Step A — Test the release workflow (run before every release):
 - Pauses for you to verify that all wheels appear correctly on the GitHub Releases page
 - Cleans up the test tag and draft release automatically when you confirm success
 
-Run from dev_scripts/:
-   `./test_release.sh`
-
 Step B — Cut the real release:
 Once the test in Step A passes, `./cut_release.sh` does the real release. It:
 - Shows the current version and the latest published release, and prompts for the new version
@@ -52,11 +59,6 @@ Once the test in Step A passes, `./cut_release.sh` does the real release. It:
 - Triggers GitHub Actions to create a draft release and build Linux wheels
 - Builds the macOS arm64 wheels locally and uploads them
 - Prints the remaining manual steps: verify the draft release, open the prerelease→master PR, and publish
-
-Run from dev_scripts/:
-   `./cut_release.sh`
-
-Note: use `./cut_release.sh`, not `source cut_release.sh` — the latter would run the script inside your current shell, which causes problems if the script exits.
 
 Prerequisites: `cibuildwheel` and `gh` (the GitHub CLI) are installed automatically by `install_conda_environment.sh`. `gh` is GitHub's official command-line tool — it talks to the GitHub API to create releases and upload wheel files on your behalf, separate from your normal `git` push access. Both scripts detect whether `gh` is authenticated and run `gh auth login` for you if needed (opens a browser to log in to your GitHub account).
 

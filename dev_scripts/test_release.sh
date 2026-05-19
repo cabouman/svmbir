@@ -24,6 +24,15 @@ echo ""
 
 echo "Preflight checks:"
 
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+if [ "$BRANCH" != "prerelease" ]; then
+    echo "  WARN  branch is '$BRANCH', not 'prerelease'"
+    echo "        For a pre-release test, run this from the prerelease branch."
+    echo "        Continuing anyway (useful for debugging workflow issues)."
+else
+    echo "  OK    branch is prerelease"
+fi
+
 git fetch --tags --quiet
 echo "  OK    fetched from remote"
 
