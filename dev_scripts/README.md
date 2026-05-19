@@ -37,7 +37,7 @@ All steps up to and including tagging are done on the `prerelease` branch. The r
 
 The script runs all preflight checks, prompts for the new version (showing the current pyproject.toml version and the latest published release for reference), asks for confirmation, then automates steps 1–5 below. If the script fails partway through, the manual steps below can be used to complete the release.
 
-Prerequisites: `cibuildwheel` and `gh` (the GitHub CLI) are both installed automatically by `install_conda_environment.sh`. `gh` is GitHub's official command-line tool — it talks to the GitHub API to create releases and upload wheel files on your behalf, separate from your normal `git` push access. One extra one-time step after running the environment script: `gh auth login` (opens a browser to authenticate with your GitHub account).
+Prerequisites: `cibuildwheel` and `gh` (the GitHub CLI) are both installed automatically by `install_conda_environment.sh`. `gh` is GitHub's official command-line tool — it talks to the GitHub API to create releases and upload wheel files on your behalf, separate from your normal `git` push access. `gh` requires a one-time login to your GitHub account, but you do not need to do this manually first — `./cut_release.sh` detects whether you are logged in and runs `gh auth login` for you if needed (it opens a browser to complete authentication).
 
 Manual steps (for reference or recovery):
 1. On the `prerelease` branch, update the version in `pyproject.toml` to the new version (e.g. `0.4.X`). This is the single source of truth — `__init__.py` reads it at runtime via `importlib.metadata`.
@@ -50,7 +50,7 @@ Manual steps (for reference or recovery):
 7. After the PR merges, publish the draft release on GitHub.
 
 Updating the release workflow over time:
-- **Python versions**: keep the `build` setting in `[tool.cibuildwheel]` in `pyproject.toml` in sync with the CI matrix in `ci.yml` and `requires-python`. All three should agree.
+- **Python versions**: keep the `build` setting in `[tool.cibuildwheel]` in `pyproject.toml` in sync with the CI matrix in `ci.yml` and `requires-python`. All three should agree.  Note that cython may lag a bit behind python, so you may need to wait a few months after a python release for cython compatibility.  
 - **cibuildwheel version**: `pypa/cibuildwheel@v2.22.0` in `release.yml` is pinned for reproducibility. When a new Python version requires a newer cibuildwheel release, bump the pin here and also update the version in `install_conda_environment.sh` so local builds stay in sync.
 
 Testing the workflows — prerelease → master flow:

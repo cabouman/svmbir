@@ -63,9 +63,13 @@ echo "  OK    git submodule initialized"
 
 # gh CLI must be authenticated.
 if ! gh auth status &>/dev/null; then
-    echo "  FAIL  gh CLI not authenticated"
-    echo "        Run:  gh auth login"
-    exit 1
+    echo "  gh CLI not authenticated — launching 'gh auth login' now ..."
+    echo "  (This is a one-time step. Follow the prompts to log in via browser.)"
+    gh auth login
+    if ! gh auth status &>/dev/null; then
+        echo "  FAIL  gh auth login did not succeed. Re-run this script to try again."
+        exit 1
+    fi
 fi
 echo "  OK    gh CLI authenticated"
 

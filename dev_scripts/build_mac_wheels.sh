@@ -58,11 +58,15 @@ if ! command -v cibuildwheel &>/dev/null; then
     exit 1
 fi
 
-# Verify the gh CLI is authenticated.
+# Verify the gh CLI is authenticated; offer to log in if not.
 if ! gh auth status &>/dev/null; then
-    echo "ERROR: gh CLI is not authenticated."
-    echo "Run:  gh auth login"
-    exit 1
+    echo "gh CLI not authenticated — launching 'gh auth login' now ..."
+    echo "(This is a one-time step. Follow the prompts to log in via browser.)"
+    gh auth login
+    if ! gh auth status &>/dev/null; then
+        echo "ERROR: gh auth login did not succeed. Re-run this script to try again."
+        exit 1
+    fi
 fi
 
 echo "Building macOS arm64 wheels for $TAG ..."
