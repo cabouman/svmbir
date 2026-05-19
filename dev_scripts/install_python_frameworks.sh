@@ -12,7 +12,8 @@ set -euo pipefail
 # that has a macOS installer available, and installs it. Already-installed
 # versions are skipped.
 #
-# Requires sudo for installation.
+# sudo is NOT needed to run this script — it calls 'sudo installer' internally
+# only for the installation step and will prompt for your password then.
 #
 # Usage (run from dev_scripts/ or anywhere):
 #   ./install_python_frameworks.sh
@@ -35,9 +36,10 @@ for MINOR in "${MINOR_VERSIONS[@]}"; do
     echo "Python $MINOR: finding latest patch release with a macOS installer ..."
 
     # Get all patch versions for this minor from the FTP index, newest first.
+    # The || true prevents set -e from exiting when grep finds no matches (exit 1).
     ALL_PATCHES=$(curl -s "https://www.python.org/ftp/python/" \
                   | grep -oE "${MINOR//\./\\.}\.[0-9]+" \
-                  | sort -V | tail -r)
+                  | sort -V | tail -r || true)
 
     PKG_NAME=""
     PATCH=""
@@ -46,7 +48,7 @@ for MINOR in "${MINOR_VERSIONS[@]}"; do
     while IFS= read -r CANDIDATE; do
         FOUND=$(curl -s "https://www.python.org/ftp/python/${CANDIDATE}/" \
                 | grep -oE "python-${CANDIDATE//\./\\.}-macos[0-9a-z]+\.pkg" \
-                | head -1)
+                | head -1 || true)
         if [ -n "$FOUND" ]; then
             PATCH="$CANDIDATE"
             PKG_NAME="$FOUND"
@@ -81,6 +83,6 @@ for MINOR in "${MINOR_VERSIONS[@]}"; do
 done
 
 echo "Done. Installed versions:"
-ls /Library/Frameworks/Python.framework/Versions/ 2>/dev/null | grep -E '^3\.' | sort -V
+ls /Library/Frameworks/Python.framework/Versions/ 2>/dev/null | grep -E '^3\.' | sort -V || true
 echo ""
 echo "You can now run ./test_release.sh or ./build_mac_wheels.sh."
