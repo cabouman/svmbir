@@ -5,17 +5,19 @@ Considerations for package maintenance:
 This declares the minimum you need, not the maximum. The strong community consensus is: never put upper bounds on requires-python or on dependencies in published package metadata. Upper bounds are actively harmful — they prevent users from installing your package alongside other packages that have already moved forward. If numpy>=2.0 breaks something, the right fix is to fix the code, not to block numpy>=2.0. The only exception is when you have a known, tested incompatibility with a specific version.
 
 2. The CI test matrix
-This is where you define what you actually support and verify. For 3.10–3.14, you'd have five jobs in GitHub Actions. When 3.15 comes out, you add it to the matrix and see if anything breaks. This is the right place to discover problems early, before users file bugs.
+CI (Continuous Integration) is automated testing that runs in the cloud every time code is pushed to the repository or a pull request is opened. For svmbir, this means GitHub automatically installs the package and runs the test suite on Linux across all supported Python versions. The goal is to catch breakage early — before a bug reaches users — and to confirm that changes work correctly across the Python versions the package claims to support.
+
+The CI matrix is the list of Python versions CI tests against. The current matrix is under jobs->matrix->python-version in `ci.yml`. When a new python version comes out in October, add it to the list and see if anything breaks. This is the right place to discover problems early, before users file bugs.
 
 3. The dev environment (install_conda_environment.sh)
-This should pin to a specific version (currently 3.10) for a reproducible daily-driver environment. The version you pick here doesn't limit what users can run — it's just what developers work in. Updating this once a year when a new Python ships is reasonable.
+This should pin to a specific recent version for a reproducible daily-driver environment. The version you pick here doesn't limit what users can run — it's just what developers work in. Updating this once a year when a new Python ships is reasonable.
 
 4. The CI workflow (.github/workflows/ci.yml)
-This defines the test matrix — OS runners and Python versions — that GitHub Actions runs on every push and pull request. It must be kept in sync with `requires-python` in `pyproject.toml`.
+This is the configuration file that tells GitHub how to run CI. It specifies which Python versions to test, which operating system to use (Linux only — see section 5 for macOS), and what commands to run (install the package, run pytest). It fires automatically on every push to `master` or `prerelease`, and on every pull request targeting either branch — no manual action needed.
 
 Updating Python versions (do this ~once a year):
-- **Add a new version**: Each October, Python ships a new release. Add it to the `python-version` list in `ci.yml` and also update `requires-python` in `pyproject.toml` if you are dropping the oldest supported version.
-- **Drop an EOL version**: Python versions reach end-of-life roughly 3 years after release (schedule at python.org/downloads). Remove the version from the `python-version` list and raise `requires-python` in `pyproject.toml` to match.
+- **Add a new version**: Each October, Python ships a new release. Add it to the `python-version` list in `ci.yml`, and add the matching `cp3XX-*` entry to the `build` setting in `[tool.cibuildwheel]` in `pyproject.toml` so release wheels are built for it too.
+- **Drop an EOL version**: Python versions reach end-of-life roughly 3 years after release (schedule at python.org/downloads). Remove it from the `python-version` list in `ci.yml`, the `build` setting in `pyproject.toml`, and raise `requires-python` in `pyproject.toml` to match.
 
 Updating OS runners:
 - CI runs Linux only (`ubuntu-latest`). macOS is no longer in the CI matrix — macOS compatibility is verified when building and test-installing the release wheels locally (see section 5 below).
