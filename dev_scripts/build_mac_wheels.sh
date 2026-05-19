@@ -75,8 +75,14 @@ cibuildwheel --platform macos
 echo "Uploading wheels to draft release $TAG ..."
 gh release upload "$TAG" wheelhouse/*.whl --clobber
 
-echo ""
-echo "macOS wheels uploaded. Check that the Linux wheels are also attached, then"
-echo "publish the release at:"
 REPO=$(gh repo view --json nameWithOwner -q .nameWithOwner)
+echo ""
+echo "macOS wheels uploaded. Verify the draft release:"
 echo "  https://github.com/$REPO/releases/tag/$TAG"
+echo ""
+echo "Expected assets: 5 macOS arm64 wheels + 10 Linux wheels + 1 sdist = 16 total."
+echo "Check that all are present and have reasonable file sizes."
+echo ""
+echo "If this is a test run (tag ends in -bump-test), return to test_release.sh."
+echo "If this is a real release, publish after verifying all assets and merging"
+echo "the prerelease -> master PR."
