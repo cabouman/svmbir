@@ -1,3 +1,40 @@
+Current state and next steps (as of 2026-05-19):
+-------------------------------------------------
+
+The `prerelease` branch contains a complete, tested release pipeline.
+The dry-run test (`test_release.sh`) has been run successfully and all
+16 expected release assets (wheels + sdist) were verified.
+
+To finalize and publish:
+
+1. **Configure PyPI Trusted Publishing** (one-time, on pypi.org — see
+   section 6 below):
+   pypi.org → svmbir project → Publishing → Add a new publisher:
+   Owner `cabouman`, Repo `svmbir`, Workflow `publish.yml`.
+   Until this is done, everything else works but PyPI upload will fail.
+
+2. **Review Dependabot alerts** (6 flagged — likely in Actions or docs
+   tooling, not the package):
+   https://github.com/cabouman/svmbir/security/dependabot
+
+3. **Cut the release** (from the `prerelease` branch, inside `dev_scripts/`):
+   ```
+   ./cut_release.sh             # bump version, build all wheels, upload to draft release
+   ./test_pypi.sh v<new-version> # test-install from draft release assets
+   gh pr create --base master --title "Release v<new-version>"
+   # After CI passes and PR merges:
+   # Go to the GitHub release page and click "Publish release"
+   # — this triggers automatic PyPI upload via publish.yml.
+   ```
+
+One-time machine prerequisites (if not already done on this machine):
+- `./install_conda_environment.sh` — creates the svmbir conda env
+- `./install_python_frameworks.sh` — installs Python.org framework builds
+  for cibuildwheel (separate from conda; prompts for sudo password)
+- `gh auth login` — authenticates the gh CLI with GitHub
+
+---
+
 Considerations for package maintenance:
 ---------------------------------------
 
