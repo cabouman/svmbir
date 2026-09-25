@@ -122,7 +122,7 @@ Once the test in Step A passes, `./cut_release.sh` does the real release. It:
 - Prints the remaining manual steps (see below)
 
 After `cut_release.sh` completes, the remaining steps are:
-1. Confirm all wheels are attached to the draft release (1 macOS arm64 + 2 Linux wheels per Python version, plus 1 sdist).
+1. Confirm all wheels are attached to the draft release (1 macOS arm64 + 1 Linux x86_64 wheel per Python version, plus 1 sdist).
 2. Optional but recommended — test-install from the actual release artifacts: `./test_pypi.sh v0.4.X`
 3. Open a PR from `prerelease` to `master`: `gh pr create --base master --title "Release v0.4.X"`
 4. After CI passes and the PR merges, publish the draft release on GitHub (go to the release page, scroll to bottom, click "Publish release"). This automatically triggers `publish.yml`, which uploads all wheels and the sdist to PyPI.

@@ -35,12 +35,15 @@ build = "cp310-* cp311-* cp312-* cp313-* cp314-*"
 skip  = "*-musllinux_*"
 # Install each built wheel and run the tests against it. Only the test file is copied
 # into the (temporary) test directory, so the installed wheel is what gets imported,
-# not the source tree. Current numpy has no 32-bit Linux wheels, so i686 wheels are
-# built but not tested.
+# not the source tree.
 test-requires = ["pytest"]
 test-sources  = ["svmbir/tests/test_recon.py"]
 test-command  = "pytest svmbir/tests"
-test-skip     = "*-manylinux_i686"
+
+[tool.cibuildwheel.linux]
+# x86_64 only — 32-bit (i686) wheels have been dropped: numpy has published no
+# 32-bit Linux wheels since 1.21, so they could be neither built nor tested cheaply.
+archs = ["x86_64"]
 
 [tool.cibuildwheel.macos]
 # arm64 only — Intel Mac support has been dropped.
