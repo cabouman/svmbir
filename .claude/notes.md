@@ -23,7 +23,7 @@ is to cut the real release and merge `prerelease` → `master`.
 - `ci.yml`: runs on every push/PR to `master` or `prerelease`; tests on
   Linux across Python 3.10–3.14; uses conda + llvm-openmp.
 - `release.yml`: fires on any version tag push; creates a draft GitHub
-  Release immediately, then builds Linux wheels (x86_64 + i686) and the
+  Release immediately, then builds Linux wheels (x86_64; i686 dropped 2026-09) and the
   sdist and attaches them to the draft.
 - `publish.yml`: fires when the draft release is **published** (the manual
   click); downloads all attached assets and uploads them to PyPI via
@@ -116,7 +116,8 @@ the package itself — but they should be reviewed before merging to master.
 
 - **Draft releases as the coordination point**.  GitHub Actions creates the
   draft on tag push.  The Linux job and the local mac script both upload to
-  it.  The developer publishes when satisfied with all 16 assets.
+  it.  The developer publishes when satisfied with all assets (11 for
+  Python 3.10–3.14: 5 Linux x86_64 + 5 macOS arm64 wheels + 1 sdist).
 
 - **PyPI Trusted Publishing (OIDC)**.  No API token stored anywhere.  The
   `publish.yml` workflow filename is the identifier; it must match exactly

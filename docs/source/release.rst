@@ -21,7 +21,7 @@ Release artifacts
 
 Each release produces:
 
-* **Linux wheels** (x86_64 and i686, all supported Python versions) —
+* **Linux wheels** (x86_64, all supported Python versions) —
   built automatically by GitHub Actions (``release.yml``) when a version
   tag is pushed.
 * **macOS arm64 wheels** (all supported Python versions) — built by
@@ -58,7 +58,7 @@ The release sequence (all scripts run from ``dev_scripts/`` on the
    Prompts you through each step.
 
 3. **Verify**: confirm all wheels and the sdist are attached to the draft
-   release on GitHub (1 macOS arm64 + 2 Linux wheels per Python version,
+   release on GitHub (1 macOS arm64 + 1 Linux x86_64 wheel per Python version,
    plus 1 sdist).
 
 4. **Optional test-install**: ``./test_pypi.sh v<version>`` downloads the
