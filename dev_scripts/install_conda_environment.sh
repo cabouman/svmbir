@@ -31,7 +31,7 @@ fi
 conda install -n svmbir -y -c conda-forge gh
 
 # cibuildwheel — used by build_mac_wheels.sh to build macOS wheels locally.
-pip install cibuildwheel==2.22.0
+pip install cibuildwheel==4.2.1
 
 cd dev_scripts
 

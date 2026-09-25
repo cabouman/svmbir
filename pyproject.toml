@@ -14,7 +14,7 @@ maintainers = [{name = "Charles A. Bouman", email = "charles.bouman@gmail.edu"}]
 dependencies = [
     "numpy>=1.26.0",
     "psutil>=5.8",
-    "Pillow>=9.0",
+    "Pillow>=12.3.0",  # first release without known advisories (Dependabot alerts #17-#40)
 ]
 
 [project.optional-dependencies]
@@ -33,6 +33,14 @@ include   = ["svmbir*"]
 # Build CPython 3.10–3.12 only; skip musl Linux (Alpine) and PyPy.
 build = "cp310-* cp311-* cp312-* cp313-* cp314-*"
 skip  = "*-musllinux_*"
+# Install each built wheel and run the tests against it. Only the test file is copied
+# into the (temporary) test directory, so the installed wheel is what gets imported,
+# not the source tree. Current numpy has no 32-bit Linux wheels, so i686 wheels are
+# built but not tested.
+test-requires = ["pytest"]
+test-sources  = ["svmbir/tests/test_recon.py"]
+test-command  = "pytest svmbir/tests"
+test-skip     = "*-manylinux_i686"
 
 [tool.cibuildwheel.macos]
 # arm64 only — Intel Mac support has been dropped.
