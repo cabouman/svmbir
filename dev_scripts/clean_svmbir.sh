@@ -8,5 +8,5 @@ cd ..
 /bin/rm -r dist
 /bin/rm -r svmbir.egg-info
 
-pip uninstall svmbir
+pip uninstall -y svmbir
 cd dev_scripts

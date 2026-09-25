@@ -1,6 +1,4 @@
-numpy>=1.26.0
-psutil>=5.8
-Pillow<=10.1.0
-Cython
-ruamel.yaml
-pytest
+# Runtime and development dependencies are declared in pyproject.toml.
+# To install svmbir with all development, docs, and demo dependencies run:
+#
+#   pip install -e ".[dev,docs,demo]"
