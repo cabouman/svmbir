@@ -4,8 +4,8 @@ set -euo pipefail
 # Interactive release script for svmbir.
 #
 # Verifies preconditions, bumps the version, commits, tags, triggers the
-# GitHub Actions draft release, builds macOS arm64 wheels locally, and
-# prints the remaining manual steps.
+# GitHub Actions draft release (which builds the Linux and macOS arm64
+# wheels and the sdist), and prints the remaining manual steps.
 #
 # Usage (run from dev_scripts/):
 #   ./cut_release.sh
@@ -72,14 +72,6 @@ if ! gh auth status &>/dev/null; then
     fi
 fi
 echo "  OK    gh CLI authenticated"
-
-# cibuildwheel must be installed.
-if ! command -v cibuildwheel &>/dev/null; then
-    echo "  FAIL  cibuildwheel not found"
-    echo "        Run:  pip install cibuildwheel"
-    exit 1
-fi
-echo "  OK    cibuildwheel available"
 
 echo ""
 
@@ -148,8 +140,7 @@ echo "  1. Set version to $NEW_VERSION in pyproject.toml"
 echo "  2. Commit: \"Release $TAG\""
 echo "  3. Push commit to prerelease"
 echo "  4. Create and push tag $TAG"
-echo "     (GitHub Actions will create a draft release and build Linux wheels)"
-echo "  5. Build macOS arm64 wheels locally and upload to the draft release"
+echo "     (GitHub Actions will create a draft release and build all wheels)"
 echo ""
 read -rp "Proceed? [yes/N]: " CONFIRM
 [ "$CONFIRM" = "yes" ] || { echo "Aborted."; exit 0; }
@@ -159,10 +150,10 @@ echo ""
 trap 'echo ""; echo "Script failed at the step above. The remaining steps can be run manually — see dev_scripts/README.md."' ERR
 
 # ---------------------------------------------------------------------------
-# Step 1/5 — Update pyproject.toml
+# Step 1/4 — Update pyproject.toml
 # ---------------------------------------------------------------------------
 
-echo "--- 1/5  Updating pyproject.toml ---"
+echo "--- 1/4  Updating pyproject.toml ---"
 python3 - <<PYEOF
 import re
 path = 'pyproject.toml'
@@ -178,39 +169,32 @@ PYEOF
 echo "     version = \"$NEW_VERSION\""
 
 # ---------------------------------------------------------------------------
-# Step 2/5 — Commit
+# Step 2/4 — Commit
 # ---------------------------------------------------------------------------
 
 echo ""
-echo "--- 2/5  Committing ---"
+echo "--- 2/4  Committing ---"
 git add pyproject.toml
 git commit -m "Release $TAG"
 
 # ---------------------------------------------------------------------------
-# Step 3/5 — Push commit
+# Step 3/4 — Push commit
 # ---------------------------------------------------------------------------
 
 echo ""
-echo "--- 3/5  Pushing commit to prerelease ---"
+echo "--- 3/4  Pushing commit to prerelease ---"
 git push
 
 # ---------------------------------------------------------------------------
-# Step 4/5 — Tag and push
+# Step 4/4 — Tag and push
 # ---------------------------------------------------------------------------
 
 echo ""
-echo "--- 4/5  Tagging and pushing $TAG ---"
+echo "--- 4/4  Tagging and pushing $TAG ---"
 git tag "$TAG"
 git push origin "$TAG"
-echo "     GitHub Actions is creating the draft release and building Linux wheels."
-
-# ---------------------------------------------------------------------------
-# Step 5/5 — Build macOS wheels locally
-# ---------------------------------------------------------------------------
-
-echo ""
-echo "--- 5/5  Building macOS arm64 wheels ---"
-dev_scripts/build_mac_wheels.sh "$TAG"
+echo "     GitHub Actions is creating the draft release and building the Linux"
+echo "     and macOS arm64 wheels and the sdist (about 20-30 minutes)."
 
 # ---------------------------------------------------------------------------
 # Handoff

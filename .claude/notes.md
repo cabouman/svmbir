@@ -37,10 +37,11 @@ is to cut the real release and merge `prerelease` → `master`.
 - `test_release.sh` — dry run: pushes a `-bump-test` tag, builds all
   wheels, pauses for verification, cleans up automatically.
 - `cut_release.sh` — real release: bumps the version in `pyproject.toml`,
-  commits, tags, triggers GitHub Actions, builds macOS wheels locally,
+  commits, tags, triggers GitHub Actions (which builds all wheels),
   prints remaining manual steps.
 - `build_mac_wheels.sh` — builds macOS arm64 wheels using cibuildwheel and
-  uploads them to the draft release.  Called by the two scripts above.
+  uploads them to the draft release.  Manual fallback only (2026-09:
+  no longer called by the scripts above; GitHub Actions builds them).
 - `test_pypi.sh` — downloads the draft release assets via `gh release
   download`, installs into a clean conda env, runs pytest.  Run this before
   publishing.
@@ -107,10 +108,11 @@ the package itself — but they should be reviewed before merging to master.
 
 ## Key design decisions
 
-- **macOS wheels built locally**, not on GitHub Actions.  macOS runners had
-  17-hour queue times; local cibuildwheel + delocate is faster and fully
-  portable.  `build_mac_wheels.sh` requires a machine with Apple Silicon,
-  the Python.org framework installs, and an authenticated `gh` CLI.
+- **macOS wheels built on GitHub Actions** (changed 2026-09; `macos-14`
+  Apple Silicon runner in `release.yml`).  They were previously built
+  locally because macOS runners once had 17-hour queue times.  If that
+  recurs, `build_mac_wheels.sh` still builds and uploads them from a Mac
+  with Apple Silicon, the Python.org framework installs, and `gh`.
 
 - **Draft releases as the coordination point**.  GitHub Actions creates the
   draft on tag push.  The Linux job and the local mac script both upload to

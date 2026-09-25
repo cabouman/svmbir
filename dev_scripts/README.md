@@ -57,11 +57,11 @@ Updating Python versions (do this ~once a year):
 - **Drop an EOL version**: Python versions reach end-of-life roughly 3 years after release (schedule at python.org/downloads). Remove it from the `python-version` list in `ci.yml`, the `build` setting in `pyproject.toml`, and raise `requires-python` in `pyproject.toml` to match.
 
 Updating OS runners:
-- CI runs Linux only (`ubuntu-latest`). macOS is no longer in the CI matrix — macOS compatibility is verified when building and test-installing the release wheels locally (see section 5 below).
+- CI runs Linux only (`ubuntu-latest`). macOS is no longer in the CI matrix — macOS compatibility is verified when the release wheels are built and tested on GitHub's Apple Silicon runner (see section 5 below).
 - If a future Linux runner name change is needed, `ubuntu-latest` tracks GitHub's current default and rarely requires manual updates.
 
-5. The release workflow (.github/workflows/release.yml) and local macOS build
-Linux wheels and the source distribution are built automatically by GitHub Actions. macOS arm64 wheels are built locally using `dev_scripts/build_mac_wheels.sh` and uploaded to the same draft release. Intel Mac (x86_64) is no longer supported.
+5. The release workflow (.github/workflows/release.yml)
+Linux wheels, macOS arm64 wheels (on the `macos-14` Apple Silicon runner) and the source distribution are built automatically by GitHub Actions, and each wheel is tested with the test suite as it is built. The same workflow builds and tests the wheels (without releasing anything) on pull requests that change `release.yml`, `pyproject.toml` or `setup.py`, and can be run by hand from the Actions tab. `dev_scripts/build_mac_wheels.sh` remains as a manual fallback for building the macOS wheels locally. Intel Mac (x86_64) is no longer supported.
 
 6. PyPI publishing (.github/workflows/publish.yml)
 When the draft GitHub release is published (the manual "Publish release" click), `publish.yml` fires automatically: it downloads all the attached wheels and the sdist from the release and uploads them to PyPI using Trusted Publishing (OIDC — no stored API token).
@@ -80,7 +80,7 @@ Prerequisites:
 
 - **`cibuildwheel` and `gh`** (the GitHub CLI) are installed automatically by `install_conda_environment.sh`. `gh` is GitHub's official command-line tool — it talks to the GitHub API to create releases and upload wheel files on your behalf, separate from your normal `git` push access. Both scripts detect whether `gh` is authenticated and run `gh auth login` for you if needed (opens a browser to log in to your GitHub account).
 
-- **Official Python.org framework builds** — cibuildwheel builds portable wheels using the official Python installers from python.org, which must be installed system-wide in `/Library/Frameworks/Python.framework/Versions/`. These are entirely separate from conda. Run this one-time setup script (which may ask for sudo password):
+- **Official Python.org framework builds** (only needed for the manual `build_mac_wheels.sh` fallback) — cibuildwheel builds portable wheels using the official Python installers from python.org, which must be installed system-wide in `/Library/Frameworks/Python.framework/Versions/`. These are entirely separate from conda. Run this one-time setup script (which may ask for sudo password):
 
   ```
   ./install_python_frameworks.sh  
@@ -109,8 +109,7 @@ Note that the scripts need to be run as `./<script>.sh` rather than `source <scr
 Step A — Test the release workflow (run before every release):
 `./test_release.sh` automates a complete dry run of the release process using a throwaway tag. It:
 - Creates and pushes a test tag of the form `v<current_version>-bump-test` (e.g. `v0.4.0-bump-test`), based on the current version in `pyproject.toml`. The wheels built during the test will carry the current version number — this is expected. The real release will update `pyproject.toml` to the new version before building.
-- Triggers GitHub Actions to create a draft release and build Linux wheels
-- Builds the macOS arm64 wheels locally and uploads them to the same draft release
+- Triggers GitHub Actions to create a draft release and build the Linux and macOS arm64 wheels
 - Pauses for you to verify that all wheels appear correctly on the GitHub Releases page
 - Cleans up the test tag and draft release automatically when you confirm success
 
@@ -119,8 +118,7 @@ Once the test in Step A passes, `./cut_release.sh` does the real release. It:
 - Shows the current version and the latest published release, and prompts for the new version
 - Validates the new version is greater than the existing one
 - Updates `pyproject.toml`, commits, pushes, and creates the version tag
-- Triggers GitHub Actions to create a draft release and build Linux wheels
-- Builds the macOS arm64 wheels locally and uploads them
+- Triggers GitHub Actions to create a draft release and build the Linux and macOS arm64 wheels
 - Prints the remaining manual steps (see below)
 
 After `cut_release.sh` completes, the remaining steps are:
@@ -133,15 +131,14 @@ Manual steps (for reference or recovery if a script fails partway through):
 1. On the `prerelease` branch, update the version in `pyproject.toml` to the new version (e.g. `0.4.X`). This is the single source of truth — `__init__.py` reads it at runtime via `importlib.metadata`.
 2. Commit and push the version bump: `git commit -m "Release v0.4.X" && git push`
 3. Tag the commit and push the tag: `git tag v0.4.X && git push origin v0.4.X`
-   GitHub Actions immediately creates a draft release, then builds Linux wheels and the source distribution and uploads them.
-4. Build and upload the macOS arm64 wheels: `cd dev_scripts && ./build_mac_wheels.sh v0.4.X`
-5. Confirm all wheels are attached; optionally test-install: `./test_pypi.sh v0.4.X`
-6. Merge `prerelease` → `master` via a pull request: `gh pr create --base master --title "Release v0.4.X"`
-7. After the PR merges, publish the draft release on GitHub — this triggers PyPI upload automatically.
+   GitHub Actions immediately creates a draft release, then builds the Linux and macOS arm64 wheels and the source distribution and uploads them. (If the macOS job fails, `cd dev_scripts && ./build_mac_wheels.sh v0.4.X` builds and uploads those wheels from an Apple Silicon Mac.)
+4. Confirm all wheels are attached; optionally test-install: `./test_pypi.sh v0.4.X`
+5. Merge `prerelease` → `master` via a pull request: `gh pr create --base master --title "Release v0.4.X"`
+6. After the PR merges, publish the draft release on GitHub — this triggers PyPI upload automatically.
 
 Updating the release workflow over time:
 - **Python versions**: keep the `build` setting in `[tool.cibuildwheel]` in `pyproject.toml` in sync with the CI matrix in `ci.yml` and `requires-python`. All three should agree.
-- **cibuildwheel version**: `pypa/cibuildwheel@v2.22.0` in `release.yml` is pinned for reproducibility. When a new Python version requires a newer cibuildwheel release, bump the pin here and also update the version in `install_conda_environment.sh` so local builds stay in sync.
+- **cibuildwheel version**: `pypa/cibuildwheel@v4.2.1` in `release.yml` is pinned for reproducibility; Dependabot proposes updates weekly. When you bump it, also update the version in `install_conda_environment.sh` so the manual macOS fallback stays in sync.
 
 Updating the publish workflow over time:
 - **pypa/gh-action-pypi-publish version**: pinned in `publish.yml` as `@release/v1` (a floating tag that tracks the latest stable v1). No manual updates needed unless a major version bump is required.

@@ -24,9 +24,9 @@ Each release produces:
 * **Linux wheels** (x86_64 and i686, all supported Python versions) —
   built automatically by GitHub Actions (``release.yml``) when a version
   tag is pushed.
-* **macOS arm64 wheels** (all supported Python versions) — built locally
-  on a developer machine using ``cibuildwheel`` and uploaded to the same
-  draft GitHub Release.
+* **macOS arm64 wheels** (all supported Python versions) — built by
+  GitHub Actions on an Apple Silicon runner, in the same workflow.
+  ``dev_scripts/build_mac_wheels.sh`` remains as a manual fallback.
 * **Source distribution** (``sdist``) — built by GitHub Actions alongside
   the Linux wheels.
 
@@ -40,7 +40,8 @@ Prerequisites (one-time setup per machine):
 
 * Run ``dev_scripts/install_conda_environment.sh`` to create the ``svmbir``
   conda environment, which installs ``cibuildwheel`` and the ``gh`` CLI.
-* Run ``dev_scripts/install_python_frameworks.sh`` to install the official
+* Only for the manual macOS fallback: run
+  ``dev_scripts/install_python_frameworks.sh`` to install the official
   Python.org framework builds required by ``cibuildwheel``.
 * Run ``gh auth login`` once to authenticate the ``gh`` CLI with GitHub.
 * Configure PyPI Trusted Publishing once (see below).
