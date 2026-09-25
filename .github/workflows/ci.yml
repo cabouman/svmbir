@@ -5,6 +5,10 @@ on:
     branches: [master, prerelease]
   pull_request:
     branches: [master, prerelease]
+  # Weekly run so a new Python or dependency release that breaks the build shows up
+  # without a push. GitHub runs scheduled workflows on the default branch (master) only.
+  schedule:
+    - cron: "17 6 * * 1"  # Mondays 06:17 UTC
 
 jobs:
   build-and-test:
