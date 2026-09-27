@@ -1,4 +1,0 @@
-# Runtime and development dependencies are declared in pyproject.toml.
-# To install svmbir with all development, docs, and demo dependencies run:
-#
-#   pip install -e ".[dev,docs,demo]"

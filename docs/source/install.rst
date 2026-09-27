@@ -69,7 +69,6 @@ Some additional platform-specific notes are given below.
 3. Install dependencies, build extension, install::
 
     # Run in the top repository folder
-    pip install -r requirements.txt
     CC=gcc pip install .
 
   Subsititute ``gcc`` with ``icc`` for faster performance if the icc compiler is available.

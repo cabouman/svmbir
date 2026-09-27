@@ -13,10 +13,11 @@ submodules:
   recursive: true
 sphinx:
   configuration: docs/source/conf.py
+# Install the package and its docs extra straight from pyproject.toml.
 python:
   install:
-    - requirements: requirements.txt
-    - requirements: docs/requirements.txt
-    - method: setuptools
+    - method: pip
       path: .
+      extra_requirements:
+        - docs
 

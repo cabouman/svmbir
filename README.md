@@ -47,9 +47,9 @@ for more details.
 ## Running the demos
 1. Download demo.zip at https://github.com/cabouman/svmbir/blob/main/demo.zip.
 2. Uncompress the zip file and change into demo folder.
-3. In your terminal window, install required dependencies of demo. 
+3. In your terminal window, install the demo dependencies.
 ```
-pip install -r requirements_demo.txt
+pip install "svmbir[demo]"
 ```
 4. In your terminal window, use python to run each demo.
 
