@@ -47,6 +47,5 @@ Indices and tables
    clean_install
    pytest
    release
-   pypi
    docs
 

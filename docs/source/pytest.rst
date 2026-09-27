@@ -2,9 +2,10 @@
 Running pytest
 ==============
 
-From a clean repository, build and run unit tests with the following::
+From the top repository folder, build the package and run the unit tests with::
 
-    $ CC=gcc python setup.py build_ext --inplace
+    $ pip install -e ".[dev]"
     $ pytest
-  
-This should be repeated for each supported compiler and platform.
+
+CI runs the tests on Linux for every supported Python version on each push to
+``main`` or ``prerelease``.

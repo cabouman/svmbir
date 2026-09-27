@@ -27,6 +27,6 @@ In order to destroy the conda environement named ``svmbir`` and then recreate an
 In order to destroy and clean everything, and then recreate the conda environment and reinstall ``svmbir`` and its documentation
 ``cd`` into ``dev_scripts`` and run the command::
 
-    $ source clean_install_conda_svmbir_docs.sh
+    $ source clean_install_all.sh
 
 **Be careful with these last two commands** because they will destroy the conda environment named ``svmbir``.

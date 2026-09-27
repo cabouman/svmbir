@@ -37,9 +37,9 @@ For many new users, it is easier to use one of the automatic weight settings sho
 * weight_type="unweighted" => Lambda = 1 + 0*sino
 * weight_type="transmission" => Lambda = numpy.exp(-sino)
 * weight_type="transmission_root" => Lambda = numpy.exp(-sino/2)
-* weight_type="emmission" => Lambda = (1/(sino + 0.1))
+* weight_type="emission" => Lambda = 1/(|sino| + 0.1)
 
-Option "unweighted" provides unweighted reconstruction; Option "transmission" is the correct weighting for transmission CT with constant dosage; Option "transmission_root" is commonly used with transmission CT data to improve image homogeneity; Option "emmission" is appropriate for emission CT data. 
+Option "unweighted" provides unweighted reconstruction; Option "transmission" is the correct weighting for transmission CT with constant dosage; Option "transmission_root" is commonly used with transmission CT data to improve image homogeneity; Option "emission" is appropriate for emission CT data. 
 
 **Prior Model:**
 The ``svmbir`` function allows the prior model to be set either as a qGGMRF or a proximal map prior. 
