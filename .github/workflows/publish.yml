@@ -2,7 +2,7 @@ name: Publish to PyPI
 
 # Fires automatically when a draft GitHub Release is published.
 # All wheels and the sdist must already be attached to the release
-# (by release.yml for Linux and by build_mac_wheels.sh for macOS)
+# (by release.yml, which builds the Linux and macOS wheels and the sdist)
 # before publishing.
 #
 # PyPI upload uses Trusted Publishing (OIDC) — no API token is stored.

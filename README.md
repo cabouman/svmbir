@@ -9,7 +9,7 @@ To cite this software package, please use the bibtext entry at [cite_svmbir](htt
 
 ## Installing svmbir
 
-Currently supporting Python 3.9-3.12, on MacOS and Linux (Windows possible but not actively maintained).
+Currently supporting Python 3.10 or later, on MacOS and Linux (Windows possible but not actively maintained).
 
 **svmbir** packages are available from conda-forge and PyPI, or can be built and installed from source.
 
