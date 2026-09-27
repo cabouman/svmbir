@@ -1,8 +1,13 @@
+.. _InstallDocs:
+
 ============
 Installation 
 ============
 
 The **svmbir** package is available from conda-forge, PyPI, or can be built and installed from source.
+It requires Python 3.10 or later and runs on Linux and macOS.  Building from source needs a C compiler
+with OpenMP: ``gcc`` on Linux, ``clang`` plus the OpenMP library on macOS (see the notes below).
+svmbir is distributed under the `BSD 3-Clause <https://github.com/cabouman/svmbir/blob/main/LICENSE>`_ license.
 
 
 Installing from conda-forge

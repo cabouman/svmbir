@@ -1,3 +1,5 @@
+.. _APIDocs:
+
 API reference
 =============
 

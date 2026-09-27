@@ -1,3 +1,5 @@
+.. _ExamplesDocs:
+
 ==================
 Demos and Examples
 ==================
