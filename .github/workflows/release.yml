@@ -16,7 +16,12 @@ on:
       - ".github/workflows/release.yml"
       - "pyproject.toml"
       - "setup.py"
+      - "MANIFEST.in"
   workflow_dispatch:
+
+# Jobs that need to write to the release say so themselves.
+permissions:
+  contents: read
 
 jobs:
   create-draft-release:
@@ -47,8 +52,6 @@ jobs:
       MACOSX_DEPLOYMENT_TARGET: ${{ matrix.macos_target }}
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: recursive
 
       - name: Build and test wheels
         uses: pypa/cibuildwheel@v4.2.1
@@ -63,11 +66,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: recursive
 
       - name: Build sdist
         run: pipx run build --sdist
+
+      - name: Install the sdist and run the tests
+        # The sdist must carry the C sources; a clean install from it proves
+        # that it does.
+        # The tests run from a copy outside the source tree, so that the
+        # installed package is imported and not the source directory.
+        run: |
+          python -m venv sdist-env
+          sdist-env/bin/pip install dist/*.tar.gz pytest
+          mkdir sdist-test && cp -r svmbir/tests sdist-test/tests
+          cd sdist-test && ../sdist-env/bin/pytest -q tests
 
       - uses: actions/upload-artifact@v7
         with:

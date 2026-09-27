@@ -13,11 +13,26 @@ from PIL import Image
 ##############################
 
 def int_to_float(arg):
-    "Convert int argument to float, otherwise pass through"
-    if isinstance(arg,int):
-        return float(arg)
-    else:
+    "Convert an int or numpy number to a Python float, otherwise pass through"
+    if isinstance(arg, bool):
         return arg
+    if isinstance(arg, (int, np.integer, np.floating)):
+        return float(arg)
+    return arg
+
+
+def to_int(arg):
+    "Convert a numpy integer to a Python int, otherwise pass through"
+    if isinstance(arg, np.integer):
+        return int(arg)
+    return arg
+
+
+def to_bool(arg):
+    "Convert a numpy bool to a Python bool, otherwise pass through"
+    if isinstance(arg, np.bool_):
+        return bool(arg)
+    return arg
 
 def test_args_angles(angles):
     "Test validity of 'angles' argument"
@@ -71,11 +86,13 @@ def test_args_image(image):
 
 def test_args_geom(num_rows, num_cols, delta_pixel, roi_radius, delta_channel, center_offset):
 
+    num_rows = to_int(num_rows)
     if not num_rows is None:
         if not (isinstance(num_rows, int) and num_rows>0):
             warnings.warn("Parameter num_rows not a valid int. Setting to default.")
             num_rows = None
 
+    num_cols = to_int(num_cols)
     if not num_cols is None:
         if not (isinstance(num_cols, int) and num_cols>0):
             warnings.warn("Parameter num_cols not a valid int. Setting to default.")
@@ -111,6 +128,7 @@ def test_args_recon(sharpness, positivity, relax_factor, max_resolutions, stop_t
         warnings.warn("Parameter sharpness is not valid float; Setting sharpness = 0.0.")
         sharpness = 0.0
 
+    positivity = to_bool(positivity)
     if not isinstance(positivity, bool):
         warnings.warn("Parameter positivity is not valid boolean; Setting positivity = True.")
         positivity = True
@@ -120,16 +138,17 @@ def test_args_recon(sharpness, positivity, relax_factor, max_resolutions, stop_t
         warnings.warn("Parameter relax_factor is not valid float; Setting to 1.0.")
         relax_factor = 1.0
 
+    max_resolutions = to_int(max_resolutions)
     if not ((isinstance(max_resolutions, int) and (max_resolutions >= 0)) or (max_resolutions is None)):
         warnings.warn("Parameter max_resolutions is not valid int; Setting max_resolutions = None.")
         max_resolutions = None
 
-    if isinstance(stop_threshold,int):
-        stop_threshold = float(stop_threshold)
+    stop_threshold = int_to_float(stop_threshold)
     if not (isinstance(stop_threshold, float) and (stop_threshold >= 0)):
         warnings.warn("Parameter stop_threshold is not valid float; Setting stop_threshold = 0.0.")
         stop_threshold = 0.0
 
+    max_iterations = to_int(max_iterations)
     if not (isinstance(max_iterations, int) and (max_iterations > 0)):
         warnings.warn("Parameter max_iterations is not valid int; Setting max_iterations = 100.")
         max_iterations = 100
@@ -226,19 +245,28 @@ def test_args_qggmrf(p, q, T, b_interslice):
 
 def test_args_sys(num_threads, delete_temps, verbose):
 
+    num_threads = to_int(num_threads)
     if not (isinstance(num_threads, int) and (num_threads > 0)):
         warnings.warn("Parameter num_threads is not a valid int. Setting to default.")
         num_threads = None
 
+    delete_temps = to_bool(delete_temps)
     if not isinstance(delete_temps, bool):
         warnings.warn("Parameter delete_temps is not valid. Setting delete_temps = True.")
         delete_temps = True
 
+    verbose = to_int(verbose)
     if not (isinstance(verbose, int) and (verbose >= 0)):
         warnings.warn("Parameter verbose is not valid. Setting verbose = 1.")
         verbose = 1
 
     return num_threads, delete_temps, verbose
+
+
+# Version of the system-matrix cache file format.  Change it when the C code
+# changes the file layout, so that old cache files get new names and are
+# recomputed instead of read.
+_CACHE_FORMAT_VERSION = '1'
 
 
 def hash_params(angles, **kwargs):
@@ -255,9 +283,16 @@ def hash_params(angles, **kwargs):
     relevant_params['dist_source_detector'] = kwargs['dist_source_detector']
     relevant_params['magnification'] = kwargs['magnification']
 
-    hash_input = str(relevant_params) + str(np.around(angles, decimals=6))
-
-    hash_val = hashlib.sha512(hash_input.encode()).hexdigest()
+    # Hash the parameter values and every angle.  The angles are hashed as
+    # bytes, not as printed text: numpy prints only the first and last three
+    # values of an array longer than 1000, so a text hash would ignore the
+    # interior angles of any scan with more than 1000 views.
+    hasher = hashlib.sha512()
+    hasher.update(_CACHE_FORMAT_VERSION.encode())
+    for key in sorted(relevant_params):
+        hasher.update(f'{key}={relevant_params[key]!r};'.encode())
+    hasher.update(np.ascontiguousarray(np.around(angles, decimals=6), dtype=np.float64).tobytes())
+    hash_val = hasher.hexdigest()
 
     return hash_val, relevant_params
 

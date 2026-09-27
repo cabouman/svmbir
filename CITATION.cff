@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "Super-Voxel Model Based Iterative Reconstruction (SVMBIR)"
+type: software
+authors:
+  - name: "SVMBIR Development Team"
+version: 0.5.0
+date-released: 2026-09-27
+url: "https://svmbir.readthedocs.io"
+repository-code: "https://github.com/cabouman/svmbir"
+license: BSD-3-Clause

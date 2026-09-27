@@ -57,7 +57,7 @@ mr_nrmse = svmbir.phantom.nrmse(mr_recon, phantom)
 os.makedirs('output', exist_ok=True)
 
 # display phantom
-plot_image(phantom[display_slice], title='Shepp Logan Phantom', filename='output/3D_microscopy_phantom.png', vmin=vmin, vmax=vmax)
+plot_image(phantom[display_slice], title='Microscopy Phantom', filename='output/3D_microscopy_phantom.png', vmin=vmin, vmax=vmax)
 
 # display fixed resolution reconstruction
 title = f'Slice {display_slice:d} of Fixed Res Recon with NRMSE={nrmse:.3f}.'

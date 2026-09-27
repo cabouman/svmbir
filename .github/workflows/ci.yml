@@ -2,13 +2,22 @@ name: CI
 
 on:
   push:
-    branches: [master, prerelease]
+    branches: [main, prerelease]
   pull_request:
-    branches: [master, prerelease]
+    branches: [main, prerelease]
   # Weekly run so a new Python or dependency release that breaks the build shows up
-  # without a push. GitHub runs scheduled workflows on the default branch (master) only.
+  # without a push. GitHub runs scheduled workflows on the default branch (main) only.
   schedule:
     - cron: "17 6 * * 1"  # Mondays 06:17 UTC
+
+# The token can only read the repository.
+permissions:
+  contents: read
+
+# A new push to the same branch or pull request cancels the run still going.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build-and-test:
@@ -19,11 +28,13 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
+        include:
+          # One macOS job, so a macOS build failure shows up before a release.
+          - os: macos-14
+            python-version: "3.12"
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: recursive
 
       - name: Set up conda (Miniforge)
         uses: conda-incubator/setup-miniconda@v3

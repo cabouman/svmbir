@@ -39,15 +39,16 @@ vmin = 1.0
 vmax = 1.2
 plt.figure(); plt.imshow(phantom[0],vmin=vmin,vmax=vmax,cmap='gray'); plt.colorbar()
 plt.title('Shepp Logan Phantom')
-plt.savefig('output/shepp_logan_phantom.png')
+os.makedirs('output', exist_ok=True)
+plt.savefig('output/fanbeam_phantom.png')
 
 plt.figure(); plt.imshow(np.squeeze(sino).T,cmap='gray'); plt.colorbar()
 plt.title('Sinogram')
-plt.savefig('output/shepp_logan_sinogram.png')
+plt.savefig('output/fanbeam_sinogram.png')
 
 plt.figure(); plt.imshow(recon[0],vmin=vmin,vmax=vmax,cmap='gray'); plt.colorbar()
 plt.title(f'Reconstruction, nmrse={nrmse:.3f}')
-plt.savefig('output/shepp_logan_recon_fanbeam.png')
+plt.savefig('output/fanbeam_recon.png')
 
 print("Close figures to continue")
 plt.show()

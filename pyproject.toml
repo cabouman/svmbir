@@ -1,16 +1,15 @@
 [build-system]
-requires = ["setuptools", "wheel", "numpy>=1.26.0", "Cython"]
+requires = ["setuptools", "wheel", "numpy>=2.0", "Cython"]  # build against numpy 2 so the wheel imports under numpy 2
 build-backend = "setuptools.build_meta"
 
 [project]
-# Keep version in sync with svmbir/__init__.py
 name = "svmbir"
-version = "0.4.0"
+version = "0.5.0"
 description = "Python code for fast parallel-beam MBIR (Model Based Iterative Reconstruction)"
 readme = "README.md"
 license = "BSD-3-Clause"
 requires-python = ">=3.10"
-maintainers = [{name = "Charles A. Bouman", email = "charles.bouman@gmail.edu"}]
+maintainers = [{name = "Charles A. Bouman", email = "charles.bouman@gmail.com"}]
 dependencies = [
     "numpy>=1.26.0",
     "psutil>=5.8",
@@ -19,7 +18,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev  = ["pytest", "ruamel.yaml", "Cython"]
-docs = ["sphinx", "sphinx-rtd-theme", "sphinxcontrib-bibtex", "ipython>=6.3.1"]
+docs = ["sphinx", "sphinx-book-theme>=1.0.1", "sphinxcontrib-bibtex", "sphinx-design", "sphinx-copybutton"]
 demo = ["matplotlib"]
 
 [project.urls]
@@ -30,14 +29,14 @@ where     = ["."]
 include   = ["svmbir*"]
 
 [tool.cibuildwheel]
-# Build CPython 3.10–3.12 only; skip musl Linux (Alpine) and PyPy.
+# Build CPython 3.10-3.14; skip musl Linux (Alpine) and PyPy.
 build = "cp310-* cp311-* cp312-* cp313-* cp314-*"
 skip  = "*-musllinux_*"
-# Install each built wheel and run the tests against it. Only the test file is copied
+# Install each built wheel and run the tests against it. Only the tests folder is copied
 # into the (temporary) test directory, so the installed wheel is what gets imported,
 # not the source tree.
 test-requires = ["pytest"]
-test-sources  = ["svmbir/tests/test_recon.py"]
+test-sources  = ["svmbir/tests"]
 test-command  = "pytest svmbir/tests"
 
 [tool.cibuildwheel.linux]

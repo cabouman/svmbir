@@ -53,7 +53,7 @@ nrmse = svmbir.phantom.nrmse(recon[0], phantom[0])
 os.makedirs('output', exist_ok=True)
 
 # display phantom
-plot_image(phantom[0], title='Shepp Logan Phantom', filename='output/2D_microscopy_phantom.png', vmin=vmin, vmax=vmax)
+plot_image(phantom[0], title='Microscopy Phantom', filename='output/2D_microscopy_phantom.png', vmin=vmin, vmax=vmax)
 
 # display sinogram
 plot_image(np.squeeze(sino), title='Sinogram', filename='output/2D_microscopy_sinogram.png')
