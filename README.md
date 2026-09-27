@@ -32,11 +32,11 @@ conda install -c conda-forge svmbir
 pip install svmbir
 ```
 
-- Installing from source (requires GNU/gcc compiler, OMP libraries),
+- Installing from source (Linux: gcc; MacOS: clang plus `conda install -c conda-forge llvm-openmp`; see the [install page](https://svmbir.readthedocs.io/en/latest/install.html)),
 
 ```
 # In top repository folder,
-CC=gcc pip install .        # also supports Intel "icc"
+pip install .
 ```
 
 See [here](https://svmbir.readthedocs.io/en/latest/install.html#)

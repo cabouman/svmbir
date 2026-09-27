@@ -69,11 +69,10 @@ Some additional platform-specific notes are given below.
 3. Install dependencies, build extension, install::
 
     # Run in the top repository folder
-    CC=gcc pip install .
+    pip install .
 
-  Subsititute ``gcc`` with ``icc`` for faster performance if the icc compiler is available.
-  In more limited context, ``clang`` or ``msvc`` (MS Visual C) may also work, but this is
-  experimental, and is not currently being actively maintained.
+  On Linux this uses ``gcc``; on MacOS it uses ``clang`` and needs the OpenMP library
+  (see the notes below).  Set ``CC=icc`` to build with the Intel compiler on Linux.
 
 
 Additional Notes on source installation
@@ -85,39 +84,23 @@ can substantially increase ``svmbir`` performance through better optimization an
 The Intel compiler and libraries for Linux, Windows, and MacOS are freely available from Intel,
 but not always easy to install.
 
-2. **Installation of gcc on MacOS:**
-Note that by default on MacOS, a call to ``gcc`` actually runs the Mac ``clang`` C compiler.
-To check if this is the case, run the command::
+2. **Installation on MacOS:**
+``svmbir`` builds on MacOS with the ``clang`` compiler from the Xcode Command Line Tools
+plus the OpenMP library, which Apple does not ship.  Install both, then build::
 
-    gcc --version
+    xcode-select --install
+    conda install -c conda-forge llvm-openmp
+    pip install .
 
-In order to install gcc, you should do the following:
+The ``CC`` variable is not needed on MacOS.  Setting ``CC=gcc`` is ignored, because
+Homebrew gcc produces x86_64 binaries on Apple Silicon machines.  If the OpenMP
+library is missing, the build stops with a message that says how to install it.
 
-* Install the ``Command Line Tools for Xcode`` available `[here] <https://developer.apple.com/download/more/>`__.
+3. **Installation on Linux:**
+``svmbir`` builds on Linux with ``gcc`` and its OpenMP library, which most Linux
+distributions install with the compiler.  Build with::
 
-* Install Homebrew from `[here] <https://brew.sh>`__. This is the package manager that can be used to install gcc on a mac.
-
-* Use Homebrew to install gcc using the command ``brew install gcc``. This will also install the OMP libraries.
-
-* Create a symbolic link in /usr/local/bin that maps “gcc” to the desired gcc compiler. To do this, execute one of the following::
-
-    ln -sf /usr/local/bin/gcc-10 /usr/local/bin/gcc       # older macs with x86_64 processors
-    ln -sf /opt/homebrew/bin/gcc-11 /usr/local/bin/gcc    # newer macs with M1/M2 arm64 processors
-
-  Check the contents of /usr/local/bin to verify you link to the most current version of gcc that you installed.
-
-* Finally, check that you are getting the correct compiler using the command::
-
-    $ gcc --version
-
-
-3. **Installing with clang on MacOS:**
-It may be possible to build the package using ``clang`` compiler that comes with
-the Apple Xcode Developer Tools, although this is not recommended nor actively supported.
-The major deficiency is Apple's Xcode Developer tools **do not include** OpenMP libraries, which
-are a basic requirement for building the svmbir package.
-There are compatible OMP libraries that can be found, but we're only aware of experimental versions
-so we will not advertise them here.
+    pip install .
 
 
 4. **Windows Installation:**
