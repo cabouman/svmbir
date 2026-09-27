@@ -150,6 +150,9 @@ def auto_sigma_y(sino, weights, magnification = 1.0, delta_channel = 1.0, delta_
     """
     # Compute indicator function for sinogram support
     sino_indicator = _sino_indicator(sino)
+    if not np.any(sino_indicator):
+        raise ValueError("Cannot compute auto_sigma_y: the sinogram has no positive entries. "
+                         "Check the sinogram, or pass sigma_y explicitly.")
 
     # compute RMS value of sinogram excluding empty space
     signal_rms = np.average(weights * sino ** 2, None, sino_indicator) ** 0.5
@@ -233,6 +236,9 @@ def auto_sigma_prior(sino, magnification = 1.0, delta_channel = 1.0, sharpness =
 
     # Compute indicator function for sinogram support
     sino_indicator = _sino_indicator(sino)
+    if not np.any(sino_indicator):
+        raise ValueError("Cannot compute auto_sigma_x or auto_sigma_p: the sinogram has no positive entries. "
+                         "Check the sinogram, or pass sigma_x or sigma_p explicitly.")
 
     # Compute a typical image value by dividing average sinogram value by a typical projection path length
     typical_img_value = np.average(sino, weights=sino_indicator) / (num_channels * delta_channel / magnification)
