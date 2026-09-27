@@ -121,6 +121,24 @@ GitHub Release is published — no further action required.
 .. _Trusted Publishing: https://docs.pypi.org/trusted-publishers/
 .. _pypi.org: https://pypi.org/project/svmbir/
 
+conda-forge
++++++++++++
+
+conda-forge publishes svmbir on its own, from the source distribution on
+PyPI.  Its recipe lives in the
+`svmbir-feedstock <https://github.com/conda-forge/svmbir-feedstock>`_
+repository, and the maintainers listed there merge its pull requests with
+their GitHub accounts; no separate account is needed.
+
+After a PyPI release, a conda-forge robot opens a pull request on the
+feedstock with the new version and checksum.  A maintainer checks that the
+recipe's requirements still match ``pyproject.toml`` (the numpy version in
+particular), waits for the feedstock's own builds to pass, and merges.  The
+package appears on conda-forge an hour or so later.  The robot also opens
+pull requests when a new Python version is added to conda-forge; these need
+the same review and merge, or that Python version has no conda-forge
+package.
+
 Updating Python version support
 ++++++++++++++++++++++++++++++++
 
