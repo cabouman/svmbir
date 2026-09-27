@@ -445,10 +445,18 @@ def recon(sino, angles,
     if roi_radius is None:
         roi_radius = auto_roi_radius(delta_pixel, num_rows, num_cols)
 
-    # Check for valid shape
+    # Check for valid shapes
     if prox_image is not None:
         if prox_image.shape != (num_slices,num_rows,num_cols):
             raise Exception("Parameter prox_image should have shape (num_slices,num_rows,num_cols).")
+    if isinstance(init_image, np.ndarray):
+        if init_image.shape != (num_slices,num_rows,num_cols):
+            raise ValueError(f"Parameter init_image has shape {init_image.shape} but should have shape "
+                             f"(num_slices,num_rows,num_cols) = {(num_slices,num_rows,num_cols)}.")
+    if init_proj is not None:
+        if init_proj.shape != sino.shape:
+            raise ValueError(f"Parameter init_proj has shape {init_proj.shape} but should have the shape "
+                             f"of sino = {sino.shape}.")
 
     # Set automatic values for weights
     if weights is None:

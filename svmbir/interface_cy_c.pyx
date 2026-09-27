@@ -442,11 +442,8 @@ def multires_recon(sino, angles, weights, weight_type, init_image, prox_image, i
         if np.isscalar(init_image):
             py_image = np.zeros((num_slices, nrows, ncols), dtype=ctypes.c_float) + init_image
         else:
-            if not init_image.flags["C_CONTIGUOUS"]:
-                init_image = np.ascontiguousarray(init_image, dtype=np.single)
-            else:
-                init_image = init_image.astype(np.single, copy=False)
-            py_image = init_image
+            # Always copy: the C code reconstructs in place into this buffer.
+            py_image = np.array(init_image, dtype=np.single, order='C')
 
     if np.isscalar(init_image):
         reconparams['init_image_value'] = init_image

@@ -35,3 +35,20 @@ def test_init_proj_ignored_with_multiresolution():
         recon_with = svmbir.recon(sino, angles, init_image=init_image, init_proj=init_proj, **kwargs)
     recon_without = svmbir.recon(sino, angles, init_image=init_image, **kwargs)
     assert np.array_equal(recon_with, recon_without)
+
+
+def test_init_image_is_not_modified():
+    phantom, sino, angles = _small_problem()
+    init_image = np.ascontiguousarray(0.5 * phantom, dtype=np.float32)
+    init_image_saved = init_image.copy()
+    recon = svmbir.recon(sino, angles, init_image=init_image, max_iterations=3, num_threads=1, verbose=0)
+    assert recon is not init_image
+    assert np.array_equal(init_image, init_image_saved)
+
+
+def test_wrong_shapes_raise():
+    phantom, sino, angles = _small_problem()
+    with pytest.raises(ValueError, match="init_image"):
+        svmbir.recon(sino, angles, init_image=phantom[:, ::2, ::2].copy(), max_iterations=1, verbose=0)
+    with pytest.raises(ValueError, match="init_proj"):
+        svmbir.recon(sino, angles, init_image=phantom, init_proj=sino[::2].copy(), max_iterations=1, verbose=0)
