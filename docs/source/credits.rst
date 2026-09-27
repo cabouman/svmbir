@@ -26,15 +26,15 @@ Citation
 Please use the following Bibtex citation when referencing this software.
 ::
 
-    @Misc {svmbir-2024,
+    @Misc {svmbir-2026,
     author = {SVMBIR Development Team},
     title =	{{S}uper-{V}oxel {M}odel {B}ased {I}terative {R}econstruction ({SVMBIR})},
     howpublished = {Software library available from \url{https://github.com/cabouman/svmbir}},
-    year = 2024
+    year = 2026
     }
 
 References
-==========
+----------
 
 .. bibliography:: bibtex/ref.bib
    :style: plain
