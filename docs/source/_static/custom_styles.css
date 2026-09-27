@@ -1,0 +1,21 @@
+
+:root {
+  --block-bg-opacity: 0.8;   /* nearly full accent color; lower it (e.g. .5) for a translucent tint */
+}
+
+/* Accent colors for the home-page cards.  pydata-sphinx-theme paints the card BODY opaque
+   (a 3-class ".bd-content .sd-card .sd-card-body" rule using var(--pst-color-on-background)), and the
+   body sits on top of the card -- so coloring the card itself does nothing.  Color the BODY instead,
+   and out-specify that theme rule with the ".bd-content" + per-card-class prefix (4 classes beats 3).
+   Don't drop the ".bd-content" prefix or the body will go back to the plain page color. */
+.bd-content .sd-card.getting-started .sd-card-body {
+  background-color: rgba(93, 152, 246, var(--block-bg-opacity));
+}
+
+.bd-content .sd-card.user-guides .sd-card-body {
+  background-color: rgba(59, 167, 155, var(--block-bg-opacity));
+}
+
+.bd-content .sd-card.developer-docs .sd-card-body {
+  background-color: rgba(235, 129, 252, var(--block-bg-opacity));
+}

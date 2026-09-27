@@ -18,7 +18,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev  = ["pytest", "ruamel.yaml", "Cython"]
-docs = ["sphinx", "sphinx-rtd-theme", "sphinxcontrib-bibtex", "ipython>=6.3.1"]
+docs = ["sphinx", "sphinx-book-theme>=1.0.1", "sphinxcontrib-bibtex", "sphinx-design", "sphinx-copybutton"]
 demo = ["matplotlib"]
 
 [project.urls]
