@@ -147,7 +147,7 @@ read -rp "Proceed? [yes/N]: " CONFIRM
 echo ""
 
 # Print a helpful message if anything fails from here on.
-trap 'echo ""; echo "Script failed at the step above. The remaining steps can be run manually — see dev_scripts/README.md."' ERR
+trap 'echo ""; echo "Script failed at the step above. The remaining steps can be run manually; see the release page in the docs."' ERR
 
 # ---------------------------------------------------------------------------
 # Step 1/4 — Update pyproject.toml

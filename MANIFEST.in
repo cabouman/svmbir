@@ -2,6 +2,7 @@ include MANIFEST.in
 include pytest.ini
 include LICENSE
 include pyproject.toml
+prune svmbir.egg-info
 
 recursive-include svmbir *.pyx
 recursive-include demo *.py

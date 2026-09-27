@@ -1,8 +1,8 @@
 *.pyc
 __pycache__
 
-# output
-demo/output/*.png
+# demo output
+demo/output/
 
 # docs
 docs/build/

@@ -3,8 +3,8 @@ Preparing a new release
 =======================
 
 Only a small number of dedicated maintainers should cut releases.
-This page gives an overview of the process; the step-by-step details
-are in ``dev_scripts/README.md`` in the repository.
+This page describes the process.  The scripts named below are in
+``dev_scripts`` and print what to do next as they run.
 
 Branching model
 ---------------
@@ -94,7 +94,18 @@ GitHub Release is published — no further action required.
 Updating Python version support
 --------------------------------
 
-See ``dev_scripts/README.md`` for instructions on adding new Python
-versions (each October) and dropping end-of-life versions.  The key
-files to keep in sync are ``ci.yml``, ``pyproject.toml`` (``build``
-setting and ``requires-python``), and ``install_python_frameworks.sh``.
+Python ships a new version each October, and versions reach end of life
+about five years after release.  The supported versions are listed in
+three places that must agree:
+
+* ``python-version`` in ``.github/workflows/ci.yml`` (the CI matrix);
+* ``build`` under ``[tool.cibuildwheel]`` in ``pyproject.toml`` (the
+  wheels that a release builds);
+* ``requires-python`` in ``pyproject.toml`` (the oldest version allowed).
+
+To add a version, add it to the first two lists.  Cython can lag a new
+Python release by a few months; if CI fails on the new version with a
+Cython build error, remove it again and retry after the next Cython
+release.  To drop a version, remove it from the first two lists and
+raise ``requires-python``.  The manual macOS fallback script
+``install_python_frameworks.sh`` has its own version list at the top.
