@@ -241,6 +241,12 @@ def test_args_sys(num_threads, delete_temps, verbose):
     return num_threads, delete_temps, verbose
 
 
+# Version of the system-matrix cache file format.  Change it when the C code
+# changes the file layout, so that old cache files get new names and are
+# recomputed instead of read.
+_CACHE_FORMAT_VERSION = '1'
+
+
 def hash_params(angles, **kwargs):
     relevant_params = dict()
     relevant_params['geometry'] = kwargs['geometry']
@@ -255,9 +261,16 @@ def hash_params(angles, **kwargs):
     relevant_params['dist_source_detector'] = kwargs['dist_source_detector']
     relevant_params['magnification'] = kwargs['magnification']
 
-    hash_input = str(relevant_params) + str(np.around(angles, decimals=6))
-
-    hash_val = hashlib.sha512(hash_input.encode()).hexdigest()
+    # Hash the parameter values and every angle.  The angles are hashed as
+    # bytes, not as printed text: numpy prints only the first and last three
+    # values of an array longer than 1000, so a text hash would ignore the
+    # interior angles of any scan with more than 1000 views.
+    hasher = hashlib.sha512()
+    hasher.update(_CACHE_FORMAT_VERSION.encode())
+    for key in sorted(relevant_params):
+        hasher.update(f'{key}={relevant_params[key]!r};'.encode())
+    hasher.update(np.ascontiguousarray(np.around(angles, decimals=6), dtype=np.float64).tobytes())
+    hash_val = hasher.hexdigest()
 
     return hash_val, relevant_params
 
