@@ -19,58 +19,41 @@ release.
 Release artifacts
 -----------------
 
-Each release produces:
+Each release produces Linux x86_64 wheels, macOS arm64 wheels, and a source
+distribution, one wheel per supported Python version.  GitHub Actions
+builds and tests all of them when a version tag is pushed
+(``release.yml``) and attaches them to a draft GitHub release.  Publishing
+the draft uploads them to PyPI (``publish.yml``).
 
-* **Linux wheels** (x86_64, all supported Python versions) —
-  built automatically by GitHub Actions (``release.yml``) when a version
-  tag is pushed.
-* **macOS arm64 wheels** (all supported Python versions) — built by
-  GitHub Actions on an Apple Silicon runner, in the same workflow.
-  ``dev_scripts/build_mac_wheels.sh`` remains as a manual fallback.
-* **Source distribution** (``sdist``) — built by GitHub Actions alongside
-  the Linux wheels.
+Release process
+---------------
 
-All artifacts are collected in a draft GitHub Release and verified before
-anything is published publicly.
+The release takes three steps.  The first needs the ``gh`` command, logged
+in to GitHub.  The example below releases version 0.X.Y.
 
-Release process summary
------------------------
+1. Start the release, from the ``prerelease`` branch with a clean working
+   tree and CI passing on the current commit::
 
-Prerequisites (one-time setup per machine):
+       dev_scripts/release.sh 0.X.Y
 
-* Run ``dev_scripts/install_conda_environment.sh`` to create the ``svmbir``
-  conda environment, which installs ``cibuildwheel`` and the ``gh`` CLI.
-* Only for the manual macOS fallback: run
-  ``dev_scripts/install_python_frameworks.sh`` to install the official
-  Python.org framework builds required by ``cibuildwheel``.
-* Run ``gh auth login`` once to authenticate the ``gh`` CLI with GitHub.
-* Configure PyPI Trusted Publishing once (see below).
+   What this does:
 
-The release sequence (all scripts run from ``dev_scripts/`` on the
-``prerelease`` branch):
+   * Sets the version in ``pyproject.toml`` to 0.X.Y, commits, and pushes
+     to ``prerelease``.
+   * Tags the commit ``v0.X.Y`` and pushes the tag.  GitHub Actions builds
+     the wheels and the sdist and attaches them to a draft release.
+   * Opens the pull request from ``prerelease`` to ``main``.
 
-1. **Dry run**: ``./test_release.sh`` — creates a throwaway ``-bump-test``
-   tag, builds all wheels, lets you verify the draft release, then cleans
-   everything up automatically.
+2. On GitHub, when the checks pass, merge the pull request.
 
-2. **Cut the release**: ``./cut_release.sh`` — bumps the version in
-   ``pyproject.toml``, commits, tags, and triggers the full build.
-   Prompts you through each step.
+3. On GitHub, open the draft release ``v0.X.Y`` under Releases, check that
+   the wheels and the sdist are attached, and click **Publish release**.
+   GitHub Actions uploads them to PyPI.  Check with::
 
-3. **Verify**: confirm all wheels and the sdist are attached to the draft
-   release on GitHub (1 macOS arm64 + 1 Linux x86_64 wheel per Python version,
-   plus 1 sdist).
+       pip index versions svmbir
 
-4. **Optional test-install**: ``./test_pypi.sh v<version>`` downloads the
-   release assets and installs them into a clean conda environment to run
-   pytest before anything goes public.
-
-5. **Merge**: open a PR from ``prerelease`` to ``main`` and merge after
-   CI passes.
-
-6. **Publish**: click "Publish release" on the GitHub draft release page.
-   This triggers ``publish.yml``, which automatically uploads all wheels
-   and the sdist to PyPI.
+If the wheel build fails, fix the problem on ``prerelease``, delete the tag
+and the draft release on GitHub, and run step 1 again.
 
 PyPI Trusted Publishing setup
 ------------------------------
@@ -107,5 +90,4 @@ To add a version, add it to the first two lists.  Cython can lag a new
 Python release by a few months; if CI fails on the new version with a
 Cython build error, remove it again and retry after the next Cython
 release.  To drop a version, remove it from the first two lists and
-raise ``requires-python``.  The manual macOS fallback script
-``install_python_frameworks.sh`` has its own version list at the top.
+raise ``requires-python``.
