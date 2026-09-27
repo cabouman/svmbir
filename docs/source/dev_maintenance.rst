@@ -36,8 +36,8 @@ takes three steps.  The first needs the ``gh`` command, logged in.
 
        dev_scripts/release.sh 0.X.Y
 
-   This sets the version, tags the commit, and opens the pull request to
-   ``main``.  GitHub builds the wheels into a draft release.
+   This sets the version in ``pyproject.toml`` and ``CITATION.cff``, tags
+   the commit, and opens the pull request to ``main``.  GitHub builds the wheels into a draft release.
 
 2. On GitHub, merge the pull request when its checks pass.
 

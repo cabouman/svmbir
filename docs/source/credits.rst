@@ -33,6 +33,9 @@ Please use the following Bibtex citation when referencing this software.
     year = 2026
     }
 
+GitHub's "Cite this repository" button on the repository page generates
+this citation from the repository's ``CITATION.cff`` file.
+
 References
 ----------
 

@@ -5,7 +5,7 @@
 #   dev_scripts/release.sh 0.4.1
 #
 # What this does, on the prerelease branch:
-#   1. Sets the version in pyproject.toml, commits, and pushes.
+#   1. Sets the version in pyproject.toml and CITATION.cff, commits, and pushes.
 #   2. Tags the commit v0.4.1 and pushes the tag.  GitHub Actions then builds
 #      the wheels and the sdist and attaches them to a draft release.
 #   3. Opens the pull request from prerelease to main.
@@ -49,10 +49,11 @@ if [[ "$CI_SHA" != "$(git rev-parse HEAD)" || "$CI_RESULT" != "success" ]]; then
   exit 1
 fi
 
-# 1. Set the version, commit, push.
+# 1. Set the version and release date, commit, push.
 sed -i '' "s/^version = \".*\"/version = \"$VERSION\"/" pyproject.toml
 grep -q "^version = \"$VERSION\"" pyproject.toml
-git add pyproject.toml
+sed -i '' "s/^version: .*/version: $VERSION/; s/^date-released: .*/date-released: $(date +%Y-%m-%d)/" CITATION.cff
+git add pyproject.toml CITATION.cff
 git commit -q -m "Set version to $VERSION"
 git push -q origin prerelease
 
