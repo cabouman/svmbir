@@ -57,12 +57,10 @@ Some additional platform-specific notes are given below.
 
 1. Download source code from Github::
 
-    git clone --recursive https://github.com/cabouman/svmbir.git
+    git clone https://github.com/cabouman/svmbir.git
     cd svmbir
 
-  This will download the python source code along with the **sv-mbirct** C-code submodule.
-  **Do not** use the Github "Download" link to download the repository because this
-  zip container will not include the C-code submodule.
+  The repository holds the Python code and the **sv-mbirct** C code it wraps.
 
 2. Create and activate a clean virtual environment (recommended, see :ref:`above<virt env>`)
 

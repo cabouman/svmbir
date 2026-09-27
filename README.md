@@ -1,7 +1,7 @@
 # svmbir
 
 *Python code for fast MBIR (Model Based Iterative Reconstruction)  
-This is a python wrapper for High Performance Imaging's supervoxel C code, [HPImaging/sv-mbirct](https://github.com/HPImaging/sv-mbirct).*
+This is a python wrapper for the supervoxel C code [sv-mbirct](https://github.com/HPImaging/sv-mbirct) written by High Performance Imaging, a copy of which is in this repository.*
 
 Full documentation is available at [svmbir_docs](https://svmbir.readthedocs.io).
 

@@ -52,8 +52,6 @@ jobs:
       MACOSX_DEPLOYMENT_TARGET: ${{ matrix.macos_target }}
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: recursive
 
       - name: Build and test wheels
         uses: pypa/cibuildwheel@v4.2.1
@@ -68,15 +66,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: recursive
 
       - name: Build sdist
         run: pipx run build --sdist
 
       - name: Install the sdist and run the tests
-        # The sdist must carry the C sources of the submodule; a clean install
-        # from it proves that it does.
+        # The sdist must carry the C sources; a clean install from it proves
+        # that it does.
         # The tests run from a copy outside the source tree, so that the
         # installed package is imported and not the source directory.
         run: |

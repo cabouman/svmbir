@@ -15,7 +15,7 @@ These scripts can be used as templates for new users.
 
 1. Clone the repository and cd into its demo folder::
 
-    $ git clone --recursive https://github.com/cabouman/svmbir.git
+    $ git clone https://github.com/cabouman/svmbir.git
     $ cd svmbir/demo
 
 3. In your terminal window, install the demo dependencies::

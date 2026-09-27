@@ -20,14 +20,10 @@ if os.environ.get('CLIB') != 'CMD_LINE':
                 "    xcode-select --install\n"
             )
 
-    # Fail fast: submodule must be initialized before compilation can proceed.
+    # Fail fast: the C sources must be present before compilation can proceed.
     import glob as _glob
     if not _glob.glob(src_dir + '*.c'):
-        sys.exit(
-            "\nERROR: C source files not found in " + src_dir + "\n"
-            "The git submodule has not been initialized. Run:\n\n"
-            "    git submodule update --init --recursive\n"
-        )
+        sys.exit("\nERROR: C source files not found in " + src_dir + "\n")
 
     # On macOS, force clang unless the user explicitly chose something other than gcc.
     # Homebrew GCC at /usr/local is Intel-only and silently produces x86_64 binaries
