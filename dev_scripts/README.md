@@ -21,7 +21,7 @@ To finalize and publish:
    ```
    ./cut_release.sh             # bump version, build all wheels, upload to draft release
    ./test_pypi.sh v<new-version> # test-install from draft release assets
-   gh pr create --base master --title "Release v<new-version>"
+   gh pr create --base main --title "Release v<new-version>"
    # After CI passes and PR merges:
    # Go to the GitHub release page and click "Publish release"
    # — this triggers automatic PyPI upload via publish.yml.
@@ -50,7 +50,7 @@ The CI matrix is the list of Python versions CI tests against. The current matri
 This should pin to a specific recent version for a reproducible daily-driver environment. The version you pick here doesn't limit what users can run — it's just what developers work in. Updating this once a year when a new Python ships is reasonable.
 
 4. The CI workflow (.github/workflows/ci.yml)
-This is the configuration file that tells GitHub how to run CI. It specifies which Python versions to test, which operating system to use (Linux only — see section 5 for macOS), and what commands to run (install the package, run pytest). It fires automatically on every push to `master` or `prerelease`, and on every pull request targeting either branch — no manual action needed.
+This is the configuration file that tells GitHub how to run CI. It specifies which Python versions to test, which operating system to use (Linux only — see section 5 for macOS), and what commands to run (install the package, run pytest). It fires automatically on every push to `main` or `prerelease`, and on every pull request targeting either branch — no manual action needed.
 
 Updating Python versions (do this ~once a year):
 - **Add a new version**: Each October, Python ships a new release. Add it to the `python-version` list in `ci.yml`, and add the matching `cp3XX-*` entry to the `build` setting in `[tool.cibuildwheel]` in `pyproject.toml` so release wheels are built for it too. Note that Cython may lag a few months behind a new Python release, so if CI fails on the new version due to a Cython build error, simply remove it from both lists and try again after the next Cython release.
@@ -124,7 +124,7 @@ Once the test in Step A passes, `./cut_release.sh` does the real release. It:
 After `cut_release.sh` completes, the remaining steps are:
 1. Confirm all wheels are attached to the draft release (1 macOS arm64 + 1 Linux x86_64 wheel per Python version, plus 1 sdist).
 2. Optional but recommended — test-install from the actual release artifacts: `./test_pypi.sh v0.4.X`
-3. Open a PR from `prerelease` to `master`: `gh pr create --base master --title "Release v0.4.X"`
+3. Open a PR from `prerelease` to `main`: `gh pr create --base main --title "Release v0.4.X"`
 4. After CI passes and the PR merges, publish the draft release on GitHub (go to the release page, scroll to bottom, click "Publish release"). This automatically triggers `publish.yml`, which uploads all wheels and the sdist to PyPI.
 
 Manual steps (for reference or recovery if a script fails partway through):
@@ -133,7 +133,7 @@ Manual steps (for reference or recovery if a script fails partway through):
 3. Tag the commit and push the tag: `git tag v0.4.X && git push origin v0.4.X`
    GitHub Actions immediately creates a draft release, then builds the Linux and macOS arm64 wheels and the source distribution and uploads them. (If the macOS job fails, `cd dev_scripts && ./build_mac_wheels.sh v0.4.X` builds and uploads those wheels from an Apple Silicon Mac.)
 4. Confirm all wheels are attached; optionally test-install: `./test_pypi.sh v0.4.X`
-5. Merge `prerelease` → `master` via a pull request: `gh pr create --base master --title "Release v0.4.X"`
+5. Merge `prerelease` → `main` via a pull request: `gh pr create --base main --title "Release v0.4.X"`
 6. After the PR merges, publish the draft release on GitHub — this triggers PyPI upload automatically.
 
 Updating the release workflow over time:
@@ -145,10 +145,10 @@ Updating the publish workflow over time:
 - **PyPI project name**: if the project is ever renamed, update the Trusted Publisher configuration on pypi.org to match.
 
 
-Development workflow: prerelease → master
+Development workflow: prerelease → main
 -----------------------------------------
 
-The standard workflow for this repo is: feature branch → PR to `prerelease` → PR from `prerelease` to `master`. CI runs automatically at both gates.
+The standard workflow for this repo is: feature branch → PR to `prerelease` → PR from `prerelease` to `main`. CI runs automatically at both gates.
 
 When working on a feature branch:
 1. Push your branch to GitHub: `git push -u origin <branch-name>`
@@ -158,7 +158,7 @@ When working on a feature branch:
 5. Once CI passes, merge the PR into `prerelease`.
 6. When ready to release, run `./test_release.sh` then `./cut_release.sh` from dev_scripts/ on the `prerelease` branch.
 7. Optionally test-install from the release assets: `./test_pypi.sh v<version>`
-8. Open a PR from `prerelease` to `master` and merge after CI passes.
+8. Open a PR from `prerelease` to `main` and merge after CI passes.
 9. Publish the draft release on GitHub — this automatically uploads to PyPI.
 
 

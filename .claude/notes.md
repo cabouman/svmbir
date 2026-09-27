@@ -5,7 +5,7 @@ Last updated: 2026-05-19
 
 The `prerelease` branch contains a complete, tested release pipeline.
 Everything described below is already committed and pushed.  The next step
-is to cut the real release and merge `prerelease` → `master`.
+is to cut the real release and merge `prerelease` → `main`.
 
 ### What has been done
 
@@ -20,7 +20,7 @@ is to cut the real release and merge `prerelease` → `master`.
   --recursive` before pip install so fresh clones just work.
 
 **GitHub Actions**
-- `ci.yml`: runs on every push/PR to `master` or `prerelease`; tests on
+- `ci.yml`: runs on every push/PR to `main` or `prerelease`; tests on
   Linux across Python 3.10–3.14; uses conda + llvm-openmp.
 - `release.yml`: fires on any version tag push; creates a draft GitHub
   Release immediately, then builds Linux wheels (x86_64; i686 dropped 2026-09) and the
@@ -90,7 +90,7 @@ git checkout prerelease && git pull
 ./cut_release.sh                 # prompts for new version (e.g. 0.4.1)
 ./test_pypi.sh v0.4.1            # test-install from draft release assets
 
-gh pr create --base master --title "Release v0.4.1"
+gh pr create --base main --title "Release v0.4.1"
 # Wait for CI to pass, then merge the PR.
 # Then: go to the GitHub release page and click "Publish release"
 #       — this triggers automatic PyPI upload via publish.yml.
@@ -102,7 +102,7 @@ GitHub has flagged 6 vulnerabilities on the repo (2 critical, 2 high,
 2 moderate): https://github.com/cabouman/svmbir/security/dependabot
 
 These are likely in GitHub Actions action pins or docs tooling — not in
-the package itself — but they should be reviewed before merging to master.
+the package itself — but they should be reviewed before merging to main.
 
 ---
 

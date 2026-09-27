@@ -1,5 +1,5 @@
 # Dependabot version updates: one grouped PR per ecosystem per week.
-# GitHub reads this file from the default branch (master) only.
+# GitHub reads this file from the default branch (main) only.
 version: 2
 updates:
   - package-ecosystem: "github-actions"

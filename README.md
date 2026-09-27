@@ -45,7 +45,7 @@ for more details.
 
 
 ## Running the demos
-1. Download demo.zip at https://github.com/cabouman/svmbir/blob/master/demo.zip.
+1. Download demo.zip at https://github.com/cabouman/svmbir/blob/main/demo.zip.
 2. Uncompress the zip file and change into demo folder.
 3. In your terminal window, install required dependencies of demo. 
 ```

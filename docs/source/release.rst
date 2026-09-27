@@ -12,8 +12,8 @@ Branching model
 All development happens on feature branches that are merged into
 ``prerelease`` via pull request.  CI (automated testing on Linux across
 all supported Python versions) runs on every PR.  Once a release is
-ready, ``prerelease`` is merged into ``master`` via a second PR, also
-gated by CI.  The ``master`` branch always reflects the latest published
+ready, ``prerelease`` is merged into ``main`` via a second PR, also
+gated by CI.  The ``main`` branch always reflects the latest published
 release.
 
 Release artifacts
@@ -65,7 +65,7 @@ The release sequence (all scripts run from ``dev_scripts/`` on the
    release assets and installs them into a clean conda environment to run
    pytest before anything goes public.
 
-5. **Merge**: open a PR from ``prerelease`` to ``master`` and merge after
+5. **Merge**: open a PR from ``prerelease`` to ``main`` and merge after
    CI passes.
 
 6. **Publish**: click "Publish release" on the GitHub draft release page.

@@ -58,7 +58,7 @@ and for authentication you'll need to add API tokens from Account Settings.
 
  NOTE: If the install fails and you need to re-test, TEMPORARILY set the version
  number in setup.py from X.X.X to X.X.X.1 (then 2,3,etc.), for further testing.
- After the test is successful, merge any require changes into the master branch,
+ After the test is successful, merge any require changes into the main branch,
  re-set the version number in setup.py, delete and re-create the git tag,
  and proceed to PyPI upload.
 

@@ -8,14 +8,14 @@ Running Included Demo Scripts
 The 
 `[source package] <https://github.com/cabouman/svmbir>`__
 contains a number of sample Python scripts in the 
-`[demo] <https://github.com/cabouman/svmbir/tree/master/demo>`__
+`[demo] <https://github.com/cabouman/svmbir/tree/main/demo>`__
 folder.
 All the demo scripts can downloaded here: 
-`[demo.zip] <https://github.com/cabouman/svmbir/raw/master/demo.zip>`__ .
+`[demo.zip] <https://github.com/cabouman/svmbir/raw/main/demo.zip>`__ .
 These scripts can be used as templates for new users.
 
 
-1. Download demo.zip at `[demo.zip] <https://github.com/cabouman/svmbir/raw/master/demo.zip>`__ .
+1. Download demo.zip at `[demo.zip] <https://github.com/cabouman/svmbir/raw/main/demo.zip>`__ .
 
 2. Uncompress the zip file and cd into demo folder.
 

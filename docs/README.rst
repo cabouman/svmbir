@@ -32,6 +32,6 @@ We also recommend installation to a conda virtual environment.
 
 License
 -------
-The project is licensed under the `BSD 3-Clause <https://github.com/cabouman/svmbir/blob/master/LICENSE>`_ License.
+The project is licensed under the `BSD 3-Clause <https://github.com/cabouman/svmbir/blob/main/LICENSE>`_ License.
 
 
