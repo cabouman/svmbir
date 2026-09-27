@@ -1,3 +1,5 @@
+.. _QuickStartDocs:
+
 ===========
 Quick Start
 ===========

@@ -4,22 +4,33 @@
 Overview
 ========
 
-**svmbir** is a Python implementation of the Super-Voxel Model Based Iterative Reconstruction (MBIR) algorithm :cite:`wang2016high` :cite:`wang2017massively` for fast reconstruction of parallel-beam and fan-beam tomography data (3D).
-The code performs Bayesian reconstruction of tomographic data, so it is particularly well-suited for sparse view reconstruction from noisy data.
-It also has hooks to support Plug-and-Play prior models that can dramatically improve image quality :cite:`venkatakrishnan2013plug` :cite:`sreehari2016plug`.
-The reconstruction engine for *svmbir* is written and optimized in C 
-`[HPImaging/sv-mbirct] <https://github.com/HPImaging/sv-mbirct>`_ .
+**svmbir** is a Python package for Model Based Iterative Reconstruction (MBIR)
+of parallel-beam and fan-beam tomography data.  It wraps the super-voxel C code
+`sv-mbirct <https://github.com/HPImaging/sv-mbirct>`_, written by High
+Performance Imaging and now maintained in this repository, which implements the
+super-voxel algorithm :cite:`wang2016high` :cite:`wang2017massively` on
+multi-core CPUs.
 
-**How does it work?**
+- **Image quality:** MBIR uses a forward (sensor) model and a prior (image) model,
+  so it does well on sparse-view and noisy data.
+- **Speed:** the super-voxel algorithm is 100 to 1000 times faster than
+  conventional MBIR code, because it reorganizes the computation to match the
+  processor's cache.  Part of this is a precomputed *system matrix* for the
+  scan geometry, stored on disk and reused whenever the same geometry recurs.
+- **Plug-and-Play priors:** a proximal map interface lets any denoiser serve as
+  the prior :cite:`venkatakrishnan2013plug` :cite:`sreehari2016plug`.
 
-The super-voxel code can be 100x to 1000x faster than conventional MBIR code because it reorganizes operations in a way that is much better matched to a computer's cache structure. 
-Part of this involves precomputing a *system matrix* that models the system geometry, and encoding it in a layout that facilitates parallelization and reduces the required fetches from memory during reconstruction. 
-When system matrices are computed, they are stored to disk and will be automatically loaded whenever the same geometry is subsequently encountered. 
+svmbir is the older CPU package of the
+`OpenMBIR <https://github.com/cabouman/OpenMBIR-Resources>`_ family.  New
+development, GPU reconstruction, and cone-beam, helical, and laminography
+geometries are in `MBIRTorch <https://mbirtorch.readthedocs.io>`_.
+See :ref:`QuickStartDocs` for a first reconstruction and :ref:`InstallDocs` to
+install.
 
 **Geometry**
 
-**svmbir** supports *parallel-beam* and *fan-beam* imaging geometries.
-See the diagrams below for the different fan specifications.
+**svmbir** supports the *parallel-beam* and *fan-beam* geometries below.
+Fan beam has two detector shapes, selected with the ``geometry`` argument.
 
 .. list-table::
 
