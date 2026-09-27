@@ -9,6 +9,7 @@ cimport numpy as cnp    # Import specialized cython support for numpy
 cimport openmp
 import os
 import random
+import warnings
 import svmbir._utils as utils
 
 __svmbir_lib_path = os.path.join(os.path.expanduser('~'), '.cache', 'svmbir', 'parbeam')
@@ -352,6 +353,12 @@ def multires_recon(sino, angles, weights, weight_type, init_image, prox_image, i
     if go_to_lower_resolution:
         new_max_resolutions = max_resolutions-1;
 
+        # init_proj is the projection of the full-resolution init_image.  It does
+        # not match the downsampled image, so the C code projects the image itself.
+        if init_proj is not None:
+            warnings.warn("init_proj is ignored when max_resolutions > 0.")
+            init_proj = None
+
         # Set the pixel pitch, num_rows, and num_cols for the next lower resolution
         lr_delta_pixel = 2 * delta_pixel
         lr_num_rows = int(np.ceil(num_rows / 2))
@@ -447,8 +454,9 @@ def multires_recon(sino, angles, weights, weight_type, init_image, prox_image, i
         reconparams['init_image_value'] = 0
 
     if init_proj is not None:
-        cy_proj_init = np.swapaxes(init_proj, 0, 1)
-        cy_proj_init = np.ascontiguousarray(cy_proj_init, dtype=np.single)
+        # Always copy: the C code overwrites this buffer with the final projection.
+        py_proj_init = np.array(np.swapaxes(init_proj, 0, 1), dtype=np.single, order='C')
+        cy_proj_init = py_proj_init
 
     if prox_image is not None:
         if not prox_image.flags["C_CONTIGUOUS"]:
