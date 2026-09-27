@@ -1,6 +1,6 @@
 #!/bin/bash
 # Start a release of svmbir: the first of the three release steps in
-# docs/source/release.rst.
+# docs/source/dev_maintenance.rst.
 #
 #   dev_scripts/release.sh 0.4.1
 #
