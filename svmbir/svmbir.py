@@ -264,6 +264,18 @@ def auto_roi_radius(delta_pixel, num_rows, num_cols):
     return roi_radius
 
 
+def _default_num_threads():
+    """Return the default number of compute threads.
+
+    This is OMP_NUM_THREADS from the environment when it is set to a positive
+    integer, otherwise the number of physical cores.
+    """
+    value = os.environ.get('OMP_NUM_THREADS', '')
+    if value.isdigit() and int(value) > 0:
+        return int(value)
+    return cpu_count(logical=False) or 1
+
+
 def max_threads(num_threads, num_slices, num_rows, num_cols, positivity = True):
     """Compute the maximum recommended number of threads for stable convergence.
 
@@ -377,6 +389,7 @@ def recon(sino, angles,
             iterations. The value of ``max_iterations`` may need to be increased for reconstructions with 
             limited tilt angles or high regularization.
         num_threads (int, optional): [Default=None] Number of compute threads requested when executed.
+            If None, OMP_NUM_THREADS from the environment is used when set, otherwise the number of physical cores.
             If None, num_threads is set to the number of cores in the system.
         delete_temps (bool, optional): [Default=True] Delete temporary files used in computation.
         svmbir_lib_path (string, optional): [Default='~/.cache/svmbir'] Path to directory containing 
@@ -407,9 +420,8 @@ def recon(sino, angles,
         geometry = 'fan-curved'
         warnings.warn("'fan' geometry will be removed in a future release. Fan beam geometry is now specified as either 'fan-curved' or 'fan-flat'. Defaulting to 'fan-curved'.",FutureWarning)
 
-    # If not specified, then set number of threads = to number of processors
     if num_threads is None :
-        num_threads = cpu_count(logical=False)
+        num_threads = _default_num_threads()
 
     # Test for valid sino and angles structure. If sino is 2D, make it 3D
     angles = utils.test_args_angles(angles)
@@ -487,9 +499,6 @@ def recon(sino, angles,
     # num_threads_max = max_threads(num_threads, num_slices, num_rows, num_cols, positivity=positivity)
     # if num_threads_max < num_threads:
     #    num_threads = num_threads_max
-    os.environ['OMP_NUM_THREADS'] = str(num_threads)
-    os.environ['OMP_DYNAMIC'] = 'true'
-
     reconstruction = ci.multires_recon(sino=sino, angles=angles, weights=weights, weight_type=weight_type,
                                        geometry=geometry, dist_source_detector=dist_source_detector, magnification=magnification,
                                        init_image=init_image, prox_image=prox_image, init_proj=init_proj,
@@ -541,6 +550,7 @@ def project(image, angles, num_channels,
             Pixels outside the radius are disregarded in the forward projection.
             If not given, the value is set with auto_roi_radius().
         num_threads (int, optional): [Default=None] Number of compute threads requested when executed.
+            If None, OMP_NUM_THREADS from the environment is used when set, otherwise the number of physical cores.
             If None, num_threads is set to the number of cores in the system.
         svmbir_lib_path (string, optional):
             [Default='~/.cache/svmbir'] Path to directory containing library of projection matrices and temp files.
@@ -568,10 +578,7 @@ def project(image, angles, num_channels,
     angles = utils.test_args_angles(angles)
 
     if num_threads is None :
-        num_threads = cpu_count(logical=False)
-
-    os.environ['OMP_NUM_THREADS'] = str(num_threads)
-    os.environ['OMP_DYNAMIC'] = 'true'
+        num_threads = _default_num_threads()
 
     num_slices = image.shape[0]
     num_rows = image.shape[1]
@@ -660,6 +667,7 @@ def backproject(sino, angles, num_rows=None, num_cols=None,
             Pixels outside the radius are disregarded in the forward projection.
             If not given, the value is set with auto_roi_radius().
         num_threads (int, optional): [Default=None] Number of compute threads requested when executed.
+            If None, OMP_NUM_THREADS from the environment is used when set, otherwise the number of physical cores.
             If None, num_threads is set to the number of cores in the system.
         svmbir_lib_path (string, optional):
             [Default='~/.cache/svmbir'] Path to directory containing library of projection matrices and temp files.
@@ -678,10 +686,7 @@ def backproject(sino, angles, num_rows=None, num_cols=None,
     sino = utils.test_args_sino(sino,angles)
 
     if num_threads is None :
-        num_threads = cpu_count(logical=False)
-
-    os.environ['OMP_NUM_THREADS'] = str(num_threads)
-    os.environ['OMP_DYNAMIC'] = 'true'
+        num_threads = _default_num_threads()
 
     num_views = sino.shape[0]
     num_slices = sino.shape[1]

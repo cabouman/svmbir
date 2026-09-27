@@ -52,3 +52,22 @@ def test_wrong_shapes_raise():
         svmbir.recon(sino, angles, init_image=phantom[:, ::2, ::2].copy(), max_iterations=1, verbose=0)
     with pytest.raises(ValueError, match="init_proj"):
         svmbir.recon(sino, angles, init_image=phantom, init_proj=sino[::2].copy(), max_iterations=1, verbose=0)
+
+
+def test_recon_leaves_environment_unchanged():
+    import os
+    phantom, sino, angles = _small_problem()
+    env_before = dict(os.environ)
+    svmbir.recon(sino, angles, max_iterations=1, num_threads=1, verbose=0)
+    svmbir.project(phantom, angles, sino.shape[2], num_threads=1)
+    assert dict(os.environ) == env_before
+
+
+def test_default_num_threads_honors_environment(monkeypatch):
+    from svmbir.svmbir import _default_num_threads
+    monkeypatch.setenv("OMP_NUM_THREADS", "3")
+    assert _default_num_threads() == 3
+    monkeypatch.setenv("OMP_NUM_THREADS", "junk")
+    assert _default_num_threads() >= 1
+    monkeypatch.delenv("OMP_NUM_THREADS")
+    assert _default_num_threads() >= 1
